@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{755f3a2a-f846-45ff-b752-1b5470d0b5c4}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{762ab884-136d-455b-a4fe-01c82f54d28d}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{51436c50-1660-462a-8d18-b45278283786}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest</Extensions>
+    </Filter>
+    <Filter Include="Lrcis">
+      <UniqueIdentifier>{37f7274f-e724-4e2a-8751-f8e360af476d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Property Dlgs">
+      <UniqueIdentifier>{edd5ccdc-649f-44b8-8b63-43c767540f8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Property Dlgs\Property Child Dlgs">
+      <UniqueIdentifier>{46f7553e-bf06-4ee1-9b1b-9f7c09a49530}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DsoundControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mainfrm.CPP">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WaveFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LrcMng.cpp">
+      <Filter>Lrcis</Filter>
+    </ClCompile>
+    <ClCompile Include="DialogConfig.cpp">
+      <Filter>Property Dlgs</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AboutDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CMyView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DsoundControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FFT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MainFrm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mp3File.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProgertyDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WaveFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WaveFileEx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LrcMng.h">
+      <Filter>Lrcis</Filter>
+    </ClInclude>
+    <ClInclude Include="DialogConfig.h">
+      <Filter>Property Dlgs</Filter>
+    </ClInclude>
+    <ClInclude Include="CPropertyDlgs.h">
+      <Filter>Property Dlgs\Property Child Dlgs</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\player.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\toolbar.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="player.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
