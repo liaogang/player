@@ -1,24 +1,6 @@
 * text=auto !eol
 playerT/CMyView.h -text
 playerT/CPropertyDlgs.h -text
-playerT/Debug1/BuildLog.htm -text
-playerT/Debug1/DialogConfig.sbr -text
-playerT/Debug1/DsoundControl.sbr -text
-playerT/Debug1/LrcMng.sbr -text
-playerT/Debug1/MusicLibrary.sbr -text
-playerT/Debug1/PlayList.sbr -text
-playerT/Debug1/WaveFile.sbr -text
-playerT/Debug1/mainfrm.sbr -text
-playerT/Debug1/mt.dep -text
-playerT/Debug1/music.sbr -text
-playerT/Debug1/player.res -text
-playerT/Debug1/player.sbr -text
-playerT/Debug1/playerT.exe.embed.manifest -text
-playerT/Debug1/playerT.exe.embed.manifest.res -text
-playerT/Debug1/playerT.exe.intermediate.manifest -text
-playerT/Debug1/playerT.res -text
-playerT/Debug1/playerT.sbr -text
-playerT/Debug1/stdafx.sbr -text
 playerT/DialogConfig.cpp -text
 playerT/DialogConfig.h -text
 playerT/DialogFFT.h -text
