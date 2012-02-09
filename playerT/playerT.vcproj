@@ -345,6 +345,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\DialogLyric.h"
+			>
+		</File>
+		<File
 			RelativePath=".\res\player.ico"
 			>
 		</File>

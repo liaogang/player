@@ -45,8 +45,8 @@ DsoundControl::DsoundControl(void):m_pAudioBuf(NULL),m_dwCircles1(0),m_dwCircles
 {
 	m_pHEvent[0] = CreateEvent(NULL, FALSE, FALSE, _T("Direct_Sound_Buffer_Notify_0"));
 	m_pHEvent[1] = CreateEvent(NULL, FALSE, FALSE, _T("Direct_Sound_Buffer_Notify_1"));	
-
 }
+
 DsoundControl::~DsoundControl(void)
 {
 	if (NULL != m_pAudioBuf) 
@@ -271,6 +271,7 @@ void DsoundControl::OpenFile(LPTSTR filepath)
 	//InitDSound();
 
 	
+	
 	int len=_tcslen(filepath);
 	TCHAR* p=filepath+len;
 	while (p--)
@@ -293,6 +294,7 @@ void DsoundControl::OpenFile(LPTSTR filepath)
 	m_pfile->OpenAndReadID3Info(filepath);
 	m_pwfx=m_pfile->GetFormat();
 	m_dwTotalSamples=m_pfile->GetSize()*m_pwfx->nBlockAlign;
+
 	InitDSound();
 }
 
@@ -598,11 +600,20 @@ void DsoundControl::DrawSpectrum()
 	//SelectObject(m_memDC,oldBitmap);
 	//DeleteObject(m_bitmap);
 
-	Sleep(20);
+	//Sleep(20);
 }
 
 
 void DsoundControl::SetSpectrumRect(CRect rc)
 {
 	m_Spectrum_Rect=rc;
+}
+
+
+DsoundControl* DsoundControl::shared()
+{
+	static DsoundControl *p=NULL;
+	if (!p)
+		p=new DsoundControl;
+	return p;
 }

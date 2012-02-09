@@ -101,6 +101,8 @@ public:
 		COMMAND_ID_HANDLER(ID_VIEW_STATUS_BAR, OnViewStatusBar)
 		COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
 
+		
+		COMMAND_ID_HANDLER(ID_SHOWLYRIC,OnShowLyric)
 		COMMAND_ID_HANDLER(ID_MENU_FFTTEST,OnFftDialog)
 		COMMAND_ID_HANDLER(ID_PLAY, OnPlay)
 		COMMAND_ID_HANDLER(ID_OPEN, OnOpen)
@@ -127,7 +129,7 @@ public:
 //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 //	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
-	DsoundControl m_DsoundControl;
+	DsoundControl *m_pDsoundControl;
 	CMyView m_view;
 	CMyTrackBar m_trackBar;
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -177,9 +179,19 @@ public:
 		pLoop->AddMessageFilter(this);
 		pLoop->AddIdleHandler(this);
 
+
+
+		//--------------------------------------------------
+		tstring columnName[]={_T("                    title                      "),_T(" artist "),_T(" album "),_T(" year "),_T(" comment "),_T(" genre ")};
+		for (int i=0;i<6;i++)
+		{
+			tstring str=columnName[i];
+			m_view.AddColumn(str.c_str(),i,-1, LVCF_FMT| LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM ,LVCFMT_CENTER);
+		}
 		//-------------------------------------------------------------
 		//m_DsoundControl.SetShowWindow(&m_hWnd);
-		m_DsoundControl.m_pMainFrame=this;
+		m_pDsoundControl=DsoundControl::shared();
+		m_pDsoundControl->m_pMainFrame=this;
 		//-------------------------------------------------------------
 
 		return 0;
@@ -195,11 +207,9 @@ public:
 
 
 
-		//-------------------------------------------------------------
-		if (m_DsoundControl.IsPlaying())
-		{
-			m_DsoundControl.Stop();
-		}
+		
+			m_pDsoundControl->Stop();
+		
 		//-------------------------------------------------------------
 		
 		bHandled = FALSE;
@@ -261,7 +271,7 @@ public:
 	
 	LRESULT OnDrawSpectrum(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		m_DsoundControl.DrawSpectrum();
+		m_pDsoundControl->DrawSpectrum();
 		return 0;
 	}
 
@@ -272,6 +282,7 @@ public:
 	LRESULT OnStop(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	
 public:
 	LRESULT OnTestInitplaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

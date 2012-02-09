@@ -2,15 +2,16 @@
 #include "MainFrm.h"
 #include "PlayList.h"
 #include "DialogFFT.h"
+#include "DialogLyric.h"
 LRESULT CMainFrame::OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	static DialogFFT *dlg=0;
 	if (!dlg)
 	{
 		dlg=new DialogFFT;
-		dlg->dscrl=&m_DsoundControl;
+		dlg->dscrl=m_pDsoundControl;
 		dlg->Create(this->m_hWnd);
-		m_DsoundControl.SetShowWindow(&(dlg->m_hWnd));
+		m_pDsoundControl->SetShowWindow(&(dlg->m_hWnd));
 	}
 
 
@@ -20,7 +21,7 @@ LRESULT CMainFrame::OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 
 LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	m_DsoundControl.Play();
+	m_pDsoundControl->Play();
 	//gMainFrame=this;
 	return 0;
 }
@@ -31,20 +32,20 @@ LRESULT CMainFrame::OnOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 	if(dlg.DoModal()!=IDOK)return 0;
 
 	LPTSTR filepath=dlg.m_ofn.lpstrFile;
-	m_DsoundControl.OpenFile(filepath);
+	m_pDsoundControl->OpenFile(filepath);
 
 	return 0;
 }
 
 LRESULT CMainFrame::OnPause(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	m_DsoundControl.Pause();
+	m_pDsoundControl->Pause();
 	return 0;
 }
 
 LRESULT CMainFrame::OnStop(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	m_DsoundControl.Stop();
+	m_pDsoundControl->Stop();
 
 	return 0;
 }
@@ -87,8 +88,6 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 		for (j=0,i=songList->begin();i!=songList->end();i++,j++)
 		{
-
-
 			m_view.InsertItem(j,(*i).c_str());
 			m_view.SetItemData(j,(DWORD)&(*i));
 		}
@@ -104,11 +103,26 @@ LRESULT CMyView::OnDbClicked(UINT i,CPoint pt)
 	TCHAR *tmp=new TCHAR[MAX_PATH];
 	_tcscpy(tmp,str->c_str());
 
-	m_pMainFrame->m_DsoundControl.Stop();
-	m_pMainFrame->m_DsoundControl.OpenFile(tmp);
 
-	m_pMainFrame->m_DsoundControl.Play();
+	DsoundControl *shared=DsoundControl::shared();
+	shared->Stop();
+	shared->OpenFile(tmp);
+	shared->Play();
 
 	SetMsgHandled(FALSE);
+	return 0;
+}
+
+
+LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	static CDialogLyric *dlg=NULL;
+	if (!dlg)
+	{
+		dlg=new CDialogLyric;
+		dlg->Create(this->m_hWnd);
+	}
+
+	dlg->ShowWindow(SW_SHOW);
 	return 0;
 }

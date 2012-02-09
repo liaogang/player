@@ -3,15 +3,21 @@
 
 class MusicFile
 {
+public:
+	LPTSTR  m_pszPath;
 protected:
 	WAVEFORMATEX*  m_pwfx;
 	mpg123_id3v1 m_Mpg123_id3v1;
 	mpg123_id3v2 m_Mpg123_id3v2;
-
 public:
 	MusicFile(void){}
 
 	~MusicFile(void){}
+
+
+public:
+	mpg123_id3v1 getMpg123_id3v1() { return m_Mpg123_id3v1; }
+	mpg123_id3v2 getMpg123_id3v2() { return m_Mpg123_id3v2; }
 public:
 	//open and read the id3 tag info
 	

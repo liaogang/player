@@ -21,14 +21,6 @@ public:
 		style=this->GetExtendedListViewStyle();
 		style|= LVS_EX_FULLROWSELECT ;
 		SetExtendedListViewStyle(style);
-		
-		for (int i=0;i<1;i++)
-		{
-			tstring str(_T("          ¸èÇú         "));
-			//str+=i;
-			AddColumn(str.c_str(),i,-1,LVCF_FMT|LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM,LVCFMT_CENTER);
-		}
-		//InsertItem(0,_T("sadf"));
 
 		SetMsgHandled(FALSE);
 		return 0;
@@ -36,8 +28,7 @@ public:
 
 	LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		SetMsgHandled(FALSE);
-		
+		SetMsgHandled(FALSE);	
 		return 0;
 	}
 

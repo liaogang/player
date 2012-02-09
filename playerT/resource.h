@@ -6,9 +6,11 @@
 #define IDR_MAINFRAME                   128
 #define IDD_CONFIG                      201
 #define IDD_DLG_EMPTY                   202
+#define IDD_DLG_LYRIC                   202
+#define IDD_DLG_LYRIC1                  202
 #define IDD_DIALOG1                     203
-#define IDD_DIALOG2                     204
 #define IDD_DIALO_FFT                   204
+#define IDD_DIALOG2                     205
 #define IDC_TREE                        1000
 #define IDC_RESET_ALL                   1001
 #define IDC_RESET_THIS                  1002
@@ -44,13 +46,15 @@
 #define ID_FILE_OPEN32799               32799
 #define ID_TEST_FFTDIALOGTEST           32800
 #define ID_MENU_FFTTEST                 32801
+#define ID_LYRIC_SHOWLYRIC              32802
+#define ID_SHOWLYRIC                    32803
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        205
-#define _APS_NEXT_COMMAND_VALUE         32802
+#define _APS_NEXT_RESOURCE_VALUE        206
+#define _APS_NEXT_COMMAND_VALUE         32804
 #define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

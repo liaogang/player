@@ -32,7 +32,6 @@ private:
 
 private:
 	mpg123_handle* m_hmp3;
-	LPTSTR m_pszPath;
 	//-----------------------------------------------------------------------
 public:
 	Mp3File(void)

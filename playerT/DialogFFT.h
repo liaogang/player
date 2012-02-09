@@ -1,6 +1,8 @@
 #pragma once
 
 #include "DsoundControl.h"
+using namespace std;
+
 class DialogFFT : public CDialogImpl<DialogFFT>
 {
 public:
@@ -11,6 +13,7 @@ public:
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 		MESSAGE_HANDLER( (WM_PAINT+913) , OnMyPaint)
+		MESSAGE_HANDLER( WM_PAINT , OnDraw)
 		MESSAGE_HANDLER(WM_SIZE,OnSize)
 	END_MSG_MAP()
 
@@ -24,7 +27,7 @@ public:
 		CenterWindow(GetParent());
 
 		dscrl->SetSpectrumRect(CRect(10,10,470,400));
-		dscrl->SetFftEnvironment(this->m_hWnd);
+		//dscrl->SetFftEnvironment(this->m_hWnd);
 		return TRUE;
 	}
 
@@ -37,6 +40,7 @@ public:
 		bHandled=FALSE;
 		return 0;
 	}
+
 	LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		//EndDialog(wID);
@@ -47,10 +51,19 @@ public:
 	DsoundControl *dscrl;
 	LRESULT OnMyPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		dscrl->DrawSpectrum();
+		//dscrl->DrawSpectrum();
 		return 0;
 	}
+
+	LRESULT OnDraw(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		static int i=0;
+		TCHAR *s=new TCHAR[10];
+		_stprintf(s,_T("%d"),i++);
+		OutputDebugStr(s);
+
+		bHandled=TRUE;
+		return 1;
+	}
 	
-
-
 };

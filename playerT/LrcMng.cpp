@@ -9,10 +9,13 @@ LrcMng::~LrcMng(void)
 {
 }
 
-static LrcMng LrcMng_;
-LrcMng& LrcMng::Get()
+
+  LrcMng* LrcMng::Get()
 {
-	return LrcMng_;
+	static LrcMng *p=NULL;
+	if (!p)
+		p=new LrcMng;
+	return p;
 }
 
 bool pred(LrcLine fir,LrcLine sec)//litter true,else flase

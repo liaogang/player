@@ -47,7 +47,8 @@ private:
 
 	DWORD m_dwTotalSamples;   //wave file's total sample
 	LPBYTE m_pFFTBuffer;    //buffer ,a copy of sound buffer,for fft
-
+public:
+	static DsoundControl* shared();
 public:
 	void SetShowWindow(HWND *pWndShow){	m_pWndShow=pWndShow;}
 	void OpenFile(LPTSTR filepath);
