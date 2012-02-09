@@ -11,6 +11,7 @@ public:
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 		MESSAGE_HANDLER( (WM_PAINT+913) , OnMyPaint)
+		MESSAGE_HANDLER(WM_SIZE,OnSize)
 	END_MSG_MAP()
 
 	// Handler prototypes (uncomment arguments if needed):
@@ -21,9 +22,21 @@ public:
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		CenterWindow(GetParent());
+
+		dscrl->SetSpectrumRect(CRect(10,10,470,400));
+		dscrl->SetFftEnvironment(this->m_hWnd);
 		return TRUE;
 	}
 
+	LRESULT OnSize(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+	{
+		int _width=LOWORD(lParam);
+		int _height=HIWORD(lParam);
+		dscrl->SetSpectrumRect(CRect(0,0,_width,_height));
+
+		bHandled=FALSE;
+		return 0;
+	}
 	LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		//EndDialog(wID);
@@ -34,8 +47,10 @@ public:
 	DsoundControl *dscrl;
 	LRESULT OnMyPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		dscrl->DrawSpectrum(this->m_hWnd);
+		dscrl->DrawSpectrum();
 		return 0;
 	}
 	
+
+
 };

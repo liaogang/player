@@ -40,7 +40,6 @@ void CALLBACK CallBack_TimerConvertDataToFFT(UINT uTimerID,UINT uMsg,DWORD dwUse
 DsoundControl::DsoundControl(void):m_pAudioBuf(NULL),m_dwCircles1(0),m_dwCircles2(0)
 								,m_ppDS(NULL),m_dsBuffer2(NULL)/*,m_wavefile()*/,m_timerID(0)
 								,m_pFFTBuffer(NULL),m_bStatus(stopped)
-								,m_Spectrum_Rect(CRect(0,0,900,300))
 								,m_iSpectrum_Decay(0.05)
 								,m_iSpectrum_Bands(90),m_iSpectrum_Delay(20),m_pWndShow(NULL)
 {
@@ -445,15 +444,15 @@ void  DsoundControl::ConvertDataToFFT()
 #define HEIGHT(rc) ((rc).bottom-(rc.top))
 
 
-
-
-
-
-
-void DsoundControl::DrawSpectrum(HWND hwnd)
+void DsoundControl::DrawSpectrum()
 {
-	HDC hdc = GetWindowDC(hwnd);
-	SetBkMode(hdc, TRANSPARENT);
+	int cx=m_Spectrum_Rect.right-m_Spectrum_Rect.left;
+	int cy=m_Spectrum_Rect.bottom-m_Spectrum_Rect.top;
+
+	m_bitmap=::CreateCompatibleBitmap(m_memDC,cx,cy);
+	HBITMAP oldBitmap=(HBITMAP)SelectObject(m_memDC,m_bitmap);
+
+	//SetBkMode(m_memDC, TRANSPARENT);
 
 	HPEN hpen, hpenOld;
 	HBRUSH hbrush, hbrushOld;
@@ -474,11 +473,11 @@ void DsoundControl::DrawSpectrum(HWND hwnd)
 	hbrush2=CreateSolidBrush(RGB(0,128,192));
 
 	// Select the new pen and brush, and then draw.
-	hpenOld = (HPEN)SelectObject(hdc, hpen);
-	hbrushOld = (HBRUSH)SelectObject(hdc, hbrush);
-	hbrushOld1 = (HBRUSH)SelectObject(hdc, hbrush1);
-	hbrushOld2=(HBRUSH)SelectObject(hdc,hbrush2);
-	Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
+	hpenOld = (HPEN)SelectObject(m_memDC, hpen);
+	hbrushOld = (HBRUSH)SelectObject(m_memDC, hbrush);
+	hbrushOld1 = (HBRUSH)SelectObject(m_memDC, hbrush1);
+	hbrushOld2=(HBRUSH)SelectObject(m_memDC,hbrush2);
+	Rectangle(m_memDC, rect.left, rect.top, rect.right, rect.bottom);
 
 	int maxFreq = FFT_SIZE / 2;
 	int height = 0;
@@ -491,7 +490,7 @@ void DsoundControl::DrawSpectrum(HWND hwnd)
 	float floatBandWidth = ((float)(rect.right-rect.left)/(float)m_iSpectrum_Bands);
 	float floatMultiplier = 2.0;
 
-	//CString xx;
+
 	RECT r;
 	for(int a=0, band=0; band < m_iSpectrum_Bands; a+=(int)floatMultiplier, band++)
 	{
@@ -539,7 +538,7 @@ void DsoundControl::DrawSpectrum(HWND hwnd)
 		r.bottom = rect.bottom-2;		
 		
 		//基部长条
-		FillRect(hdc, &r, hbrushOld1);//
+		FillRect(m_memDC, &r, hbrushOld1);//
 
 		//-------------------------------------------------------------
 
@@ -573,26 +572,37 @@ void DsoundControl::DrawSpectrum(HWND hwnd)
 			r.top = rect.bottom - 2;
 
 		r.bottom = r.top + HATHEIGHT;
-		FillRect(hdc, &r, hbrushOld1);
+		FillRect(m_memDC, &r, hbrushOld1);
 
 		c += floatBandWidth;
 	}
 
+
+	::BitBlt(m_hdc,0,0,cx,cy,m_memDC,0,0,SRCCOPY);
+
 	
 	// Do not forget to clean up.
-	SelectObject(hdc, hpenOld);
-	DeleteObject(hpen);
+	//SelectObject(m_memDC, hpenOld);
+	//DeleteObject(hpen);
 
-	SelectObject(hdc, hbrushOld);
-	DeleteObject(hbrush);
+	//SelectObject(m_memDC, hbrushOld);
+	//DeleteObject(hbrush);
 
-	SelectObject(hdc, hbrushOld1);
-	DeleteObject(hbrush1);
+	//SelectObject(m_memDC, hbrushOld1);
+	//DeleteObject(hbrush1);
 
-	SelectObject(hdc,hbrushOld2);
-	DeleteObject(hbrush2);
+	//SelectObject(m_memDC,hbrushOld2);
+	//DeleteObject(hbrush2);
 
-	ReleaseDC(hwnd, hdc);
+	//
+	//SelectObject(m_memDC,oldBitmap);
+	//DeleteObject(m_bitmap);
 
 	Sleep(20);
+}
+
+
+void DsoundControl::SetSpectrumRect(CRect rc)
+{
+	m_Spectrum_Rect=rc;
 }

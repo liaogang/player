@@ -59,17 +59,38 @@ public:
 	HRESULT GetAudioSampleDatas(LPBYTE lpDesBuf,const DWORD dwRequiredSamples,DWORD &dwRetSamples);
 	void ConvertDataToFFT();
 	DWORD GetSamplesPlayed(DWORD* pCurPlayPos/*取得播放游标的值*/);
-	void DrawSpectrum(HWND hwnd);
+	void DrawSpectrum();
 public:
 	PlayStatus m_bStatus;
 	PlayStatus IsPlaying(){return m_bStatus;}
 
 public:
-	CRect m_Spectrum_Rect;
-
 	int m_iSpectrum_Decay;
 	int m_iSpectrum_Bands;
 	int m_iSpectrum_Delay;
-	void SetSpectrumRect(CRect &rc){m_Spectrum_Rect=rc;}
+	CRect m_Spectrum_Rect;
+
+	HDC m_memDC,m_hdc;
+	HBITMAP m_bitmap;
+
+	void SetSpectrumRect(CRect rc);
+
+	void SetFftEnvironment( HWND hwnd)
+	{
+		HDC hdc=GetDC(hwnd);
+		//if (m_memDC)
+		{
+			//ReleaseDC(hwnd,m_memDC);
+		//	m_memDC=NULL;
+		}
+		//if (m_bitmap!=NULL)
+		{
+			//DeleteObject(m_bitmap);
+			//m_bitmap=NULL;
+		}
+		m_memDC=::CreateCompatibleDC(hdc);
+
+		m_hdc=hdc;
+	}
 };
 

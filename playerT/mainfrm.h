@@ -252,7 +252,7 @@ public:
 	{
 		int _width=LOWORD(lParam);
 		int _hight=HIWORD(lParam);
-		m_DsoundControl.SetSpectrumRect(CRect(30,100,_width,_hight));
+		//m_DsoundControl.SetSpectrumRect(CRect(30,100,_width,_hight));
 
 		bHandled=FALSE;
 		return 0;
@@ -261,7 +261,7 @@ public:
 	
 	LRESULT OnDrawSpectrum(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		m_DsoundControl.DrawSpectrum(m_hWnd);
+		m_DsoundControl.DrawSpectrum();
 		return 0;
 	}
 

@@ -8,10 +8,9 @@ LRESULT CMainFrame::OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 	if (!dlg)
 	{
 		dlg=new DialogFFT;
-		dlg->Create(this->m_hWnd);
-
-		m_DsoundControl.SetShowWindow(&(dlg->m_hWnd));
 		dlg->dscrl=&m_DsoundControl;
+		dlg->Create(this->m_hWnd);
+		m_DsoundControl.SetShowWindow(&(dlg->m_hWnd));
 	}
 
 
