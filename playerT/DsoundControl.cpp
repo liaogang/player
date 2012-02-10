@@ -1,3 +1,4 @@
+
 #include "StdAfx.h"
 #include "DsoundControl.h"
 #include "WaveFileEx.h"
@@ -7,7 +8,12 @@
 INT   intPeaks[90];
 INT	  intPeaksDelay[90];
 INT   intLastBarHeight[90];
-#define    HATHEIGHT    4
+INT   intLastPeaks[90];
+#define    HATHEIGHT    8
+#define  BARHEIGHT   6
+
+#define WIDTH(rc) ((rc).right-(rc.left))
+#define HEIGHT(rc) ((rc).bottom-(rc.top))
 //-------------------------------------------------------------
 void CALLBACK CALLBACK_TimerNotify(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD dw2)
 {
@@ -38,10 +44,10 @@ void CALLBACK CallBack_TimerConvertDataToFFT(UINT uTimerID,UINT uMsg,DWORD dwUse
 
 
 DsoundControl::DsoundControl(void):m_pAudioBuf(NULL),m_dwCircles1(0),m_dwCircles2(0)
-								,m_ppDS(NULL),m_dsBuffer2(NULL)/*,m_wavefile()*/,m_timerID(0)
+								,m_ppDS(NULL),m_dsBuffer2(NULL),m_timerID(0)
 								,m_pFFTBuffer(NULL),m_bStatus(stopped)
 								,m_iSpectrum_Decay(0.05)
-								,m_iSpectrum_Bands(90),m_iSpectrum_Delay(20),m_pWndShow(NULL)
+								,m_iSpectrum_Bands(60),m_iSpectrum_Delay(15),m_pWndShow(NULL)
 {
 	m_pHEvent[0] = CreateEvent(NULL, FALSE, FALSE, _T("Direct_Sound_Buffer_Notify_0"));
 	m_pHEvent[1] = CreateEvent(NULL, FALSE, FALSE, _T("Direct_Sound_Buffer_Notify_1"));	
@@ -54,14 +60,39 @@ DsoundControl::~DsoundControl(void)
 		delete []m_pAudioBuf;
 		m_pAudioBuf = NULL;
 	}
+
+
+
+
+
+
+
+
+
+	// 	//Do not forget to clean up.
+	// 	SelectObject(m_memDC, hpenOld);
+	// 	DeleteObject(hpen);
+	// 
+	// 	SelectObject(m_memDC, hbrushOld);
+	// 	DeleteObject(hbrush);
+	// 
+	// 	SelectObject(m_memDC, hbrushOld1);
+	// 	DeleteObject(hbrush1);
+	// 
+	// 	SelectObject(m_memDC,hbrushOld2);
+	// 	DeleteObject(hbrush2);
+	// 
+	// 
+	// 	SelectObject(m_memDC,oldBitmap);
+	// 	DeleteObject(m_bitmap);
+	// 
+	// 	Sleep(20);
 }
 
 //-------------------------------------------------------------
 //timer to process notify event
 void  DsoundControl::TimerNotify()
 {
-	//OutputDebugString("TimerCallBack\n");
-
 	LPVOID lpvAudio1 = NULL, lpvAudio2 = NULL;
 	DWORD dwBytesAudio1 = 0, dwBytesAudio2 = 0;
 	DWORD dwRetSamples = 0, dwRetBytes = 0;
@@ -69,7 +100,6 @@ void  DsoundControl::TimerNotify()
 	HRESULT hr=WaitForMultipleObjects(2,m_pHEvent,FALSE,0);
 	if (hr==WAIT_OBJECT_0)
 	{
-		//OutputDebugString(_T("event object 1 orrcured\n"));
 		m_dwCircles1++;
 
 		//Lock DirectSoundBuffer Second Part
@@ -78,7 +108,6 @@ void  DsoundControl::TimerNotify()
 	}
 	else if (hr==WAIT_OBJECT_0+1)
 	{
-		//OutputDebugString(_T("event object 2 orrcured\n"));
 		m_dwCircles2++;
 
 		//Lock DirectSoundBuffer Firest Part
@@ -256,7 +285,7 @@ void  DsoundControl::Play()
 	
 	m_timerID=timeSetEvent(500,100,CALLBACK_TimerNotify,(DWORD)this,TIME_PERIODIC|TIME_CALLBACK_FUNCTION);
 	
-	m_timerFFT=timeSetEvent(300,0,CallBack_TimerConvertDataToFFT,(DWORD)this,TIME_PERIODIC|TIME_CALLBACK_FUNCTION);
+	m_timerFFT=timeSetEvent(200,0,CallBack_TimerConvertDataToFFT,(DWORD)this,TIME_PERIODIC|TIME_CALLBACK_FUNCTION);
 
 	//播放
 	m_dsBuffer2->Play(0,0,DSBPLAY_LOOPING);                    
@@ -304,11 +333,13 @@ void DsoundControl::Pause()
 	if (NULL != m_dsBuffer2&&m_bStatus==playing)
 	{
 		m_dsBuffer2->Stop();
+		timeKillEvent(m_timerFFT);
 		m_bStatus=paused;
 	}
 	else if (m_bStatus==paused)
 	{
 		m_dsBuffer2->Play(0,0,DSBPLAY_LOOPING);
+		m_timerFFT=timeSetEvent(200,0,CallBack_TimerConvertDataToFFT,(DWORD)this,TIME_PERIODIC|TIME_CALLBACK_FUNCTION);
 		m_bStatus=playing;
 	}
 }
@@ -417,11 +448,19 @@ void  DsoundControl::ConvertDataToFFT()
 		if(m_pAudioBuf == NULL)
 			return;
 
+
+	/*	是傅里叶变换在时域和频域上都呈离散的形式，将信号的时域采样变换为其DTFT的频域采样
+		。在形式上，变换两端（时域和频域上）的序列是有限长的，而实际上这两组序列都应当被
+			认为是离散周期信号的主值序列。即使对有限长的离散信号作DFT，也应当将其看作其周期
+			延拓的变换。在实际应用中通常采用快速傅里叶变换计算DFT。
+	*/
+
 		float left, right;
 		for(int i=0;i<FFT_SAMPLE_SIZE;i++) //FFT_SAMPLE_SIZE 2048  2048*4约等于4410*2
 		{
 			if(dwCurPlayPos > dw2SecondByteSize)
 				dwCurPlayPos -= dw2SecondByteSize;
+			//dwCurPlayPos-=dw2SecondByteSize/2;
 
 			//傅立叶数据采样
 			left = (float)((m_pAudioBuf[dwCurPlayPos+1] << 8) + m_pAudioBuf[dwCurPlayPos+0])/32767;
@@ -442,77 +481,55 @@ void  DsoundControl::ConvertDataToFFT()
 
 
 
-#define WIDTH(rc) ((rc).right-(rc.left))
-#define HEIGHT(rc) ((rc).bottom-(rc.top))
+
 
 
 void DsoundControl::DrawSpectrum()
 {
-	int cx=m_Spectrum_Rect.right-m_Spectrum_Rect.left;
-	int cy=m_Spectrum_Rect.bottom-m_Spectrum_Rect.top;
-
-	m_bitmap=::CreateCompatibleBitmap(m_memDC,cx,cy);
-	HBITMAP oldBitmap=(HBITMAP)SelectObject(m_memDC,m_bitmap);
-
-	//SetBkMode(m_memDC, TRANSPARENT);
-
-	HPEN hpen, hpenOld;
-	HBRUSH hbrush, hbrushOld;
-	HBRUSH hbrush1, hbrushOld1;
-	HBRUSH hbrush2, hbrushOld2;
 	RECT rect(m_Spectrum_Rect);
+	int cx=WIDTH(rect);
+	int cy=HEIGHT(rect);
 
-	//rect.left = 4;
-	//rect.top = 23;
-	//rect.right = rect.left+m_iSpectrum_Width;
-	//rect.bottom = rect.top+m_iSpectrum_Hight;
+	#define PI_2 6.283185F
+	#define PI   3.1415925F
 
-	// Create a green pen.
-	hpen = CreatePen(PS_SOLID, 1, RGB(0, 255, 0));
-	// Create a red brush.
-	hbrush = CreateSolidBrush(RGB(0, 0, 0));
-	hbrush1 = CreateSolidBrush(RGB(125, 125, 125));
-	hbrush2=CreateSolidBrush(RGB(0,128,192));
+// 	// Select the new pen and brush, and then draw.
+// 	m_hpenOld = (HPEN)SelectObject(m_memDC, m_hpen);
+// 	m_hbrushOld = (HBRUSH)SelectObject(m_memDC, m_hbrush);
 
-	// Select the new pen and brush, and then draw.
-	hpenOld = (HPEN)SelectObject(m_memDC, hpen);
-	hbrushOld = (HBRUSH)SelectObject(m_memDC, hbrush);
-	hbrushOld1 = (HBRUSH)SelectObject(m_memDC, hbrush1);
-	hbrushOld2=(HBRUSH)SelectObject(m_memDC,hbrush2);
+
 	Rectangle(m_memDC, rect.left, rect.top, rect.right, rect.bottom);
 
-	int maxFreq = FFT_SIZE / 2;
-	int height = 0;
-	int maxHeight = rect.top-rect.bottom;
 
 	float c = 0;
 	float floatFrrh = 1.0;
 	float floatDecay = (float)m_iSpectrum_Decay;
 	float floatSadFrr = (floatFrrh*floatDecay);
-	float floatBandWidth = ((float)(rect.right-rect.left)/(float)m_iSpectrum_Bands);
+	float floatBandWidth = ((float)(cx)/(float)m_iSpectrum_Bands);  //band宽度=总宽 / 数量
 	float floatMultiplier = 2.0;
 
 
-	RECT r;
+	RECT r;//下面长条块
 	for(int a=0, band=0; band < m_iSpectrum_Bands; a+=(int)floatMultiplier, band++)
 	{
 		float wFs = 0;
 
 		// -- Average out nearest bands.
 		for (int b = 0; b < floatMultiplier; b++)
-		{
 			wFs += m_floatMag[a + b];
-		}
 
 		// -- Log filter.
 		wFs = (wFs * (float) log((float)(band + 2)));
-		//xx.Format(_T("%f \n"), wFs);
-		//OutputDebugString(xx);
+		
+		if (wFs>0.005f && wFs <0.1f)
+			wFs*=0.9f * PI;
+		else if (wFs >0.01f && wFs <0.1f)
+			wFs*=3.0f * PI;
+		else if ( wFs > 0.1f && wFs < 0.5f)
+			wFs*=PI;
 
 		if (wFs > 1.0f) 
-		{
-			wFs = 1.0f;
-		}
+			wFs = 0.9f;
 
 		// -- Compute SA decay...
 		if (wFs >= (m_floatMag[a] - floatSadFrr)) 
@@ -523,84 +540,15 @@ void DsoundControl::DrawSpectrum()
 		{
 			m_floatMag[a] -= floatSadFrr;
 			if (m_floatMag[a] < 0) 
-			{
 				m_floatMag[a] = 0;
-			}
 			wFs = m_floatMag[a];
 		}
 		
-		//r 获得对应的Bar的Rect
-		r.left = rect.left + (int)c + 1;
-		r.right = r.left + (int)(floatBandWidth-1);
-		r.top = (rect.bottom-rect.top) - (int)(wFs*(rect.bottom-rect.top));
-		if(r.top < rect.top)
-			r.top = rect.top + HATHEIGHT+HATHEIGHT;
-
-		//r.top += 22;
-		r.bottom = rect.bottom-2;		
-		
-		//基部长条
-		FillRect(m_memDC, &r, hbrushOld1);//
-
-		//-------------------------------------------------------------
-
-		int height = HEIGHT(r);
-		if(height > intLastBarHeight[band])
-		{
-			intLastBarHeight[band] = height;
-			intPeaks[band] = (rect.bottom-rect.top)-height;
-			intPeaksDelay[band] = m_iSpectrum_Delay;
-		}
-		else
-		{
-			intPeaksDelay[band]--;
-			if (intPeaksDelay[band] < 0) 
-			{
-				intPeaks[band]--;
-			}
-
-			if (intPeaks[band] < 0) 
-			{
-				intPeaks[band] = 0;
-			}
-		}
-
-		r.top -= intPeaks[band];
-		if(r.top < rect.top)
-			r.top = rect.top + 2;
-
-		//r.top += 22;
-		if(r.top >= rect.bottom)
-			r.top = rect.bottom - 2;
-
-		r.bottom = r.top + HATHEIGHT;
-		FillRect(m_memDC, &r, hbrushOld1);
-
+		drawSpectrumAnalyserBar(&rect,c,cy,floatBandWidth-1,wFs*cy,band);
 		c += floatBandWidth;
 	}
 
-
 	::BitBlt(m_hdc,0,0,cx,cy,m_memDC,0,0,SRCCOPY);
-
-	
-	// Do not forget to clean up.
-	//SelectObject(m_memDC, hpenOld);
-	//DeleteObject(hpen);
-
-	//SelectObject(m_memDC, hbrushOld);
-	//DeleteObject(hbrush);
-
-	//SelectObject(m_memDC, hbrushOld1);
-	//DeleteObject(hbrush1);
-
-	//SelectObject(m_memDC,hbrushOld2);
-	//DeleteObject(hbrush2);
-
-	//
-	//SelectObject(m_memDC,oldBitmap);
-	//DeleteObject(m_bitmap);
-
-	//Sleep(20);
 }
 
 
@@ -616,4 +564,54 @@ DsoundControl* DsoundControl::shared()
 	if (!p)
 		p=new DsoundControl;
 	return p;
+}
+
+void DsoundControl::drawSpectrumAnalyserBar(RECT *pRect,int x,int y,int width,int height,int band)
+{
+
+	RECT barRect;
+	barRect.left=x;
+	barRect.right=x+width;
+	barRect.top=pRect->top+height;
+	barRect.bottom=pRect->bottom;
+
+	FillRect(m_memDC, &barRect, m_hbrush1);
+
+
+
+	//上面的小帽子滑块
+	if(height > intPeaks[band])             //上涨
+	{
+		//intLastBarHeight[band] = height;
+		intPeaks[band] = height;                 //peak 另一半长度
+		intPeaksDelay[band] = m_iSpectrum_Delay;       //delay  一次下降高度
+	}
+	else                                               //滑块下降
+	{
+		intPeaksDelay[band]--;
+		if (intPeaksDelay[band] < 0) 
+			intPeaks[band]-=3;;
+
+		if (intPeaks[band] < 0) 
+			intPeaks[band] = 0;
+	}
+
+	RECT peakRect;
+	peakRect.left=x;
+	peakRect.right=peakRect.left+width;
+	peakRect.top=y-intPeaks[band];
+	peakRect.bottom=peakRect.top+BARHEIGHT;
+	FillRect(m_memDC,&peakRect,m_hbrush2);
+
+// 	r.top -= intPeaks[band];
+// 
+// 	if(r.top < rect.top)
+// 		r.top = rect.top + 2;
+// 
+// 	if(r.top >= rect.bottom)
+// 		r.top = rect.bottom - 2;
+// 
+// 	r.bottom = r.top + HATHEIGHT;
+// 	FillRect(m_memDC, &r, m_hbrush2);
+
 }

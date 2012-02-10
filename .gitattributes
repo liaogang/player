@@ -4,6 +4,7 @@ playerT/CPropertyDlgs.h -text
 playerT/DialogConfig.cpp -text
 playerT/DialogConfig.h -text
 playerT/DialogFFT.h -text
+playerT/DialogLyric.h -text
 playerT/DsoundControl.cpp -text
 playerT/DsoundControl.h -text
 playerT/FFT.h -text
