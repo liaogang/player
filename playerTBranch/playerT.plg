@@ -1,0 +1,518 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: playerT - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating command line "rc.exe /l 0x804 /fo"Debug/player.res" /i "\C_Source\player" /d "_DEBUG" "F:\C_Source\player\player.rc"" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP14.tmp" with contents
+[
+/nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "STRICT" /FR"Debug/" /Fp"Debug/playerT.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"F:\C_Source\player\DialogConfig.cpp"
+"F:\C_Source\player\DsoundControl.cpp"
+"F:\C_Source\player\LrcMng.cpp"
+"F:\C_Source\player\mainfrm.CPP"
+"F:\C_Source\player\music.cpp"
+"F:\C_Source\player\MusicLibrary.cpp"
+"F:\C_Source\player\player.cpp"
+"F:\C_Source\player\PlayList.cpp"
+"F:\C_Source\player\WaveFile.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP14.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP15.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/playerT.pdb" /debug /machine:I386 /out:"Debug/playerT.exe" /pdbtype:sept 
+.\Debug\DialogConfig.obj
+.\Debug\DsoundControl.obj
+.\Debug\LrcMng.obj
+.\Debug\mainfrm.obj
+.\Debug\music.obj
+.\Debug\MusicLibrary.obj
+.\Debug\player.obj
+.\Debug\player.res
+.\Debug\PlayList.obj
+.\Debug\stdafx.obj
+.\Debug\WaveFile.obj
+]
+Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP15.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+DialogConfig.cpp
+f:\c_source\player\stdafx.h(9) : warning C4005: 'WINVER' : macro redefinition
+        f:\c_source\dsound\playert\stdafx.h(10) : see previous definition of 'WINVER'
+f:\c_source\player\stdafx.h(11) : warning C4005: '_WIN32_IE' : macro redefinition
+        f:\c_source\dsound\playert\stdafx.h(12) : see previous definition of '_WIN32_IE'
+f:\c_source\player\stdafx.h(12) : warning C4005: '_RICHEDIT_VER' : macro redefinition
+        f:\c_source\dsound\playert\stdafx.h(13) : see previous definition of '_RICHEDIT_VER'
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2146: syntax error : missing ';' before identifier 'lpnm'
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1152) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<TBase,TWinTraits>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2501: 'LPNMREBARCHEVRON' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1152) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<TBase,TWinTraits>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2501: 'lpnm' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1152) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<TBase,TWinTraits>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2146: syntax error : missing ';' before identifier 'lpnm'
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1291) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<class ATL::CWindow,class ATL::CWinTraits<114229248,262400> >' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2501: 'LPNMREBARCHEVRON' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1291) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<class ATL::CWindow,class ATL::CWinTraits<114229248,262400> >' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2501: 'lpnm' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1291) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<class ATL::CWindow,class ATL::CWinTraits<114229248,262400> >' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2414) : error C2504: 'IPrintDialogCallback' : base class undefined
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2631) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<T>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2146: syntax error : missing ';' before identifier 'm_pdex'
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2631) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<T>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2501: 'PRINTDLGEX' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2631) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<T>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2501: 'm_pdex' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2631) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<T>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2414) : error C2504: 'IPrintDialogCallback' : base class undefined
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2634) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<class WTL::CPrintDialogEx>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2146: syntax error : missing ';' before identifier 'm_pdex'
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2634) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<class WTL::CPrintDialogEx>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2501: 'PRINTDLGEX' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2634) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<class WTL::CPrintDialogEx>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2501: 'm_pdex' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2634) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<class WTL::CPrintDialogEx>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(305) : error C2061: syntax error : identifier 'PBUTTON_IMAGELIST'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(394) : see reference to class template instantiation 'WTL::CButtonT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(311) : error C2061: syntax error : identifier 'PBUTTON_IMAGELIST'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(394) : see reference to class template instantiation 'WTL::CButtonT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(886) : error C2061: syntax error : identifier 'PCOMBOBOXINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1156) : see reference to class template instantiation 'WTL::CComboBoxT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1513) : error C2061: syntax error : identifier 'PEDITBALLOONTIP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1610) : see reference to class template instantiation 'WTL::CEditT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1823) : error C2061: syntax error : identifier 'PSCROLLBARINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1847) : see reference to class template instantiation 'WTL::CScrollBarT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(2420) : error C2061: syntax error : identifier 'PTTGETTITLE'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(2565) : see reference to class template instantiation 'WTL::CToolTipCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3397) : error C2061: syntax error : identifier 'PLVGROUP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3403) : error C2061: syntax error : identifier 'PLVGROUP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3409) : error C2061: syntax error : identifier 'PLVGROUPMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3415) : error C2061: syntax error : identifier 'PLVGROUPMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3421) : error C2061: syntax error : identifier 'PLVTILEVIEWINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3427) : error C2061: syntax error : identifier 'PLVTILEVIEWINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3433) : error C2061: syntax error : identifier 'PLVTILEINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3439) : error C2061: syntax error : identifier 'PLVTILEINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3445) : error C2061: syntax error : identifier 'LPLVINSERTMARK'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3451) : error C2061: syntax error : identifier 'LPLVINSERTMARK'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3807) : error C2061: syntax error : identifier 'PLVGROUP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3813) : error C2061: syntax error : identifier 'PLVGROUP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3842) : error C2061: syntax error : identifier 'PFNLVGROUPCOMPARE'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3848) : error C2061: syntax error : identifier 'PLVINSERTGROUPSORTED'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3866) : error C2061: syntax error : identifier 'LPLVINSERTMARK'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3872) : error C2061: syntax error : identifier 'PLVSETINFOTIP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(5749) : error C2061: syntax error : identifier 'LPTBMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(6007) : see reference to class template instantiation 'WTL::CToolBarCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(5755) : error C2061: syntax error : identifier 'LPTBMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(6007) : see reference to class template instantiation 'WTL::CToolBarCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9678) : error C2061: syntax error : identifier 'PLITEM'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9706) : see reference to class template instantiation 'WTL::CLinkCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9684) : error C2061: syntax error : identifier 'PLITEM'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9706) : see reference to class template instantiation 'WTL::CLinkCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9701) : error C2061: syntax error : identifier 'PLHITTESTINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9706) : see reference to class template instantiation 'WTL::CLinkCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(5749) : error C2061: syntax error : identifier 'LPTBMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrlw.h(135) : see reference to class template instantiation 'WTL::CToolBarCtrlT<class ATL::CWindow>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(5755) : error C2061: syntax error : identifier 'LPTBMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrlw.h(135) : see reference to class template instantiation 'WTL::CToolBarCtrlT<class ATL::CWindow>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3727) : error C2065: 'IDC_HAND' : undeclared identifier
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3727) : error C2446: '==' : no conversion from 'int' to 'const char *'
+        Conversion from integral type to pointer type requires reinterpret_cast, C-style cast or function-style cast
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3727) : error C2040: '==' : 'const char *' differs in levels of indirection from 'int'
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3858) : error C2065: 'DC_PEN' : undeclared identifier
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3868) : error C2065: 'DC_BRUSH' : undeclared identifier
+f:\c_source\player\stdafx.h(40) : fatal error C1083: Cannot open include file: 'dmusici.h': No such file or directory
+DsoundControl.cpp
+f:\c_source\player\wavefile.h(71) : error C2065: 'DXTRACE_ERR_NOMSGBOX' : undeclared identifier
+f:\c_source\player\wavefile.h(75) : error C2065: 'DXTRACE_ERR' : undeclared identifier
+f:\c_source\player\dsoundcontrol.h(27) : error C2146: syntax error : missing ';' before identifier 'm_ppDS'
+f:\c_source\player\dsoundcontrol.h(27) : error C2501: 'LPDIRECTSOUND' : missing storage-class or type specifiers
+f:\c_source\player\dsoundcontrol.h(27) : error C2501: 'm_ppDS' : missing storage-class or type specifiers
+f:\c_source\player\dsoundcontrol.h(28) : error C2146: syntax error : missing ';' before identifier 'm_dsBuffer2'
+f:\c_source\player\dsoundcontrol.h(28) : error C2501: 'LPDIRECTSOUNDBUFFER' : missing storage-class or type specifiers
+f:\c_source\player\dsoundcontrol.h(28) : error C2501: 'm_dsBuffer2' : missing storage-class or type specifiers
+f:\c_source\player\dsoundcontrol.h(61) : error C2146: syntax error : missing ';' before identifier 'm_Spectrum_Rect'
+f:\c_source\player\dsoundcontrol.h(61) : error C2501: 'CRect' : missing storage-class or type specifiers
+f:\c_source\player\dsoundcontrol.h(61) : error C2501: 'm_Spectrum_Rect' : missing storage-class or type specifiers
+f:\c_source\player\dsoundcontrol.h(66) : error C2061: syntax error : identifier 'CRect'
+f:\c_source\player\stdafx.h(9) : warning C4005: 'WINVER' : macro redefinition
+        f:\c_source\dsound\playert\stdafx.h(10) : see previous definition of 'WINVER'
+f:\c_source\player\stdafx.h(11) : warning C4005: '_WIN32_IE' : macro redefinition
+        f:\c_source\dsound\playert\stdafx.h(12) : see previous definition of '_WIN32_IE'
+f:\c_source\player\stdafx.h(12) : warning C4005: '_RICHEDIT_VER' : macro redefinition
+        f:\c_source\dsound\playert\stdafx.h(13) : see previous definition of '_RICHEDIT_VER'
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2146: syntax error : missing ';' before identifier 'lpnm'
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1152) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<TBase,TWinTraits>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2501: 'LPNMREBARCHEVRON' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1152) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<TBase,TWinTraits>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2501: 'lpnm' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1152) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<TBase,TWinTraits>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2146: syntax error : missing ';' before identifier 'lpnm'
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1291) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<class ATL::CWindow,class ATL::CWinTraits<114229248,262400> >' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2501: 'LPNMREBARCHEVRON' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1291) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<class ATL::CWindow,class ATL::CWinTraits<114229248,262400> >' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2501: 'lpnm' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1291) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<class ATL::CWindow,class ATL::CWinTraits<114229248,262400> >' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2414) : error C2504: 'IPrintDialogCallback' : base class undefined
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2631) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<T>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2146: syntax error : missing ';' before identifier 'm_pdex'
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2631) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<T>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2501: 'PRINTDLGEX' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2631) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<T>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2501: 'm_pdex' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2631) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<T>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2414) : error C2504: 'IPrintDialogCallback' : base class undefined
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2634) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<class WTL::CPrintDialogEx>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2146: syntax error : missing ';' before identifier 'm_pdex'
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2634) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<class WTL::CPrintDialogEx>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2501: 'PRINTDLGEX' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2634) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<class WTL::CPrintDialogEx>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2501: 'm_pdex' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2634) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<class WTL::CPrintDialogEx>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(305) : error C2061: syntax error : identifier 'PBUTTON_IMAGELIST'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(394) : see reference to class template instantiation 'WTL::CButtonT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(311) : error C2061: syntax error : identifier 'PBUTTON_IMAGELIST'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(394) : see reference to class template instantiation 'WTL::CButtonT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(886) : error C2061: syntax error : identifier 'PCOMBOBOXINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1156) : see reference to class template instantiation 'WTL::CComboBoxT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1513) : error C2061: syntax error : identifier 'PEDITBALLOONTIP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1610) : see reference to class template instantiation 'WTL::CEditT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1823) : error C2061: syntax error : identifier 'PSCROLLBARINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1847) : see reference to class template instantiation 'WTL::CScrollBarT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(2420) : error C2061: syntax error : identifier 'PTTGETTITLE'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(2565) : see reference to class template instantiation 'WTL::CToolTipCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3397) : error C2061: syntax error : identifier 'PLVGROUP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3403) : error C2061: syntax error : identifier 'PLVGROUP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3409) : error C2061: syntax error : identifier 'PLVGROUPMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3415) : error C2061: syntax error : identifier 'PLVGROUPMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3421) : error C2061: syntax error : identifier 'PLVTILEVIEWINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3427) : error C2061: syntax error : identifier 'PLVTILEVIEWINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3433) : error C2061: syntax error : identifier 'PLVTILEINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3439) : error C2061: syntax error : identifier 'PLVTILEINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3445) : error C2061: syntax error : identifier 'LPLVINSERTMARK'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3451) : error C2061: syntax error : identifier 'LPLVINSERTMARK'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3807) : error C2061: syntax error : identifier 'PLVGROUP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3813) : error C2061: syntax error : identifier 'PLVGROUP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3842) : error C2061: syntax error : identifier 'PFNLVGROUPCOMPARE'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3848) : error C2061: syntax error : identifier 'PLVINSERTGROUPSORTED'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3866) : error C2061: syntax error : identifier 'LPLVINSERTMARK'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3872) : error C2061: syntax error : identifier 'PLVSETINFOTIP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(5749) : error C2061: syntax error : identifier 'LPTBMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(6007) : see reference to class template instantiation 'WTL::CToolBarCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(5755) : error C2061: syntax error : identifier 'LPTBMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(6007) : see reference to class template instantiation 'WTL::CToolBarCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9678) : error C2061: syntax error : identifier 'PLITEM'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9706) : see reference to class template instantiation 'WTL::CLinkCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9684) : error C2061: syntax error : identifier 'PLITEM'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9706) : see reference to class template instantiation 'WTL::CLinkCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9701) : error C2061: syntax error : identifier 'PLHITTESTINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9706) : see reference to class template instantiation 'WTL::CLinkCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(5749) : error C2061: syntax error : identifier 'LPTBMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrlw.h(135) : see reference to class template instantiation 'WTL::CToolBarCtrlT<class ATL::CWindow>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(5755) : error C2061: syntax error : identifier 'LPTBMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrlw.h(135) : see reference to class template instantiation 'WTL::CToolBarCtrlT<class ATL::CWindow>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3727) : error C2065: 'IDC_HAND' : undeclared identifier
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3727) : error C2446: '==' : no conversion from 'int' to 'const char *'
+        Conversion from integral type to pointer type requires reinterpret_cast, C-style cast or function-style cast
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3727) : error C2040: '==' : 'const char *' differs in levels of indirection from 'int'
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3858) : error C2065: 'DC_PEN' : undeclared identifier
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3868) : error C2065: 'DC_BRUSH' : undeclared identifier
+f:\c_source\player\stdafx.h(40) : fatal error C1083: Cannot open include file: 'dmusici.h': No such file or directory
+LrcMng.cpp
+f:\c_source\player\lrcmng.h(24) : error C2629: unexpected 'class LrcLine ('
+f:\c_source\player\lrcmng.h(24) : error C2334: unexpected token(s) preceding ':'; skipping apparent function body
+f:\c_source\player\lrcmng.h(28) : error C2146: syntax error : missing ';' before identifier 'text'
+f:\c_source\player\lrcmng.h(28) : error C2501: 'tstring' : missing storage-class or type specifiers
+f:\c_source\player\lrcmng.h(28) : error C2501: 'text' : missing storage-class or type specifiers
+f:\c_source\player\lrcmng.h(44) : error C2061: syntax error : identifier 'tstring'
+f:\c_source\player\lrcmng.h(72) : error C2061: syntax error : identifier 'tstring'
+f:\c_source\player\lrcmng.h(109) : error C2061: syntax error : identifier 'tstring'
+f:\c_source\player\lrcmng.h(125) : error C2061: syntax error : identifier 'tstring'
+mainfrm.CPP
+f:\c_source\player\stdafx.h(9) : warning C4005: 'WINVER' : macro redefinition
+        f:\c_source\dsound\playert\stdafx.h(10) : see previous definition of 'WINVER'
+f:\c_source\player\stdafx.h(11) : warning C4005: '_WIN32_IE' : macro redefinition
+        f:\c_source\dsound\playert\stdafx.h(12) : see previous definition of '_WIN32_IE'
+f:\c_source\player\stdafx.h(12) : warning C4005: '_RICHEDIT_VER' : macro redefinition
+        f:\c_source\dsound\playert\stdafx.h(13) : see previous definition of '_RICHEDIT_VER'
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2146: syntax error : missing ';' before identifier 'lpnm'
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1152) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<TBase,TWinTraits>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2501: 'LPNMREBARCHEVRON' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1152) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<TBase,TWinTraits>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2501: 'lpnm' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1152) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<TBase,TWinTraits>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2146: syntax error : missing ';' before identifier 'lpnm'
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1291) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<class ATL::CWindow,class ATL::CWinTraits<114229248,262400> >' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2501: 'LPNMREBARCHEVRON' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1291) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<class ATL::CWindow,class ATL::CWinTraits<114229248,262400> >' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2501: 'lpnm' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1291) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<class ATL::CWindow,class ATL::CWinTraits<114229248,262400> >' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2414) : error C2504: 'IPrintDialogCallback' : base class undefined
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2631) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<T>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2146: syntax error : missing ';' before identifier 'm_pdex'
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2631) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<T>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2501: 'PRINTDLGEX' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2631) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<T>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2501: 'm_pdex' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2631) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<T>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2414) : error C2504: 'IPrintDialogCallback' : base class undefined
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2634) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<class WTL::CPrintDialogEx>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2146: syntax error : missing ';' before identifier 'm_pdex'
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2634) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<class WTL::CPrintDialogEx>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2501: 'PRINTDLGEX' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2634) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<class WTL::CPrintDialogEx>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2501: 'm_pdex' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2634) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<class WTL::CPrintDialogEx>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(305) : error C2061: syntax error : identifier 'PBUTTON_IMAGELIST'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(394) : see reference to class template instantiation 'WTL::CButtonT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(311) : error C2061: syntax error : identifier 'PBUTTON_IMAGELIST'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(394) : see reference to class template instantiation 'WTL::CButtonT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(886) : error C2061: syntax error : identifier 'PCOMBOBOXINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1156) : see reference to class template instantiation 'WTL::CComboBoxT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1513) : error C2061: syntax error : identifier 'PEDITBALLOONTIP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1610) : see reference to class template instantiation 'WTL::CEditT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1823) : error C2061: syntax error : identifier 'PSCROLLBARINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1847) : see reference to class template instantiation 'WTL::CScrollBarT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(2420) : error C2061: syntax error : identifier 'PTTGETTITLE'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(2565) : see reference to class template instantiation 'WTL::CToolTipCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3397) : error C2061: syntax error : identifier 'PLVGROUP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3403) : error C2061: syntax error : identifier 'PLVGROUP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3409) : error C2061: syntax error : identifier 'PLVGROUPMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3415) : error C2061: syntax error : identifier 'PLVGROUPMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3421) : error C2061: syntax error : identifier 'PLVTILEVIEWINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3427) : error C2061: syntax error : identifier 'PLVTILEVIEWINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3433) : error C2061: syntax error : identifier 'PLVTILEINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3439) : error C2061: syntax error : identifier 'PLVTILEINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3445) : error C2061: syntax error : identifier 'LPLVINSERTMARK'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3451) : error C2061: syntax error : identifier 'LPLVINSERTMARK'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3807) : error C2061: syntax error : identifier 'PLVGROUP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3813) : error C2061: syntax error : identifier 'PLVGROUP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3842) : error C2061: syntax error : identifier 'PFNLVGROUPCOMPARE'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3848) : error C2061: syntax error : identifier 'PLVINSERTGROUPSORTED'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3866) : error C2061: syntax error : identifier 'LPLVINSERTMARK'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3872) : error C2061: syntax error : identifier 'PLVSETINFOTIP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(5749) : error C2061: syntax error : identifier 'LPTBMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(6007) : see reference to class template instantiation 'WTL::CToolBarCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(5755) : error C2061: syntax error : identifier 'LPTBMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(6007) : see reference to class template instantiation 'WTL::CToolBarCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9678) : error C2061: syntax error : identifier 'PLITEM'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9706) : see reference to class template instantiation 'WTL::CLinkCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9684) : error C2061: syntax error : identifier 'PLITEM'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9706) : see reference to class template instantiation 'WTL::CLinkCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9701) : error C2061: syntax error : identifier 'PLHITTESTINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9706) : see reference to class template instantiation 'WTL::CLinkCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(5749) : error C2061: syntax error : identifier 'LPTBMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrlw.h(135) : see reference to class template instantiation 'WTL::CToolBarCtrlT<class ATL::CWindow>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(5755) : error C2061: syntax error : identifier 'LPTBMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrlw.h(135) : see reference to class template instantiation 'WTL::CToolBarCtrlT<class ATL::CWindow>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3727) : error C2065: 'IDC_HAND' : undeclared identifier
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3727) : error C2446: '==' : no conversion from 'int' to 'const char *'
+        Conversion from integral type to pointer type requires reinterpret_cast, C-style cast or function-style cast
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3727) : error C2040: '==' : 'const char *' differs in levels of indirection from 'int'
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3858) : error C2065: 'DC_PEN' : undeclared identifier
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3868) : error C2065: 'DC_BRUSH' : undeclared identifier
+f:\c_source\player\stdafx.h(40) : fatal error C1083: Cannot open include file: 'dmusici.h': No such file or directory
+music.cpp
+f:\c_source\player\music.h(20) : error C2146: syntax error : missing ';' before identifier 'filename'
+f:\c_source\player\music.h(20) : error C2501: 'string' : missing storage-class or type specifiers
+f:\c_source\player\music.h(20) : error C2501: 'filename' : missing storage-class or type specifiers
+f:\c_source\player\music.h(21) : error C2146: syntax error : missing ';' before identifier 'path'
+f:\c_source\player\music.h(21) : error C2501: 'string' : missing storage-class or type specifiers
+f:\c_source\player\music.h(21) : error C2501: 'path' : missing storage-class or type specifiers
+MusicLibrary.cpp
+f:\c_source\player\musiclibrary.cpp(2) : fatal error C1010: unexpected end of file while looking for precompiled header directive
+player.cpp
+f:\c_source\player\lrcmng.h(24) : error C2629: unexpected 'class LrcLine ('
+f:\c_source\player\lrcmng.h(24) : error C2334: unexpected token(s) preceding ':'; skipping apparent function body
+f:\c_source\player\lrcmng.h(28) : error C2146: syntax error : missing ';' before identifier 'text'
+f:\c_source\player\lrcmng.h(28) : error C2501: 'tstring' : missing storage-class or type specifiers
+f:\c_source\player\lrcmng.h(28) : error C2501: 'text' : missing storage-class or type specifiers
+f:\c_source\player\lrcmng.h(44) : error C2061: syntax error : identifier 'tstring'
+f:\c_source\player\lrcmng.h(72) : error C2061: syntax error : identifier 'tstring'
+f:\c_source\player\lrcmng.h(109) : error C2061: syntax error : identifier 'tstring'
+f:\c_source\player\lrcmng.h(125) : error C2061: syntax error : identifier 'tstring'
+f:\c_source\player\stdafx.h(9) : warning C4005: 'WINVER' : macro redefinition
+        f:\c_source\dsound\playert\stdafx.h(10) : see previous definition of 'WINVER'
+f:\c_source\player\stdafx.h(11) : warning C4005: '_WIN32_IE' : macro redefinition
+        f:\c_source\dsound\playert\stdafx.h(12) : see previous definition of '_WIN32_IE'
+f:\c_source\player\stdafx.h(12) : warning C4005: '_RICHEDIT_VER' : macro redefinition
+        f:\c_source\dsound\playert\stdafx.h(13) : see previous definition of '_RICHEDIT_VER'
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2146: syntax error : missing ';' before identifier 'lpnm'
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1152) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<TBase,TWinTraits>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2501: 'LPNMREBARCHEVRON' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1152) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<TBase,TWinTraits>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2501: 'lpnm' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1152) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<TBase,TWinTraits>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2146: syntax error : missing ';' before identifier 'lpnm'
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1291) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<class ATL::CWindow,class ATL::CWinTraits<114229248,262400> >' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2501: 'LPNMREBARCHEVRON' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1291) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<class ATL::CWindow,class ATL::CWinTraits<114229248,262400> >' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlframe.h(402) : error C2501: 'lpnm' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atlframe.h(1291) : see reference to class template instantiation 'WTL::CFrameWindowImplBase<class ATL::CWindow,class ATL::CWinTraits<114229248,262400> >' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2414) : error C2504: 'IPrintDialogCallback' : base class undefined
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2631) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<T>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2146: syntax error : missing ';' before identifier 'm_pdex'
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2631) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<T>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2501: 'PRINTDLGEX' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2631) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<T>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2501: 'm_pdex' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2631) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<T>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2414) : error C2504: 'IPrintDialogCallback' : base class undefined
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2634) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<class WTL::CPrintDialogEx>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2146: syntax error : missing ';' before identifier 'm_pdex'
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2634) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<class WTL::CPrintDialogEx>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2501: 'PRINTDLGEX' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2634) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<class WTL::CPrintDialogEx>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2418) : error C2501: 'm_pdex' : missing storage-class or type specifiers
+        c:\program files\microsoft visual studio\vc98\include\atldlgs.h(2634) : see reference to class template instantiation 'WTL::CPrintDialogExImpl<class WTL::CPrintDialogEx>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(305) : error C2061: syntax error : identifier 'PBUTTON_IMAGELIST'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(394) : see reference to class template instantiation 'WTL::CButtonT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(311) : error C2061: syntax error : identifier 'PBUTTON_IMAGELIST'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(394) : see reference to class template instantiation 'WTL::CButtonT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(886) : error C2061: syntax error : identifier 'PCOMBOBOXINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1156) : see reference to class template instantiation 'WTL::CComboBoxT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1513) : error C2061: syntax error : identifier 'PEDITBALLOONTIP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1610) : see reference to class template instantiation 'WTL::CEditT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1823) : error C2061: syntax error : identifier 'PSCROLLBARINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(1847) : see reference to class template instantiation 'WTL::CScrollBarT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(2420) : error C2061: syntax error : identifier 'PTTGETTITLE'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(2565) : see reference to class template instantiation 'WTL::CToolTipCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3397) : error C2061: syntax error : identifier 'PLVGROUP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3403) : error C2061: syntax error : identifier 'PLVGROUP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3409) : error C2061: syntax error : identifier 'PLVGROUPMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3415) : error C2061: syntax error : identifier 'PLVGROUPMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3421) : error C2061: syntax error : identifier 'PLVTILEVIEWINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3427) : error C2061: syntax error : identifier 'PLVTILEVIEWINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3433) : error C2061: syntax error : identifier 'PLVTILEINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3439) : error C2061: syntax error : identifier 'PLVTILEINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3445) : error C2061: syntax error : identifier 'LPLVINSERTMARK'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3451) : error C2061: syntax error : identifier 'LPLVINSERTMARK'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3807) : error C2061: syntax error : identifier 'PLVGROUP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3813) : error C2061: syntax error : identifier 'PLVGROUP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3842) : error C2061: syntax error : identifier 'PFNLVGROUPCOMPARE'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3848) : error C2061: syntax error : identifier 'PLVINSERTGROUPSORTED'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3866) : error C2061: syntax error : identifier 'LPLVINSERTMARK'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3872) : error C2061: syntax error : identifier 'PLVSETINFOTIP'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(3933) : see reference to class template instantiation 'WTL::CListViewCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(5749) : error C2061: syntax error : identifier 'LPTBMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(6007) : see reference to class template instantiation 'WTL::CToolBarCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(5755) : error C2061: syntax error : identifier 'LPTBMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(6007) : see reference to class template instantiation 'WTL::CToolBarCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9678) : error C2061: syntax error : identifier 'PLITEM'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9706) : see reference to class template instantiation 'WTL::CLinkCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9684) : error C2061: syntax error : identifier 'PLITEM'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9706) : see reference to class template instantiation 'WTL::CLinkCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9701) : error C2061: syntax error : identifier 'PLHITTESTINFO'
+        c:\program files\microsoft visual studio\vc98\include\atlctrls.h(9706) : see reference to class template instantiation 'WTL::CLinkCtrlT<TBase>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(5749) : error C2061: syntax error : identifier 'LPTBMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrlw.h(135) : see reference to class template instantiation 'WTL::CToolBarCtrlT<class ATL::CWindow>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlctrls.h(5755) : error C2061: syntax error : identifier 'LPTBMETRICS'
+        c:\program files\microsoft visual studio\vc98\include\atlctrlw.h(135) : see reference to class template instantiation 'WTL::CToolBarCtrlT<class ATL::CWindow>' being compiled
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3727) : error C2065: 'IDC_HAND' : undeclared identifier
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3727) : error C2446: '==' : no conversion from 'int' to 'const char *'
+        Conversion from integral type to pointer type requires reinterpret_cast, C-style cast or function-style cast
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3727) : error C2040: '==' : 'const char *' differs in levels of indirection from 'int'
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3858) : error C2065: 'DC_PEN' : undeclared identifier
+c:\program files\microsoft visual studio\vc98\include\atlmisc.h(3868) : error C2065: 'DC_BRUSH' : undeclared identifier
+f:\c_source\player\stdafx.h(40) : fatal error C1083: Cannot open include file: 'dmusici.h': No such file or directory
+PlayList.cpp
+f:\c_source\player\playlist.h(14) : error C2065: 'tstring' : undeclared identifier
+f:\c_source\player\playlist.h(14) : error C2955: 'list' : use of class template requires template argument list
+        c:\program files\microsoft visual studio\vc98\include\list(415) : see declaration of 'list'
+f:\c_source\player\playlist.h(14) : fatal error C1903: unable to recover from previous error(s); stopping compilation
+WaveFile.cpp
+f:\c_source\player\wavefile.h(71) : error C2065: 'DXTRACE_ERR_NOMSGBOX' : undeclared identifier
+f:\c_source\player\wavefile.h(75) : error C2065: 'DXTRACE_ERR' : undeclared identifier
+Generating Code...
+执行 cl.exe 时出错.
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP16.tmp" with contents
+[
+/nologo /o"Debug/playerT.bsc" 
+.\Debug\DialogConfig.sbr
+.\Debug\DsoundControl.sbr
+.\Debug\LrcMng.sbr
+.\Debug\mainfrm.sbr
+.\Debug\music.sbr
+.\Debug\MusicLibrary.sbr
+.\Debug\player.sbr
+.\Debug\PlayList.sbr
+.\Debug\stdafx.sbr
+.\Debug\WaveFile.sbr]
+Creating command line "bscmake.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP16.tmp"
+Creating browse info file...
+BSCMAKE: error BK1506 : cannot open file '.\Debug\DialogConfig.sbr': No such file or directory
+执行 bscmake.exe 时出错.
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+playerT.exe - 1 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
