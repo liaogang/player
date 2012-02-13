@@ -216,11 +216,7 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath=".\aboutdlg.h"
-				>
-			</File>
-			<File
-				RelativePath=".\CMyView.h"
+				RelativePath=".\BasicPlayer.cpp"
 				>
 			</File>
 			<File
@@ -232,11 +228,95 @@
 				>
 			</File>
 			<File
-				RelativePath=".\DialogConfig.h"
+				RelativePath=".\DirectSoundController.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\DsoundControl.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\LrcMng.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mainfrm.CPP"
+				>
+			</File>
+			<File
+				RelativePath=".\music.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MusicLibrary.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\player.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PlayerThread.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PlayList.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SpectrumAnalyser.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SpectrumAnalyserThread.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\stdafx.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Thread.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WaveFile.cpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			>
+			<File
+				RelativePath=".\aboutdlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\BasicPlayer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CMyView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\config.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DialogConfig.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DialogFFT.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DialogLyric.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DirectSoundController.h"
 				>
 			</File>
 			<File
@@ -248,15 +328,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\LrcMng.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\LrcMng.h"
-				>
-			</File>
-			<File
-				RelativePath=".\mainfrm.CPP"
 				>
 			</File>
 			<File
@@ -272,10 +344,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\music.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\music.h"
 				>
 			</File>
@@ -284,27 +352,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MusicLibrary.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\player.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\player.h"
 				>
 			</File>
 			<File
-				RelativePath=".\player.rc"
+				RelativePath=".\PlayerThread.h"
 				>
 			</File>
 			<File
 				RelativePath=".\playerTview.h"
-				>
-			</File>
-			<File
-				RelativePath=".\PlayList.cpp"
 				>
 			</File>
 			<File
@@ -316,11 +372,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\resource.h"
+				RelativePath=".\SpectrumAnalyser.h"
 				>
 			</File>
 			<File
-				RelativePath=".\stdafx.cpp"
+				RelativePath=".\SpectrumAnalyserThread.h"
 				>
 			</File>
 			<File
@@ -328,7 +384,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\WaveFile.cpp"
+				RelativePath=".\Thread.h"
 				>
 			</File>
 			<File
@@ -340,22 +396,26 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\DialogFFT.h"
+		<Filter
+			Name="Resource Files"
 			>
-		</File>
-		<File
-			RelativePath=".\DialogLyric.h"
-			>
-		</File>
-		<File
-			RelativePath=".\res\player.ico"
-			>
-		</File>
-		<File
-			RelativePath=".\res\toolbar.bmp"
-			>
-		</File>
+			<File
+				RelativePath=".\res\player.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\player.rc"
+				>
+			</File>
+			<File
+				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\res\toolbar.bmp"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

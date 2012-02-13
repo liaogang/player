@@ -1,10 +1,14 @@
 * text=auto !eol
+playerT/BasicPlayer.cpp -text
+playerT/BasicPlayer.h -text
 playerT/CMyView.h -text
 playerT/CPropertyDlgs.h -text
 playerT/DialogConfig.cpp -text
 playerT/DialogConfig.h -text
 playerT/DialogFFT.h -text
 playerT/DialogLyric.h -text
+playerT/DirectSoundController.cpp -text
+playerT/DirectSoundController.h -text
 playerT/DsoundControl.cpp -text
 playerT/DsoundControl.h -text
 playerT/FFT.h -text
@@ -15,12 +19,21 @@ playerT/MusicFile.h -text
 playerT/MusicLibrary.cpp -text
 playerT/PlayList.cpp -text
 playerT/PlayList.h -text
+playerT/PlayerThread.cpp -text
+playerT/PlayerThread.h -text
 playerT/ProgertyDlg.h -text
+playerT/SpectrumAnalyser.cpp -text
+playerT/SpectrumAnalyser.h -text
+playerT/SpectrumAnalyserThread.cpp -text
+playerT/SpectrumAnalyserThread.h -text
+playerT/Thread.cpp -text
+playerT/Thread.h -text
 playerT/UpgradeLog.XML -text
 playerT/WaveFile.cpp -text
 playerT/WaveFile.h -text
 playerT/WaveFileEx.h -text
 playerT/aboutdlg.h -text
+playerT/config.h -text
 playerT/mainfrm.CPP -text
 playerT/mainfrm.h -text
 playerT/mpg123.h -text
