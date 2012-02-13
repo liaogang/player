@@ -12,7 +12,6 @@ public:
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
-		MESSAGE_HANDLER( (WM_PAINT+913) , OnMyPaint)
 		MESSAGE_HANDLER(WM_SIZE,OnSize)
 	END_MSG_MAP()
 
@@ -48,12 +47,4 @@ public:
 	}
 
 	DsoundControl *dscrl;
-	LRESULT OnMyPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-	{
-		if(!IsIconic())
-			dscrl->DrawSpectrum();
-		return 0;
-	}
-
-	
 };

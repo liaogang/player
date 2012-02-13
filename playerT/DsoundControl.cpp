@@ -31,7 +31,8 @@ void CALLBACK CALLBACK_TimerNotify(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw
 void CALLBACK CallBack_TimerConvertDataToFFT(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD dw2)
 {
 	DsoundControl *pDsoundCtrl=(DsoundControl*)dwUser;
-	pDsoundCtrl->ConvertDataToFFT();
+	if (pDsoundCtrl->m_bStatus==playing)
+		pDsoundCtrl->ConvertDataToFFT();
 } 
 
 
@@ -171,7 +172,7 @@ BOOL DsoundControl::InitDSound()
 	DSBUFFERDESC dsBufferDesc;
 	ZeroMemory(&dsBufferDesc,sizeof(dsBufferDesc) );
 	dsBufferDesc.dwSize=sizeof(DSBUFFERDESC);
-	dsBufferDesc.dwFlags=DSBCAPS_PRIMARYBUFFER|DSBCAPS_LOCSOFTWARE  /*|DSBCAPS_LOCDEFER*/|DSBCAPS_STICKYFOCUS|DSBCAPS_CTRLVOLUME ;
+	dsBufferDesc.dwFlags=DSBCAPS_GETCURRENTPOSITION2|DSBCAPS_PRIMARYBUFFER|DSBCAPS_LOCSOFTWARE  /*|DSBCAPS_LOCDEFER*/|DSBCAPS_STICKYFOCUS|DSBCAPS_CTRLVOLUME ;
 	dsBufferDesc.dwBufferBytes=0;
 	dsBufferDesc.lpwfxFormat=NULL;
 	LPDIRECTSOUNDBUFFER lpDSB=NULL;
@@ -181,7 +182,7 @@ BOOL DsoundControl::InitDSound()
 	if (FAILED(lpDSB->SetFormat(m_pwfx))) return -1;
 
 	//创建次缓冲区
-	dsBufferDesc.dwFlags=DSBCAPS_CTRLPOSITIONNOTIFY|DSBCAPS_LOCSOFTWARE|DSBCAPS_GLOBALFOCUS/*|DSBCAPS_LOCDEFER*/|DSBCAPS_STICKYFOCUS ;//position回放 global全局声音
+	dsBufferDesc.dwFlags=DSBCAPS_GETCURRENTPOSITION2|DSBCAPS_CTRLPOSITIONNOTIFY|DSBCAPS_LOCSOFTWARE|DSBCAPS_GLOBALFOCUS/*|DSBCAPS_LOCDEFER*/|DSBCAPS_STICKYFOCUS ;//position回放 global全局声音
 	dsBufferDesc.dwBufferBytes=2*m_pwfx->nAvgBytesPerSec;   //2秒缓冲
 	dsBufferDesc.lpwfxFormat=m_pwfx;
 
@@ -285,7 +286,7 @@ void  DsoundControl::Play()
 	
 	m_timerID=timeSetEvent(500,100,CALLBACK_TimerNotify,(DWORD)this,TIME_PERIODIC|TIME_CALLBACK_FUNCTION);
 	
-	m_timerFFT=timeSetEvent(200,0,CallBack_TimerConvertDataToFFT,(DWORD)this,TIME_PERIODIC|TIME_CALLBACK_FUNCTION);
+	m_timerFFT=timeSetEvent(80,0,CallBack_TimerConvertDataToFFT,(DWORD)this,TIME_PERIODIC|TIME_CALLBACK_FUNCTION);
 
 	//播放
 	m_dsBuffer2->Play(0,0,DSBPLAY_LOOPING);                    
@@ -458,23 +459,23 @@ void  DsoundControl::ConvertDataToFFT()
 		float left, right;
 		for(int i=0;i<FFT_SAMPLE_SIZE;i++) //FFT_SAMPLE_SIZE 2048  2048*4约等于4410*2
 		{
-			if(dwCurPlayPos > dw2SecondByteSize)
+			if(dwCurPlayPos >=dw2SecondByteSize)
 				dwCurPlayPos -= dw2SecondByteSize;
 			//dwCurPlayPos-=dw2SecondByteSize/2;
 
 			//傅立叶数据采样
-			left = (float)((m_pAudioBuf[dwCurPlayPos+1] << 8) + m_pAudioBuf[dwCurPlayPos+0])/32767;
-			right = (float)((m_pAudioBuf[dwCurPlayPos+3] << 8) + m_pAudioBuf[dwCurPlayPos+2])/32767;
-			m_floatSamples[i] = (left+right)/2;
+			left = (float)((m_pAudioBuf[dwCurPlayPos+1] << 8) + m_pAudioBuf[dwCurPlayPos+0])/32767.0F;
+			right = (float)((m_pAudioBuf[dwCurPlayPos+3] << 8) + m_pAudioBuf[dwCurPlayPos+2])/32767.0F;
+			m_floatSamples[i] = (left+right)/2.0F;
 			dwCurPlayPos+=4;
 		}
 
 		FFT* fft = new FFT(FFT_SAMPLE_SIZE);
 		float* lpFloatFFTData = fft->calculate(m_floatSamples, FFT_SAMPLE_SIZE);
 		memcpy(m_floatMag, lpFloatFFTData, FFT_SAMPLE_SIZE/2);
-		if (m_pWndShow)
-			SendMessage(*m_pWndShow, WM_PAINT+913, (WPARAM)0, (LPARAM)13);
-		
+
+		DrawSpectrum();
+
 		
 	}
 }
@@ -579,29 +580,29 @@ void DsoundControl::drawSpectrumAnalyserBar(RECT *pRect,int x,int y,int width,in
 
 
 
-	//上面的小帽子滑块
-	if(height > intPeaks[band])             //上涨
-	{
-		//intLastBarHeight[band] = height;
-		intPeaks[band] = height;                 //peak 另一半长度
-		intPeaksDelay[band] = m_iSpectrum_Delay;       //delay  一次下降高度
-	}
-	else                                               //滑块下降
-	{
-		intPeaksDelay[band]--;
-		if (intPeaksDelay[band] < 0) 
-			intPeaks[band]-=3;;
-
-		if (intPeaks[band] < 0) 
-			intPeaks[band] = 0;
-	}
-
-	RECT peakRect;
-	peakRect.left=x;
-	peakRect.right=peakRect.left+width;
-	peakRect.top=y-intPeaks[band];
-	peakRect.bottom=peakRect.top+BARHEIGHT;
-	FillRect(m_memDC,&peakRect,m_hbrush2);
+// 	//上面的小帽子滑块
+// 	if(height > intPeaks[band])             //上涨
+// 	{
+// 		//intLastBarHeight[band] = height;
+// 		intPeaks[band] = height;                 //peak 另一半长度
+// 		intPeaksDelay[band] = m_iSpectrum_Delay;       //delay  一次下降高度
+// 	}
+// 	else                                               //滑块下降
+// 	{
+// 		intPeaksDelay[band]--;
+// 		if (intPeaksDelay[band] < 0) 
+// 			intPeaks[band]-=3;;
+// 
+// 		if (intPeaks[band] < 0) 
+// 			intPeaks[band] = 0;
+// 	}
+// 
+// 	RECT peakRect;
+// 	peakRect.left=x;
+// 	peakRect.right=peakRect.left+width;
+// 	peakRect.top=y-intPeaks[band];
+// 	peakRect.bottom=peakRect.top+BARHEIGHT;
+// 	FillRect(m_memDC,&peakRect,m_hbrush2);
 
 // 	r.top -= intPeaks[band];
 // 
