@@ -37,8 +37,15 @@ LPDIRECTSOUNDBUFFER DSoundBufferCreate(LPDIRECTSOUND lpDSound,WAVEFORMATEX *pwfx
 
 DWORD DSoundBufferWrite(LPDIRECTSOUNDBUFFER lpDSBuffer, void* pBuf , int len)
 {
-	
+	DWORD playCursor,writeCursor;
 
+	LRESULT result= lpDSBuffer->GetCurrentPosition(&playCursor,&writeCursor);
+	
+	if (FAILED(result)) return -1;
+
+
+
+	                                                                                            
 	return 0;
 }
 
