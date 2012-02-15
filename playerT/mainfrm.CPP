@@ -3,25 +3,26 @@
 #include "PlayList.h"
 #include "DialogFFT.h"
 #include "DialogLyric.h"
-LRESULT CMainFrame::OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-	static DialogFFT *dlg=0;
-	if (!dlg)
-	{
-		dlg=new DialogFFT;
-		dlg->dscrl=m_pDsoundControl;
-		dlg->Create(this->m_hWnd);
-		m_pDsoundControl->SetShowWindow(&(dlg->m_hWnd));
-	}
-
-
-	dlg->ShowWindow(SW_SHOW);
-	return 0;
-}
+ #include "BasicPlayer.h"
+ LRESULT CMainFrame::OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+ {
+//  	static DialogFFT *dlg=0;
+//  	if (!dlg)
+//  	{
+//  		dlg=new DialogFFT;
+//  		dlg->dscrl=m_pDsoundControl;
+//  		dlg->Create(this->m_hWnd);
+//  		m_pDsoundControl->SetShowWindow(&(dlg->m_hWnd));
+//  	}
+//  
+//  
+//  	dlg->ShowWindow(SW_SHOW);
+ 	return 0;
+ }
 
 LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	m_pDsoundControl->Play();
+	//m_pDsoundControl->Play();
 	//gMainFrame=this;
 	return 0;
 }
@@ -32,20 +33,21 @@ LRESULT CMainFrame::OnOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 	if(dlg.DoModal()!=IDOK)return 0;
 
 	LPTSTR filepath=dlg.m_ofn.lpstrFile;
-	m_pDsoundControl->OpenFile(filepath);
+
+	//m_pDsoundControl->OpenFile(filepath);
 
 	return 0;
 }
 
 LRESULT CMainFrame::OnPause(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	m_pDsoundControl->Pause();
+	//m_pDsoundControl->Pause();
 	return 0;
 }
 
 LRESULT CMainFrame::OnStop(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	m_pDsoundControl->Stop();
+	//m_pDsoundControl->Stop();
 
 	return 0;
 }
@@ -104,10 +106,14 @@ LRESULT CMyView::OnDbClicked(UINT i,CPoint pt)
 	_tcscpy(tmp,str->c_str());
 
 
-	DsoundControl *shared=DsoundControl::shared();
-	shared->Stop();
-	shared->OpenFile(tmp);
-	shared->Play();
+// 	DsoundControl *shared=DsoundControl::shared();
+// 	shared->Stop();
+// 	shared->OpenFile(tmp);
+// 	shared->Play();
+
+	CBasicPlayer *pSharedPlayer=CBasicPlayer::shared();
+	pSharedPlayer->open(tmp);
+	
 
 	SetMsgHandled(FALSE);
 	return 0;

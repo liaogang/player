@@ -56,7 +56,7 @@
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="1"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Debug/playerT.pch"
+				PrecompiledHeaderFile=".\Debug1/playerT.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
 				ProgramDataBaseFileName=".\Debug/"
@@ -385,6 +385,10 @@
 			</File>
 			<File
 				RelativePath=".\Thread.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Utils.h"
 				>
 			</File>
 			<File

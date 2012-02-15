@@ -12,7 +12,7 @@ public:
 	static DWORD CALLBACK ThreadProc(LPVOID lpParameter)
 	{
 		CThread *caller=(CThread*)lpParameter;
-		if (!caller)
+		if (caller)
 			caller->Excute();
 		return 0;
 	}

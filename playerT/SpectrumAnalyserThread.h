@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Thread.h"
 class CSpectrumAnalyserThread : public CThread
 {
 public:

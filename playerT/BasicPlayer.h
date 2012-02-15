@@ -1,22 +1,25 @@
 #pragma once
 
+class CPlayerThread;
+class CSpectrumAnalyser;
+class MusicFile;
+
 class CBasicPlayer
 {
-private:
-	CPlayerThread m_PlayerThread;
-	CSpectrumAnalyser m_SpectrumAnalyser;
 public:
-	CBasicPlayer(void)
-	{
-		m_PlayerThread=new CPlayerThread;
-		m_SpectrumAnalyser=new CSpectrumAnalyser;
+	CPlayerThread* m_pPlayerThread;
+	CSpectrumAnalyser* m_pSpectrumAnalyser;
+	MusicFile *m_pFile;
+public:
+	BOOL m_bStopped,m_bPaused;
+public:
+	CBasicPlayer(void);
+public:
+	static CBasicPlayer* shared();
 
-
-	}
-
-	~CBasicPlayer(void)
-	{
-		if(!m_PlayerThread) delete m_PlayerThread;
-		if (!m_SpectrumAnalyser) delete m_SpectrumAnalyser; 
-	}
+	~CBasicPlayer(void);
+	void start();
+	void pause();
+	void stop();
+	void open( LPTSTR filepath );
 };
