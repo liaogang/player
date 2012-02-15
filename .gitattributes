@@ -29,6 +29,7 @@ playerT/SpectrumAnalyserThread.h -text
 playerT/Thread.cpp -text
 playerT/Thread.h -text
 playerT/UpgradeLog.XML -text
+playerT/Utils.h -text
 playerT/WaveFile.cpp -text
 playerT/WaveFile.h -text
 playerT/WaveFileEx.h -text
