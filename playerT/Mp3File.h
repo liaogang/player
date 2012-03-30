@@ -189,9 +189,7 @@ private:
 	{
 		int ret=0;
 		ret=Open(pszPath);
-		mpg123_id3v1 *v1=&m_Mpg123_id3v1;
-		mpg123_id3v2 *v2=&m_Mpg123_id3v2;
-		GetID3(&v1,&v2);
+		GetID3(&m_pMpg123_id3v1,&m_pMpg123_id3v2);
 		return ret;
 	}
 	

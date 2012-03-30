@@ -76,7 +76,7 @@ public:
 	LRESULT OnTvnSelchangedTree(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 	{
 		LPNMTREEVIEW pNMTreeView=reinterpret_cast<LPNMTREEVIEW>(pnmh);
-		HTREEITEM item;
+		//HTREEITEM item;
 		
 		tstring str1=pNMTreeView->itemNew.pszText;
 		if (str1.compare(_T("The Master"))==0)
@@ -118,7 +118,7 @@ public:
 	LRESULT OnTvnSelchangedTree(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 	{
 		LPNMTREEVIEW pNMTreeView=reinterpret_cast<LPNMTREEVIEW>(pnmh);
-		HTREEITEM item;
+		//HTREEITEM item;
 
 		tstring str1=pNMTreeView->itemNew.pszText;
 		LPTSTR str=new TCHAR[125];

@@ -105,7 +105,7 @@ void  DsoundControl::TimerNotify()
 
 		//Lock DirectSoundBuffer Second Part
 		HRESULT hr=m_dsBuffer2->Lock(m_pwfx->nAvgBytesPerSec,m_pwfx->nAvgBytesPerSec,&lpvAudio1,&dwBytesAudio1,&lpvAudio2,&dwBytesAudio2,0);
-		if(FAILED(hr)) return;
+		if(FAILED(hr)) return;  
 	}
 	else if (hr==WAIT_OBJECT_0+1)
 	{

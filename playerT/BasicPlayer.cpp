@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "BasicPlayer.h"
-
 #include "MusicFile.h"
 #include "PlayerThread.h"
 #include "SpectrumAnalyser.h"
@@ -44,7 +43,8 @@ void CBasicPlayer::pause()
 
 void CBasicPlayer::stop()
 {
-
+	m_bStopped=TRUE;
+	m_pPlayerThread->Suspended();
 }
 
 
@@ -69,10 +69,13 @@ void CBasicPlayer::open( LPTSTR filepath )
 	{
 		m_pFile=new Mp3File();
 	}
+	if (_tcscmp(p,_T("wma"))==0)
+	{
+		m_pFile=new Mp3File();
+	}
 
 	m_pFile->OpenAndReadID3Info(filepath);
-
-
+	
 	start();
 	//m_pwfx=m_pFile->GetFormat();
 	//m_dwTotalSamples=m_pFile->GetSize()*m_pwfx->nBlockAlign;

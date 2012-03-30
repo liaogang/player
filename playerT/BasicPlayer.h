@@ -3,10 +3,11 @@
 class CPlayerThread;
 class CSpectrumAnalyser;
 class MusicFile;
-
+class CMainFrame;
 class CBasicPlayer
 {
 public:
+	CMainFrame *m_pMainFrame;
 	CPlayerThread* m_pPlayerThread;
 	CSpectrumAnalyser* m_pSpectrumAnalyser;
 	MusicFile *m_pFile;

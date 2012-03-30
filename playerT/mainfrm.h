@@ -6,12 +6,8 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "AboutDlg.h"
-
-
-#include "DsoundControl.h"
-
+//#include "DsoundControl.h"
 #include "DialogConfig.h"
-
 #include "CMyView.h"
 
 
@@ -129,7 +125,7 @@ public:
 //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 //	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
-	DsoundControl *m_pDsoundControl;
+	//DsoundControl *m_pDsoundControl;
 	CMyView m_view;
 	CMyTrackBar m_trackBar;
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -190,8 +186,8 @@ public:
 		}
 		//-------------------------------------------------------------
 		//m_DsoundControl.SetShowWindow(&m_hWnd);
-		m_pDsoundControl=DsoundControl::shared();
-		m_pDsoundControl->m_pMainFrame=this;
+		//m_pDsoundControl=DsoundControl::shared();
+		//m_pDsoundControl->m_pMainFrame=this;
 		//-------------------------------------------------------------
 
 		return 0;
@@ -205,11 +201,7 @@ public:
 		pLoop->RemoveMessageFilter(this);
 		pLoop->RemoveIdleHandler(this);
 
-
-
-		
-			m_pDsoundControl->Stop();
-		
+		//m_pDsoundControl->Stop();
 		//-------------------------------------------------------------
 		
 		bHandled = FALSE;
@@ -271,7 +263,7 @@ public:
 	
 	LRESULT OnDrawSpectrum(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		m_pDsoundControl->DrawSpectrum();
+		//m_pDsoundControl->DrawSpectrum();
 		return 0;
 	}
 
