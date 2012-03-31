@@ -304,6 +304,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CriticalSection.h"
+				>
+			</File>
+			<File
 				RelativePath=".\DialogConfig.h"
 				>
 			</File>

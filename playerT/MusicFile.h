@@ -5,10 +5,10 @@ class MusicFile
 {
 public:
 	LPTSTR  m_pszPath;
-protected:
-	WAVEFORMATEX*  m_pwfx;
 	mpg123_id3v1* m_pMpg123_id3v1;
 	mpg123_id3v2* m_pMpg123_id3v2;
+protected:
+	WAVEFORMATEX*  m_pwfx;
 public:
 	MusicFile(void){}
 

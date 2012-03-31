@@ -47,7 +47,7 @@ public:
 			//mpg123_exit();
 		}
 	}
-	
+
 	virtual DWORD GetSize()
 	{
 		return mpg123_length(m_hmp3);
@@ -64,16 +64,14 @@ public:
 			return -1;
 	}
 
-	
-
 	virtual bool Open(LPTSTR pszPath)
 	{
 		m_pszPath=pszPath;
 
 		if (InitMpgLib()!=MPG123_OK)
 			return false;
-	
-		
+
+
 		if (m_mpg123_open(m_hmp3, pszPath) != MPG123_OK)
 			return FALSE;
 
@@ -119,6 +117,7 @@ public:
 		m_pwfx->nBlockAlign	    =   channels * bitspersample/8;
 		m_pwfx->wBitsPerSample	=   bitspersample;
 		m_pwfx->cbSize			=   0;
+		return TRUE;
 	}
 
 	virtual bool Read(void* pBuf,DWORD dwSizeToRead, DWORD* pdwSizeRead)
@@ -188,5 +187,4 @@ private:
 		GetID3(&m_pMpg123_id3v1,&m_pMpg123_id3v2);
 		return ret;
 	}
-	
 };

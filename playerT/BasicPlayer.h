@@ -7,6 +7,7 @@ class CMainFrame;
 class CBasicPlayer
 {
 public:
+	BOOL m_bFileEnd;
 	CMainFrame *m_pMainFrame;
 	CPlayerThread* m_pPlayerThread;
 	CSpectrumAnalyser* m_pSpectrumAnalyser;
@@ -19,7 +20,7 @@ public:
 	static CBasicPlayer* shared();
 
 	~CBasicPlayer(void);
-	void start();
+	void play();
 	void pause();
 	void stop();
 	void open( LPTSTR filepath );

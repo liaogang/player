@@ -3,6 +3,7 @@ playerT/BasicPlayer.cpp -text
 playerT/BasicPlayer.h -text
 playerT/CMyView.h -text
 playerT/CPropertyDlgs.h -text
+playerT/CriticalSection.h -text
 playerT/DialogConfig.cpp -text
 playerT/DialogConfig.h -text
 playerT/DialogFFT.h -text

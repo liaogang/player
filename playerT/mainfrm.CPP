@@ -24,8 +24,7 @@
 
 LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	//m_pDsoundControl->Play();
-	//gMainFrame=this;
+	g_pSharedPlayer->play();
 	return 0;
 }
 
@@ -38,6 +37,7 @@ LRESULT CMainFrame::OnOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 
 	g_pSharedPlayer->open(filepath);
 
+	g_pSharedPlayer->play();
 	return 0;
 }
 
@@ -67,7 +67,6 @@ LRESULT CMainFrame::OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
 
 LRESULT CMainFrame::OnTestInitplaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-
 	return 0;
 }
 
@@ -108,6 +107,7 @@ LRESULT CMyView::OnDbClicked(UINT i,CPoint pt)
 	g_pSharedPlayer=CBasicPlayer::shared();
 	g_pSharedPlayer->m_pMainFrame=this->m_pMainFrame;
 	g_pSharedPlayer->open(tmp);
+	g_pSharedPlayer->play();
 
 	SetMsgHandled(FALSE);
 	return 0;

@@ -9,9 +9,8 @@
 //#include "DsoundControl.h"
 #include "DialogConfig.h"
 #include "CMyView.h"
-
- static	CBasicPlayer *g_pSharedPlayer;
-class CBasicPlayer;
+#include "BasicPlayer.h"
+static	CBasicPlayer *g_pSharedPlayer;
 class CMyTrackBar :public CWindowImpl<CMyTrackBar,CTrackBarCtrl>
 {
 public:
@@ -198,7 +197,7 @@ public:
 		pLoop->RemoveMessageFilter(this);
 		pLoop->RemoveIdleHandler(this);
 
-		g_pSharedPlayer->stop();
+		//g_pSharedPlayer->stop();
 		
 
 		bHandled = FALSE;

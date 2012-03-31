@@ -15,7 +15,8 @@
  }
 
 
-CBasicPlayer :: CBasicPlayer(void)
+ CBasicPlayer :: CBasicPlayer(void):
+ m_bStopped(TRUE),m_bPaused(TRUE),m_pFile(NULL),m_bFileEnd(FALSE)
 {
 	m_pPlayerThread=new CPlayerThread(this);
 	m_pSpectrumAnalyser=new CSpectrumAnalyser;
@@ -29,22 +30,67 @@ CBasicPlayer :: ~CBasicPlayer(void)
 
 
 
-void CBasicPlayer::start()
+void CBasicPlayer::play()
 {
+	if (m_bFileEnd)
+		return;
+	
+	if (!m_bStopped)
+		if (m_bPaused)      //Î´Í£Ö¹ÇÒÔÝÍ£
+		{
+			pause();        //¼ÌÐø
+			return;
+		}
+		else               //ÕýÔÚ²¥·Å
+			stop();        //ÏÈÍ£Ö¹
+
 	m_bStopped=FALSE;
+	m_bPaused=FALSE;
+
+	///set file to Init
+	m_pPlayerThread->reset();
+	m_pPlayerThread->CleanDSBufferByTrackBegin();
+	m_pPlayerThread->WriteDataToDSBuf();
+	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
+	m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MAX);
 	m_pPlayerThread->Resume();
 }
 
 
 void CBasicPlayer::pause()
 {
-	m_pPlayerThread->Suspend();
+	if (m_bStopped)
+		return;
+
+	if (m_bPaused)    //resume
+	{
+		m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MAX);
+		m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
+		m_pPlayerThread->Resume();
+		m_bPaused=FALSE;
+	}
+	else               //pause
+	{
+		m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
+		m_pPlayerThread->m_lpDSBuffer->Stop();
+		m_pPlayerThread->Suspend();
+		m_bPaused=TRUE;
+	}
 }
 
 void CBasicPlayer::stop()
 {
-	m_bStopped=TRUE;
-	m_pPlayerThread->Suspended();
+	if(!m_bStopped)
+	{
+		m_bStopped=TRUE;
+		m_bPaused=TRUE;
+
+		m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
+		m_pPlayerThread->m_lpDSBuffer->Stop();
+		m_pPlayerThread->Suspend();
+
+		//m_pPlayerThread->Renew();
+	}
 }
 
 
@@ -60,6 +106,10 @@ void CBasicPlayer::open( LPTSTR filepath )
 			break;
 		}
 	}
+
+	if(m_pFile)
+		delete m_pFile;
+	m_bFileEnd=FALSE;
 
 	if (_tcscmp(p,_T("wav"))==0)
 	{
@@ -77,10 +127,4 @@ void CBasicPlayer::open( LPTSTR filepath )
 	m_pFile->OpenAndReadID3Info(filepath);
 	
 	mpg123_id3v1 *id3v1=m_pFile->m_pMpg123_id3v1;
-
-
-
-	start();
-	//m_pwfx=m_pFile->GetFormat();
-	//m_dwTotalSamples=m_pFile->GetSize()*m_pwfx->nBlockAlign;
 }
