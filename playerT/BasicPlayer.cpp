@@ -76,6 +76,10 @@ void CBasicPlayer::open( LPTSTR filepath )
 
 	m_pFile->OpenAndReadID3Info(filepath);
 	
+	mpg123_id3v1 *id3v1=m_pFile->m_pMpg123_id3v1;
+
+
+
 	start();
 	//m_pwfx=m_pFile->GetFormat();
 	//m_dwTotalSamples=m_pFile->GetSize()*m_pwfx->nBlockAlign;

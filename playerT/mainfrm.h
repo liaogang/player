@@ -10,7 +10,8 @@
 #include "DialogConfig.h"
 #include "CMyView.h"
 
-
+ static	CBasicPlayer *g_pSharedPlayer;
+class CBasicPlayer;
 class CMyTrackBar :public CWindowImpl<CMyTrackBar,CTrackBarCtrl>
 {
 public:
@@ -125,9 +126,10 @@ public:
 //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 //	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
-	//DsoundControl *m_pDsoundControl;
 	CMyView m_view;
 	CMyTrackBar m_trackBar;
+	
+
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		m_hWndClient = m_view.Create(m_hWnd, rcDefault, NULL, LVS_SINGLESEL | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | LVS_REPORT | LVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
@@ -184,11 +186,6 @@ public:
 			tstring str=columnName[i];
 			m_view.AddColumn(str.c_str(),i,-1, LVCF_FMT| LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM ,LVCFMT_CENTER);
 		}
-		//-------------------------------------------------------------
-		//m_DsoundControl.SetShowWindow(&m_hWnd);
-		//m_pDsoundControl=DsoundControl::shared();
-		//m_pDsoundControl->m_pMainFrame=this;
-		//-------------------------------------------------------------
 
 		return 0;
 	}
@@ -201,9 +198,9 @@ public:
 		pLoop->RemoveMessageFilter(this);
 		pLoop->RemoveIdleHandler(this);
 
-		//m_pDsoundControl->Stop();
-		//-------------------------------------------------------------
+		g_pSharedPlayer->stop();
 		
+
 		bHandled = FALSE;
 		return 1;
 	}
@@ -216,8 +213,6 @@ public:
 
 	LRESULT OnFileNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		// TODO: add code to initialize document
-
 		return 0;
 	}
 

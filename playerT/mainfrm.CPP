@@ -4,6 +4,8 @@
 #include "DialogFFT.h"
 #include "DialogLyric.h"
  #include "BasicPlayer.h"
+
+
  LRESULT CMainFrame::OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
  {
 //  	static DialogFFT *dlg=0;
@@ -34,20 +36,20 @@ LRESULT CMainFrame::OnOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 
 	LPTSTR filepath=dlg.m_ofn.lpstrFile;
 
-	//m_pDsoundControl->OpenFile(filepath);
+	g_pSharedPlayer->open(filepath);
 
 	return 0;
 }
 
 LRESULT CMainFrame::OnPause(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	//m_pDsoundControl->Pause();
+	g_pSharedPlayer->pause();
 	return 0;
 }
 
 LRESULT CMainFrame::OnStop(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	//m_pDsoundControl->Stop();
+	g_pSharedPlayer->stop();
 
 	return 0;
 }
@@ -65,14 +67,12 @@ LRESULT CMainFrame::OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
 
 LRESULT CMainFrame::OnTestInitplaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	// TODO: 在此添加命令处理程序代码
 
 	return 0;
 }
 
 LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	// TODO: 在此添加命令处理程序代码
 
 	UINT uFlags=BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE;
 	uFlags&=~BIF_NONEWFOLDERBUTTON ;
@@ -105,15 +105,9 @@ LRESULT CMyView::OnDbClicked(UINT i,CPoint pt)
 	TCHAR *tmp=new TCHAR[MAX_PATH];
 	_tcscpy(tmp,str->c_str());
 
-
-// 	DsoundControl *shared=DsoundControl::shared();
-// 	shared->Stop();
-// 	shared->OpenFile(tmp);
-// 	shared->Play();
-
-	CBasicPlayer *pSharedPlayer=CBasicPlayer::shared();
-	pSharedPlayer->m_pMainFrame=this->m_pMainFrame;
-	pSharedPlayer->open(tmp);
+	g_pSharedPlayer=CBasicPlayer::shared();
+	g_pSharedPlayer->m_pMainFrame=this->m_pMainFrame;
+	g_pSharedPlayer->open(tmp);
 
 	SetMsgHandled(FALSE);
 	return 0;

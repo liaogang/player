@@ -71,15 +71,11 @@ public:
 		m_pszPath=pszPath;
 
 		if (InitMpgLib()!=MPG123_OK)
-		{
 			return false;
-		}
-		
+	
 		
 		if (m_mpg123_open(m_hmp3, pszPath) != MPG123_OK)
-		{
 			return FALSE;
-		}
 
 		int   channels, encode;
 		unsigned short bitspersample, format;
