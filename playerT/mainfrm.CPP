@@ -106,8 +106,8 @@ LRESULT CMyView::OnDbClicked(UINT i,CPoint pt)
 
 	g_pSharedPlayer=CBasicPlayer::shared();
 	g_pSharedPlayer->m_pMainFrame=this->m_pMainFrame;
-	g_pSharedPlayer->open(tmp);
-	g_pSharedPlayer->play();
+	if(g_pSharedPlayer->open(tmp)==TRUE)
+		g_pSharedPlayer->play();
 
 	SetMsgHandled(FALSE);
 	return 0;

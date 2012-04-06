@@ -4,16 +4,19 @@ class CPlayerThread;
 class CSpectrumAnalyser;
 class MusicFile;
 class CMainFrame;
+class CPlayerController;
 class CBasicPlayer
 {
 public:
+	CPlayerController *m_pPlayerController;
 	BOOL m_bFileEnd;
 	CMainFrame *m_pMainFrame;
 	CPlayerThread* m_pPlayerThread;
 	CSpectrumAnalyser* m_pSpectrumAnalyser;
 	MusicFile *m_pFile;
 public:
-	BOOL m_bStopped,m_bPaused;
+	volatile BOOL m_bStopped;
+	BOOL m_bPaused;
 public:
 	CBasicPlayer(void);
 public:
@@ -23,5 +26,5 @@ public:
 	void play();
 	void pause();
 	void stop();
-	void open( LPTSTR filepath );
+	BOOL open( LPTSTR filepath );
 };

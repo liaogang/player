@@ -34,7 +34,7 @@ private:
 	mpg123_handle* m_hmp3;
 	//-----------------------------------------------------------------------
 public:
-	Mp3File(void)
+	Mp3File(void):m_hmp3(NULL)
 	{
 
 	}
@@ -71,10 +71,9 @@ public:
 		if (InitMpgLib()!=MPG123_OK)
 			return false;
 
-
 		if (m_mpg123_open(m_hmp3, pszPath) != MPG123_OK)
 			return FALSE;
-
+		
 		int   channels, encode;
 		unsigned short bitspersample, format;
 		long  rate; 	
@@ -158,10 +157,14 @@ private:
 			return PLAYERMANAGER_RESULT_ERROR;
 		}
 
-		if ((m_hmp3 = m_mpg123_new(NULL,NULL)) == NULL)
+		int error=0;
+		if ((m_hmp3 = m_mpg123_new(NULL,&error)) == NULL)
 		{
+			LPCSTR errorCode=mpg123_plain_strerror(error);
 			return PLAYERMANAGER_RESULT_ERROR;
 		}
+	
+		mpg123_param(m_hmp3, MPG123_RESYNC_LIMIT, -1, 0); /* New in library version 0.0.1 . */
 
 		return PLAYERMANAGER_RESULT_OK;
 	}

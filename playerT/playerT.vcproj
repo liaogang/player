@@ -146,8 +146,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="1"
+				Optimization="0"
+				InlineFunctionExpansion="0"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;STRICT"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -160,6 +160,7 @@
 				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
+				DebugInformationFormat="4"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -177,6 +178,7 @@
 				OutputFile=".\Release/playerT.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Release/playerT.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"

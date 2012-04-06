@@ -22,8 +22,8 @@ CPlayerThread::~CPlayerThread(void)
 
 void CPlayerThread::reset()
 {
-	static DWORD lastAvgBytesPerSec;
-	WAVEFORMATEX *pwfx;
+	static DWORD lastAvgBytesPerSec=0;
+	WAVEFORMATEX *pwfx=0;
 	pwfx=m_pPlayer->m_pFile->GetFormat();
 	if (pwfx->nAvgBytesPerSec!=lastAvgBytesPerSec)
 	{
@@ -35,7 +35,7 @@ void CPlayerThread::reset()
 	m_dwCurWritePos=0;
 }
 
-void CPlayerThread::CleanDSBufferByTrackBegin()
+void CPlayerThread::CleanDSBuffer()
 {
 	HRESULT result;
 	LPVOID buffer1;
@@ -54,22 +54,22 @@ void CPlayerThread::CleanDSBufferByTrackBegin()
 void CPlayerThread::Excute()
 {
 	while(!m_pPlayer->m_bStopped)
-	{
 		WriteDataToDSBuf();
-	}
 }
 
 void CPlayerThread::WriteDataToDSBuf()
 {
 	CONST DWORD buffersize = DEFAULTBUFFERSIZE;
-	LPVOID pFileBuffer;
-	DWORD dwSizeToRead,dwSizeRead;
+	DWORD dwSizeToRead;
 	dwSizeToRead=buffersize;
+	BOOL bEndOfInput;
 
-	pFileBuffer=new BYTE[dwSizeToRead];
+	char fileBuffer[DEFAULTBUFFERSIZE];
+	char *pFileBuffer=fileBuffer;
 
-	m_pPlayer->m_pFile->Read(pFileBuffer,dwSizeToRead,&dwSizeRead);
-	if (dwSizeRead<=0)
+	m_cs->Enter();
+	 bEndOfInput=!m_pPlayer->m_pFile->Read(pFileBuffer,dwSizeToRead,&m_dwSizeRead);
+	if (bEndOfInput)
 	{
 		m_lpDSBuffer->Stop();
 		m_pPlayer->m_bFileEnd=TRUE;
@@ -78,21 +78,24 @@ void CPlayerThread::WriteDataToDSBuf()
 
 	DOUBLE used,lefted;
 	m_pPlayer->m_pFile->GetPos(&used,&lefted);
-	::SendMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_USER+22,used,lefted);
-
-	DWORD sizeToWrite,written;
-	sizeToWrite=dwSizeRead;
-	while(sizeToWrite > 0)
+	::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_USER+22,used,lefted);
+	
+	DWORD written;
+	m_dwSizeToWrite=m_dwSizeRead;
+	while(m_dwSizeToWrite > 0)
 	{
-		written= DSoundBufferWrite(pFileBuffer, sizeToWrite);
+		written= DSoundBufferWrite(pFileBuffer, m_dwSizeToWrite);
+	
 		if (written==-1)
 		{
 			m_pPlayer->m_bStopped=TRUE;
 			break;
 		}
-		sizeToWrite-=written;
-		pFileBuffer=(char*)pFileBuffer+written;
+		m_dwSizeToWrite-=written;
+		pFileBuffer=pFileBuffer+written;
 	}
+	m_cs->Leave();
+
 }
 
 
@@ -106,7 +109,9 @@ DWORD CPlayerThread::DSoundBufferWrite(void* pBuf , int len)
 
 	DWORD available=DS_GetAvailable(g_dwMaxDSBufferLen,playCursor,m_dwCurWritePos);
 	if (available>g_dwMaxDSBufferLen/2)
+	{
 		Sleep(g_dwSleepTime);
+	}
 
 	if (len>available)
 		len=available;
@@ -135,5 +140,32 @@ DWORD CPlayerThread::DSoundBufferWrite(void* pBuf , int len)
 	if (m_dwCurWritePos>=g_dwMaxDSBufferLen)
 		m_dwCurWritePos-=g_dwMaxDSBufferLen;
 
+	//::WaitForSingleObject(m_pPlayer->m_pPlayerController->m_hStartedEvent,INFINITE);
+	 
+
 	return buffer1Len+buffer2Len;
+}
+
+
+//-----------------------------------------
+
+CPlayerController::CPlayerController(CPlayerThread *_playerThread):CThread(FALSE)
+{
+	m_pPlayerThread=_playerThread;
+	m_hStartEvent=CreateEvent(NULL,TRUE,FALSE,NULL);
+	m_hStartedEvent=CreateEvent(NULL,FALSE,FALSE,NULL);
+	m_hStopEvent=CreateEvent(NULL,FALSE,FALSE,NULL);
+}
+
+
+
+void CPlayerController::Excute()
+{
+	while(1)
+	{
+		::WaitForSingleObject(m_hStartEvent,INFINITE);
+		::ResetEvent(m_hStartEvent);
+		m_pPlayerThread->m_lpDSBuffer->Play(0,0,DSBPLAY_LOOPING);
+		::SetEvent(m_hStartedEvent);
+	}
 }
