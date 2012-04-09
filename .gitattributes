@@ -13,6 +13,12 @@ playerT/DirectSoundController.h -text
 playerT/DsoundControl.cpp -text
 playerT/DsoundControl.h -text
 playerT/FFT.h -text
+playerT/Lib/Debug/libmpg123.lib -text
+playerT/Lib/Debug/vc90.idb -text
+playerT/Lib/Debug/vc90.pdb -text
+playerT/Lib/Release/libmpg123.lib -text
+playerT/Lib/Release/vc90.idb -text
+playerT/Lib/Release/vc90.pdb -text
 playerT/LrcMng.cpp -text
 playerT/LrcMng.h -text
 playerT/Mp3File.h -text
