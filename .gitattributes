@@ -39,10 +39,6 @@ playerT/config.h -text
 playerT/mainfrm.CPP -text
 playerT/mainfrm.h -text
 playerT/mpg123.h -text
-playerT/mpg123_denc.dll -text
-playerT/mpg123_denc.lib -text
-playerT/mpg123_dencd.dll -text
-playerT/mpg123_dencd.lib -text
 playerT/music.cpp -text
 playerT/music.h -text
 playerT/player.aps -text
