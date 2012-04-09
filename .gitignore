@@ -1,3 +1,16 @@
+playerBranchNonNotify/*.aps
+playerBranchNonNotify/*.filters
+playerBranchNonNotify/*.old
+playerBranchNonNotify/*.plg
+playerBranchNonNotify/*.user
+playerBranchNonNotify/*.vcxproj
+playerBranchNonNotify/Debug
+playerBranchNonNotify/Debug1
+playerBranchNonNotify/Release
+playerBranchNonNotify/playerT.ncb
+playerBranchNonNotify/playerT.suo
+playerBranchNonNotify/res/*.manifest
+playerBranchNonNotify/res/Thumbs.db
 playerT/*.aps
 playerT/*.filters
 playerT/*.old
