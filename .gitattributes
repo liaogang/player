@@ -42,6 +42,7 @@ playerT/WaveFile.h -text
 playerT/WaveFileEx.h -text
 playerT/aboutdlg.h -text
 playerT/config.h -text
+playerT/libmpg123.dll -text
 playerT/mainfrm.CPP -text
 playerT/mainfrm.h -text
 playerT/mpg123.h -text
