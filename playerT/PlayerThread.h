@@ -6,6 +6,7 @@ class CBasicPlayer;
 class CPlayerThread : public CThread
 {
 public:
+	BOOL  m_bSleep;
 	DWORD m_dwSizeRead;
 	DWORD m_dwSizeToWrite;
 	BOOL m_bNewTrack;
@@ -13,6 +14,13 @@ public:
 	CBasicPlayer *m_pPlayer;
 	LPDIRECTSOUNDBUFFER m_lpDSBuffer;
 	LPDIRECTSOUND m_lpDsound;
+
+
+#ifdef _DEBUG
+	TCHAR *m_pStrDebug;
+	INT   *m_pDebugStrPt;
+#endif
+
 public:
 	CPlayerThread(CBasicPlayer *pPlayer);
 	~CPlayerThread();
@@ -29,8 +37,7 @@ public:
 
 
 
-class CPlayerController :
-	public CThread
+class CPlayerController //:public CThread
 {
 public:
 	HANDLE m_hStartEvent;
@@ -46,5 +53,6 @@ public:
 		if(m_hStartEvent)
 			CloseHandle(m_hStartEvent);
 	}
+
 	void Excute();
 };

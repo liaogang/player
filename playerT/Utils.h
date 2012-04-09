@@ -50,6 +50,8 @@ LPDIRECTSOUNDBUFFER DSoundBufferCreate(LPDIRECTSOUND lpDSound,WAVEFORMATEX *pwfx
 	return lpDSBuffer;
 }
 
+
+//返回剩余可写数据
 DWORD DS_GetAvailable(int maxDSBufferLen , int playCursor, int curWritePos)
 {
 	if (playCursor>curWritePos)

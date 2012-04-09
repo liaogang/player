@@ -5,6 +5,7 @@
 #include "SpectrumAnalyser.h"
 #include "Mp3File.h"
 #include "WaveFileEx.h"
+#include "mainfrm.h"
 
  CBasicPlayer* CBasicPlayer::shared()
  {
@@ -18,10 +19,16 @@
  CBasicPlayer :: CBasicPlayer(void):
  m_bStopped(TRUE),m_bPaused(TRUE),m_pFile(NULL),m_bFileEnd(FALSE)
 {
-	m_pPlayerController=new CPlayerController(m_pPlayerThread);
+	m_hWStartEvent=CreateEvent(NULL,TRUE,FALSE,NULL);
 	m_pPlayerThread=new CPlayerThread(this);
+	m_pPlayerThread->Resume();
+#ifdef _DEBUG
+	m_pPlayerThread->m_pStrDebug=debug_str;
+	m_pPlayerThread->m_pDebugStrPt=&debug_pt;
+#endif
 	m_pSpectrumAnalyser=new CSpectrumAnalyser;
 }
+
 
 CBasicPlayer :: ~CBasicPlayer(void)
 {
@@ -43,7 +50,7 @@ BOOL CBasicPlayer::open( LPTSTR filepath )
 		}
 	}
 
-	m_pPlayerThread->m_cs->Enter();
+	
 	if(m_pFile)
 		delete m_pFile;
 	m_bFileEnd=FALSE;
@@ -64,7 +71,7 @@ BOOL CBasicPlayer::open( LPTSTR filepath )
 
 	INT result=m_pFile->OpenAndReadID3Info(filepath);
 
-	m_pPlayerThread->m_cs->Leave();
+
 	if (result==FALSE)
 	{
 		return FALSE;
@@ -78,8 +85,7 @@ BOOL CBasicPlayer::open( LPTSTR filepath )
 
 void CBasicPlayer::play()
 {
-	if (m_bFileEnd)
-		return;
+	if (m_bFileEnd)	return;
 	
 	if (!m_bStopped)
 		if (m_bPaused)      //Î´Í£Ö¹ÇÒÔÝÍ£
@@ -90,27 +96,18 @@ void CBasicPlayer::play()
 		else               //ÕýÔÚ²¥·Å
 			stop();        //ÏÈÍ£Ö¹
 
-	///set file to Init
-// 	static BOOL bFirst=TRUE;
-// 	if(!bFirst)
-// 	::WaitForSingleObject(m_pPlayerController->m_hStopEvent,INFINITE);
-// 	bFirst=FALSE;
-
-
-
-	m_pPlayerThread->m_cs->Enter();
+	TRACE_11(_T(" resetFile "));
 	m_pFile->ResetFile();
-	m_pPlayerThread->m_cs->Leave();
 	m_pPlayerThread->reset();
 	m_pPlayerThread->CleanDSBuffer();
-
-	
-	//::SetEvent(m_pPlayerController->m_hStartEvent);
 	m_pPlayerThread->WriteDataToDSBuf();
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
-	::SetEvent(m_pPlayerController->m_hStartEvent);
-
-	//m_pPlayerThread->Resume();
+	
+	TRACE_11(_T(" setevent "));
+	::SetEvent(m_hWStartEvent);
+	TRACE_11(_T(" setevented "));
+	m_bStopped=FALSE;
+	m_bPaused=FALSE;
 }
 
 void CBasicPlayer::pause()
@@ -131,15 +128,28 @@ void CBasicPlayer::pause()
 	}
 }
 
+BOOL CBasicPlayer::stoped()
+{
+	return m_bStopped;
+}
 void CBasicPlayer::stop()
 {
 	if(!m_bStopped)
 	{
+		TRACE_11(_T(" mcsE "));
+		m_pPlayerThread->m_cs->Enter();
+		::ResetEvent(m_hWStartEvent);
 		m_pPlayerThread->m_lpDSBuffer->Stop();
+		m_pPlayerThread->m_cs->Leave();
+		TRACE_11(_T(" mcsL "));
 
 		m_bStopped=TRUE;
 		m_bPaused=TRUE;
+
+#ifdef _DEBUG
+		TRACE_11 ( _T("stoped  ") );
+#endif
 		
-		::ResetEvent(m_pPlayerController->m_hStartEvent);
+		::PostMessage(this->m_pMainFrame->m_hWnd,WM_USER+22,0,100);
 	}
 }

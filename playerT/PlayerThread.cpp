@@ -6,7 +6,7 @@
 #include "MusicFile.h"
 #include "mainfrm.h"
 
-CPlayerThread::CPlayerThread(CBasicPlayer *pPlayer):CThread(FALSE),
+CPlayerThread::CPlayerThread(CBasicPlayer *pPlayer):CThread(TRUE),
 m_lpDSBuffer(NULL),m_lpDsound(NULL),m_dwCurWritePos(-1)
 {
 	m_pPlayer=pPlayer;
@@ -55,8 +55,28 @@ void CPlayerThread::Excute()
 {
 	while(1)
 	{
-		WaitForSingleObject(m_pPlayer->m_pPlayerController->m_hStartEvent,INFINITE);
+		m_cs->Enter();
+		WaitForSingleObject(m_pPlayer->m_hWStartEvent,INFINITE);
+		
+		
+#ifdef _DEBUG
+
+		_tcscpy(m_pStrDebug+*m_pDebugStrPt,_T("e"));
+		*m_pDebugStrPt+=_tcslen(_T("e"));
+#endif		
+		
 		WriteDataToDSBuf();
+		
+#ifdef _DEBUG
+		_tcscpy(m_pStrDebug+*m_pDebugStrPt,_T("l  "));
+		*m_pDebugStrPt+=_tcslen(_T("l  "));
+#endif		
+
+		m_cs->Leave();
+		
+// 		if (m_bSleep)
+// 			Sleep(g_dwSleepTime);
+		
 	}
 }
 
@@ -70,7 +90,6 @@ void CPlayerThread::WriteDataToDSBuf()
 	char fileBuffer[DEFAULTBUFFERSIZE];
 	char *pFileBuffer=fileBuffer;
 
-	m_cs->Enter();
 	 bEndOfInput=!m_pPlayer->m_pFile->Read(pFileBuffer,dwSizeToRead,&m_dwSizeRead);
 	if (bEndOfInput)
 	{
@@ -97,8 +116,6 @@ void CPlayerThread::WriteDataToDSBuf()
 		m_dwSizeToWrite-=written;
 		pFileBuffer=pFileBuffer+written;
 	}
-	m_cs->Leave();
-
 }
 
 
@@ -111,10 +128,13 @@ DWORD CPlayerThread::DSoundBufferWrite(void* pBuf , int len)
 	if (FAILED(result)) return -1;
 
 	DWORD available=DS_GetAvailable(g_dwMaxDSBufferLen,playCursor,m_dwCurWritePos);
-	if (available>g_dwMaxDSBufferLen/2)
+	if (available<DEFAULTBUFFERSIZE*2)
 	{
+		m_bSleep=TRUE;
 		Sleep(g_dwSleepTime);
 	}
+	else
+		m_bSleep=FALSE;
 
 	if (len>available)
 		len=available;
@@ -142,33 +162,27 @@ DWORD CPlayerThread::DSoundBufferWrite(void* pBuf , int len)
 	m_dwCurWritePos+=buffer1Len+buffer2Len;
 	if (m_dwCurWritePos>=g_dwMaxDSBufferLen)
 		m_dwCurWritePos-=g_dwMaxDSBufferLen;
-
-	//::WaitForSingleObject(m_pPlayer->m_pPlayerController->m_hStartedEvent,INFINITE);
-	 
-
 	return buffer1Len+buffer2Len;
 }
 
 
 //-----------------------------------------
 
-CPlayerController::CPlayerController(CPlayerThread *_playerThread):CThread(FALSE)
+CPlayerController::CPlayerController(CPlayerThread *_playerThread)//:CThread(FALSE)
 {
 	m_pPlayerThread=_playerThread;
-	m_hStartEvent=CreateEvent(NULL,TRUE,FALSE,NULL);
+	m_hStartEvent=CreateEvent(NULL,FALSE,FALSE,NULL);
 	m_hStartedEvent=CreateEvent(NULL,FALSE,FALSE,NULL);
 	m_hStopEvent=CreateEvent(NULL,FALSE,FALSE,NULL);
 }
 
-
-
 void CPlayerController::Excute()
 {
-	//while(1)
-	//{
-		//::WaitForSingleObject(m_hStartEvent,INFINITE);
-		//::ResetEvent(m_hStartEvent);
-		//m_pPlayerThread->m_lpDSBuffer->Play(0,0,DSBPLAY_LOOPING);
-		//::SetEvent(m_hStartedEvent);
-	//}
+	while(1)
+	{
+		::WaitForSingleObject(m_hStartEvent,INFINITE);
+		m_pPlayerThread->m_lpDSBuffer->Play(0,0,DSBPLAY_LOOPING);
+		::WaitForSingleObject(m_hStopEvent,INFINITE);
+		m_pPlayerThread->m_lpDSBuffer->Stop();
+	}
 }

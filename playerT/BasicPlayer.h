@@ -1,5 +1,5 @@
 #pragma once
-
+#include "CriticalSection.h"
 class CPlayerThread;
 class CSpectrumAnalyser;
 class MusicFile;
@@ -17,6 +17,10 @@ public:
 public:
 	volatile BOOL m_bStopped;
 	BOOL m_bPaused;
+
+
+public:
+	HANDLE m_hWStartEvent;//work thread
 public:
 	CBasicPlayer(void);
 public:
@@ -26,5 +30,21 @@ public:
 	void play();
 	void pause();
 	void stop();
+	BOOL stoped();
 	BOOL open( LPTSTR filepath );
 };
+
+
+
+
+
+#ifdef _DEBUG
+
+static TCHAR *debug_str=new TCHAR[1024*100];
+static int  debug_pt=0;
+//static CCriticalSection debug_s;
+#define TRACE_11(tmp) \
+	_tcscpy(debug_str+debug_pt,tmp);\
+	debug_pt+=_tcslen(tmp);
+
+#endif

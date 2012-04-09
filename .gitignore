@@ -1,8 +1,15 @@
+playerT/*.aps
+playerT/*.filters
+playerT/*.old
+playerT/*.plg
+playerT/*.user
+playerT/*.vcxproj
 playerT/Debug
 playerT/Debug1
 playerT/Release
 playerT/playerT.ncb
 playerT/playerT.suo
+playerT/res/*.manifest
 playerT/res/Thumbs.db
 playerTBranch/Debug
 playerTBranch/Debug1
