@@ -96,16 +96,15 @@ void CBasicPlayer::play()
 		else               //正在播放
 			stop();        //先停止
 
-	TRACE_11(_T(" resetFile "));
+
 	m_pFile->ResetFile();
 	m_pPlayerThread->reset();
 	m_pPlayerThread->CleanDSBuffer();
 	m_pPlayerThread->WriteDataToDSBuf();
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
 	
-	TRACE_11(_T(" setevent "));
 	::SetEvent(m_hWStartEvent);
-	TRACE_11(_T(" setevented "));
+
 	m_bStopped=FALSE;
 	m_bPaused=FALSE;
 }
@@ -136,12 +135,10 @@ void CBasicPlayer::stop()
 {
 	if(!m_bStopped)
 	{
-		TRACE_11(_T(" mcsE "));
 		m_pPlayerThread->m_cs->Enter();
 		::ResetEvent(m_hWStartEvent);
 		m_pPlayerThread->m_lpDSBuffer->Stop();
 		m_pPlayerThread->m_cs->Leave();
-		TRACE_11(_T(" mcsL "));
 
 		m_bStopped=TRUE;
 		m_bPaused=TRUE;

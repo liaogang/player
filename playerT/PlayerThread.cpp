@@ -93,6 +93,7 @@ void CPlayerThread::WriteDataToDSBuf()
 	 bEndOfInput=!m_pPlayer->m_pFile->Read(pFileBuffer,dwSizeToRead,&m_dwSizeRead);
 	if (bEndOfInput)
 	{
+		::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_USER+22,0,100);
 		m_lpDSBuffer->Stop();
 		m_pPlayer->m_bFileEnd=TRUE;
 		m_pPlayer->m_bStopped=TRUE;
