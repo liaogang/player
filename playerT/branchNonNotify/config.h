@@ -1,0 +1,2 @@
+#define  DEFAULTTIMESBUFFER 2   //默认的次缓冲区有几秒
+#define  DEFAULTBUFFERSIZE  16000 
