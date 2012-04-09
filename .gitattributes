@@ -65,7 +65,6 @@ playerT/playerT.plg -text
 playerT/playerT.sln -text
 playerT/playerT.vcproj -text
 playerT/playerTview.h -text
-playerT/res/Toolbar.bmp -text
 playerT/res/player.ico -text
 playerT/res/playerT.ico -text
 playerT/res/toolbar.bmp -text
