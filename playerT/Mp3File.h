@@ -1,13 +1,13 @@
 #pragma once
 #include "mmsystem.h"
-#include "mpg123.h"
+#include <mpg123.h>
 
 #pragma comment(lib, "winmm.lib")
 
 #ifdef _DEBUG
-#pragma comment(lib, "mpg123_dencd.lib")
+#pragma comment(lib, "Lib\\Debug\\libmpg123.lib")
 #else
-#pragma comment(lib, "mpg123_denc.lib")
+#pragma comment(lib, "Lib\\Release\\libmpg123.lib")
 #endif
 
 
@@ -16,20 +16,6 @@
 
 class Mp3File:public MusicFile
 {
-private:
-	///////////////////////////////////
-	//function ptr
-	MPG123_INIT  m_mpg123_init;
-	MPG123_NEW   m_mpg123_new;
-	MPG123_EXIT  m_mpg123_exit;
-	MPG123_DELETE m_mpg123_delete;
-	MPG123_GETFORMAT m_mpg123_getformat;
-	typedef int (*MPG123_TOPEN)(mpg123_handle *, const _TCHAR *);
-	MPG123_TOPEN  m_mpg123_open;
-	MPG123_READ  m_mpg123_read;
-	typedef int(*MPG123_TCLOSE)(mpg123_handle *);
-	MPG123_TCLOSE m_mpg123_close;
-
 private:
 	mpg123_handle* m_hmp3;
 	//-----------------------------------------------------------------------
@@ -43,7 +29,7 @@ public:
 	{
 		if (m_hmp3)
 		{
-			m_mpg123_close(m_hmp3);
+			mpg123_tclose(m_hmp3);
 			//mpg123_exit();
 		}
 	}
@@ -71,15 +57,15 @@ public:
 		if (InitMpgLib()!=MPG123_OK)
 			return false;
 
-		if (m_mpg123_open(m_hmp3, pszPath) != MPG123_OK)
+ 		if (mpg123_topen(m_hmp3, pszPath) != MPG123_OK)
 			return FALSE;
 		
 		int   channels, encode;
 		unsigned short bitspersample, format;
 		long  rate; 	
-		if (m_mpg123_getformat(m_hmp3, &rate, &channels, &encode) != MPG123_OK)
+		if (mpg123_getformat(m_hmp3, &rate, &channels, &encode) != MPG123_OK)
 		{
-			m_mpg123_close(m_hmp3);
+			mpg123_close(m_hmp3);
 			return FALSE;
 		}
 
@@ -107,7 +93,6 @@ public:
 		}
 
 		//////////////////////////////////////////////////
-		//m_pwfx=new WAVEFORMATEX;
 		m_pwfx = (WAVEFORMATEX*)new CHAR[ sizeof(WAVEFORMATEX) ];
 		m_pwfx->wFormatTag		=	format;
 		m_pwfx->nChannels		=	channels;
@@ -122,7 +107,7 @@ public:
 	virtual bool Read(void* pBuf,DWORD dwSizeToRead, DWORD* pdwSizeRead)
 	{
 		size_t done; 	int ret;
-		ret = m_mpg123_read(m_hmp3,(unsigned char*)pBuf,dwSizeToRead, &done );
+		ret = mpg123_read(m_hmp3,(unsigned char*)pBuf,dwSizeToRead, &done );
 		if (ret == MPG123_ERR)
 		{
 			return false;
@@ -142,29 +127,19 @@ private:
 
 	int InitMpgLib()
 	{
-		m_mpg123_init      = mpg123_init;
-		m_mpg123_new       = mpg123_new;
-		m_mpg123_delete    = mpg123_delete;
-		m_mpg123_open      = mpg123_topen;
-		m_mpg123_read      = mpg123_read;
-		m_mpg123_close     = mpg123_tclose;
-		m_mpg123_exit      = mpg123_exit;   
-		m_mpg123_getformat = mpg123_getformat;
-
-
-		if (m_mpg123_init() != MPG123_OK)
+		if (mpg123_init() != MPG123_OK)
 		{
 			return PLAYERMANAGER_RESULT_ERROR;
 		}
 
 		int error=0;
-		if ((m_hmp3 = m_mpg123_new(NULL,&error)) == NULL)
+		if ((m_hmp3 = mpg123_new(NULL,&error)) == NULL)
 		{
 			LPCSTR errorCode=mpg123_plain_strerror(error);
 			return PLAYERMANAGER_RESULT_ERROR;
 		}
 	
-		mpg123_param(m_hmp3, MPG123_RESYNC_LIMIT, -1, 0); /* New in library version 0.0.1 . */
+		//mpg123_param(m_hmp3, MPG123_RESYNC_LIMIT, -1, 0); /* New in library version 0.0.1 . */
 
 		return PLAYERMANAGER_RESULT_OK;
 	}

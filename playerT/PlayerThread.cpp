@@ -6,7 +6,7 @@
 #include "MusicFile.h"
 #include "mainfrm.h"
 
-CPlayerThread::CPlayerThread(CBasicPlayer *pPlayer):CThread(TRUE),
+CPlayerThread::CPlayerThread(CBasicPlayer *pPlayer):CThread(FALSE),
 m_lpDSBuffer(NULL),m_lpDsound(NULL),m_dwCurWritePos(-1)
 {
 	m_pPlayer=pPlayer;
@@ -53,8 +53,11 @@ void CPlayerThread::CleanDSBuffer()
 
 void CPlayerThread::Excute()
 {
-	while(!m_pPlayer->m_bStopped)
+	while(1)
+	{
+		WaitForSingleObject(m_pPlayer->m_pPlayerController->m_hStartEvent,INFINITE);
 		WriteDataToDSBuf();
+	}
 }
 
 void CPlayerThread::WriteDataToDSBuf()
@@ -161,11 +164,11 @@ CPlayerController::CPlayerController(CPlayerThread *_playerThread):CThread(FALSE
 
 void CPlayerController::Excute()
 {
-	while(1)
-	{
-		::WaitForSingleObject(m_hStartEvent,INFINITE);
-		::ResetEvent(m_hStartEvent);
-		m_pPlayerThread->m_lpDSBuffer->Play(0,0,DSBPLAY_LOOPING);
-		::SetEvent(m_hStartedEvent);
-	}
+	//while(1)
+	//{
+		//::WaitForSingleObject(m_hStartEvent,INFINITE);
+		//::ResetEvent(m_hStartEvent);
+		//m_pPlayerThread->m_lpDSBuffer->Play(0,0,DSBPLAY_LOOPING);
+		//::SetEvent(m_hStartedEvent);
+	//}
 }

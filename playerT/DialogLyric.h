@@ -31,8 +31,8 @@ public:
 		CenterWindow(GetParent());
 
 		LrcMng *mng=LrcMng::Get();
-		DsoundControl *shared=DsoundControl::shared();
-		mng->Open(_T("D:\\music\\王力宏 - 春雨里洗过的太阳.lrc"));
+		//DsoundControl *shared=DsoundControl::shared();
+		//mng->Open(_T("D:\\music\\王力宏 - 春雨里洗过的太阳.lrc"));
 
 		return TRUE;
 	}

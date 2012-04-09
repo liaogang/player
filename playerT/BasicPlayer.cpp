@@ -18,16 +18,16 @@
  CBasicPlayer :: CBasicPlayer(void):
  m_bStopped(TRUE),m_bPaused(TRUE),m_pFile(NULL),m_bFileEnd(FALSE)
 {
+	m_pPlayerController=new CPlayerController(m_pPlayerThread);
 	m_pPlayerThread=new CPlayerThread(this);
 	m_pSpectrumAnalyser=new CSpectrumAnalyser;
-	//m_pPlayerController=new CPlayerController(m_pPlayerThread);
 }
 
 CBasicPlayer :: ~CBasicPlayer(void)
 {
 	if(!m_pPlayerThread) delete m_pPlayerThread;
 	if (!m_pSpectrumAnalyser) delete m_pSpectrumAnalyser; 
-	//if (!m_pPlayerController) delete m_pPlayerController;
+	if (!m_pPlayerController) delete m_pPlayerController;
 }
 
 BOOL CBasicPlayer::open( LPTSTR filepath )
@@ -43,9 +43,11 @@ BOOL CBasicPlayer::open( LPTSTR filepath )
 		}
 	}
 
+	m_pPlayerThread->m_cs->Enter();
 	if(m_pFile)
 		delete m_pFile;
 	m_bFileEnd=FALSE;
+	
 
 	if (_tcscmp(p,_T("wav"))==0)
 	{
@@ -61,12 +63,16 @@ BOOL CBasicPlayer::open( LPTSTR filepath )
 	}
 
 	INT result=m_pFile->OpenAndReadID3Info(filepath);
+
+	m_pPlayerThread->m_cs->Leave();
 	if (result==FALSE)
 	{
 		return FALSE;
 	}
 
 	mpg123_id3v1 *id3v1=m_pFile->m_pMpg123_id3v1;
+	
+	return TRUE;
 }
 
 
@@ -92,8 +98,9 @@ void CBasicPlayer::play()
 
 
 
-
+	m_pPlayerThread->m_cs->Enter();
 	m_pFile->ResetFile();
+	m_pPlayerThread->m_cs->Leave();
 	m_pPlayerThread->reset();
 	m_pPlayerThread->CleanDSBuffer();
 
@@ -101,15 +108,14 @@ void CBasicPlayer::play()
 	//::SetEvent(m_pPlayerController->m_hStartEvent);
 	m_pPlayerThread->WriteDataToDSBuf();
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
-	m_bStopped=FALSE;
-	m_bPaused=FALSE;
-	m_pPlayerThread->Resume();
+	::SetEvent(m_pPlayerController->m_hStartEvent);
+
+	//m_pPlayerThread->Resume();
 }
 
 void CBasicPlayer::pause()
 {
-	if (m_bStopped)
-		return;
+	if (m_bStopped)return;
 
 	if (m_bPaused)    //resume
 	{
@@ -131,15 +137,9 @@ void CBasicPlayer::stop()
 	{
 		m_pPlayerThread->m_lpDSBuffer->Stop();
 
-
 		m_bStopped=TRUE;
-
 		m_bPaused=TRUE;
 		
-		//m_pPlayerThread->m_cs->Enter();
-		m_pPlayerThread->Suspend();
-		//m_pPlayerThread->m_cs->Leave();
-
-		m_pPlayerThread->Renew();
+		::ResetEvent(m_pPlayerController->m_hStartEvent);
 	}
 }
