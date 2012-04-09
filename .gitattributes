@@ -45,7 +45,6 @@ playerT/config.h -text
 playerT/libmpg123.dll -text
 playerT/mainfrm.CPP -text
 playerT/mainfrm.h -text
-playerT/mpg123.h -text
 playerT/music.cpp -text
 playerT/music.h -text
 playerT/player.cpp -text
