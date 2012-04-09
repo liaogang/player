@@ -67,6 +67,8 @@ playerT/res/toolbar.bmp -text
 playerT/resource.h -text
 playerT/stdafx.cpp -text
 playerT/stdafx.h -text
+playerT/vc90.idb -text
+playerT/vc90.pdb -text
 playerT/备份/mpg123_denc.dll -text
 playerT/备份/mpg123_denc.lib -text
 playerT/备份/mpg123_dencd.dll -text
