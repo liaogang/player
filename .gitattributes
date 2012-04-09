@@ -72,7 +72,6 @@ playerT/playerT.vcproj -text
 playerT/playerT.vcproj.HXT-0401120-LY.Administrator.user -text
 playerT/playerTview.h -text
 playerT/res/player.ico -text
-playerT/res/playerT.exe.manifest -text
 playerT/res/playerT.ico -text
 playerT/res/toolbar.bmp -text
 playerT/resource.h -text
