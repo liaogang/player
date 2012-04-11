@@ -10,14 +10,13 @@ public:
 protected:
 	WAVEFORMATEX*  m_pwfx;
 public:
-	MusicFile(void){}
+	MusicFile(void):m_pwfx(NULL){}
 
-	~MusicFile(void){}
-
-
-public:
-	//mpg123_id3v1 getMpg123_id3v1() { return m_Mpg123_id3v1; }
-	//mpg123_id3v2 getMpg123_id3v2() { return m_Mpg123_id3v2; }
+	~MusicFile(void)
+	{
+		if (m_pwfx)
+			delete m_pwfx;
+	}
 public:
 	//open and read the id3 tag info
 	

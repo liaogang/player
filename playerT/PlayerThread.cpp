@@ -74,9 +74,6 @@ void CPlayerThread::Excute()
 
 		m_cs->Leave();
 		
-// 		if (m_bSleep)
-// 			Sleep(g_dwSleepTime);
-		
 	}
 }
 
@@ -130,12 +127,7 @@ DWORD CPlayerThread::DSoundBufferWrite(void* pBuf , int len)
 
 	DWORD available=DS_GetAvailable(g_dwMaxDSBufferLen,playCursor,m_dwCurWritePos);
 	if (available<DEFAULTBUFFERSIZE*2)
-	{
-		m_bSleep=TRUE;
 		Sleep(g_dwSleepTime);
-	}
-	else
-		m_bSleep=FALSE;
 
 	if (len>available)
 		len=available;
@@ -179,11 +171,11 @@ CPlayerController::CPlayerController(CPlayerThread *_playerThread)//:CThread(FAL
 
 void CPlayerController::Excute()
 {
-	while(1)
-	{
-		::WaitForSingleObject(m_hStartEvent,INFINITE);
-		m_pPlayerThread->m_lpDSBuffer->Play(0,0,DSBPLAY_LOOPING);
-		::WaitForSingleObject(m_hStopEvent,INFINITE);
-		m_pPlayerThread->m_lpDSBuffer->Stop();
-	}
+// 	while(1)
+// 	{
+// 		::WaitForSingleObject(m_hStartEvent,INFINITE);
+// 		m_pPlayerThread->m_lpDSBuffer->Play(0,0,DSBPLAY_LOOPING);
+// 		::WaitForSingleObject(m_hStopEvent,INFINITE);
+// 		m_pPlayerThread->m_lpDSBuffer->Stop();
+// 	}
 }

@@ -41,6 +41,7 @@ extern CAppModule _Module;
 #include "dmusici.h"
 #include "dxerr8.h"
 
+
 //#undef BEGIN_MSG_MAP
 //#define BEGIN_MSG_MAP() BEGIN_MSG_MAP_EX()
 

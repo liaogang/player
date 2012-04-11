@@ -31,5 +31,4 @@ public:
 		SetMsgHandled(FALSE);	
 		return 0;
 	}
-
 };

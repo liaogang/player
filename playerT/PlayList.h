@@ -3,22 +3,49 @@
 #include <fstream>
 #include <string>
 #include <list>
-
+#include <mpg123.h>
 using namespace std;
 
 //
 #define SONG 
+
+#ifndef _PLAYLIST_H_
+#define _PLAYLIST_H_
+
+class PlayListItem
+{
+public:
+	PlayListItem(tstring *url):url(*url),title(NULL)
+		,artist(NULL),album(0),year(0),genre(0),comment(0)
+		,playCount(0),starLvl(1)
+	{
+
+	}
+public:
+	tstring url;
+	UINT          playCount;
+	UINT		  starLvl;
+	//LRC*        lrc;
+
+	//-----id3 info-------
+	 LPTSTR  title,artist,album,year,genre,comment;
+public:
+	BOOL scanId3Info();
+};
+
+
 class PlayList
 {
 public:
-	list<tstring> m_songList;
+	list<PlayListItem> m_songList;
+	//list<tstring> m_songList;
 public:
 	PlayList(void);
 	~PlayList(void);
 public:
 	static void AddFolderToCurrentPlayList(LPCTSTR pszFolder);
 	BOOL AddFolder(LPCTSTR pszFolder);
-
+	void scanAllId3Info();
 };
 
 
@@ -34,3 +61,7 @@ public:
 	//cur play playlist
 	//cur operator playlist
 };
+
+
+
+#endif

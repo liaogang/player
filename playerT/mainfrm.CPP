@@ -3,7 +3,8 @@
 #include "PlayList.h"
 #include "DialogFFT.h"
 #include "DialogLyric.h"
- #include "BasicPlayer.h"
+#include "BasicPlayer.h"
+#include <mpg123.h>
 
 
  LRESULT CMainFrame::OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -83,24 +84,35 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 		_tcscpy(tmp,path);
 		PlayList::AddFolderToCurrentPlayList(tmp);
 		
-		list<tstring> *songList=&(MyLib::GetPlayListObj().m_songList);
-		list<tstring>::iterator i;
+		list<PlayListItem> *songList=&(MyLib::GetPlayListObj().m_songList);
+		list<PlayListItem>::iterator i;
 		int j;
 
 		for (j=0,i=songList->begin();i!=songList->end();i++,j++)
 		{
-			m_view.InsertItem(j,(*i).c_str());
+			int k=1;
+			m_view.InsertItem(j,i->title);
+			m_view.SetItemText(j,k++,i->album);
+			m_view.SetItemText(j,k++,i->artist);
+			m_view.SetItemText(j,k++,i->genre);
+			m_view.SetItemText(j,k++,i->comment);
+		
 			m_view.SetItemData(j,(DWORD)&(*i));
 		}
 	}
 	return 0;
 }
 
+
+
 LRESULT CMyView::OnDbClicked(UINT i,CPoint pt)
 {
 	LVITEM item;
 	GetSelectedItem(&item);
 	tstring *str=(tstring*)GetItemData(item.iItem);
+	if (!str)
+		return 0;
+
 	TCHAR *tmp=new TCHAR[MAX_PATH];
 	_tcscpy(tmp,str->c_str());
 
@@ -130,3 +142,4 @@ LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 	dlg->ShowWindow(SW_SHOW);
 	return 0;
 }
+
