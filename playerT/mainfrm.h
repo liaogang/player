@@ -6,10 +6,10 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "AboutDlg.h"
-//#include "DsoundControl.h"
 #include "DialogConfig.h"
 #include "CMyView.h"
 #include "BasicPlayer.h"
+
 static	CBasicPlayer *g_pSharedPlayer;
 class CMyTrackBar :public CWindowImpl<CMyTrackBar,CTrackBarCtrl>
 {
@@ -49,14 +49,7 @@ public:
 		return 0;
 	}
 
-	//LRESULT InitialUpdate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-	//{
-	//	SetLineSize(1);
-	//	SetPageSize(1);
-	//	//mpg123_seek()
 
-	//	bHandled=FALSE;
-	//}
 };
 
 //#define WM_USER+22 
@@ -127,13 +120,11 @@ public:
 //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 	CMyView m_view;
 	CMyTrackBar m_trackBar;
+	CSplitterWindow split;
 	
 
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		m_hWndClient = m_view.Create(m_hWnd, rcDefault, NULL, LVS_SINGLESEL | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | LVS_REPORT | LVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
-		m_view.m_pMainFrame=this;
-
 		// create command bar window
 		HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
 		// attach menu
@@ -177,15 +168,26 @@ public:
 		pLoop->AddIdleHandler(this);
 
 
+				
+		//-----------------------------------------
+		CSplitterWindow *leftPane=new CSplitterWindow;
+		CSplitterWindow *rightPane=new CSplitterWindow;
+		const DWORD dwSplitStyle = WS_CHILD | WS_VISIBLE | 
+			WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+		dwSplitExStyle = WS_EX_CLIENTEDGE;
+		split.Create (m_hWnd, rcDefault, NULL, 
+			dwSplitStyle, dwSplitExStyle );
+		m_hWndClient =split;
 
-		//--------------------------------------------------
-		tstring columnName[]={_T("                    title                      "),_T(" artist "),_T(" album "),_T(" year "),_T(" comment "),_T(" genre ")};
-		for (int i=0;i<6;i++)
-		{
-			tstring str=columnName[i];
-			m_view.AddColumn(str.c_str(),i,-1, LVCF_FMT| LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM ,LVCFMT_CENTER);
-		}
 
+		m_view.Create(split.m_hWnd, rcDefault, NULL, LVS_SINGLESEL | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | LVS_REPORT | LVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
+		m_view.m_pMainFrame=this;
+		leftPane->Create(split.m_hWnd,rcDefault,NULL,dwSplitStyle,dwSplitExStyle);
+
+		split.SetSplitterPanes(leftPane->m_hWnd,m_view.m_hWnd,TRUE);
+
+		UpdateLayout();
+		split.SetSplitterPos(200,TRUE);
 		return 0;
 	}
 
@@ -196,10 +198,6 @@ public:
 		ATLASSERT(pLoop != NULL);
 		pLoop->RemoveMessageFilter(this);
 		pLoop->RemoveIdleHandler(this);
-
-		//g_pSharedPlayer->stop();
-		
-
 		bHandled = FALSE;
 		return 1;
 	}

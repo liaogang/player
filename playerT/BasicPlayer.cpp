@@ -49,7 +49,6 @@ BOOL CBasicPlayer::open( LPTSTR filepath )
 			break;
 		}
 	}
-
 	
 	if(m_pFile)
 		delete m_pFile;

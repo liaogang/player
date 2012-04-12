@@ -419,10 +419,6 @@
 		<Filter
 			Name="id3lib"
 			>
-			<File
-				RelativePath=".\id3lib\id3.h"
-				>
-			</File>
 			<Filter
 				Name="id3lib"
 				>

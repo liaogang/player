@@ -92,8 +92,10 @@ void CPlayerThread::WriteDataToDSBuf()
 	{
 		::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_USER+22,0,100);
 		m_lpDSBuffer->Stop();
+		::ResetEvent(m_pPlayer->m_hWStartEvent);
 		m_pPlayer->m_bFileEnd=TRUE;
 		m_pPlayer->m_bStopped=TRUE;
+		return; 
 	}
 
 	DOUBLE used,lefted;

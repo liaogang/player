@@ -37,6 +37,8 @@ extern CAppModule _Module;
 #include <atlddx.h>
 
 #include <atlcrack.h>
+#include <atlsplit.h>
+
 #include <atlmisc.h>
 #include "dmusici.h"
 #include "dxerr8.h"

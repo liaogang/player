@@ -1,26 +1,35 @@
 #include "StdAfx.h"
 #include "PlayList.h"
-#include "MusicFile.h"
-#include "WaveFileEx.h"
-#include "Mp3File.h"
+//#include "MusicFile.h"
+//#include "WaveFileEx.h"
+//#include "Mp3File.h"
 #include <direct.h>
-#include <id3.h>
+#include <id3/tag.h>
 
 
 
+LPSTR Unicode2Ansi(LPCWSTR s)
+{
+	DWORD dwNum= WideCharToMultiByte (CP_ACP, 0, s, -1, NULL, 0,0,0);
+	LPSTR target=new char[dwNum];
+	WideCharToMultiByte(CP_ACP,0,s,-1,target,dwNum,0,0);
+	return target;
+}
 
-TCHAR* Ansi2Unicode(char *s)
+
+
+LPWSTR Ansi2Unicode(LPSTR s)
 {
 	DWORD dwNum= MultiByteToWideChar (CP_ACP, 0,(LPCSTR) s, -1, NULL, 0);
-	TCHAR *target=new TCHAR[dwNum];
+	LPWSTR target=new WCHAR[dwNum];
 	MultiByteToWideChar(CP_ACP,0,(LPCSTR)s,-1,target,dwNum);
 	return target;
 }
 
-TCHAR* UTF82Unicode(char *s)
+LPWSTR UTF82Unicode(LPSTR s)
 {
 	DWORD dwNum = MultiByteToWideChar (CP_UTF8, 0, s, -1, NULL, 0);
-	TCHAR* target=new TCHAR[dwNum];
+	LPWSTR target=new WCHAR[dwNum];
 	MultiByteToWideChar(CP_UTF8,0,(LPCSTR)s,-1,target,dwNum);
 	return target;
 }
@@ -115,127 +124,79 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 	return TRUE;
 }
 
+LPTSTR id3Tag_get(ID3_Tag* tag,ID3_FrameID id)
+{
+	ID3_Frame *frame=NULL;
+	ID3_Field *field=NULL;
+	frame=tag->Find(id);
+	if (frame)
+	{
+		const INT LEN=256;
+		field=frame->GetField(ID3FN_TEXT);
+		char *_tmp=new char[LEN];
+		field->Get(_tmp,LEN);
+		return Ansi2Unicode(_tmp);
+	}
+	else
+		return NULL;
+}
+
 
 BOOL PlayListItem::scanId3Info()
 {
-	char* week_day[]= {"sunday", "monday", "tuesday", "wednesday","thursday", "friday", "saturday", NULL };
-	char* MP3ID3Genre[]= 
-	{
-		"Blues","Classic Rock","Country","Dance","Disco","Funk","Grunge","Hip-Hop",
-		"Jazz","Metal","New Age","Oldies","Other","Pop","R&B","Rap","Reggae","Rock",
-		"Techno","Industrial","Alternative","Ska","Death Metal","Pranks","Soundtrack",
-		"Euro-Techno","Ambient","Trip Hop","Vocal","Jazz Funk","Fusion","Trance",
-		"Classical","Instrumental","Acid","House","Game","Sound Clip","Gospel","Noise",
-		"Alternative Rock","Bass","Soul","Punk","Space","Meditative","Instrumental Pop",
-		"Instrumental Rock","Ethnic","Gothic","Darkwave","Techno-Industrial","Electronic",
-		"Pop Folk","Eurodance","Dream","Southern Rock","Comedy","Cult","Gangsta","Top 40",
-		"Christian Rap","Pop Funk","Jungle","Native American","Cabaret","New Wave",
-		"Psychadelic","Rave","ShowTunes","Trailer","Lo-Fi","Tribal","Acid Punk","Acid Jazz",
-		"Polka","Retro","Musical","Rock & Roll","Hard Rock","Folk","Folk Rock",
-		"National Folk","Swing","Fast Fusion","Bebob","Latin","Revival","Celtic",
-		"Bluegrass","Avantgarde","Gothic Rock","Progressive Rock","Psychedelic Rock",
-		"Symphonic Rock","Slow Rock","Big Band","Chorus","Easy Listening","Acoustic",
-		"Humour","Speech","Chanson","Opera","Chamber Music","Sonata","Symphony","Booty Bass",
-		"Primus","Porn Groove","Satire","Slow Jam","Club","Tango","Samba","Folklore","Ballad",
-		"Power Ballad","Rhytmic Soul","Freestyle","Duet","Punk Rock","Drum Solo","A Capella",
-		"Euro House","Dance Hall","Goa","Drum & Bass","Club House","Hardcore","Terror",
-		"Indie","BritPop","Negerpunk","Polsk Punk","Beat","Christian Gangsta Rap",
-		"Heavy Metal","Black Metal","Crossover","Contemporary Christian","Christian Rock",
-		"Merengue","Salsa","Trash Metal","Anime","JPop","SynthPop"
-	};
+	ID3_Tag tag;
+	BOOL bID3v1=TRUE;
 
-	TCHAR *filePath=new TCHAR[256];
-	_tcscpy(filePath,url.c_str());
-	int len=_tcslen(filePath);
-	TCHAR* tmp=filePath+len;
-	while (tmp--)
-	{
-		if ((TCHAR)(*tmp)=='.')
-		{
-			tmp++;
-			break;
-		}
-	}
+	tag.Link(Unicode2Ansi(url.c_str()),ID3TT_ID3V1);
 	
-	MusicFile *file;
-	if (!_tcscmp(tmp,_T("wav")))
-		file=new WaveFile();
-	if (!_tcscmp(tmp,_T("mp3")))
-		file=new Mp3File();
-	if (!_tcscmp(tmp,_T("wma")))
-		file=new Mp3File();
 
-
-	INT result=file->OpenAndReadID3Info(filePath);
-	if (result==FALSE)
+	title=id3Tag_get(&tag,ID3FID_TITLE);
+	artist=id3Tag_get(&tag,ID3FID_LEADARTIST);
+	album=id3Tag_get(&tag,ID3FID_ALBUM);
+	year=id3Tag_get(&tag,ID3FID_YEAR);
+	comment=id3Tag_get(&tag,ID3FID_COMMERCIAL);
+	
+	if (!title && !artist && !album && !year)
 	{
-		return FALSE;
-	}
-
-	mpg123_id3v1* v1=file->m_pMpg123_id3v1;
-	mpg123_id3v2* v2=file->m_pMpg123_id3v2;
-	//-----------------------------------------
-	//have id3v1 or id3v2 info ???
-	//int result=mpg123_meta_check(file->m)
-
-	BOOL bID3v1=FALSE;
-	char *p;
-	p=(char*)v1;
-	if (p)
-	{
-		if (!strncmp(p,"TAG",3))
-		{			
-			for(int i=3;i<127;i++)
-			{
-				if(p[i] != ' ' &&  p[i] != 0X00)
-				{
-					bID3v1=TRUE;
-					break;
-				}
-			}
-			//p[128]   could be 0xff
-		}
+		bID3v1=FALSE;
 	}
 
 	
-	if (bID3v1)
+	if (!bID3v1)
 	{
-		title=Ansi2Unicode(&v1->title[0]);
-		artist=Ansi2Unicode(&v1->artist[0]);
-		album=Ansi2Unicode(&v1->album[0]);
-		year=Ansi2Unicode(&v1->year[0]);
-		comment=Ansi2Unicode(&v1->comment[0]);
+		ID3_Tag tag2;
+		tag2.Link(Unicode2Ansi(url.c_str()),ID3TT_ID3V2|ID3TT_LYRICS);
+		ID3_Frame *frame=NULL;
+		ID3_Field *field=NULL;
 
-		//int igenre=atoi((const char*)v1->genre);
-		//genre=Ansi2Unicode(MP3ID3Genre[v1->genre]);
-	}
-	else
-	{
-		const char  version=file->m_pMpg123_id3v2->version;
-		if (version==0x03 || version==0x04)
+// 		title=id3Tag_get(&tag,ID3FID_TITLE);
+// 		artist=id3Tag_get(&tag,ID3FID_LEADARTIST);
+// 		album=id3Tag_get(&tag,ID3FID_ALBUM);
+// 		year=id3Tag_get(&tag,ID3FID_YEAR);
+// 		comment=id3Tag_get(&tag,ID3FID_COMMERCIAL);
+// 
+// 
+// 		frame=tag.Find(ID3FID_PICTURE);
+// 		if (frame && frame->Contains(ID3FN_DATA))
+// 		{
+// 			frame->Field(ID3FN_DATA).ToFile("C:\\abc.pic");
+// 		}
+
+
+
+		ID3_Tag::Iterator *i=tag2.CreateIterator();
+		while( (frame=i->GetNext()) !=NULL)
 		{
-			if (v2->title)
-				title=UTF82Unicode(v2->title->p);
-			if (v2->artist)
-				artist=UTF82Unicode(v2->artist->p);
-			if (v2->album)
-				album=UTF82Unicode(v2->album->p);
-			if (v2->year)
-				year=UTF82Unicode(v2->year->p);
-			if (v2->genre)
-				genre=UTF82Unicode(v2->genre->p);
-			if (v2->comment)
-				comment=UTF82Unicode(v2->comment->p);
-			
-			if (v2->genre)
-			{
-				int igenre=atoi((const char*)v2->genre->p);
-				genre=UTF82Unicode(MP3ID3Genre[igenre]);
-			}
+			void *buf=frame->GetField(ID3FN_TEXT);
+
 		}
+
+
+
+
+		BITMAP bitmap;
 	}
+	
 
-
-	delete file;
 	return TRUE;
 }
