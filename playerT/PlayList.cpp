@@ -4,6 +4,7 @@
 #include "WaveFileEx.h"
 #include "Mp3File.h"
 #include <direct.h>
+#include <id3.h>
 
 
 

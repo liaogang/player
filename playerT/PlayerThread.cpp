@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "config.h"
+#include "dsConfig.h"
 #include "PlayerThread.h"
 #include "Utils.h"
 #include "BasicPlayer.h"
