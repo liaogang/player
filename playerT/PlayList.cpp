@@ -131,11 +131,18 @@ LPTSTR id3Tag_get(ID3_Tag* tag,ID3_FrameID id)
 	frame=tag->Find(id);
 	if (frame)
 	{
+
 		const INT LEN=256;
 		field=frame->GetField(ID3FN_TEXT);
 		char *_tmp=new char[LEN];
 		field->Get(_tmp,LEN);
+		
+#ifdef _UNICODE 
 		return Ansi2Unicode(_tmp);
+#else
+		return _tmp;
+#endif
+		
 	}
 	else
 		return NULL;
@@ -145,10 +152,26 @@ LPTSTR id3Tag_get(ID3_Tag* tag,ID3_FrameID id)
 BOOL PlayListItem::scanId3Info()
 {
 	ID3_Tag tag;
-	BOOL bID3v1=TRUE;
 
+#ifdef _UNICODE
 	tag.Link(Unicode2Ansi(url.c_str()),ID3TT_ID3V1);
+#else
+	tag.Link((url.c_str()),ID3TT_ALL);
+#endif
 	
+	
+	if (tag.HasV1Tag())
+	{
+		int i=0;
+		i++;
+	}
+	if (tag.HasV2Tag())
+	{
+		int j=0;
+		j++;
+	}
+	ID3_V2Spec spec=tag.GetSpec();
+
 
 	title=id3Tag_get(&tag,ID3FID_TITLE);
 	artist=id3Tag_get(&tag,ID3FID_LEADARTIST);
@@ -158,17 +181,17 @@ BOOL PlayListItem::scanId3Info()
 	
 	if (!title && !artist && !album && !year)
 	{
-		bID3v1=FALSE;
+		//bID3v1=FALSE;
 	}
 
 	
-	if (!bID3v1)
-	{
-		ID3_Tag tag2;
-		tag2.Link(Unicode2Ansi(url.c_str()),ID3TT_ID3V2|ID3TT_LYRICS);
-		ID3_Frame *frame=NULL;
-		ID3_Field *field=NULL;
-
+// 	if (tag.HasV2Tag())
+// 	{
+// 		ID3_Tag tag2;
+// 		tag2.Link(Unicode2Ansi(url.c_str()),ID3TT_ID3V2/*|ID3TT_LYRICS*/);
+// 		ID3_Frame *frame=NULL;
+// 		ID3_Field *field=NULL;
+// 
 // 		title=id3Tag_get(&tag,ID3FID_TITLE);
 // 		artist=id3Tag_get(&tag,ID3FID_LEADARTIST);
 // 		album=id3Tag_get(&tag,ID3FID_ALBUM);
@@ -178,24 +201,21 @@ BOOL PlayListItem::scanId3Info()
 // 
 // 		frame=tag.Find(ID3FID_PICTURE);
 // 		if (frame && frame->Contains(ID3FN_DATA))
-// 		{
+//		{
 // 			frame->Field(ID3FN_DATA).ToFile("C:\\abc.pic");
-// 		}
-
-
-
-		ID3_Tag::Iterator *i=tag2.CreateIterator();
-		while( (frame=i->GetNext()) !=NULL)
-		{
-			void *buf=frame->GetField(ID3FN_TEXT);
-
-		}
-
-
-
-
-		BITMAP bitmap;
-	}
+// 
+// 
+// 
+// 
+// 			ID3_Tag::Iterator *i=tag2.CreateIterator();
+// 			while( (frame=i->GetNext()) !=NULL)
+// 			{
+// 				void *buf=frame->GetField(ID3FN_TEXT);
+// 
+// 			}
+// 
+// 			BITMAP bitmap;
+// 		}
 	
 
 	return TRUE;
