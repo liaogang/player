@@ -4,7 +4,22 @@
 //#include "WaveFileEx.h"
 //#include "Mp3File.h"
 #include <direct.h>
-#include <id3/tag.h>
+//#include <id3/tag.h>
+
+
+
+#include <stdlib.h>
+#include <tbytevector.h>
+#include <mpegfile.h>
+#include <id3v2tag.h>
+#include <id3v2frame.h>
+#include <id3v2header.h>
+#include <id3v1tag.h>
+#include <apetag.h>
+#include <taglib.h>
+
+#include <fileref.h>
+using namespace TagLib;
 
 
 
@@ -88,7 +103,7 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 
 
 			_tcscat(pathName,_findName);
-			tstring str(pathName);
+			std::tstring str(pathName);
 			//m_songList.push_back(str);
 
 			PlayListItem item(&str);
@@ -107,7 +122,7 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 				_tcscpy(pathName,pszFolder);
 				_tcscat(pathName,_T("\\"));
 				_tcscat(pathName,_findName);
-				tstring str(pathName);
+				std::tstring str(pathName);
 				//m_songList.push_back(str);
 
 				PlayListItem item(&str);
@@ -123,66 +138,66 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 
 	return TRUE;
 }
-
-LPTSTR id3Tag_get(ID3_Tag* tag,ID3_FrameID id)
-{
-	ID3_Frame *frame=NULL;
-	ID3_Field *field=NULL;
-	frame=tag->Find(id);
-	if (frame)
-	{
-
-		const INT LEN=256;
-		field=frame->GetField(ID3FN_TEXT);
-		char *_tmp=new char[LEN];
-		field->Get(_tmp,LEN);
-		
-#ifdef _UNICODE 
-		return Ansi2Unicode(_tmp);
-#else
-		return _tmp;
-#endif
-		
-	}
-	else
-		return NULL;
-}
+// 
+// LPTSTR id3Tag_get(ID3_Tag* tag,ID3_FrameID id)
+// {
+// 	ID3_Frame *frame=NULL;
+// 	ID3_Field *field=NULL;
+// 	frame=tag->Find(id);
+// 	if (frame)
+// 	{
+// 
+// 		const INT LEN=256;
+// 		field=frame->GetField(ID3FN_TEXT);
+// 		char *_tmp=new char[LEN];
+// 		field->Get(_tmp,LEN);
+// 		
+// #ifdef _UNICODE 
+// 		return Ansi2Unicode(_tmp);
+// #else
+// 		return _tmp;
+// #endif
+// 		
+// 	}
+// 	else
+// 		return NULL;
+// }
 
 
 BOOL PlayListItem::scanId3Info()
 {
-	ID3_Tag tag;
-
-#ifdef _UNICODE
-	tag.Link(Unicode2Ansi(url.c_str()),ID3TT_ID3V1);
-#else
-	tag.Link((url.c_str()),ID3TT_ALL);
-#endif
-	
-	
-	if (tag.HasV1Tag())
-	{
-		int i=0;
-		i++;
-	}
-	if (tag.HasV2Tag())
-	{
-		int j=0;
-		j++;
-	}
-	ID3_V2Spec spec=tag.GetSpec();
-
-
-	title=id3Tag_get(&tag,ID3FID_TITLE);
-	artist=id3Tag_get(&tag,ID3FID_LEADARTIST);
-	album=id3Tag_get(&tag,ID3FID_ALBUM);
-	year=id3Tag_get(&tag,ID3FID_YEAR);
-	comment=id3Tag_get(&tag,ID3FID_COMMERCIAL);
-	
-	if (!title && !artist && !album && !year)
-	{
-		//bID3v1=FALSE;
-	}
+// 	ID3_Tag tag;
+// 
+// #ifdef _UNICODE
+// 	tag.Link(Unicode2Ansi(url.c_str()),ID3TT_ID3V1);
+// #else
+// 	tag.Link((url.c_str()),ID3TT_ALL);
+// #endif
+// 	
+// 	
+// 	if (tag.HasV1Tag())
+// 	{
+// 		int i=0;
+// 		i++;
+// 	}
+// 	if (tag.HasV2Tag())
+// 	{
+// 		int j=0;
+// 		j++;
+// 	}
+// 	ID3_V2Spec spec=tag.GetSpec();
+// 
+// 
+// 	title=id3Tag_get(&tag,ID3FID_TITLE);
+// 	artist=id3Tag_get(&tag,ID3FID_LEADARTIST);
+// 	album=id3Tag_get(&tag,ID3FID_ALBUM);
+// 	year=id3Tag_get(&tag,ID3FID_YEAR);
+// 	comment=id3Tag_get(&tag,ID3FID_COMMERCIAL);
+// 	
+// 	if (!title && !artist && !album && !year)
+// 	{
+// 		//bID3v1=FALSE;
+// 	}
 
 	
 // 	if (tag.HasV2Tag())
@@ -217,6 +232,92 @@ BOOL PlayListItem::scanId3Info()
 // 			BITMAP bitmap;
 // 		}
 	
+
+
+
+
+
+// 	TagLib::FileRef f("Latex Solar Beef.mp3");
+// 	TagLib::String artist = f.tag()->artist(); // artist == "Frank Zappa"
+// 
+// 	f.tag()->setAlbum("Fillmore East");
+// 	f.save();
+
+// 	TagLib::FileRef g("Free City Rhymes.ogg");
+// 	TagLib::String album = g.tag()->album(); // album == "NYC Ghosts & Flowers"
+// 
+// 	g.tag()->setTrack(1);
+// 	g.save();
+
+
+	MPEG::File f(url.c_str());
+
+	ID3v2::Tag *id3v2tag = f.ID3v2Tag();
+
+	if(id3v2tag) 
+	{
+
+// 		ID3v2::FrameList::ConstIterator it = id3v2tag->frameList().begin();
+// 		for(; it != id3v2tag->frameList().end(); it++)
+// 		{
+// 			//(*it)->frameID()
+// 			TagLib::String ss=(*it)->toString();
+// 			const char *s=ss.toCString(true);
+// 			s="";
+// 		}
+		TagLib::String title=id3v2tag->title();
+		TagLib::String artist=id3v2tag->artist();
+		TagLib::String album=id3v2tag->album();
+		TagLib::uint year=id3v2tag->year();
+		TagLib::String genre=id3v2tag->genre();
+	}
+	else
+	{
+		//cout << "file does not have a valid id3v2 tag" << endl;
+
+	//cout << endl << "ID3v1" << endl;
+
+	ID3v1::Tag *id3v1tag = f.ID3v1Tag();
+
+	if(id3v1tag) {
+		TagLib::String s=id3v1tag->title();
+		s=id3v1tag->album();
+
+// 		cout << "title   - \"" << id3v1tag->title()   << "\"" << endl;
+// 		cout << "artist  - \"" << id3v1tag->artist()  << "\"" << endl;
+// 		cout << "album   - \"" << id3v1tag->album()   << "\"" << endl;
+// 		cout << "year    - \"" << id3v1tag->year()    << "\"" << endl;
+// 		cout << "comment - \"" << id3v1tag->comment() << "\"" << endl;
+// 		cout << "track   - \"" << id3v1tag->track()   << "\"" << endl;
+// 		cout << "genre   - \"" << id3v1tag->genre()   << "\"" << endl;
+	}
+	else
+		cout << "file does not have a valid id3v1 tag" << endl;
+
+
+
+	APE::Tag *ape = f.APETag();
+
+	cout << endl << "APE" << endl;
+
+	if(ape) 
+	{
+		for(APE::ItemListMap::ConstIterator it = ape->itemListMap().begin();
+			it != ape->itemListMap().end(); ++it)
+		{
+			cout << (*it).first << " - \"" << (*it).second.toString() << "\"" << endl;
+		}
+	}
+
+
+/*	cout << endl;*/
+}
+
+
+
+
+
+
 
 	return TRUE;
 }
