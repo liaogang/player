@@ -36,7 +36,7 @@
 #endif
 
 #include "id3/utils.h" // has <config.h> "id3/id3lib_streams.h" "id3/globals.h" "id3/id3lib_strings.h"
-
+#include "Windows.h"
 #if defined HAVE_ICONV_H
 // check if we have all unicodes
 #if (defined(ID3_ICONV_FORMAT_UTF16BE) && defined(ID3_ICONV_FORMAT_UTF16) && defined(ID3_ICONV_FORMAT_UTF8) && defined(ID3_ICONV_FORMAT_ASCII))
@@ -47,21 +47,37 @@
 #endif
 #endif
 
-  // converts an ASCII string into a Unicode one
+// converts an ASCII string into a Unicode one
 dami::String mbstoucs(dami::String data)
 {
-  size_t size = data.size();
-  dami::String unicode(size * 2, '\0');
-  for (size_t i = 0; i < size; ++i)
-  {
-    unicode[i*2+1] = toascii(data[i]);
-  }
-  return unicode;
+
+//*************abandoned in win32 by lg*****
+//   size_t size = data.size();
+//   dami::String unicode(size * 2, '\0');
+//   for (size_t i = 0; i < size; ++i)
+//   {
+//     unicode[i*2+1] = toascii(data[i]);
+//   }
+//   return unicode;
+
+	const char *s=data.c_str();
+	DWORD dwNum= MultiByteToWideChar (CP_ACP, 0,s, -1, NULL, 0);
+	LPWSTR targetW=new WCHAR[dwNum];
+	MultiByteToWideChar(CP_ACP,0,s,-1,targetW,dwNum);
+	
+	char *target=new char[dwNum*2];
+	memcpy(target,targetW,dwNum*2);
+
+	dami::String unicode(target,target+dwNum*2);
+	return unicode;
 }
+
 
 // converts a Unicode string into ASCII
 dami::String ucstombs(dami::String data)
 {
+  //**********abandoned in win32 _lg******
+  /**************************************
   size_t size = data.size() / 2;
   dami::String ascii(size, '\0');
   for (size_t i = 0; i < size; ++i)
@@ -69,7 +85,51 @@ dami::String ucstombs(dami::String data)
     ascii[i] = toascii(data[i*2+1]);
   }
   return ascii;
+  ***************************************/
+
+	char *source;
+	size_t size;
+	char *buf;
+	
+	DWORD dwNum;
+	LPSTR target;
+	
+	source=(char*)data.c_str();
+	size=data.size();
+
+	buf=new char[size+2];
+	memset(buf,'\0',size+2);
+	for (int i=0;i<size;i+=2)
+	{
+		buf[i]=source[i+1];
+		buf[i+1]=source[i];
+	}
+	
+	//change to wchar type
+	void *tmp=(void*)buf;
+	WCHAR *sU=(WCHAR*)tmp;
+
+	dwNum= WideCharToMultiByte (CP_ACP, 0, sU, -1, NULL, 0,0,0);
+	target=new char[dwNum];
+	WideCharToMultiByte(CP_ACP,0,sU,-1,target,dwNum,0,0);
+	dami::String ascii(target);
+	
+	delete[] buf;
+	delete[] target;
+
+	return ascii;
 }
+
+
+
+
+
+
+
+
+
+
+
 
 dami::String oldconvert(dami::String data, ID3_TextEnc sourceEnc, ID3_TextEnc targetEnc)
 {

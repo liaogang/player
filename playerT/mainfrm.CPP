@@ -91,16 +91,10 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 		for (j=0,i=songList->begin();i!=songList->end();i++,j++)
 		{
 			int k=1;
-			m_view.InsertItem(j,i->url.c_str());
-			if (i->title)
-			m_view.SetItemText(j,k++,i->title);
-			if(i->album)
+			m_view.InsertItem(j,i->title);
 			m_view.SetItemText(j,k++,i->album);
-			if(i->artist)
 			m_view.SetItemText(j,k++,i->artist);
-			if(i->genre)
 			m_view.SetItemText(j,k++,i->genre);
-			if(i->comment)
 			m_view.SetItemText(j,k++,i->comment);
 		
 			m_view.SetItemData(j,(DWORD)&(*i));

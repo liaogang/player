@@ -52,6 +52,7 @@ public:
   virtual size_t        Set(const char*) = 0;
   virtual size_t        Get(char*, size_t) const = 0;
   virtual size_t        Get(char*, size_t, size_t) const = 0;
+  virtual char *        Get_Text(int *size)=0; 
   virtual const char*   GetRawText() const = 0;
   virtual const char*   GetRawTextItem(size_t) const = 0;
   virtual size_t        Add(const char*) = 0;

@@ -3,7 +3,7 @@
 #include <fstream>
 #include <string>
 #include <list>
-//#include <mpg123.h>
+#include <mpg123.h>
 using namespace std;
 
 //

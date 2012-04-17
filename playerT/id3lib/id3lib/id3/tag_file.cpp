@@ -52,15 +52,10 @@ static int truncate(const char *path, size_t length)
   HANDLE fh;
 
 
-#ifdef _UNICODE
   DWORD dwNum= MultiByteToWideChar (CP_ACP, 0,path, -1, NULL, 0);
-  LPWSTR target=new WCHAR[dwNum];
+  TCHAR *target=new TCHAR[dwNum];
   MultiByteToWideChar(CP_ACP,0,path,-1,target,dwNum);
-#else
-  const char* target=path;
-#endif
 
-  
   fh = ::CreateFile(target,
                     GENERIC_WRITE | GENERIC_READ,
                     0,

@@ -66,6 +66,7 @@ public:
   const char*   GetRawTextItem(size_t) const;
   size_t        Add(const char* data);
 
+  char*			Get_Text(int *size);
   dami::String  GetText() const;
   dami::String  GetTextItem(size_t) const;
   size_t        SetText(dami::String);

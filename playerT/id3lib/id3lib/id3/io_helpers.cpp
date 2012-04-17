@@ -180,10 +180,11 @@ String io::readUnicodeText(ID3_Reader& reader, size_t len)
   {
     for (size_t i = 0; i < len; i += 2)
     {
-      if (!readTwoChars(reader, ch1, ch2))
-      {
-        break;
-      }
+//       if (!readTwoChars(reader, ch1, ch2))
+//       {
+//         break;
+//       }
+	  readTwoChars(reader, ch1, ch2);
       unicode += ch2;
       unicode += ch1;
     }

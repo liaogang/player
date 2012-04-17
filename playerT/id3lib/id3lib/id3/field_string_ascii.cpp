@@ -258,6 +258,17 @@ size_t ID3_FieldImpl::Add(const char* data)
   return len;
 }
 
+
+char* ID3_FieldImpl::Get_Text(int *size)
+{
+	if (this->GetType() == ID3FTY_TEXTSTRING)
+	{
+		*size=_text.size();
+		return (char*)_text.data();
+	}
+	return NULL;
+}
+
 const char* ID3_FieldImpl::GetRawText() const
 {
   const char* text = NULL;
@@ -365,7 +376,7 @@ bool ID3_FieldImpl::ParseText(ID3_Reader& reader)
     ID3D_NOTICE( "ID3_Field::ParseText(): last field string" );
     String text = readEncodedText(reader, reader.remainingBytes(), enc);
     // not null terminated.
-    this->AddText(text);
+    this->AddText(text); 
     ID3D_NOTICE( "ID3_Field::ParseText(): last field string = " << text );
   }
 
