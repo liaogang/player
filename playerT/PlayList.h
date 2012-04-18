@@ -3,7 +3,7 @@
 #include <fstream>
 #include <string>
 #include <list>
-#include <mpg123.h>
+//#include <mpg123.h>
 using namespace std;
 
 //
@@ -15,10 +15,11 @@ using namespace std;
 class PlayListItem
 {
 public:
-	PlayListItem(tstring *url):url(*url),title(NULL)
-		,artist(NULL),album(0),year(0),genre(0),comment(0)
+	PlayListItem(tstring *url):url(*url)
 		,playCount(0),starLvl(1)
 	{
+		//title(NULL)
+		//,artist(NULL),album(0),year(0),genre(0),comment(0)
 
 	}
 public:
@@ -28,7 +29,8 @@ public:
 	//LRC*        lrc;
 
 	//-----id3 info-------
-	 LPTSTR  title,artist,album,year,genre,comment;
+	tstring  title,artist,album,genre,comment;
+	UINT year;
 public:
 	BOOL scanId3Info();
 };

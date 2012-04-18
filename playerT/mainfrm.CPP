@@ -6,6 +6,9 @@
 #include "BasicPlayer.h"
 #include <mpg123.h>
 
+#include <string>
+using namespace std;
+
 
  LRESULT CMainFrame::OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
  {
@@ -91,11 +94,17 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 		for (j=0,i=songList->begin();i!=songList->end();i++,j++)
 		{
 			int k=1;
-			m_view.InsertItem(j,i->title);
-			m_view.SetItemText(j,k++,i->album);
-			m_view.SetItemText(j,k++,i->artist);
-			m_view.SetItemText(j,k++,i->genre);
-			m_view.SetItemText(j,k++,i->comment);
+			m_view.InsertItem(j,i->url.c_str());
+
+			m_view.SetItemText(j,k++,i->title.c_str());
+			//if(i->album)
+			m_view.SetItemText(j,k++,i->album.c_str());
+			//if(i->artist)
+			m_view.SetItemText(j,k++,i->artist.c_str());
+			//if(i->genre)
+			m_view.SetItemText(j,k++,i->genre.c_str());
+			//if(i->comment)
+			m_view.SetItemText(j,k++,i->comment.c_str());
 		
 			m_view.SetItemData(j,(DWORD)&(*i));
 		}

@@ -197,10 +197,6 @@ namespace dami
   typedef std::basic_string<char>           String;
   typedef std::basic_string<unsigned char> BString;
   typedef std::basic_string<wchar_t>       WString;
-#ifdef _UNICODE
-#define TString WString;
-#else	TString String;
-#endif
 };
 
 #endif /* _ID3LIB_STRINGS_H_ */
