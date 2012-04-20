@@ -34,7 +34,6 @@ CBasicPlayer :: ~CBasicPlayer(void)
 {
 	if(!m_pPlayerThread) delete m_pPlayerThread;
 	if (!m_pSpectrumAnalyser) delete m_pSpectrumAnalyser; 
-	if (!m_pPlayerController) delete m_pPlayerController;
 }
 
 BOOL CBasicPlayer::open( LPTSTR filepath )

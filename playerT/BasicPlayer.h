@@ -8,7 +8,6 @@ class CPlayerController;
 class CBasicPlayer
 {
 public:
-	CPlayerController *m_pPlayerController;
 	BOOL m_bFileEnd;
 	CMainFrame *m_pMainFrame;
 	CPlayerThread* m_pPlayerThread;

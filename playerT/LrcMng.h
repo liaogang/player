@@ -39,11 +39,11 @@ public:
 
 class LrcLine{
 public:
-	LrcLine(UINT min,UINT sec,tstring text)
+	LrcLine(UINT min,UINT sec,std::tstring text)
 		:time(min,sec),text(text)
 	{}
 	LrcTime time;
-	tstring text;
+	std::tstring text;
 	/*return second between*/
 	int operator - (LrcLine& r)
 	{
@@ -59,7 +59,7 @@ class LrcMng
 private:
 	vector<LrcLine> lib;
 	void SortLrcLib();
-	void InsertIntoLib(UINT minute,UINT second,tstring& pLine)
+	void InsertIntoLib(UINT minute,UINT second,std::tstring& pLine)
 	{
 		LrcLine temp(minute,second,pLine);
 		lib.push_back(temp);
@@ -73,7 +73,7 @@ public:
 	{ 
 		std::locale loc1 = std::locale::global(std::locale(".936"));
 		tifstream fin(pstrPath);
-		tstring s;
+		std::tstring s;
 		while(getline(fin,s))
 		{
 			Parse(s);
@@ -87,12 +87,12 @@ public:
 
 
 private:
-	void Parse(tstring& s)
+	void Parse(std::tstring& s)
 	{
 		static bool shouldparseideinfo=true;
 
-		tstring *pLine=new tstring;
-		tstring temp;
+		std::tstring *pLine=new std::tstring;
+		std::tstring temp;
 		bool Parsing=false;
 		for (int i=0;i<s.length();i++)
 		{
@@ -124,13 +124,13 @@ private:
 
 
 
-	bool parseIDEinfo(tstring& temp)
+	bool parseIDEinfo(std::tstring& temp)
 	{
-		const tstring torken_[]={_T("id"),_T("encoding"),_T("ti"),_T("ar"),_T("al"),_T("by")};
+		const std::tstring torken_[]={_T("id"),_T("encoding"),_T("ti"),_T("ar"),_T("al"),_T("by")};
 
 		for (int i=0;i<6;i++)
 		{
-			tstring::iterator f;
+			std::tstring::iterator f;
 			f=find_end(temp.begin(),temp.end(),torken_[i].begin(),torken_[i].end());
 			if (f!=temp.end())
 			{
@@ -140,7 +140,7 @@ private:
 		return false;
 	}
 
-	void parseTimeInfo(tstring& temp,tstring* pLine)
+	void parseTimeInfo(std::tstring& temp,std::tstring* pLine)
 	{
 		int length=temp.length();
 

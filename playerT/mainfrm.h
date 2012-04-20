@@ -4,12 +4,12 @@
 
 #pragma once
 #include "stdafx.h"
-#include "resource.h"
 #include "AboutDlg.h"
 #include "DialogConfig.h"
 #include "CMyView.h"
 #include "BasicPlayer.h"
 
+class CAlbumCoverView;
 static	CBasicPlayer *g_pSharedPlayer;
 class CMyTrackBar :public CWindowImpl<CMyTrackBar,CTrackBarCtrl>
 {
@@ -59,6 +59,12 @@ class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFr
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 
+	CMyView m_view;
+	CMyTrackBar m_trackBar;
+	CSplitterWindow split;
+	CHorSplitterWindow *leftPane;
+	CAlbumCoverView    *albumView1;
+	CAlbumCoverView    *albumView2;
 	CCommandBarCtrl m_CmdBar;
 	CDialogConfig   m_dlgConfig;
 
@@ -98,7 +104,6 @@ public:
 		COMMAND_ID_HANDLER(ID_PAUSE, OnPause)
 		COMMAND_ID_HANDLER(ID_STOP, OnStop)
 		COMMAND_ID_HANDLER(ID_CONFIG, OnConfig)
-		COMMAND_ID_HANDLER(ID_TEST_INITPLAYLIST, OnTestInitplaylist)
 		COMMAND_ID_HANDLER(ID_FILE_OPENDIRECTORY, OnFileOpendirectory)
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
@@ -114,82 +119,8 @@ public:
 		m_trackBar.SetPos(used);
 		return 0;
 	}
-// Handler prototypes (uncomment arguments if needed):
-//	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-//	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
-	CMyView m_view;
-	CMyTrackBar m_trackBar;
-	CSplitterWindow split;
-	
 
-	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-	{
-		// create command bar window
-		HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
-		// attach menu
-		CMenu *pMenu=new CMenu;
-		pMenu->LoadMenu(IDR_MAINFRAME);
-		m_CmdBar.AttachMenu(pMenu->m_hMenu);
-		// load command bar images
-		m_CmdBar.LoadImages(IDR_MAINFRAME);
-		// remove old menu
-		SetMenu(NULL);
-
-		HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd,IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
-
-
-		CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
-		AddSimpleReBarBand(hWndCmdBar);
-		AddSimpleReBarBand(hWndToolBar, NULL, TRUE,280,TRUE);
-
-
-		//------------------------------------------------
-		UINT style=WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
-		style|= TBS_TOOLTIPS  |TBS_NOTICKS    ;
-		//style=style|~TBS_NOTICKS;
-		HWND hWndProgressBar=m_trackBar.Create(this->m_hWnd,NULL,NULL,style,0);
-		m_trackBar.SetPageSize(1);
-		m_trackBar.SetLineSize(1);
-		m_trackBar.SetThumbLength(30);
-		AddSimpleReBarBand(hWndProgressBar,NULL,FALSE,150,TRUE);
-		//-------------------------------------------------
-
-		CreateSimpleStatusBar();
-
-		UIAddToolBar(hWndToolBar);
-		UISetCheck(ID_VIEW_TOOLBAR, 1);
-		UISetCheck(ID_VIEW_STATUS_BAR, 1);
-
-		// register object for message filtering and idle updates
-		CMessageLoop* pLoop = _Module.GetMessageLoop();
-		ATLASSERT(pLoop != NULL);
-		pLoop->AddMessageFilter(this);
-		pLoop->AddIdleHandler(this);
-
-
-				
-		//-----------------------------------------
-		CSplitterWindow *leftPane=new CSplitterWindow;
-		CSplitterWindow *rightPane=new CSplitterWindow;
-		const DWORD dwSplitStyle = WS_CHILD | WS_VISIBLE | 
-			WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-		dwSplitExStyle = WS_EX_CLIENTEDGE;
-		split.Create (m_hWnd, rcDefault, NULL, 
-			dwSplitStyle, dwSplitExStyle );
-		m_hWndClient =split;
-
-
-		m_view.Create(split.m_hWnd, rcDefault, NULL, LVS_SINGLESEL | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | LVS_REPORT | LVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
-		m_view.m_pMainFrame=this;
-		leftPane->Create(split.m_hWnd,rcDefault,NULL,dwSplitStyle,dwSplitExStyle);
-
-		split.SetSplitterPanes(leftPane->m_hWnd,m_view.m_hWnd,TRUE);
-
-		UpdateLayout();
-		split.SetSplitterPos(200,TRUE);
-		return 0;
-	}
+	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
@@ -201,6 +132,8 @@ public:
 		bHandled = FALSE;
 		return 1;
 	}
+
+
 
 	LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
@@ -268,8 +201,7 @@ public:
 	LRESULT OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	
-public:
-	LRESULT OnTestInitplaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+
 public:
 	LRESULT OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 

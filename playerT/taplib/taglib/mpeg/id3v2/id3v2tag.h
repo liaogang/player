@@ -133,7 +133,7 @@ namespace TagLib {
       virtual ~Tag();
 
       // Reimplementations.
-
+	  virtual void   retainPicBuf(ByteVector* buf) const;
       virtual String title() const;
       virtual String artist() const;
       virtual String album() const;

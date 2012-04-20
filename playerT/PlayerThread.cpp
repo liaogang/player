@@ -49,6 +49,8 @@ void CPlayerThread::CleanDSBuffer()
 		memset(buffer1, emptyByte, buffer1Len);
 		m_lpDSBuffer->Unlock(buffer1,buffer1Len,NULL,NULL);
 	}
+
+	m_lpDSBuffer->SetCurrentPosition(0);
 }
 
 void CPlayerThread::Excute()
@@ -160,24 +162,3 @@ DWORD CPlayerThread::DSoundBufferWrite(void* pBuf , int len)
 	return buffer1Len+buffer2Len;
 }
 
-
-//-----------------------------------------
-
-CPlayerController::CPlayerController(CPlayerThread *_playerThread)//:CThread(FALSE)
-{
-	m_pPlayerThread=_playerThread;
-	m_hStartEvent=CreateEvent(NULL,FALSE,FALSE,NULL);
-	m_hStartedEvent=CreateEvent(NULL,FALSE,FALSE,NULL);
-	m_hStopEvent=CreateEvent(NULL,FALSE,FALSE,NULL);
-}
-
-void CPlayerController::Excute()
-{
-// 	while(1)
-// 	{
-// 		::WaitForSingleObject(m_hStartEvent,INFINITE);
-// 		m_pPlayerThread->m_lpDSBuffer->Play(0,0,DSBPLAY_LOOPING);
-// 		::WaitForSingleObject(m_hStopEvent,INFINITE);
-// 		m_pPlayerThread->m_lpDSBuffer->Stop();
-// 	}
-}

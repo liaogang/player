@@ -12,7 +12,6 @@ public:
 		MSG_WM_CREATE(OnCreate)
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
 	END_MSG_MAP()
-
 	LRESULT OnDbClicked(UINT i,CPoint pt);
 
 	LRESULT OnCreate(LPCREATESTRUCT lpcs)

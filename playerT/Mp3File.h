@@ -138,8 +138,6 @@ private:
 			LPCSTR errorCode=mpg123_plain_strerror(error);
 			return PLAYERMANAGER_RESULT_ERROR;
 		}
-	
-		//mpg123_param(m_hmp3, MPG123_RESYNC_LIMIT, -1, 0); /* New in library version 0.0.1 . */
 
 		return PLAYERMANAGER_RESULT_OK;
 	}

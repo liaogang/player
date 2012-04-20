@@ -277,7 +277,6 @@ BEGIN
     END
     POPUP "Test"
     BEGIN
-        MENUITEM "InitPlayList",                ID_TEST_INITPLAYLIST
         MENUITEM "FFT Dialog Test",             ID_MENU_FFTTEST
     END
 END

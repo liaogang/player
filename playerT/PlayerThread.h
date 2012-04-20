@@ -34,25 +34,3 @@ public:
 	DWORD m_dwCurWritePos;
 	DWORD m_dwSilencedBytes;
 };
-
-
-
-class CPlayerController //:public CThread
-{
-public:
-	HANDLE m_hStartEvent;
-	HANDLE m_hStartedEvent;
-	HANDLE m_hStopEvent;
-	CPlayerThread* m_pPlayerThread;
-
-	CPlayerController(CPlayerThread *_playerThread);
-
-
-	~CPlayerController(void)
-	{
-		if(m_hStartEvent)
-			CloseHandle(m_hStartEvent);
-	}
-
-	void Excute();
-};

@@ -2,18 +2,11 @@
 //
 
 #include "stdafx.h"
-
-//#include <atlframe.h>
-//#include <atlctrls.h>
-//#include <atldlgs.h>
-//#include <atlctrlw.h>
-//#include <atlddx.h>
-
-#include "resource.h"
-
 #include "aboutdlg.h"
 #include "LrcMng.h"
 #include "MainFrm.h"
+
+
 
 CAppModule _Module;
 

@@ -50,8 +50,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\id3lib;.\id3lib\id3lib;.\id3lib\zlib;..\mpg123SvnTrank\ports\MSVC++;..\mpg123SvnTrank\src\libmpg123;.\taplib\include;.\taplib\taglib\ape"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;STRICT;HAVE_CONFIG_H;ID3LIB_LINKOPTION=1;TAGLIB_NO_CONFIG"
+				AdditionalIncludeDirectories="..\mpg123SvnTrank\ports\MSVC++;..\mpg123SvnTrank\src\libmpg123;.\taplib\include;.\taplib\taglib\ape"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;STRICT;TAGLIB_NO_CONFIG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -149,8 +149,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="0"
-				AdditionalIncludeDirectories="F:\¿ìÅÌ\SourceFile\mpg123SvnTrank\ports\MSVC++;F:\¿ìÅÌ\SourceFile\mpg123SvnTrank\src\libmpg123"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;STRICT"
+				AdditionalIncludeDirectories="..\mpg123SvnTrank\ports\MSVC++;..\mpg123SvnTrank\src\libmpg123;.\taplib\include;.\taplib\taglib\ape"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;STRICT;TAGLIB_NO_CONFIG"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -180,6 +180,7 @@
 				OutputFile=".\Release/playerT.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				IgnoreDefaultLibraryNames="libcmtd.lib,LIBCMT.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Release/playerT.pdb"
 				SubSystem="2"
@@ -293,6 +294,14 @@
 			</File>
 			<File
 				RelativePath=".\BasicPlayer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CAlbumCoverView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CImg.h"
 				>
 			</File>
 			<File

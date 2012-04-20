@@ -1,26 +1,5 @@
 #include "StdAfx.h"
 #include "PlayList.h"
-//#include "MusicFile.h"
-//#include "WaveFileEx.h"
-//#include "Mp3File.h"
-#include <direct.h>
-//#include <id3/tag.h>
-
-
-
-#include <stdlib.h>
-#include <tbytevector.h>
-#include <mpegfile.h>
-#include <id3v2tag.h>
-#include <id3v2frame.h>
-#include <id3v2header.h>
-#include <id3v1tag.h>
-#include <apetag.h>
-#include <taglib.h>
-
-#include <fileref.h>
-using namespace TagLib;
-
 
 
 LPSTR Unicode2Ansi(LPCWSTR s)
@@ -30,8 +9,6 @@ LPSTR Unicode2Ansi(LPCWSTR s)
 	WideCharToMultiByte(CP_ACP,0,s,-1,target,dwNum,0,0);
 	return target;
 }
-
-
 
 LPWSTR Ansi2Unicode(LPSTR s)
 {
@@ -56,14 +33,12 @@ PlayList& MyLib::GetPlayListObj()
 	return playList_;
 }
 
-
-
 PlayList::PlayList(void)
 {
 }
 
 PlayList::~PlayList(void)
-{
+{	
 }
 
 void PlayList::AddFolderToCurrentPlayList(LPCTSTR pszFolder)
@@ -100,15 +75,13 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 			TCHAR *pathName=new TCHAR[MAX_PATH+1];
 			_tcscpy(pathName,pszFolder);
 			_tcscat(pathName,_T("\\"));
-
-
 			_tcscat(pathName,_findName);
 			std::tstring str(pathName);
-			//m_songList.push_back(str);
 
-			PlayListItem item(&str);
-			item.scanId3Info();
-			m_songList.push_back(item);
+			PlayListItem *pItem=new PlayListItem(&str);
+			pItem->scanId3Info();
+			m_songList.push_back(*pItem);
+			//msonglist的析构会删除*pItem;
 		}
 
 		BOOL ret;
@@ -123,14 +96,11 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 				_tcscat(pathName,_T("\\"));
 				_tcscat(pathName,_findName);
 				std::tstring str(pathName);
-				//m_songList.push_back(str);
 
-				PlayListItem item(&str);
-				item.scanId3Info();
-				m_songList.push_back(item);
-				
-
-
+				PlayListItem *pItem=new PlayListItem(&str);
+				pItem->scanId3Info();
+				m_songList.push_back(*pItem);
+				//msonglist的析构会删除*pItem;
 			}
 		}
 	}
@@ -156,6 +126,26 @@ BOOL PlayListItem::scanId3Info()
 		genre=id3v2tag->genre().toWString();
 
 		year=id3v2tag->year();
+
+
+		// we will use bytevector to retain to memory in frame
+		pPicBuf=new ByteVector;
+		id3v2tag->retainPicBuf(pPicBuf);
+
+		//-----------------------------------------
+		img=new CImage;
+		// load resource into memory
+		DWORD len =pPicBuf->size();
+		BYTE* lpRsrc=(BYTE*)pPicBuf->data();
+
+		// Allocate global memory on which to create stream
+		HGLOBAL m_hMem = GlobalAlloc(GMEM_FIXED, len);
+		BYTE* pmem = (BYTE*)GlobalLock(m_hMem);
+		memcpy(pmem,lpRsrc,len);
+		IStream* pstm;
+		CreateStreamOnHGlobal(m_hMem,FALSE,&pstm);
+		img->Load(pstm);
+		//-----------------------------------------
 
 		if ( title.empty() && artist.empty() && album.empty())
 			bInvalidID3V2=TRUE;

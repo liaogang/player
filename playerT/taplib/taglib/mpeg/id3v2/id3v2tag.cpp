@@ -36,7 +36,9 @@
 
 #include "frames/textidentificationframe.h"
 #include "frames/commentsframe.h"
-
+#include "attachedpictureframe.h"
+#include <iostream>
+#include <fstream>
 using namespace TagLib;
 using namespace ID3v2;
 
@@ -94,6 +96,15 @@ ID3v2::Tag::~Tag()
   delete d;
 }
 
+void ID3v2::Tag::retainPicBuf(ByteVector* buf) const
+{
+	if (!d->frameListMap["APIC"].isEmpty())
+	{
+		AttachedPictureFrame *frame=(AttachedPictureFrame*)d->frameListMap["APIC"].front();
+		frame->retainPicBuf(buf);
+	}
+	return;
+}
 
 String ID3v2::Tag::title() const
 {
