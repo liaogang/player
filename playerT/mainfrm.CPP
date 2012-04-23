@@ -78,18 +78,16 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	leftPane->Create(split.m_hWnd,rcDefault,NULL,dwSplitStyle,dwSplitExStyle);
 	albumView1=new CAlbumCoverView;
 	albumView2=new CAlbumCoverView;
-	albumView1->pMainFrame=this;
-	albumView2->pMainFrame=this;
 	albumView1->Create(leftPane->m_hWnd);
 	albumView2->Create(leftPane->m_hWnd);
 	leftPane->SetSplitterPanes(albumView1->m_hWnd,albumView2->m_hWnd);
 
-
 	//set left and right
 	split.SetSplitterPanes(leftPane->m_hWnd,m_view.m_hWnd,TRUE);
-
 	UpdateLayout();
-	split.SetSplitterPos(300,TRUE);
+
+	//set the splitter pos
+	split.SetSplitterPos(250,TRUE);
 	leftPane->SetSplitterPos(500,TRUE);
 	return 0;
 }
@@ -157,7 +155,6 @@ LRESULT CMainFrame::OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
 
 LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-
 	UINT uFlags=BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE;
 	uFlags&=~BIF_NONEWFOLDERBUTTON ;
 	CFolderDialog dlg(m_hWnd,_T("请选择要添加的文件夹"),uFlags);
@@ -178,13 +175,9 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 			m_view.InsertItem(j,i->url.c_str());
 
 			m_view.SetItemText(j,k++,i->title.c_str());
-			//if(i->album)
 			m_view.SetItemText(j,k++,i->album.c_str());
-			//if(i->artist)
 			m_view.SetItemText(j,k++,i->artist.c_str());
-			//if(i->genre)
 			m_view.SetItemText(j,k++,i->genre.c_str());
-			//if(i->comment)
 			m_view.SetItemText(j,k++,i->comment.c_str());
 		
 			m_view.SetItemData(j,(DWORD_PTR)&(*i));

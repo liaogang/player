@@ -79,9 +79,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies=" winmm.lib dsound.lib Winmm.lib dxerr8.lib dxguid.lib  libmpg123.lib  atls.lib"
 				OutputFile=".\Debug/playerT.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
+				IgnoreAllDefaultLibraries="true"
 				IgnoreDefaultLibraryNames="libcmtd.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/playerT.pdb"
@@ -147,10 +149,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
+				Optimization="2"
 				InlineFunctionExpansion="0"
 				AdditionalIncludeDirectories="..\mpg123SvnTrank\ports\MSVC++;..\mpg123SvnTrank\src\libmpg123;.\taplib\include;.\taplib\taglib\ape"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;STRICT;TAGLIB_NO_CONFIG"
+				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;TAGLIB_NO_CONFIG"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -162,7 +164,7 @@
 				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -179,9 +181,11 @@
 				Name="VCLinkerTool"
 				OutputFile=".\Release/playerT.exe"
 				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				IgnoreDefaultLibraryNames="libcmtd.lib,LIBCMT.lib"
-				GenerateDebugInformation="true"
+				SuppressStartupBanner="false"
+				GenerateManifest="true"
+				IgnoreAllDefaultLibraries="false"
+				IgnoreDefaultLibraryNames=""
+				GenerateDebugInformation="false"
 				ProgramDatabaseFile=".\Release/playerT.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"

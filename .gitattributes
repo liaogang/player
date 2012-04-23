@@ -74,6 +74,8 @@ playerBranchNonNotify/备份/mpg123_dencd.dll -text
 playerBranchNonNotify/备份/mpg123_dencd.lib -text
 playerT/BasicPlayer.cpp -text
 playerT/BasicPlayer.h -text
+playerT/CAlbumCoverView.h -text
+playerT/CImg.h -text
 playerT/CMyView.h -text
 playerT/CPropertyDlgs.h -text
 playerT/CriticalSection.h -text
