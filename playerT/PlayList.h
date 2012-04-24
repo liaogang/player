@@ -24,6 +24,29 @@ using namespace TagLib;
 #ifndef _PLAYLIST_H_
 #define _PLAYLIST_H_
 
+#define PLAYORDERCOUNT 7
+static const TCHAR *gPlayOrderStr[PLAYORDERCOUNT] =
+{
+	_T("Default"),
+	_T("Repeat (playlist)"),
+	_T("Repeat (track)"),
+	_T("Random"),
+	_T("Shuffle (tracks)"),
+	_T("Shuffle (albums)"),
+	_T("Shuffle (folders)"),
+};
+
+enum PlayOrderIndex
+{
+	Default,
+	Repeat_playlist,
+	Repeat_track,
+	Random,
+	Shuffle_tracks,
+	Shuffle_albums,
+	Shuffle_folders,
+};
+
 class PlayListItem
 {
 public:
@@ -68,7 +91,11 @@ class PlayList
 {
 public:
 	list<PlayListItem> m_songList;
-	PlayListItem  *curPlayingItem;
+private:
+	PlayListItem* curPlayingItem;
+public:
+	inline void SetCurPlaying(PlayListItem* item){curPlayingItem=item;}
+	inline PlayListItem* GetCurPlaying(){return curPlayingItem;};
 public:
 	PlayList(void);
 	~PlayList(void);
@@ -76,6 +103,42 @@ public:
 	static void AddFolderToCurrentPlayList(LPCTSTR pszFolder);
 	BOOL AddFolder(LPCTSTR pszFolder);
 	void scanAllId3Info();
+
+public:
+	PlayOrderIndex index;
+	void SetPlayOrder(enum PlayOrderIndex index)
+	{
+		this->index=index;
+	}
+
+
+	PlayListItem* GetNextTrackByOrder(BOOL bMoveCur=TRUE)
+	{
+		list<PlayListItem>::iterator cur,next;
+
+		for (cur=m_songList.begin();cur!=m_songList.end();cur++)
+			if (&(*cur)==curPlayingItem)
+				break;
+
+		if (++cur==m_songList.end())
+			return NULL;
+		
+		if (index==Default)
+		{
+			next=cur;
+		}
+		if (index==Repeat_playlist)
+		{
+			next;
+		}
+		if (index==Random)
+		{
+			next;
+		}
+
+		if(bMoveCur)curPlayingItem=&(*next);
+		return &(*next);
+	}
 };
 
 

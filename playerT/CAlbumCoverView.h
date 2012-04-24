@@ -20,8 +20,10 @@ public:
 		
 		RECT rc;
 		GetClientRect(&rc);
-		PlayListItem *i=MyLib::GetPlayListObj().curPlayingItem;
-		if (i && i->img)
+		
+		PlayListItem *i=MyLib::GetPlayListObj().GetCurPlaying();
+
+		if (i &&i->img)
 			i->img->Draw(this->GetDC(),rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top,0,0,i->img->GetWidth(),i->img->GetHeight());
 		
 		return 0;

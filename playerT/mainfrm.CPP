@@ -25,15 +25,19 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	// remove old menu
 	SetMenu(NULL);
 
+
+	//-----------------------------------------
+	//toobar 
 	HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd,IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
-
-
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 	AddSimpleReBarBand(hWndCmdBar);
-	AddSimpleReBarBand(hWndToolBar, NULL, TRUE,280,TRUE);
+	AddSimpleReBarBand(hWndToolBar, NULL,TRUE,110,TRUE);
 
 
+
+	SetWindowText(_T(APPNAME));
 	//------------------------------------------------
+	//progress track bar
 	UINT style=WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 	style|= TBS_TOOLTIPS  |TBS_NOTICKS    ;
 	//style=style|~TBS_NOTICKS;
@@ -42,8 +46,32 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_trackBar.SetLineSize(1);
 	m_trackBar.SetThumbLength(30);
 	AddSimpleReBarBand(hWndProgressBar,NULL,FALSE,150,TRUE);
-	//-------------------------------------------------
 
+
+	//-------------------------------------------------
+	//combo box
+	HWND comboBar=m_wndComboBox.Create(m_hWnd,NULL,NULL,WS_CHILD|WS_VISIBLE|WS_VSCROLL|CBS_DROPDOWNLIST);
+	for (int i=0;i<PLAYORDERCOUNT;++i)
+		m_wndComboBox.AddString(gPlayOrderStr[i]);
+	m_wndComboBox.SetCurSel(0);
+	
+// 	CFont font;
+// 	LOGFONT lf;
+// 	memset(&lf, 0, sizeof(LOGFONT));       // zero out structure
+// 	//lf.lfHeight = 20;                      // request a 12-pixel-height font
+// 	lf.lfItalic=TRUE;
+// 	//lf.lfCharSet=
+// 	lf.lfUnderline=TRUE;
+// 	_tcscpy((TCHAR*)lf.lfFaceName, _T("Arial"));        // request a face name "Arial"
+// 	font.CreateFontIndirect(&lf);
+// 	//m_wndComboBox.GetFont();
+// 	m_wndComboBox.SetFont(font,TRUE);
+	AddSimpleReBarBand(comboBar,NULL,FALSE,100,TRUE);
+
+
+	//-------------------------------------------------
+	//status bar  
+	//add it all
 	CreateSimpleStatusBar();
 
 	UIAddToolBar(hWndToolBar);
@@ -196,13 +224,15 @@ LRESULT CMyView::OnDbClicked(UINT i,CPoint pt)
 	if (!listItem)
 		return 0;
 
-
 	if (!g_pSharedPlayer->stoped())
 		g_pSharedPlayer->stop();
 	if(g_pSharedPlayer->open((LPTSTR)listItem->url.c_str())==TRUE)
 		g_pSharedPlayer->play();
 
-	MyLib::GetPlayListObj().curPlayingItem=listItem;
+	::SetWindowText(m_pMainFrame->m_hWnd,listItem->title.c_str());
+	
+
+	MyLib::GetPlayListObj().SetCurPlaying(listItem);
 	m_pMainFrame->albumView1->Invalidate(TRUE);
 
 	SetMsgHandled(FALSE);
@@ -217,9 +247,48 @@ LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 	{
 		dlg=new CDialogLyric;
 		dlg->Create(this->m_hWnd);
+		m_dlgLrc=dlg;
+		dlg->GetClientRect(&dlg->rc);
 	}
 
 	dlg->ShowWindow(SW_SHOW);
 	return 0;
 }
 
+LRESULT CMainFrame::OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	double used,lefted;
+	used=wParam;
+	lefted=lParam;
+	bHandled=FALSE;
+	m_trackBar.SetRange(0,used+lefted);
+	m_trackBar.SetPos(used);
+	if (m_dlgLrc && ::IsWindow(m_dlgLrc->m_hWnd))
+		::PostMessage(m_dlgLrc->m_hWnd,WM_TRACKPOS,wParam,lParam);
+
+	return 1;
+}
+
+
+LRESULT CMainFrame::OnCbnSelchanged(UINT,int id, HWND hWndCtl)
+{
+	if (::IsWindow(m_wndComboBox.m_hWnd) && hWndCtl==m_wndComboBox.m_hWnd)
+	{
+		int i=m_wndComboBox.GetCurSel();
+		MyLib::GetPlayListObj().SetPlayOrder(static_cast< PlayOrderIndex >( i ));
+	}
+
+	return 0;
+}
+
+
+LRESULT CMainFrame::OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	if (g_pSharedPlayer->stoped())
+	{
+		const TCHAR* tmp= g_pSharedPlayer->playNextPlaylistItem();
+		if(tmp)
+			SetWindowText(tmp);
+	}
+	return 0;
+}

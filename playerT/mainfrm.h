@@ -10,6 +10,7 @@
 #include "BasicPlayer.h"
 
 class CAlbumCoverView;
+class CDialogLyric;
 static	CBasicPlayer *g_pSharedPlayer;
 class CMyTrackBar :public CWindowImpl<CMyTrackBar,CTrackBarCtrl>
 {
@@ -19,7 +20,6 @@ public:
 	BEGIN_MSG_MAP(CMyTrackBar)
 		MESSAGE_HANDLER(TB_BUTTONCOUNT,TBB)
 		MESSAGE_HANDLER(TB_GETITEMRECT,OnGetItemRect)
-		MESSAGE_HANDLER(WM_USER+22,OnPos)
 	END_MSG_MAP()
 
 	LRESULT OnGetItemRect(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
@@ -38,21 +38,9 @@ public:
 		return 1;
 	}
 
-	LRESULT OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-	{
-		double used,lefted;
-		used=wParam;
-		lefted=lParam;
-		bHandled=FALSE;
-		SetRange(0,used+lefted);
-		SetPos(used);
-		return 0;
-	}
-
-
 };
 
-//#define WM_USER+22 
+
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFrame>,
 		public CMessageFilter, public CIdleHandler
 {
@@ -62,11 +50,21 @@ public:
 	CMyView m_view;
 	CMyTrackBar m_trackBar;
 	CSplitterWindow split;
+	CCommandBarCtrl m_CmdBar;
+	CDialogConfig   m_dlgConfig;
+	CComboBox m_wndComboBox;
+	CDialogLyric *m_dlgLrc;
 	CHorSplitterWindow *leftPane;
 	CAlbumCoverView    *albumView1;
 	CAlbumCoverView    *albumView2;
-	CCommandBarCtrl m_CmdBar;
-	CDialogConfig   m_dlgConfig;
+
+
+	CMainFrame():m_dlgLrc(NULL),albumView1(NULL),albumView2(NULL)
+		,leftPane(NULL)
+	{
+	}
+
+	~CMainFrame(){}
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg)
 	{
@@ -85,11 +83,13 @@ public:
 	END_UPDATE_UI_MAP()
 
 	BEGIN_MSG_MAP(CMainFrame)
+		COMMAND_CODE_HANDLER_EX(CBN_SELCHANGE,OnCbnSelchanged)
+		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
-		MESSAGE_HANDLER(WM_PAINT+913,OnDrawSpectrum)
+		MESSAGE_HANDLER(WM_DRAWSPECTRUM,OnDrawSpectrum)
 		MESSAGE_HANDLER(WM_SIZE,OnSize)
-		MESSAGE_HANDLER(WM_USER+22,OnPos)
+		MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_NEW, OnFileNew)
 		COMMAND_ID_HANDLER(ID_VIEW_TOOLBAR, OnViewToolBar)
@@ -109,19 +109,12 @@ public:
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
 	END_MSG_MAP()
 
-	LRESULT OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-	{
-		double used,lefted;
-		used=wParam;
-		lefted=lParam;
-		bHandled=FALSE;
-		m_trackBar.SetRange(0,used+lefted);
-		m_trackBar.SetPos(used);
-		return 0;
-	}
 
+	LRESULT OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-
+	LRESULT OnCbnSelchanged(UINT,int id, HWND hWndCtl);
+	LRESULT OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
+	
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 		// unregister message filtering and idle updates

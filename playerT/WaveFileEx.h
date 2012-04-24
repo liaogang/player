@@ -56,7 +56,10 @@ public:
 
 		return -1;
 	}
-
+	virtual VOID  SetOutVolume(double vol)
+	{
+		return;
+	}
 
 private:
 	CWaveFile m_wavefile;

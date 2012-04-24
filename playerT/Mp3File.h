@@ -163,4 +163,10 @@ private:
 		GetID3(&m_pMpg123_id3v1,&m_pMpg123_id3v2);
 		return ret;
 	}
+
+
+	virtual VOID  SetOutVolume(double vol)
+	{
+		mpg123_volume(m_hmp3,vol);
+	}
 };

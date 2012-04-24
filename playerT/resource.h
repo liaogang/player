@@ -11,6 +11,7 @@
 #define IDD_DIALOG1                     203
 #define IDD_DIALO_FFT                   204
 #define IDD_DIALOG2                     205
+#define IDD_DIALOG3                     206
 #define IDC_TREE                        1000
 #define IDC_RESET_ALL                   1001
 #define IDC_RESET_THIS                  1002
@@ -49,11 +50,18 @@
 #define ID_LYRIC_SHOWLYRIC              32802
 #define ID_SHOWLYRIC                    32803
 
+
+//-----------------------------------------
+//
+#define APPNAME "Unnamed Player"
+//-----------------------------------------
+
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        206
+#define _APS_NEXT_RESOURCE_VALUE        207
 #define _APS_NEXT_COMMAND_VALUE         32804
 #define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           101

@@ -1,7 +1,9 @@
 #pragma  once
-#include "config.h"
+
 static DWORD g_dwMaxDSBufferLen;  //ds buffer length 
 static DWORD g_dwSleepTime;       //  1/4 of the ds buffer
+#define  DEFAULTBUFFERSIZE  16000  //one time read from file
+
 inline int DSoundGetDistance(int maxDSBufferLen , int pos1 , int pos2)
 {
 	int distance=pos2-pos1;
@@ -22,7 +24,6 @@ LPDIRECTSOUND DSoundDeviceCreate(LPGUID lpGuid =NULL )
 		hWnd=GetDesktopWindow();
 
 	if(FAILED(lpDSound->SetCooperativeLevel( hWnd, DSSCL_NORMAL) ))return NULL;
-
 	return lpDSound;
 }
 
@@ -42,9 +43,9 @@ LPDIRECTSOUNDBUFFER DSoundBufferCreate(LPDIRECTSOUND lpDSound,WAVEFORMATEX *pwfx
 	if(FAILED(lpDSound->CreateSoundBuffer(&dsBufferDesc,&lpDSBuffer,NULL)))return NULL;
 
 	//-------------------
-	//ds缓冲区大小
+	//ds缓冲区大小    1秒    11.025次读文件
 	g_dwMaxDSBufferLen=pwfx->nAvgBytesPerSec;
-	g_dwSleepTime=(dsBufferDesc.dwBufferBytes/pwfx->nAvgBytesPerSec)*1000/8;//缓冲时间的1/8
+	g_dwSleepTime=(dsBufferDesc.dwBufferBytes/pwfx->nAvgBytesPerSec)*1000/2/11;//缓冲时间的2/11
 	//-------------------
 
 	return lpDSBuffer;

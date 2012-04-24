@@ -50,6 +50,17 @@ extern CAppModule _Module;
 #define tifstream ifstream
 #endif
 
+
+
+
+
+#define  WM_TRACKPOS  (WM_USER+22)  
+#define  WM_TRACKSTOPPED (WM_USER+23)
+#define  WM_DRAWSPECTRUM (WM_PAINT+913)
+
+
+
+
 #pragma comment(lib,"dsound.lib")
 #pragma comment(lib,"Winmm.lib")
 #pragma comment(lib,"dxerr8.lib")

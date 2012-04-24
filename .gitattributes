@@ -98,7 +98,6 @@ playerT/LrcMng.cpp -text
 playerT/LrcMng.h -text
 playerT/Mp3File.h -text
 playerT/MusicFile.h -text
-playerT/MusicLibrary.cpp -text
 playerT/PlayList.cpp -text
 playerT/PlayList.h -text
 playerT/PlayerThread.cpp -text

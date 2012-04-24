@@ -56,7 +56,7 @@ public:
 
 class LrcMng
 {
-private:
+public:
 	vector<LrcLine> lib;
 	void SortLrcLib();
 	void InsertIntoLib(UINT minute,UINT second,std::tstring& pLine)
