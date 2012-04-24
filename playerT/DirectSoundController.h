@@ -36,6 +36,7 @@ public:
 	}
 
 
+#define DEFAULTTIMESBUFFER 2
 	void* DSoundBufferCreate(WAVEFORMATEX *pwfx,INT timesSecond = DEFAULTTIMESBUFFER /*¼¸ÃëµÄ»º³å */)
 	{
 		//DSBSIZE_MIN  DSBSIZE_MAX

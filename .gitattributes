@@ -115,7 +115,6 @@ playerT/WaveFile.cpp -text
 playerT/WaveFile.h -text
 playerT/WaveFileEx.h -text
 playerT/aboutdlg.h -text
-playerT/dsConfig.h -text
 playerT/id3lib/id3.h -text
 playerT/id3lib/id3Config.h -text
 playerT/id3lib/id3lib/id3/c_wrapper.cpp -text
@@ -206,6 +205,7 @@ playerT/id3lib/zlib/zlib.h -text
 playerT/id3lib/zlib/zutil.c -text
 playerT/id3lib/zlib/zutil.h -text
 playerT/libmpg123.dll -text
+playerT/libmpg123.lib -text
 playerT/mainfrm.CPP -text
 playerT/mainfrm.h -text
 playerT/music.cpp -text
