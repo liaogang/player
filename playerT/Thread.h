@@ -2,6 +2,8 @@
 
 class CThread
 {
+protected:
+	BOOL   m_bCouldRenew;
 private:
 	HANDLE m_hThread;
 	DWORD  m_dwThreadID;
@@ -19,6 +21,7 @@ public:
 	}
 
 	CThread(BOOL bCreateSuspened=TRUE):m_hThread(NULL),m_dwThreadID(NULL)
+		,m_bCouldRenew(FALSE)
 	{
 		m_hThread=CreateThread(NULL,0,ThreadProc,(void*)this,
 			bCreateSuspened?CREATE_SUSPENDED:0,&m_dwThreadID);
@@ -35,6 +38,8 @@ public:
 
 	void Renew()
 	{
+		if(!m_bCouldRenew) return;
+
 		if (!m_hThread)
 			CloseHandle(m_hThread);
 

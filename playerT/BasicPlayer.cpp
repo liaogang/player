@@ -8,12 +8,14 @@
 #include "mainfrm.h"
 #include "PlayList.h"
 
- CBasicPlayer* CBasicPlayer::shared()
+
+
+ //-----------------------------------------
+
+ CPlayerController::CPlayerController(CPlayerThread *_playerThread)//:CThread(FALSE)
  {
- 	static CBasicPlayer *pGlobalBasePlayer=NULL;
- 	if(!pGlobalBasePlayer)
- 		pGlobalBasePlayer=new CBasicPlayer;
- 	return pGlobalBasePlayer;
+	 m_pPlayerThread=_playerThread;
+	 decayEvent=CreateEvent(NULL,FALSE,FALSE,NULL);
  }
 
  void CPlayerController::Excute()
@@ -30,36 +32,46 @@
 			 for (int i=0;i<indecayLen1;i++)
 			 {
 				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay2[i]);
-				 Sleep(50);
+				 Sleep(70);
 			 }
 			 m_pPlayerThread->m_lpDSBuffer->Stop();
+			 m_pPlayerThread->Suspend();
 		 }
 		 else
 		 {
+			 m_pPlayerThread->Resume();
 			 m_pPlayerThread->m_lpDSBuffer->Play(0,0,DSBPLAY_LOOPING);
 			 for (int i=0;i<indecayLen1;i++)
 			 {
 				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay1[i]);
-				 Sleep(100);
+				 Sleep(80);
 			 }
-			 
 		 }
 	 }
  }
+
+
+ //-----------------------------------------
+ //
+ CBasicPlayer* CBasicPlayer::shared()
+ {
+	 static CBasicPlayer *pGlobalBasePlayer=NULL;
+	 if(!pGlobalBasePlayer)
+		 pGlobalBasePlayer=new CBasicPlayer;
+	 return pGlobalBasePlayer;
+ }
+
 
  CBasicPlayer :: CBasicPlayer(void):
  m_bStopped(TRUE),m_bPaused(TRUE),
 	 m_pFile(NULL),m_bFileEnd(FALSE)
 {
-	m_hPausedEvent=CreateEvent(NULL,FALSE,FALSE,NULL);
-	m_hPauseEvent=CreateEvent(NULL,FALSE,FALSE,NULL);
-	m_hWStartEvent=CreateEvent(NULL,TRUE,FALSE,NULL);
+	m_hStopEvent=::CreateEvent(NULL,FALSE,FALSE,NULL);
+	//m_hWStartEvent=CreateEvent(NULL,TRUE,FALSE,NULL);
 
 	m_pPlayerThread=new CPlayerThread(this);
-	m_pPlayerThread->Resume();
 	m_pSpectrumAnalyser=new CSpectrumAnalyser;
 
-	//test
 	ctl=new CPlayerController(m_pPlayerThread);
 	ctl->Resume();
 }
@@ -120,62 +132,17 @@ void CBasicPlayer::play()
 		else               //正在播放
 			stop();        //先停止
 
-
 	m_pFile->ResetFile();
+	m_pPlayerThread->Renew();
 	m_pPlayerThread->reset();
 	m_pPlayerThread->CleanDSBuffer();
 	m_pPlayerThread->WriteDataToDSBuf();
 	m_pPlayerThread->WriteDataToDSBuf();
+	m_pPlayerThread->Resume();
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
 	
-	::SetEvent(m_hWStartEvent);
-
 	m_bStopped=FALSE;
 	m_bPaused=FALSE;
-}
-
-
-
-
-void CBasicPlayer::decayPlay(BOOL bDecay)
-{
-	const static int decayLen=13;
-	static double decay[decayLen]={0.8, 0.7, 0.6, 0.5, 0.4, 0.35, 0.3, 0.25, 0.2, 0.15, 0.1, 0.05, 0.01};
-
-	//信号“变强”英文没找到,用 in deycay.
-	const static int indecayLen=13;
-	static double indecay[indecayLen]={0.03, 0.07, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1};
-
-	
-	const static int indecayLen1=13;
-	static double indecay1[indecayLen1]={-900, -800, -700, -600, -500, -400, -300, -200, -100, -50, -40, -20, 0};
-	static double indecay2[indecayLen1]={ -10,  -20,  -50,  -80, -100, -200, -300, -400, -500, -600, -800, -900};
-	
-
-	if (bDecay)    
-	{
-		for (int i=0;i<decayLen;i++)
-		{
-			m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay1[i]);
-			Sleep(100);
-			
-
-			//m_pFile->SetOutVolume(decay[i]);
-			//m_pPlayerThread->WriteDataToDSBuf();
-		}
-	}
-	else
-	{
-		for (int i=0;i<indecayLen;i++)
-		{
-			m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay2[i]);
-			Sleep(100);
-			//m_pFile->SetOutVolume(indecay[i]);
-			//m_pPlayerThread->WriteDataToDSBuf();
-			if (i==3)
-				m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
-		}
-	}
 }
 
 void CBasicPlayer::pause()
@@ -185,26 +152,14 @@ void CBasicPlayer::pause()
 	if (m_bPaused)    //resume
 	{
 		m_bPaused=FALSE;
-
 		bDecay=FALSE;
 		::SetEvent(ctl->decayEvent);
-
-		//decayPlay(FALSE);
-		//::SetEvent(m_hWStartEvent);
 	}
 	else                        //pause       
 	{
 		m_bPaused=TRUE;
-
-// 		::SetEvent(m_hPauseEvent);
-// 		::WaitForSingleObject(m_hPausedEvent,INFINITE);
-// 		::ResetEvent(m_hWStartEvent);
-		
 		bDecay=TRUE;
 		::SetEvent(ctl->decayEvent);
-		//decayPlay();
-		//m_pPlayerThread->m_lpDSBuffer->Stop();
-
 	}
 }
 
@@ -217,14 +172,9 @@ void CBasicPlayer::stop()
 {
 	if(!m_bStopped)
 	{
-		m_pPlayerThread->m_cs->Enter();
-		::ResetEvent(m_hWStartEvent);
-		m_pPlayerThread->m_lpDSBuffer->Stop();
-		m_pPlayerThread->m_cs->Leave();
-
 		m_bStopped=TRUE;
 		m_bPaused=TRUE;
 
-		::PostMessage(this->m_pMainFrame->m_hWnd,WM_TRACKPOS,0,100);
+		::SetEvent(m_hStopEvent);
 	}
 }

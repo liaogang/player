@@ -35,7 +35,8 @@ public:
 	volatile BOOL m_bStopped;
 	BOOL m_bPaused;
 public:
-	HANDLE m_hWStartEvent,m_hPauseEvent,m_hPausedEvent;
+	HANDLE m_hWStartEvent;
+	HANDLE m_hStopEvent;
 	CBasicPlayer(void);
 public:
 	static CBasicPlayer* shared();

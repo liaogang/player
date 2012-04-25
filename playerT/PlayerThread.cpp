@@ -54,28 +54,22 @@ void CPlayerThread::Excute()
 {
 	while(TRUE)
 	{
+		//使线程安全退出
+		//check the status
+		HRESULT result=::WaitForSingleObject(m_pPlayer->m_hStopEvent,0);
+		if (result==WAIT_OBJECT_0)
+			break;
+
 		m_cs->Enter();
-		WaitForSingleObject(m_pPlayer->m_hWStartEvent,INFINITE);
-
 		WriteDataToDSBuf();
-
-
-		//gdwSleep time is less than the time One Buffer to play
-		// wait for pause event
-		DWORD waitResult=::WaitForSingleObject(m_pPlayer->m_hPauseEvent,g_dwSleepTime+m_dwTime);
-		if (waitResult==WAIT_OBJECT_0)//paused
-		{
-
-			DWORD playCursor;
-			if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return;
-			
-			
-			::SetEvent(m_pPlayer->m_hPausedEvent);
-			::Sleep(200);
-		}
-
 		m_cs->Leave();
+		
+		::Sleep(g_dwSleepTime+m_dwTime);
 	}
+
+	::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,0,100);
+	m_lpDSBuffer->Stop();
+	m_bCouldRenew=TRUE;
 }
 
 void CPlayerThread::WriteDataToDSBuf()
@@ -154,16 +148,4 @@ DWORD CPlayerThread::DSoundBufferWrite(void* pBuf , int len)
 	if (m_dwCurWritePos>=g_dwMaxDSBufferLen)
 		m_dwCurWritePos-=g_dwMaxDSBufferLen;
 	return buffer1Len+buffer2Len;
-}
-
-
-
-
-
-//-----------------------------------------
-
-CPlayerController::CPlayerController(CPlayerThread *_playerThread)//:CThread(FALSE)
-{
-	m_pPlayerThread=_playerThread;
-	decayEvent=CreateEvent(NULL,FALSE,FALSE,NULL);
 }
