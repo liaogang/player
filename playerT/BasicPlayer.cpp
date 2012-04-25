@@ -67,7 +67,6 @@
 	 m_pFile(NULL),m_bFileEnd(FALSE)
 {
 	m_hStopEvent=::CreateEvent(NULL,FALSE,FALSE,NULL);
-	//m_hWStartEvent=CreateEvent(NULL,TRUE,FALSE,NULL);
 
 	m_pPlayerThread=new CPlayerThread(this);
 	m_pSpectrumAnalyser=new CSpectrumAnalyser;
@@ -139,6 +138,7 @@ void CBasicPlayer::play()
 	m_pPlayerThread->WriteDataToDSBuf();
 	m_pPlayerThread->WriteDataToDSBuf();
 	m_pPlayerThread->Resume();
+	m_pPlayerThread->m_lpDSBuffer->SetVolume(0);
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
 	
 	m_bStopped=FALSE;
@@ -173,8 +173,6 @@ void CBasicPlayer::stop()
 	if(!m_bStopped)
 	{
 		m_bStopped=TRUE;
-		m_bPaused=TRUE;
-
 		::SetEvent(m_hStopEvent);
 	}
 }
