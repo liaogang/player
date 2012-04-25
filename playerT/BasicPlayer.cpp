@@ -16,15 +16,52 @@
  	return pGlobalBasePlayer;
  }
 
+ void CPlayerController::Excute()
+ {
+	 while(1)
+	 {
+		 ::WaitForSingleObject(decayEvent,INFINITE);
+		 const static int indecayLen1=13;
+		 static double indecay1[indecayLen1]={-9000, -8000, -7000, -6000, -5000, -4000, -3000, -2000, -1000, -500, -400, -200, 0};
+		 static double indecay2[indecayLen1]={ -50 , -100,  -200,  -500,  -800, -1000, -2000, -3000, -4000, -5000, -6000, -8000, -9000};
+
+		 if (m_pPlayerThread->m_pPlayer->bDecay)    
+		 {
+			 for (int i=0;i<indecayLen1;i++)
+			 {
+				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay2[i]);
+				 Sleep(50);
+			 }
+			 m_pPlayerThread->m_lpDSBuffer->Stop();
+		 }
+		 else
+		 {
+			 m_pPlayerThread->m_lpDSBuffer->Play(0,0,DSBPLAY_LOOPING);
+			 for (int i=0;i<indecayLen1;i++)
+			 {
+				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay1[i]);
+				 Sleep(100);
+			 }
+			 
+		 }
+	 }
+ }
 
  CBasicPlayer :: CBasicPlayer(void):
  m_bStopped(TRUE),m_bPaused(TRUE),
 	 m_pFile(NULL),m_bFileEnd(FALSE)
 {
+	m_hPausedEvent=CreateEvent(NULL,FALSE,FALSE,NULL);
+	m_hPauseEvent=CreateEvent(NULL,FALSE,FALSE,NULL);
 	m_hWStartEvent=CreateEvent(NULL,TRUE,FALSE,NULL);
+
 	m_pPlayerThread=new CPlayerThread(this);
 	m_pPlayerThread->Resume();
 	m_pSpectrumAnalyser=new CSpectrumAnalyser;
+
+	//test
+	ctl=new CPlayerController(m_pPlayerThread);
+	ctl->Resume();
 }
 
 CBasicPlayer :: ~CBasicPlayer(void)
@@ -103,26 +140,38 @@ void CBasicPlayer::play()
 void CBasicPlayer::decayPlay(BOOL bDecay)
 {
 	const static int decayLen=13;
-	static double decay[decayLen]={0.6, 0.3, 0.2, 0.17, 0.1, 0.6, 0.5, 0.3, 0.2, 0.1, 0.05, 0.02, 0.01};
+	static double decay[decayLen]={0.8, 0.7, 0.6, 0.5, 0.4, 0.35, 0.3, 0.25, 0.2, 0.15, 0.1, 0.05, 0.01};
 
 	//信号“变强”英文没找到,用 in deycay.
 	const static int indecayLen=13;
 	static double indecay[indecayLen]={0.03, 0.07, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1};
 
+	
+	const static int indecayLen1=13;
+	static double indecay1[indecayLen1]={-900, -800, -700, -600, -500, -400, -300, -200, -100, -50, -40, -20, 0};
+	static double indecay2[indecayLen1]={ -10,  -20,  -50,  -80, -100, -200, -300, -400, -500, -600, -800, -900};
+	
+
 	if (bDecay)    
 	{
 		for (int i=0;i<decayLen;i++)
 		{
-			m_pFile->SetOutVolume(decay[i]);
-			m_pPlayerThread->WriteDataToDSBuf();
+			m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay1[i]);
+			Sleep(100);
+			
+
+			//m_pFile->SetOutVolume(decay[i]);
+			//m_pPlayerThread->WriteDataToDSBuf();
 		}
 	}
 	else
 	{
 		for (int i=0;i<indecayLen;i++)
 		{
-			m_pFile->SetOutVolume(indecay[i]);
-			m_pPlayerThread->WriteDataToDSBuf();
+			m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay2[i]);
+			Sleep(100);
+			//m_pFile->SetOutVolume(indecay[i]);
+			//m_pPlayerThread->WriteDataToDSBuf();
 			if (i==3)
 				m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
 		}
@@ -135,20 +184,27 @@ void CBasicPlayer::pause()
 
 	if (m_bPaused)    //resume
 	{
-		decayPlay(FALSE);
-		::SetEvent(m_hWStartEvent);
 		m_bPaused=FALSE;
+
+		bDecay=FALSE;
+		::SetEvent(ctl->decayEvent);
+
+		//decayPlay(FALSE);
+		//::SetEvent(m_hWStartEvent);
 	}
 	else                        //pause       
 	{
 		m_bPaused=TRUE;
 
-		m_pPlayerThread->m_cs->Enter();
-		::ResetEvent(m_hWStartEvent);
-		decayPlay();
-		m_pPlayerThread->m_cs->Leave();
+// 		::SetEvent(m_hPauseEvent);
+// 		::WaitForSingleObject(m_hPausedEvent,INFINITE);
+// 		::ResetEvent(m_hWStartEvent);
+		
+		bDecay=TRUE;
+		::SetEvent(ctl->decayEvent);
+		//decayPlay();
+		//m_pPlayerThread->m_lpDSBuffer->Stop();
 
-		m_pPlayerThread->m_lpDSBuffer->Stop();
 	}
 }
 

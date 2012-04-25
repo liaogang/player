@@ -56,9 +56,25 @@ void CPlayerThread::Excute()
 	{
 		m_cs->Enter();
 		WaitForSingleObject(m_pPlayer->m_hWStartEvent,INFINITE);
-		m_cs->Leave();
 
 		WriteDataToDSBuf();
+
+
+		//gdwSleep time is less than the time One Buffer to play
+		// wait for pause event
+		DWORD waitResult=::WaitForSingleObject(m_pPlayer->m_hPauseEvent,g_dwSleepTime+m_dwTime);
+		if (waitResult==WAIT_OBJECT_0)//paused
+		{
+
+			DWORD playCursor;
+			if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return;
+			
+			
+			::SetEvent(m_pPlayer->m_hPausedEvent);
+			::Sleep(200);
+		}
+
+		m_cs->Leave();
 	}
 }
 
@@ -89,8 +105,16 @@ void CPlayerThread::WriteDataToDSBuf()
 	m_pPlayer->m_pFile->GetPos(&used,&lefted);
 	::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,used,lefted);
 	
+
+	DWORD playCursor;
+	if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return;
+	DWORD available=DS_GetAvailable(g_dwMaxDSBufferLen,playCursor,m_dwCurWritePos);
+
+	m_dwTime=available<DEFAULTBUFFERSIZE*2?g_dwSleepTime:0;
+
 	DWORD written;
 	m_dwSizeToWrite=m_dwSizeRead;
+
 	while(m_dwSizeToWrite > 0)
 	{
 		written= DSoundBufferWrite(pFileBuffer, m_dwSizeToWrite);
@@ -109,22 +133,6 @@ void CPlayerThread::WriteDataToDSBuf()
 DWORD CPlayerThread::DSoundBufferWrite(void* pBuf , int len)
 {
 	HRESULT result;
-	DWORD playCursor;
-
-	result= m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL);
-	if (FAILED(result)) return -1;
-
-	DWORD available=DS_GetAvailable(g_dwMaxDSBufferLen,playCursor,m_dwCurWritePos);
-
-	//if we want to reflat pause more quickly, 
-	//then sleep less time 
-	 if (available<DEFAULTBUFFERSIZE*8)
-	 	Sleep(g_dwSleepTime);
-
-
-	if (len>available)
-		len=available;
-
 	LPVOID buffer1,buffer2;
 	DWORD buffer1Len,buffer2Len;
 	result=m_lpDSBuffer->Lock(m_dwCurWritePos,len ,&buffer1,&buffer1Len,&buffer2,&buffer2Len,NULL );
@@ -135,13 +143,10 @@ DWORD CPlayerThread::DSoundBufferWrite(void* pBuf , int len)
 			memcpy(buffer2,(char*)pBuf+buffer1Len,buffer2Len);
 	}
 	else if (result==DSERR_BUFFERLOST)
-	{
 		return -1;
-	}
 	else 
-	{ 
 		return -1;
-	}
+
 
 	m_lpDSBuffer->Unlock(buffer1,buffer1Len,buffer2,buffer2Len);
 
@@ -151,3 +156,14 @@ DWORD CPlayerThread::DSoundBufferWrite(void* pBuf , int len)
 	return buffer1Len+buffer2Len;
 }
 
+
+
+
+
+//-----------------------------------------
+
+CPlayerController::CPlayerController(CPlayerThread *_playerThread)//:CThread(FALSE)
+{
+	m_pPlayerThread=_playerThread;
+	decayEvent=CreateEvent(NULL,FALSE,FALSE,NULL);
+}

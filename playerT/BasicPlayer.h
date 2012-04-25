@@ -5,9 +5,27 @@ class CSpectrumAnalyser;
 class MusicFile;
 class CMainFrame;
 class CPlayerController;
+#include "Thread.h"
+class CPlayerController :public CThread
+{
+public:
+	HANDLE decayEvent;
+	CPlayerThread* m_pPlayerThread;
+
+	CPlayerController(CPlayerThread *_playerThread);
+
+
+	~CPlayerController(void)
+	{
+	}
+
+	void Excute();
+};
 class CBasicPlayer
 {
 public:
+	BOOL bDecay;CPlayerController *ctl;
+
 	BOOL m_bFileEnd;
 	CMainFrame *m_pMainFrame;
 	CPlayerThread* m_pPlayerThread;
@@ -17,7 +35,7 @@ public:
 	volatile BOOL m_bStopped;
 	BOOL m_bPaused;
 public:
-	HANDLE m_hWStartEvent;//work thread
+	HANDLE m_hWStartEvent,m_hPauseEvent,m_hPausedEvent;
 	CBasicPlayer(void);
 public:
 	static CBasicPlayer* shared();

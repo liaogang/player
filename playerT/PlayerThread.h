@@ -14,13 +14,7 @@ public:
 	CBasicPlayer *m_pPlayer;
 	LPDIRECTSOUNDBUFFER m_lpDSBuffer;
 	LPDIRECTSOUND m_lpDsound;
-
-
-#ifdef _DEBUG
-	TCHAR *m_pStrDebug;
-	INT   *m_pDebugStrPt;
-#endif
-
+	DWORD m_dwTime;
 public:
 	CPlayerThread(CBasicPlayer *pPlayer);
 	~CPlayerThread();
@@ -34,3 +28,6 @@ public:
 	DWORD m_dwCurWritePos;
 	DWORD m_dwSilencedBytes;
 };
+
+
+

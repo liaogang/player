@@ -117,8 +117,10 @@ public:
 		list<PlayListItem>::iterator cur,next;
 
 		for (cur=m_songList.begin();cur!=m_songList.end();cur++)
+		{
 			if (&(*cur)==curPlayingItem)
 				break;
+		}
 
 		if (++cur==m_songList.end())
 			return NULL;
