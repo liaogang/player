@@ -284,11 +284,11 @@ LRESULT CMainFrame::OnCbnSelchanged(UINT,int id, HWND hWndCtl)
 
 LRESULT CMainFrame::OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
-	if (g_pSharedPlayer->stoped())
-	{
-		const TCHAR* tmp= g_pSharedPlayer->playNextPlaylistItem();
-		if(tmp)
-			SetWindowText(tmp);
-	}
+
+	const TCHAR* tmp= g_pSharedPlayer->playNextPlaylistItem();
+	if(tmp)
+		SetWindowText(tmp);
+
+	bHandled=TRUE;
 	return 0;
 }

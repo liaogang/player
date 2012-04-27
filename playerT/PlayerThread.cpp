@@ -5,17 +5,16 @@
 #include "MusicFile.h"
 #include "mainfrm.h"
 
-CPlayerThread::CPlayerThread(CBasicPlayer *pPlayer):CThread(TRUE),
+
+CPlayerThread::CPlayerThread(CBasicPlayer *pPlayer):CThread(FALSE),
 m_lpDSBuffer(NULL),m_lpDsound(NULL),m_dwCurWritePos(-1)
 {
 	m_pPlayer=pPlayer;
 	m_lpDsound=DSoundDeviceCreate();
-	m_cs=new CCriticalSection;
 }
 
 CPlayerThread::~CPlayerThread(void)
 {
-	if(m_cs) delete m_cs;
 }
 
 void CPlayerThread::reset()
@@ -54,22 +53,11 @@ void CPlayerThread::Excute()
 {
 	while(TRUE)
 	{
-		//使线程安全退出
-		//check the status
-		HRESULT result=::WaitForSingleObject(m_pPlayer->m_hStopEvent,0);
-		if (result==WAIT_OBJECT_0)
-			break;
-
-		m_cs->Enter();
+		m_pPlayer->m_cs.Enter();
+		::WaitForSingleObject(m_pPlayer->m_hWStartEvent,INFINITE);
 		WriteDataToDSBuf();
-		m_cs->Leave();
-		
-		::Sleep(g_dwSleepTime+m_dwTime);
+		m_pPlayer->m_cs.Leave();
 	}
-
-	::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,0,100);
-	m_lpDSBuffer->Stop();
-	m_bCouldRenew=TRUE;
 }
 
 void CPlayerThread::WriteDataToDSBuf()
@@ -87,11 +75,10 @@ void CPlayerThread::WriteDataToDSBuf()
 	{
 		::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,0,100);
 		::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKSTOPPED,0,0);
-
 		m_lpDSBuffer->Stop();
-		::ResetEvent(m_pPlayer->m_hWStartEvent);
 		m_pPlayer->m_bFileEnd=TRUE;
 		m_pPlayer->m_bStopped=TRUE;
+		::ResetEvent(m_pPlayer->m_hWStartEvent);
 		return; 
 	}
 
@@ -104,7 +91,9 @@ void CPlayerThread::WriteDataToDSBuf()
 	if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return;
 	DWORD available=DS_GetAvailable(g_dwMaxDSBufferLen,playCursor,m_dwCurWritePos);
 
-	m_dwTime=available<DEFAULTBUFFERSIZE*2?g_dwSleepTime:0;
+	if (available<DEFAULTBUFFERSIZE*2)
+		::Sleep(g_dwSleepTime);
+	
 
 	DWORD written;
 	m_dwSizeToWrite=m_dwSizeRead;

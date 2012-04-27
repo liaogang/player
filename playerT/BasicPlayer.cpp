@@ -23,17 +23,18 @@
 	 while(1)
 	 {
 		 ::WaitForSingleObject(decayEvent,INFINITE);
-		 const static int indecayLen1=13;
-		 static double indecay1[indecayLen1]={-9000, -8000, -7000, -6000, -5000, -4000, -3000, -2000, -1000, -500, -400, -200, 0};
-		 static double indecay2[indecayLen1]={ -50 , -100,  -200,  -500,  -800, -1000, -2000, -3000, -4000, -5000, -6000, -8000, -9000};
+		 const static int indecayLen=13;
+		 static double indecay[indecayLen]={ -150 , -170,  -200,  -500,  -800, -1000, -2000, -3000, -4000, -5000, -6000, -8000, -9000};
 
-		 if (m_pPlayerThread->m_pPlayer->bDecay)    
+		 if (!m_pPlayerThread->m_pPlayer->bDecay)    
 		 {
-			 for (int i=0;i<indecayLen1;i++)
+
+			 for (int i=0;i<indecayLen;i++)
 			 {
-				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay2[i]);
+				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay[i]);
 				 Sleep(70);
 			 }
+
 			 m_pPlayerThread->m_lpDSBuffer->Stop();
 			 m_pPlayerThread->Suspend();
 		 }
@@ -41,11 +42,14 @@
 		 {
 			 m_pPlayerThread->Resume();
 			 m_pPlayerThread->m_lpDSBuffer->Play(0,0,DSBPLAY_LOOPING);
-			 for (int i=0;i<indecayLen1;i++)
+
+
+			 for (int i=indecayLen-1;i>=0;--i)
 			 {
-				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay1[i]);
-				 Sleep(80);
+				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay[i]);
+				 Sleep(70);
 			 }
+			 
 		 }
 	 }
  }
@@ -66,7 +70,7 @@
  m_bStopped(TRUE),m_bPaused(TRUE),
 	 m_pFile(NULL),m_bFileEnd(FALSE)
 {
-	m_hStopEvent=::CreateEvent(NULL,FALSE,FALSE,NULL);
+	m_hWStartEvent=::CreateEvent(NULL,TRUE,FALSE,NULL);	
 
 	m_pPlayerThread=new CPlayerThread(this);
 	m_pSpectrumAnalyser=new CSpectrumAnalyser;
@@ -84,6 +88,7 @@ CBasicPlayer :: ~CBasicPlayer(void)
 const TCHAR* CBasicPlayer::playNextPlaylistItem()
 {
 	PlayListItem *item=MyLib::GetPlayListObj().GetNextTrackByOrder();
+	stop();
 	if(item  && open((LPTSTR) item->url.c_str()) )
 	{
 		play();
@@ -94,6 +99,8 @@ const TCHAR* CBasicPlayer::playNextPlaylistItem()
 
 BOOL CBasicPlayer::open( LPTSTR filepath )
 {
+	if(!m_bStopped)return FALSE;
+
 	int len=_tcslen(filepath);
 	TCHAR* p=filepath+len;
 	while (p--)
@@ -132,15 +139,15 @@ void CBasicPlayer::play()
 			stop();        //ÏÈÍ£Ö¹
 
 	m_pFile->ResetFile();
-	m_pPlayerThread->Renew();
 	m_pPlayerThread->reset();
 	m_pPlayerThread->CleanDSBuffer();
 	m_pPlayerThread->WriteDataToDSBuf();
 	m_pPlayerThread->WriteDataToDSBuf();
-	m_pPlayerThread->Resume();
+	
 	m_pPlayerThread->m_lpDSBuffer->SetVolume(0);
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
-	
+	::SetEvent(m_hWStartEvent);
+
 	m_bStopped=FALSE;
 	m_bPaused=FALSE;
 }
@@ -172,7 +179,16 @@ void CBasicPlayer::stop()
 {
 	if(!m_bStopped)
 	{
+		m_cs.Enter();
 		m_bStopped=TRUE;
-		::SetEvent(m_hStopEvent);
+		ResetEvent(m_hWStartEvent);
+		m_pPlayerThread->m_lpDSBuffer->Stop();
+		m_cs.Leave();
+		
+		if (m_bPaused)
+		{
+			m_pPlayerThread->Resume();
+			m_bPaused=FALSE;
+		}
 	}
 }

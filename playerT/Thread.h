@@ -40,7 +40,7 @@ public:
 	{
 		if(!m_bCouldRenew) return;
 
-		if (!m_hThread)
+		if (m_hThread)
 			CloseHandle(m_hThread);
 
 		m_hThread=CreateThread(NULL,0,ThreadProc,(void*)this,

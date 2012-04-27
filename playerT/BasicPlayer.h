@@ -1,11 +1,11 @@
 #pragma once
-#include "CriticalSection.h"
 class CPlayerThread;
 class CSpectrumAnalyser;
 class MusicFile;
 class CMainFrame;
 class CPlayerController;
 #include "Thread.h"
+#include "CriticalSection.h"
 class CPlayerController :public CThread
 {
 public:
@@ -24,6 +24,10 @@ public:
 class CBasicPlayer
 {
 public:
+	CBasicPlayer(void);
+	~CBasicPlayer(void);
+public:
+	CCriticalSection m_cs;
 	BOOL bDecay;CPlayerController *ctl;
 
 	BOOL m_bFileEnd;
@@ -36,11 +40,9 @@ public:
 	BOOL m_bPaused;
 public:
 	HANDLE m_hWStartEvent;
-	HANDLE m_hStopEvent;
-	CBasicPlayer(void);
 public:
 	static CBasicPlayer* shared();
-	~CBasicPlayer(void);
+	
 	void play();
 	void pause();
 	void stop();

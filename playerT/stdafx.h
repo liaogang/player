@@ -55,7 +55,7 @@ extern CAppModule _Module;
 
 
 #define  WM_TRACKPOS  (WM_USER+22)  
-#define  WM_TRACKSTOPPED (WM_USER+23)
+#define  WM_TRACKSTOPPED (WM_USER+34)
 #define  WM_DRAWSPECTRUM (WM_PAINT+913)
 
 
