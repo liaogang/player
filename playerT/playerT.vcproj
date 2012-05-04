@@ -400,10 +400,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\CMyView.h"
-				>
-			</File>
-			<File
 				RelativePath=".\CriticalSection.h"
 				>
 			</File>
@@ -444,6 +440,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MyControls.h"
+				>
+			</File>
+			<File
 				RelativePath=".\player.h"
 				>
 			</File>
@@ -457,6 +457,10 @@
 			</File>
 			<File
 				RelativePath=".\PlayList.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PlayListView.h"
 				>
 			</File>
 			<File

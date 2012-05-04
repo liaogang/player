@@ -50,9 +50,9 @@ public:
 			return -1;
 	}
 
-	virtual bool Open(LPTSTR pszPath)
+	virtual bool Open(LPCTSTR pszPath)
 	{
-		m_pszPath=pszPath;
+		m_pszPath=(TCHAR*)pszPath;
 
 		if (InitMpgLib()!=MPG123_OK)
 			return false;
@@ -150,19 +150,19 @@ private:
 	}
 
 	//MPG123_OK or MPG123_ERR
-	int GetID3(mpg123_id3v1 **v1,mpg123_id3v2 **v2)
-	{
-		return mpg123_id3(m_hmp3,v1,v2);
-	}
+// 	int GetID3(mpg123_id3v1 **v1,mpg123_id3v2 **v2)
+// 	{
+// 		return mpg123_id3(m_hmp3,v1,v2);
+// 	}
 
 
-	virtual INT  OpenAndReadID3Info(LPTSTR pszPath)
-	{
-		int ret=0;
-		ret=Open(pszPath);
-		GetID3(&m_pMpg123_id3v1,&m_pMpg123_id3v2);
-		return ret;
-	}
+// 	virtual INT  OpenAndReadID3Info(LPCTSTR pszPath)
+// 	{
+// 		int ret=0;
+// 		ret=Open(pszPath);
+// 		GetID3(&m_pMpg123_id3v1,&m_pMpg123_id3v2);
+// 		return ret;
+// 	}
 
 
 	virtual VOID  SetOutVolume(double vol)

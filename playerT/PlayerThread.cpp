@@ -62,16 +62,11 @@ void CPlayerThread::Excute()
 
 void CPlayerThread::WriteDataToDSBuf()
 {
-	CONST DWORD buffersize = DEFAULTBUFFERSIZE;
-	DWORD dwSizeToRead;
-	dwSizeToRead=buffersize;
-	BOOL bEndOfInput;
-
-	char fileBuffer[DEFAULTBUFFERSIZE];
+	CONST DWORD dwSizeToRead=DEFAULTBUFFERSIZE;
+	char fileBuffer[dwSizeToRead];
 	char *pFileBuffer=fileBuffer;
 
-	 bEndOfInput=!m_pPlayer->m_pFile->Read(pFileBuffer,dwSizeToRead,&m_dwSizeRead);
-	if (bEndOfInput)
+	if (!m_pPlayer->m_pFile->Read(pFileBuffer,dwSizeToRead,&m_dwSizeRead))
 	{
 		::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,0,100);
 		::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKSTOPPED,0,0);
@@ -82,11 +77,11 @@ void CPlayerThread::WriteDataToDSBuf()
 		return; 
 	}
 
+
 	DOUBLE used,lefted;
 	m_pPlayer->m_pFile->GetPos(&used,&lefted);
 	::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,used,lefted);
 	
-
 	DWORD playCursor;
 	if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return;
 	DWORD available=DS_GetAvailable(g_dwMaxDSBufferLen,playCursor,m_dwCurWritePos);
@@ -94,7 +89,6 @@ void CPlayerThread::WriteDataToDSBuf()
 	if (available<DEFAULTBUFFERSIZE*2)
 		::Sleep(g_dwSleepTime);
 	
-
 	DWORD written;
 	m_dwSizeToWrite=m_dwSizeRead;
 
@@ -116,8 +110,8 @@ void CPlayerThread::WriteDataToDSBuf()
 DWORD CPlayerThread::DSoundBufferWrite(void* pBuf , int len)
 {
 	HRESULT result;
-	LPVOID buffer1,buffer2;
-	DWORD buffer1Len,buffer2Len;
+	LPVOID buffer1   ,buffer2;
+	DWORD  buffer1Len,buffer2Len;
 	result=m_lpDSBuffer->Lock(m_dwCurWritePos,len ,&buffer1,&buffer1Len,&buffer2,&buffer2Len,NULL );
 	if (result==DS_OK)
 	{

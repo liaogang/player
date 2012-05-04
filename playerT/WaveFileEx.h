@@ -25,9 +25,9 @@ public:
 		return m_wavefile.ResetFile();
 	}
 
-	virtual bool  Open(LPTSTR pszPath)
+	virtual bool  Open(LPCTSTR pszPath)
 	{
-		m_wavefile.Open(pszPath,m_pwfx,WAVEFILE_READ);
+		m_wavefile.Open((LPTSTR)pszPath,m_pwfx,WAVEFILE_READ);
 		m_pwfx=m_wavefile.GetFormat();
 		return 0;
 	}
@@ -38,24 +38,6 @@ public:
 		return 0;
 	}
 
-	virtual INT  OpenAndReadID3Info(LPTSTR pszPath)
-	{
-		int ret=0;
-		ret=Open(pszPath);
-// 		mpg123_id3v1 *v1=&m_Mpg123_id3v1;
-// 		mpg123_id3v2 *v2=&m_Mpg123_id3v2;
-// 		GetID3(&v1,&v2);
-		GetID3(&m_pMpg123_id3v1,&m_pMpg123_id3v2);
-		return ret;
-	}
-
-	//MPG123_OK or MPG123_ERR
-	int GetID3(mpg123_id3v1 **v1,mpg123_id3v2 **v2)
-	{
-		//wait to full
-
-		return -1;
-	}
 	virtual VOID  SetOutVolume(double vol)
 	{
 		return;

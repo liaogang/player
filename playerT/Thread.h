@@ -2,8 +2,6 @@
 
 class CThread
 {
-protected:
-	BOOL   m_bCouldRenew;
 private:
 	HANDLE m_hThread;
 	DWORD  m_dwThreadID;
@@ -15,19 +13,17 @@ public:
 	static DWORD CALLBACK ThreadProc(LPVOID lpParameter)
 	{
 		CThread *caller=(CThread*)lpParameter;
-		if (caller)
-			caller->Excute();
+		caller->Excute();
+
 		return 0;
 	}
 
 	CThread(BOOL bCreateSuspened=TRUE):m_hThread(NULL),m_dwThreadID(NULL)
-		,m_bCouldRenew(FALSE)
 	{
 		m_hThread=CreateThread(NULL,0,ThreadProc,(void*)this,
 			bCreateSuspened?CREATE_SUSPENDED:0,&m_dwThreadID);
 		
-		m_bSuspend=bCreateSuspened?TRUE:FALSE;
-		m_bCreateSuspend=bCreateSuspened;
+		m_bCreateSuspend=m_bSuspend=bCreateSuspened;
 	}
 
 	~CThread(void)
@@ -36,18 +32,6 @@ public:
 			CloseHandle(m_hThread);
 	}
 
-	void Renew()
-	{
-		if(!m_bCouldRenew) return;
-
-		if (m_hThread)
-			CloseHandle(m_hThread);
-
-		m_hThread=CreateThread(NULL,0,ThreadProc,(void*)this,
-			m_bCreateSuspend?CREATE_SUSPENDED:0,&m_dwThreadID);
-
-		m_bSuspend=m_bCreateSuspend?TRUE:FALSE;
-	}
 
 	void Resume()
 	{

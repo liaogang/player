@@ -6,61 +6,43 @@
 #include "stdafx.h"
 #include "AboutDlg.h"
 #include "DialogConfig.h"
-#include "CMyView.h"
-#include "BasicPlayer.h"
+#include "WTLTabViewCtrl.h"
 
+#ifndef _MAINFRAME_H
+#define _MAINFRAME_H
+//-----------------------------------------
 class CAlbumCoverView;
 class CDialogLyric;
-static	CBasicPlayer *g_pSharedPlayer;
-class CMyTrackBar :public CWindowImpl<CMyTrackBar,CTrackBarCtrl>
-{
-public:
-	DECLARE_WND_SUPERCLASS(NULL,CTrackBarCtrl::GetWndClassName())
-
-	BEGIN_MSG_MAP(CMyTrackBar)
-		MESSAGE_HANDLER(TB_BUTTONCOUNT,TBB)
-		MESSAGE_HANDLER(TB_GETITEMRECT,OnGetItemRect)
-	END_MSG_MAP()
-
-	LRESULT OnGetItemRect(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
-	{
-		RECT *rc=(RECT*)lParam;
-		rc->left=0;
-		rc->right=30;
-		rc->bottom=30;
-		rc->top=0;
-		return 1;
-	}
-
-	LRESULT TBB(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-	{
-		bHandled=TRUE;
-		return 1;
-	}
-
-};
-
+class CMyTrackBar;
+class CMyTabBar;
+class CPlayListView;
+class CWTLTabViewCtrl;
+class CPlayListView;
+//-----------------------------------------
 
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFrame>,
 		public CMessageFilter, public CIdleHandler
 {
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
-
-	CMyView m_view;
-	CMyTrackBar m_trackBar;
-	CSplitterWindow split;
+public:
+	CMyTrackBar *m_pTrackBar;
+	CMyTrackBar *m_pVolumeBar;
+	
 	CCommandBarCtrl m_CmdBar;
 	CDialogConfig   m_dlgConfig;
 	CComboBox m_wndComboBox;
 	CDialogLyric *m_dlgLrc;
+	
+	CWTLTabViewCtrl *m_pTabBar;
+	CPlayListView *m_pPlaylistView;
+	CSplitterWindow split;
 	CHorSplitterWindow *leftPane;
 	CAlbumCoverView    *albumView1;
-	CAlbumCoverView    *albumView2;
+public:
 
-
-	CMainFrame():m_dlgLrc(NULL),albumView1(NULL),albumView2(NULL)
-		,leftPane(NULL)
+	CMainFrame():m_dlgLrc(NULL),
+		m_pTrackBar(NULL),m_pVolumeBar(NULL)
 	{
 	}
 
@@ -83,6 +65,7 @@ public:
 	END_UPDATE_UI_MAP()
 
 	BEGIN_MSG_MAP(CMainFrame)
+		MSG_WM_NOTIFY(OnNotify)
 		COMMAND_CODE_HANDLER_EX(CBN_SELCHANGE,OnCbnSelchanged)
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
@@ -95,8 +78,6 @@ public:
 		COMMAND_ID_HANDLER(ID_VIEW_TOOLBAR, OnViewToolBar)
 		COMMAND_ID_HANDLER(ID_VIEW_STATUS_BAR, OnViewStatusBar)
 		COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
-
-		
 		COMMAND_ID_HANDLER(ID_SHOWLYRIC,OnShowLyric)
 		COMMAND_ID_HANDLER(ID_MENU_FFTTEST,OnFftDialog)
 		COMMAND_ID_HANDLER(ID_PLAY, OnPlay)
@@ -107,6 +88,7 @@ public:
 		COMMAND_ID_HANDLER(ID_FILE_OPENDIRECTORY, OnFileOpendirectory)
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
+		//CHAIN_MSG_MAP(CWTLTabViewCtrl)
 	END_MSG_MAP()
 
 
@@ -115,6 +97,9 @@ public:
 	LRESULT OnCbnSelchanged(UINT,int id, HWND hWndCtl);
 	LRESULT OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	
+	LRESULT OnNotify(int idCtrl, LPNMHDR pnmh);
+	void OnTabChanged(int sel);
+
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 		// unregister message filtering and idle updates
@@ -199,3 +184,6 @@ public:
 	LRESULT OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 };
+
+
+#endif

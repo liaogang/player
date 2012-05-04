@@ -76,7 +76,6 @@ playerT/BasicPlayer.cpp -text
 playerT/BasicPlayer.h -text
 playerT/CAlbumCoverView.h -text
 playerT/CImg.h -text
-playerT/CMyView.h -text
 playerT/CPropertyDlgs.h -text
 playerT/CriticalSection.h -text
 playerT/DialogConfig.cpp -text
@@ -98,8 +97,10 @@ playerT/LrcMng.cpp -text
 playerT/LrcMng.h -text
 playerT/Mp3File.h -text
 playerT/MusicFile.h -text
+playerT/MyControls.h -text
 playerT/PlayList.cpp -text
 playerT/PlayList.h -text
+playerT/PlayListView.h -text
 playerT/PlayerThread.cpp -text
 playerT/PlayerThread.h -text
 playerT/ProgertyDlg.h -text
@@ -111,6 +112,7 @@ playerT/Thread.cpp -text
 playerT/Thread.h -text
 playerT/UpgradeLog.XML -text
 playerT/Utils.h -text
+playerT/WTLTabViewCtrl.h -text
 playerT/WaveFile.cpp -text
 playerT/WaveFile.h -text
 playerT/WaveFileEx.h -text

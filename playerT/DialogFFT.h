@@ -1,6 +1,4 @@
 #pragma once
-
-#include "DsoundControl.h"
 using namespace std;
 
 class DialogFFT : public CDialogImpl<DialogFFT>
@@ -24,8 +22,8 @@ public:
 	{
 		CenterWindow(GetParent());
 
-		dscrl->SetSpectrumRect(CRect(0,0,500,400));
-		dscrl->SetFftEnvironment(this->m_hWnd);
+		//dscrl->SetSpectrumRect(CRect(0,0,500,400));
+		//dscrl->SetFftEnvironment(this->m_hWnd);
 		return TRUE;
 	}
 
@@ -33,7 +31,7 @@ public:
 	{
 		int _width=LOWORD(lParam);
 		int _height=HIWORD(lParam);
-		dscrl->SetSpectrumRect(CRect(0,0,_width,_height));
+		//dscrl->SetSpectrumRect(CRect(0,0,_width,_height));
 
 		bHandled=FALSE;
 		return 0;
@@ -46,5 +44,5 @@ public:
 		return 0;
 	}
 
-	DsoundControl *dscrl;
+	
 };

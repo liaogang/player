@@ -20,15 +20,15 @@
 
  void CPlayerController::Excute()
  {
+	 const static int indecayLen=13;
+	 static LONG indecay[indecayLen]={ -150 , -170,  -200,  -500,  -800, -1000, -2000, -3000, -4000, -5000, -6000, -8000, -9000};
+
 	 while(1)
 	 {
 		 ::WaitForSingleObject(decayEvent,INFINITE);
-		 const static int indecayLen=13;
-		 static double indecay[indecayLen]={ -150 , -170,  -200,  -500,  -800, -1000, -2000, -3000, -4000, -5000, -6000, -8000, -9000};
 
-		 if (!m_pPlayerThread->m_pPlayer->bDecay)    
+		 if (m_pPlayerThread->m_pPlayer->bDecay)    
 		 {
-
 			 for (int i=0;i<indecayLen;i++)
 			 {
 				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay[i]);
@@ -43,13 +43,11 @@
 			 m_pPlayerThread->Resume();
 			 m_pPlayerThread->m_lpDSBuffer->Play(0,0,DSBPLAY_LOOPING);
 
-
 			 for (int i=indecayLen-1;i>=0;--i)
 			 {
 				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay[i]);
 				 Sleep(70);
 			 }
-			 
 		 }
 	 }
  }
@@ -68,7 +66,7 @@
 
  CBasicPlayer :: CBasicPlayer(void):
  m_bStopped(TRUE),m_bPaused(TRUE),
-	 m_pFile(NULL),m_bFileEnd(FALSE)
+	 m_pFile(NULL),m_bFileEnd(TRUE)
 {
 	m_hWStartEvent=::CreateEvent(NULL,TRUE,FALSE,NULL);	
 
@@ -85,24 +83,25 @@ CBasicPlayer :: ~CBasicPlayer(void)
 	if (!m_pSpectrumAnalyser) delete m_pSpectrumAnalyser; 
 }
 
-const TCHAR* CBasicPlayer::playNextPlaylistItem()
-{
-	PlayListItem *item=MyLib::GetPlayListObj().GetNextTrackByOrder();
-	stop();
-	if(item  && open((LPTSTR) item->url.c_str()) )
-	{
-		play();
-		return item->title.c_str();
-	}
-	return NULL;
-}
+// const TCHAR* CBasicPlayer::playNextPlaylistItem()
+// {
+// 	PlayListItem *item=MyLib::GetPlayListObj().GetNextTrackByOrder();
+// 
+// 	stop();
+// 	if(item  && open((LPTSTR) item->url.c_str()) )
+// 	{
+// 		play();
+// 		return item->title.c_str();
+// 	}
+//  	return NULL;
+// }
 
-BOOL CBasicPlayer::open( LPTSTR filepath )
+BOOL CBasicPlayer::open( LPCTSTR filepath )
 {
 	if(!m_bStopped)return FALSE;
 
 	int len=_tcslen(filepath);
-	TCHAR* p=filepath+len;
+	TCHAR* p=(TCHAR*)filepath+len;
 	while (p--)
 		if ((TCHAR)(*p)=='.')
 		{
@@ -121,7 +120,7 @@ BOOL CBasicPlayer::open( LPTSTR filepath )
 	if (_tcscmp(p,_T("wma"))==0)
 		m_pFile=new Mp3File();
 
-	return m_pFile->OpenAndReadID3Info(filepath);
+	return m_pFile->Open(filepath);
 }
 
 
@@ -144,7 +143,7 @@ void CBasicPlayer::play()
 	m_pPlayerThread->WriteDataToDSBuf();
 	m_pPlayerThread->WriteDataToDSBuf();
 	
-	m_pPlayerThread->m_lpDSBuffer->SetVolume(0);
+	m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MAX);
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
 	::SetEvent(m_hWStartEvent);
 
@@ -182,6 +181,7 @@ void CBasicPlayer::stop()
 		m_cs.Enter();
 		m_bStopped=TRUE;
 		ResetEvent(m_hWStartEvent);
+		m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
 		m_pPlayerThread->m_lpDSBuffer->Stop();
 		m_cs.Leave();
 		
@@ -191,4 +191,9 @@ void CBasicPlayer::stop()
 			m_bPaused=FALSE;
 		}
 	}
+}
+
+BOOL CBasicPlayer::open( PlayListItem *track)
+{
+	return open(track->url.c_str());
 }

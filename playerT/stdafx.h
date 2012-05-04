@@ -11,7 +11,7 @@
 #define _WIN32_IE	0x0501
 #define _RICHEDIT_VER	0x0200
 #include "resource.h"
-
+#define _WTL_USE_CSTRING
 #define  _WTYPES_NS
 #define _WTL_NO_WTYPES 
 
@@ -30,11 +30,9 @@ extern CAppModule _Module;
 #include <atlctrlw.h>
 #include <atlddx.h>
 #include <atlcrack.h>
-#include <atlsplit.h>
 
-
-
-
+//split file has changed something
+#include "atlsplit.h"
 #include "dmusici.h"
 #include "dxerr8.h"
 

@@ -1,5 +1,9 @@
 #include "StdAfx.h"
 #include "PlayList.h"
+#include "BasicPlayer.h"
+
+
+
 
 
 LPSTR Unicode2Ansi(LPCWSTR s)
@@ -27,23 +31,67 @@ LPWSTR UTF82Unicode(LPSTR s)
 }
 
 
-PlayList& MyLib::GetPlayListObj()
+//-----------------------------------------
+//
+void MyLib::AddFolderToCurrentPlayList(LPCTSTR pszFolder)
 {
-	static PlayList playList_;
-	return playList_;
+	MyLib::curPlaylist()->AddFolder(pszFolder);
 }
 
+MyLib* MyLib::shared()
+{
+	static MyLib* p=NULL;
+	return p==NULL?p=new MyLib:p;
+}
+
+PlayList* MyLib::curPlaylist()
+{
+	return shared()->m_pActivePlaylist;
+}
+
+ void MyLib::play()
+{
+	CBasicPlayer::shared()->open(curPlaylist()->curTrack());
+	CBasicPlayer::shared()->play();
+}
+
+
+ void MyLib::pause()
+{
+	CBasicPlayer::shared()->pause();
+}
+
+ void MyLib::stop()
+{
+	CBasicPlayer::shared()->stop();
+}
+
+//-----------------------------------------
+
+ void MyLib::playNext()
+{
+	// 		PlayListItem *track=GetNextTrackByOrder();
+	// 		if (!track) return;
+	// 		if ( track==curPlayingItem)
+	// 		{
+	// 			g_pSharedPlayer->m_pFile.ResetFile();
+	// 		}
+	// 		else
+	// 		{
+	// 			g_pSharedPlayer->stop();
+	// 			g_pSharedPlayer->open(track);
+	// 			g_pSharedPlayer->play();
+	// 		}
+}
+
+//-----------------------------------------
+//PlayList
 PlayList::PlayList(void)
 {
 }
 
 PlayList::~PlayList(void)
 {	
-}
-
-void PlayList::AddFolderToCurrentPlayList(LPCTSTR pszFolder)
-{
-	MyLib::GetPlayListObj().AddFolder(pszFolder);
 }
 
 void PlayList::scanAllId3Info()
@@ -79,7 +127,7 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 			std::tstring str(pathName);
 
 			PlayListItem *pItem=new PlayListItem(&str);
-			pItem->scanId3Info();
+			pItem->ScanId3Info();
 			m_songList.push_back(*pItem);
 			//msonglist的析构会删除*pItem;
 		}
@@ -98,7 +146,7 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 				std::tstring str(pathName);
 
 				PlayListItem *pItem=new PlayListItem(&str);
-				pItem->scanId3Info();
+				pItem->ScanId3Info();
 				m_songList.push_back(*pItem);
 				//msonglist的析构会删除*pItem;
 			}
@@ -111,7 +159,7 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 
 
 
-BOOL PlayListItem::scanId3Info()
+BOOL PlayListItem::ScanId3Info()
 {
 	BOOL bInvalidID3V2=FALSE;
 
@@ -170,3 +218,4 @@ BOOL PlayListItem::scanId3Info()
 
 	return TRUE;
 }
+

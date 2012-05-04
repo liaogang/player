@@ -5,15 +5,21 @@
 #include "DialogLyric.h"
 #include "BasicPlayer.h"
 #include "CAlbumCoverView.h"
+#include "MyControls.h"
 
 #include <mpg123.h>
-
 #include <string>
 using namespace std;
+
+void CPlayListView::SetMain(class CMainFrame *pMain){this->pMain=pMain;}
+
+
 
 
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	
+
 	// create command bar window
 	HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
 	// attach menu
@@ -27,7 +33,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 
 	//-----------------------------------------
-	//toobar 
+	//stanted toobar 
 	HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd,IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 	AddSimpleReBarBand(hWndCmdBar);
@@ -38,15 +44,14 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	SetWindowText(_T(APPNAME));
 	//------------------------------------------------
 	//progress track bar
+	m_pTrackBar=new CMyTrackBar;
 	UINT style=WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
-	style|= TBS_TOOLTIPS  |TBS_NOTICKS    ;
-	//style=style|~TBS_NOTICKS;
-	HWND hWndProgressBar=m_trackBar.Create(this->m_hWnd,NULL,NULL,style,0);
-	m_trackBar.SetPageSize(1);
-	m_trackBar.SetLineSize(1);
-	m_trackBar.SetThumbLength(30);
+	style|= TBS_TOOLTIPS  |TBS_NOTICKS;
+	HWND hWndProgressBar=m_pTrackBar->Create(m_hWnd,NULL,NULL,style,0);
+	m_pTrackBar->SetPageSize(1);
+	m_pTrackBar->SetLineSize(1);
+	m_pTrackBar->SetThumbLength(30);
 	AddSimpleReBarBand(hWndProgressBar,NULL,FALSE,150,TRUE);
-
 
 	//-------------------------------------------------
 	//combo box
@@ -54,19 +59,29 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	for (int i=0;i<PLAYORDERCOUNT;++i)
 		m_wndComboBox.AddString(gPlayOrderStr[i]);
 	m_wndComboBox.SetCurSel(0);
-	
-// 	CFont font;
-// 	LOGFONT lf;
-// 	memset(&lf, 0, sizeof(LOGFONT));       // zero out structure
-// 	//lf.lfHeight = 20;                      // request a 12-pixel-height font
-// 	lf.lfItalic=TRUE;
-// 	//lf.lfCharSet=
-// 	lf.lfUnderline=TRUE;
-// 	_tcscpy((TCHAR*)lf.lfFaceName, _T("Arial"));        // request a face name "Arial"
-// 	font.CreateFontIndirect(&lf);
-// 	//m_wndComboBox.GetFont();
-// 	m_wndComboBox.SetFont(font,TRUE);
+
+	// 	CFont font;
+	// 	LOGFONT lf;
+	// 	memset(&lf, 0, sizeof(LOGFONT));       // zero out structure
+	// 	//lf.lfHeight = 20;                      // request a 12-pixel-height font
+	// 	lf.lfItalic=TRUE;
+	// 	//lf.lfCharSet=
+	// 	lf.lfUnderline=TRUE;
+	// 	_tcscpy((TCHAR*)lf.lfFaceName, _T("Arial"));        // request a face name "Arial"
+	// 	font.CreateFontIndirect(&lf);
+	// 	//m_wndComboBox.GetFont();
+	// 	m_wndComboBox.SetFont(font,TRUE);
 	AddSimpleReBarBand(comboBar,NULL,FALSE,100,TRUE);
+
+
+	//-----------------------------------------
+	//volume track bar
+	m_pVolumeBar=new CMyTrackBar;
+	HWND hWndVolumeBar=m_pVolumeBar->Create(m_hWnd,NULL,NULL,style,0);
+	m_pVolumeBar->SetPageSize(1);
+	m_pVolumeBar->SetLineSize(1);
+	m_pVolumeBar->SetThumbLength(30);
+	AddSimpleReBarBand(hWndVolumeBar,NULL,FALSE,50,TRUE);
 
 
 	//-------------------------------------------------
@@ -78,6 +93,47 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	UISetCheck(ID_VIEW_TOOLBAR, 1);
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
 
+
+	
+
+
+	DWORD dwSplitStyle = WS_CHILD|WS_VISIBLE| WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+	DWORD dwSplitExStyle =WS_EX_CLIENTEDGE;
+
+	split.Create(m_hWnd, rcDefault, NULL, 
+		dwSplitStyle, dwSplitExStyle );
+
+	//right pane
+	//------------------------------------------------
+	//tab bar
+	m_pTabBar=new CWTLTabViewCtrl;
+	m_pTabBar->Create(split.m_hWnd,rcDefault,NULL,WS_CHILD|WS_VISIBLE,WS_EX_STATICEDGE);
+
+	m_pPlaylistView=new CPlayListView;
+	m_pPlaylistView->Create(m_pTabBar->m_hWnd, rcDefault, NULL, LVS_SINGLESEL | WS_CHILD | WS_VISIBLE |WS_CLIPSIBLINGS  | LVS_REPORT | LVS_SHOWSELALWAYS, /*WS_EX_CLIENTEDGE*/NULL);
+		
+		
+	
+	//left pane
+	leftPane=new CHorSplitterWindow;
+	leftPane->Create(split.m_hWnd,rcDefault,NULL,dwSplitStyle,NULL);
+	albumView1=new CAlbumCoverView;
+	albumView1->Create(leftPane->m_hWnd);
+	leftPane->SetSplitterPane(0,albumView1->m_hWnd);
+	m_pTabBar->AddTab(_T("д╛хо"),m_pPlaylistView->m_hWnd);
+	m_pTabBar->AddTab(_T("todo playlist"),m_pPlaylistView->m_hWnd);
+	
+	//set left and right
+	split.SetSplitterPanes(leftPane->m_hWnd,m_pTabBar->m_hWnd,TRUE);
+
+	//-----------------------------------------
+	//
+	m_hWndClient=split.m_hWnd;
+	UpdateLayout();
+
+	split.SetSplitterPos(250,TRUE);
+	leftPane->SetSplitterPos(500,TRUE);
+
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
@@ -85,38 +141,11 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	pLoop->AddIdleHandler(this);
 
 
-	g_pSharedPlayer=CBasicPlayer::shared();	
-	g_pSharedPlayer->m_pMainFrame=this;
-	//-----------------------------------------
-	leftPane=new CHorSplitterWindow;
-	//CSplitterWindow *rightPane=new CSplitterWindow;
-	const DWORD dwSplitStyle = WS_CHILD | WS_VISIBLE | 
-		WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-		dwSplitExStyle = WS_EX_CLIENTEDGE;
-	split.Create (m_hWnd, rcDefault, NULL, 
-		dwSplitStyle, dwSplitExStyle );
-	m_hWndClient =split;
 
-	//right pane
-	m_view.Create(split.m_hWnd, rcDefault, NULL, LVS_SINGLESEL | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | LVS_REPORT | LVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
-	m_view.m_pMainFrame=this;
-	
-	
-	//left pane
-	leftPane->Create(split.m_hWnd,rcDefault,NULL,dwSplitStyle,dwSplitExStyle);
-	albumView1=new CAlbumCoverView;
-	albumView2=new CAlbumCoverView;
-	albumView1->Create(leftPane->m_hWnd);
-	albumView2->Create(leftPane->m_hWnd);
-	leftPane->SetSplitterPanes(albumView1->m_hWnd,albumView2->m_hWnd);
+	//set main pointer
+	m_pPlaylistView->SetMain(this);
+	CBasicPlayer::shared()->m_pMainFrame=this;
 
-	//set left and right
-	split.SetSplitterPanes(leftPane->m_hWnd,m_view.m_hWnd,TRUE);
-	UpdateLayout();
-
-	//set the splitter pos
-	split.SetSplitterPos(250,TRUE);
-	leftPane->SetSplitterPos(500,TRUE);
 	return 0;
 }
 
@@ -139,7 +168,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	g_pSharedPlayer->play();
+	MyLib::play();
 	return 0;
 }
 
@@ -150,21 +179,21 @@ LRESULT CMainFrame::OnOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 
 	LPTSTR filepath=dlg.m_ofn.lpstrFile;
 
-	g_pSharedPlayer->open(filepath);
+	//g_pSharedPlayer->open(filepath);
 
-	g_pSharedPlayer->play();
+	//g_pSharedPlayer->play();
 	return 0;
 }
 
 LRESULT CMainFrame::OnPause(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	g_pSharedPlayer->pause();
+	MyLib::pause();
 	return 0;
 }
 
 LRESULT CMainFrame::OnStop(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	g_pSharedPlayer->stop();
+	MyLib::stop();
 
 	return 0;
 }
@@ -193,22 +222,22 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 		_tcscpy(tmp,path);
 		PlayList::AddFolderToCurrentPlayList(tmp);
 		
-		list<PlayListItem> *songList=&(MyLib::GetPlayListObj().m_songList);
+		list<PlayListItem> *songList=&(MyLib::curPlaylist()->m_songList);
 		list<PlayListItem>::iterator i;
 		int j;
 
 		for (j=0,i=songList->begin();i!=songList->end();i++,j++)
 		{
 			int k=0;
-			m_view.InsertItem(j,i->url.c_str());
+			m_pPlaylistView->InsertItem(j,i->url.c_str());
 
-			m_view.SetItemText(j,k++,i->title.c_str());
-			m_view.SetItemText(j,k++,i->album.c_str());
-			m_view.SetItemText(j,k++,i->artist.c_str());
-			m_view.SetItemText(j,k++,i->genre.c_str());
-			m_view.SetItemText(j,k++,i->comment.c_str());
+			m_pPlaylistView->SetItemText(j,k++,i->title.c_str());
+			m_pPlaylistView->SetItemText(j,k++,i->album.c_str());
+			m_pPlaylistView->SetItemText(j,k++,i->artist.c_str());
+			m_pPlaylistView->SetItemText(j,k++,i->genre.c_str());
+			m_pPlaylistView->SetItemText(j,k++,i->comment.c_str());
 		
-			m_view.SetItemData(j,(DWORD_PTR)&(*i));
+			m_pPlaylistView->SetItemData(j,(DWORD_PTR)&(*i));
 		}
 	}
 	return 0;
@@ -216,24 +245,23 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 
 
-LRESULT CMyView::OnDbClicked(UINT i,CPoint pt)
+LRESULT CPlayListView::OnDbClicked(UINT i,CPoint pt)
 {
 	LVITEM item;
-	GetSelectedItem(&item);
-	PlayListItem *listItem=(PlayListItem*)GetItemData(item.iItem);
-	if (!listItem)
-		return 0;
-
-	if (!g_pSharedPlayer->stoped())
-		g_pSharedPlayer->stop();
-	if(g_pSharedPlayer->open((LPTSTR)listItem->url.c_str())==TRUE)
-		g_pSharedPlayer->play();
-
-	::SetWindowText(m_pMainFrame->m_hWnd,listItem->title.c_str());
 	
+	PlayListItem *curSelectedTrack;
+	
+	GetSelectedItem(&item);
+	curSelectedTrack=(PlayListItem*)GetItemData(item.iItem);
 
-	MyLib::GetPlayListObj().SetCurPlaying(listItem);
-	m_pMainFrame->albumView1->Invalidate(TRUE);
+	MyLib::curPlaylist()->SetCurPlaying(curSelectedTrack);
+
+	MyLib::stop();
+	MyLib::play();
+
+	::SetWindowText(pMain->m_hWnd,curSelectedTrack->GetTitle());
+	
+	pMain->albumView1->Invalidate(TRUE);
 
 	SetMsgHandled(FALSE);
 	return 0;
@@ -261,8 +289,8 @@ LRESULT CMainFrame::OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHa
 	used=wParam;
 	lefted=lParam;
 	bHandled=FALSE;
-	m_trackBar.SetRange(0,used+lefted);
-	m_trackBar.SetPos(used);
+	m_pTrackBar->SetRange(0,used+lefted);
+	m_pTrackBar->SetPos(used);
 	if (m_dlgLrc && ::IsWindow(m_dlgLrc->m_hWnd))
 		::PostMessage(m_dlgLrc->m_hWnd,WM_TRACKPOS,wParam,lParam);
 
@@ -275,7 +303,7 @@ LRESULT CMainFrame::OnCbnSelchanged(UINT,int id, HWND hWndCtl)
 	if (::IsWindow(m_wndComboBox.m_hWnd) && hWndCtl==m_wndComboBox.m_hWnd)
 	{
 		int i=m_wndComboBox.GetCurSel();
-		MyLib::GetPlayListObj().SetPlayOrder(static_cast< PlayOrderIndex >( i ));
+		MyLib::curPlaylist()->SetPlayOrder(static_cast< PlayOrderIndex >( i ));
 	}
 
 	return 0;
@@ -284,11 +312,27 @@ LRESULT CMainFrame::OnCbnSelchanged(UINT,int id, HWND hWndCtl)
 
 LRESULT CMainFrame::OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
+	MyLib::playNext();
 
-	const TCHAR* tmp= g_pSharedPlayer->playNextPlaylistItem();
-	if(tmp)
-		SetWindowText(tmp);
+	SetWindowText(MyLib::curPlaylist()->curTrack()->GetTitle());
 
 	bHandled=TRUE;
+	return 0;
+}
+
+void CMainFrame::OnTabChanged(int sel)
+{
+	//reload play list
+	
+
+}
+
+LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
+{
+	if (pnmh->code==TCN_SELCHANGE)
+	{
+		int sel=m_pTabBar->GetCurSel();
+		OnTabChanged(sel);
+	}
 	return 0;
 }

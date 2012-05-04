@@ -4,6 +4,10 @@
 #include <string>
 #include <list>
 
+
+
+
+//for parse the ID3 tag
 #include <direct.h>
 #include <stdlib.h>
 #include <tbytevector.h>
@@ -16,7 +20,6 @@
 #include <taglib.h>
 #include <fileref.h>
 #include <tbytevector.h>
-
 using namespace TagLib;
 
 #define SONG 
@@ -80,10 +83,14 @@ public:
 	std::tstring  title,artist,album,genre,comment;
 	UINT year;
 	
-	ByteVector *pPicBuf;
+	TagLib::ByteVector *pPicBuf;
 	CImage *img;
 public:
-	BOOL scanId3Info();
+	BOOL ScanId3Info();
+	const TCHAR* GetTitle()
+	{
+		return title.c_str();
+	}
 };
 
 
@@ -95,12 +102,11 @@ private:
 	PlayListItem* curPlayingItem;
 public:
 	inline void SetCurPlaying(PlayListItem* item){curPlayingItem=item;}
-	inline PlayListItem* GetCurPlaying(){return curPlayingItem;};
+	inline PlayListItem* curTrack(){return curPlayingItem;};
 public:
 	PlayList(void);
 	~PlayList(void);
 public:
-	static void AddFolderToCurrentPlayList(LPCTSTR pszFolder);
 	BOOL AddFolder(LPCTSTR pszFolder);
 	void scanAllId3Info();
 
@@ -137,6 +143,9 @@ public:
 		{
 			next;
 		}
+		if (index==Repeat_track)
+		{
+		}
 
 		if(bMoveCur)curPlayingItem=&(*next);
 		return &(*next);
@@ -147,14 +156,27 @@ public:
 class MyLib
 {
 public:
-	MyLib(){};
+	list<PlayList> m_playLists;
+	PlayList*      m_pActivePlaylist;
+public:
+	MyLib():m_pActivePlaylist(NULL)
+	{
+		//todo
+		m_pActivePlaylist=new PlayList;
+	};
 	~MyLib(){};
 public:
 	//playlist 
-	static PlayList& GetPlayListObj();
-
+	static void AddFolderToCurrentPlayList(LPCTSTR pszFolder);
+	inline  static PlayList* curPlaylist();
+	static void play();
+	static void pause();
+	static void stop();
+	static void playNext();
 	//cur play playlist
 	//cur operator playlist
+private:
+	static MyLib* shared();
 };
 
 

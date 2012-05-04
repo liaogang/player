@@ -106,7 +106,6 @@ public:
 		m_hbrush1 = CreateSolidBrush(RGB(58, 110, 165));
 		m_hbrush2=CreateSolidBrush(RGB(255,0,0));
 
-
 	}
 
 	HPEN m_hpen,m_hpenOld;
