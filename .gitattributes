@@ -117,6 +117,7 @@ playerT/WaveFile.cpp -text
 playerT/WaveFile.h -text
 playerT/WaveFileEx.h -text
 playerT/aboutdlg.h -text
+playerT/atlsplit.h -text
 playerT/id3lib/id3.h -text
 playerT/id3lib/id3Config.h -text
 playerT/id3lib/id3lib/id3/c_wrapper.cpp -text
