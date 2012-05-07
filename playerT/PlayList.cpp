@@ -33,6 +33,7 @@ LPWSTR UTF82Unicode(LPSTR s)
 
 //-----------------------------------------
 //
+
 void MyLib::AddFolderToCurrentPlayList(LPCTSTR pszFolder)
 {
 	MyLib::curPlaylist()->AddFolder(pszFolder);
@@ -41,7 +42,7 @@ void MyLib::AddFolderToCurrentPlayList(LPCTSTR pszFolder)
 MyLib* MyLib::shared()
 {
 	static MyLib* p=NULL;
-	return p==NULL?p=new MyLib:p;
+	return p==NULL?p=new MyLib():p;
 }
 
 PlayList* MyLib::curPlaylist()
@@ -69,26 +70,37 @@ PlayList* MyLib::curPlaylist()
 //-----------------------------------------
 
  void MyLib::playNext()
-{
-	// 		PlayListItem *track=GetNextTrackByOrder();
-	// 		if (!track) return;
-	// 		if ( track==curPlayingItem)
-	// 		{
-	// 			g_pSharedPlayer->m_pFile.ResetFile();
-	// 		}
-	// 		else
-	// 		{
-	// 			g_pSharedPlayer->stop();
-	// 			g_pSharedPlayer->open(track);
-	// 			g_pSharedPlayer->play();
-	// 		}
+{	
+	PlayListItem *track=curPlaylist()->GetNextTrackByOrder();
+	if (!track) return;
+
+	CBasicPlayer *sbp=CBasicPlayer::shared();
+	if ( track==curPlaylist()->lastTrack())
+	{
+		sbp->ResetFile();
+	}
+	else
+	{
+		sbp->stop();
+		sbp->open(track);
+		sbp->play();
+	}
+
 }
 
 //-----------------------------------------
 //PlayList
-PlayList::PlayList(void)
+ PlayList::PlayList(void):curPlayingItem(NULL)
 {
+	index=Default;
 }
+
+ PlayList::PlayList(std::tstring name)
+ {
+	 PlayList();
+	m_playlistName=name;
+ }
+
 
 PlayList::~PlayList(void)
 {	
@@ -192,7 +204,12 @@ BOOL PlayListItem::ScanId3Info()
 		memcpy(pmem,lpRsrc,len);
 		IStream* pstm;
 		CreateStreamOnHGlobal(m_hMem,FALSE,&pstm);
-		img->Load(pstm);
+		if (S_OK != img->Load(pstm))
+		{
+			delete img;
+			img=NULL;
+		}
+		
 		//-----------------------------------------
 
 		if ( title.empty() && artist.empty() && album.empty())
@@ -219,3 +236,9 @@ BOOL PlayListItem::ScanId3Info()
 	return TRUE;
 }
 
+PlayList*  MyLib::NewPlaylist()
+{
+	PlayList *l=new PlayList;
+	m_playLists.push_back(*l);
+	return l;
+}

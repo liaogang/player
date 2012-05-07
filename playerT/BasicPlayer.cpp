@@ -96,6 +96,18 @@ CBasicPlayer :: ~CBasicPlayer(void)
 //  	return NULL;
 // }
 
+void CBasicPlayer::ResetFile()
+{
+	m_pFile->ResetFile();
+}
+
+void CBasicPlayer:: SetVolume(double vol)
+{
+	//m_pFile->SetOutVolume(vol);
+
+	m_pPlayerThread->m_lpDSBuffer->SetVolume(vol);
+}
+
 BOOL CBasicPlayer::open( LPCTSTR filepath )
 {
 	if(!m_bStopped)return FALSE;
@@ -196,4 +208,14 @@ void CBasicPlayer::stop()
 BOOL CBasicPlayer::open( PlayListItem *track)
 {
 	return open(track->url.c_str());
+}
+
+void CBasicPlayer:: SetPos(int cur,int max)
+{
+	if (!m_bStopped)
+	{
+		m_cs.Enter();
+		m_pFile->SetPos(cur,max);
+		m_cs.Leave();
+	}
 }

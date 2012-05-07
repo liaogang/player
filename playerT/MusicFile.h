@@ -18,4 +18,5 @@ public:
 	virtual LONG      GetPos(double *e,double *f){return 0;};
 	virtual VOID  SetOutVolume(double vol)=0;
 	virtual bool Open(LPCTSTR pszPath)=0;
+	virtual void  SetPos(int cur,int max)=0;
 };

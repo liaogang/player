@@ -80,7 +80,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	HWND hWndVolumeBar=m_pVolumeBar->Create(m_hWnd,NULL,NULL,style,0);
 	m_pVolumeBar->SetPageSize(1);
 	m_pVolumeBar->SetLineSize(1);
-	m_pVolumeBar->SetThumbLength(30);
+	m_pVolumeBar->SetThumbLength(10);
+	m_pVolumeBar->SetRange(0,10000);
 	AddSimpleReBarBand(hWndVolumeBar,NULL,FALSE,50,TRUE);
 
 
@@ -220,7 +221,7 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 		LPCTSTR path=dlg.GetFolderPath();
 		TCHAR *tmp=new TCHAR[MAX_PATH];
 		_tcscpy(tmp,path);
-		PlayList::AddFolderToCurrentPlayList(tmp);
+		MyLib::AddFolderToCurrentPlayList(tmp);
 		
 		list<PlayListItem> *songList=&(MyLib::curPlaylist()->m_songList);
 		list<PlayListItem>::iterator i;
@@ -285,12 +286,17 @@ LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 
 LRESULT CMainFrame::OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	double used,lefted;
-	used=wParam;
-	lefted=lParam;
-	bHandled=FALSE;
-	m_pTrackBar->SetRange(0,used+lefted);
-	m_pTrackBar->SetPos(used);
+	if (!m_pTrackBar->m_bPressing)
+	{
+		double used,lefted;
+		used=wParam;
+		lefted=lParam;
+		bHandled=FALSE;
+		m_pTrackBar->SetRange(0,used+lefted);
+		m_pTrackBar->SetPos(used);
+	}
+
+	
 	if (m_dlgLrc && ::IsWindow(m_dlgLrc->m_hWnd))
 		::PostMessage(m_dlgLrc->m_hWnd,WM_TRACKPOS,wParam,lParam);
 
@@ -329,10 +335,34 @@ void CMainFrame::OnTabChanged(int sel)
 
 LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 {
-	if (pnmh->code==TCN_SELCHANGE)
+	//drop list combo box , changed
+	if (pnmh->code==TCN_SELCHANGE && idCtrl==m_wndComboBox.GetDlgCtrlID())
 	{
 		int sel=m_pTabBar->GetCurSel();
 		OnTabChanged(sel);
 	}
+
+
+
+
+	//track bar  mouse released
+	if (pnmh->code==NM_RELEASEDCAPTURE && idCtrl==m_pTrackBar->GetDlgCtrlID())
+	{
+		int pos=m_pTrackBar->GetPos();
+		int posMax=m_pTrackBar->GetRangeMax();
+
+		CBasicPlayer::shared()->SetPos(pos,posMax);
+		m_pTrackBar->m_bPressing=FALSE;
+	}
+
+
+	//volume track bar  mouse released
+	if (pnmh->code==NM_RELEASEDCAPTURE && idCtrl==m_pVolumeBar->GetDlgCtrlID())
+	{
+		int vol=m_pVolumeBar->GetPos();
+		CBasicPlayer::shared()->SetVolume(vol-10000);
+
+	}
+	
 	return 0;
 }

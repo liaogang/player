@@ -50,6 +50,8 @@ public:
 	CPlayerThread* m_pPlayerThread;
 	CSpectrumAnalyser* m_pSpectrumAnalyser;
 	MusicFile *m_pFile;
+	
+	
 
 	volatile BOOL m_bStopped;
 	BOOL m_bPaused;
@@ -57,7 +59,11 @@ public:
 	HANDLE m_hWStartEvent;
 
 public:
+	void SetVolume(double vol);
+	
 	BOOL open( PlayListItem *track);
+	void ResetFile();
+	void SetPos(int cur,int max);
 	//const TCHAR* playNextPlaylistItem();
 protected:
 	void play();

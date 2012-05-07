@@ -98,14 +98,26 @@ class PlayList
 {
 public:
 	list<PlayListItem> m_songList;
+	std::tstring       m_playlistName;
 private:
-	PlayListItem* curPlayingItem;
+	PlayListItem *lastPlayingItem,*curPlayingItem,*nextPlayingItem;
+	
 public:
 	inline void SetCurPlaying(PlayListItem* item){curPlayingItem=item;}
+	inline PlayListItem* lastTrack(){return lastPlayingItem;}
 	inline PlayListItem* curTrack(){return curPlayingItem;};
+	PlayListItem* nextTrack()
+	{
+		PlayListItem*tmp=nextPlayingItem; 
+		nextPlayingItem=NULL;
+		return tmp;
+	}
+	
 public:
 	PlayList(void);
+	PlayList(std::tstring name);
 	~PlayList(void);
+	
 public:
 	BOOL AddFolder(LPCTSTR pszFolder);
 	void scanAllId3Info();
@@ -128,8 +140,11 @@ public:
 				break;
 		}
 
+		lastPlayingItem=curPlayingItem;
+
 		if (++cur==m_songList.end())
 			return NULL;
+		
 		
 		if (index==Default)
 		{
@@ -163,10 +178,12 @@ public:
 	{
 		//todo
 		m_pActivePlaylist=new PlayList;
+		m_playLists.push_back(*m_pActivePlaylist);
 	};
 	~MyLib(){};
 public:
 	//playlist 
+	PlayList* NewPlaylist();
 	static void AddFolderToCurrentPlayList(LPCTSTR pszFolder);
 	inline  static PlayList* curPlaylist();
 	static void play();

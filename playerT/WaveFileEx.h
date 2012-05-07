@@ -43,6 +43,11 @@ public:
 		return;
 	}
 
+	virtual void  SetPos(int cur,int max)
+	{
+		//to do
+	}
+
 private:
 	CWaveFile m_wavefile;
 };

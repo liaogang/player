@@ -6,13 +6,27 @@ class CMyTrackBar
 	:public CWindowImpl<CMyTrackBar,CTrackBarCtrl>
 {
 public:
+	BOOL m_bPressing;
+	CMyTrackBar():m_bPressing(FALSE)
+	{
+
+	}
+public:
 	DECLARE_WND_SUPERCLASS(NULL,CTrackBarCtrl::GetWndClassName())
 
 	BEGIN_MSG_MAP(CMyTrackBar)
+		MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLBtnDown)
 		MESSAGE_HANDLER(TB_BUTTONCOUNT,TBB)
 		MESSAGE_HANDLER(TB_GETITEMRECT,OnGetItemRect)
 	END_MSG_MAP()
 
+	
+	LRESULT OnLBtnDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+	{
+		bHandled=FALSE;
+		m_bPressing=TRUE;
+		return 1;
+	}
 	LRESULT OnGetItemRect(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
 		RECT *rc=(RECT*)lParam;

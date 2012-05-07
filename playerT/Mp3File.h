@@ -50,6 +50,12 @@ public:
 			return -1;
 	}
 
+	virtual void  SetPos(int cur,int max)
+	{
+		long i=cur/(float)max * GetSize();
+		mpg123_seek(m_hmp3,i,SEEK_SET);
+	}
+
 	virtual bool Open(LPCTSTR pszPath)
 	{
 		m_pszPath=(TCHAR*)pszPath;
