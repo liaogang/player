@@ -21,17 +21,20 @@
  void CPlayerController::Excute()
  {
 	 const static int indecayLen=13;
-	 static LONG indecay[indecayLen]={ -150 , -170,  -200,  -500,  -800, -1000, -2000, -3000, -4000, -5000, -6000, -8000, -9000};
+	 //static LONG indecay[indecayLen]={ -150 , -170,  -200,  -500,  -800, -1000, -2000, -3000, -4000, -5000, -6000, -8000, -9000};
+	 static LONG indecay[indecayLen]={ -1000 , -3000,  -4000,  -5000,  -6000, -7000, -7500, -8000, -8500, -9000, -9500, -9700, -9900};
 
+	 
 	 while(1)
 	 {
 		 ::WaitForSingleObject(decayEvent,INFINITE);
 
+		 int curVolume=m_pPlayerThread->m_pPlayer->m_curVolume;
 		 if (m_pPlayerThread->m_pPlayer->bDecay)    
 		 {
 			 for (int i=0;i<indecayLen;i++)
 			 {
-				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay[i]);
+				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay[i] *(0-curVolume)/10000);
 				 Sleep(70);
 			 }
 
@@ -45,7 +48,7 @@
 
 			 for (int i=indecayLen-1;i>=0;--i)
 			 {
-				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay[i]);
+				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay[i]  *(0-curVolume)/10000);
 				 Sleep(70);
 			 }
 		 }
@@ -103,9 +106,9 @@ void CBasicPlayer::ResetFile()
 
 void CBasicPlayer:: SetVolume(double vol)
 {
-	//m_pFile->SetOutVolume(vol);
-
-	m_pPlayerThread->m_lpDSBuffer->SetVolume(vol);
+	if (m_pPlayerThread && m_pPlayerThread->m_lpDSBuffer)
+		m_pPlayerThread->m_lpDSBuffer->SetVolume(vol);
+	m_curVolume=vol;
 }
 
 BOOL CBasicPlayer::open( LPCTSTR filepath )

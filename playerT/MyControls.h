@@ -1,5 +1,6 @@
 #include "PlayListView.h"
 #include "WTLTabViewCtrl.h"
+#include "mainfrm.h"
 //-----------------------------------------
 //progress pos track bar
 class CMyTrackBar
@@ -9,7 +10,7 @@ public:
 	BOOL m_bPressing;
 	CMyTrackBar():m_bPressing(FALSE)
 	{
-
+		
 	}
 public:
 	DECLARE_WND_SUPERCLASS(NULL,CTrackBarCtrl::GetWndClassName())
@@ -45,6 +46,118 @@ public:
 
 };
 
+
+class CMyVolumeBar:
+	public CWindowImpl<CMyVolumeBar,CTrackBarCtrl>
+{
+public:
+	CMainFrame *pMain;
+	BOOL m_bPressing;
+	CMyVolumeBar():m_bPressing(FALSE)
+	{
+
+	}
+public:
+	DECLARE_WND_SUPERCLASS(NULL,CTrackBarCtrl::GetWndClassName())
+
+	BEGIN_MSG_MAP(CMyVolumeBar)
+		MESSAGE_HANDLER(WM_CREATE,OnCreate)
+		MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLBtnDown)
+		MESSAGE_HANDLER(WM_MOUSEMOVE,OnMouseMove)
+		MESSAGE_HANDLER(WM_LBUTTONUP,OnReleaseLB)
+		MESSAGE_HANDLER(TB_BUTTONCOUNT,TBB)
+		MESSAGE_HANDLER(TB_GETITEMRECT,OnGetItemRect)
+	END_MSG_MAP()
+
+	
+	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+	{
+		SetPageSize(1);
+		SetLineSize(1);
+		SetThumbLength(10);
+		SetRange(0,10000);
+		SetPos(10000);
+		bHandled=FALSE;
+		return 1;
+	}
+
+	LRESULT OnLBtnDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+	{
+		//TO DO ,SET POS
+		SetCapture();
+		
+		bHandled=FALSE;
+		m_bPressing=TRUE;
+		return 1;
+	}
+	
+	LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+	{    
+		if (GetCapture()==m_hWnd)
+		{
+			int pos=GetPos();
+			OnPos(pos);
+		}
+
+		bHandled=FALSE;
+		return 1;
+	}
+
+	LRESULT OnReleaseLB(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+	{	
+
+		if (GetCapture()==m_hWnd)
+		{
+			int pos=GetPos();
+			OnPos(pos);
+		}
+		ReleaseCapture();
+
+		m_bPressing=FALSE;
+		return 1;
+	}
+
+	void OnPos(int pos)
+	{
+		CBasicPlayer::shared()->SetVolume(pos-10000);
+	}
+
+
+
+	LRESULT OnGetItemRect(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+	{
+		RECT *rc=(RECT*)lParam;
+		rc->left=0;
+		rc->right=30;
+		rc->bottom=30;
+		rc->top=0;
+		return 1;
+	}
+
+	LRESULT TBB(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		bHandled=TRUE;
+		return 1;
+	}
+	
+
+
+
+};
+
+
+
+class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
+{
+	DECLARE_WND_SUPERCLASS(NULL,CStatusBarCtrl::GetWndClassName())
+
+	BEGIN_MSG_MAP_EX(CMyStatusBar)
+		MSG_WM_LBUTTONDBLCLK(OnLButtonDblClk)
+	END_MSG_MAP()
+	void OnLButtonDblClk(UINT nFlags, CPoint point);
+
+	CMainFrame *pMain;
+};
 
 //  
 // //-----------------------------------------

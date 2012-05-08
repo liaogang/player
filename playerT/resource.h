@@ -53,7 +53,7 @@
 
 //-----------------------------------------
 //
-#define APPNAME "Unnamed Player"
+#define APPNAME "Unnamed Music Player"
 //-----------------------------------------
 
 

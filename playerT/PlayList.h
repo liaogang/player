@@ -4,9 +4,6 @@
 #include <string>
 #include <list>
 
-
-
-
 //for parse the ID3 tag
 #include <direct.h>
 #include <stdlib.h>
@@ -22,10 +19,7 @@
 #include <tbytevector.h>
 using namespace TagLib;
 
-#define SONG 
 
-#ifndef _PLAYLIST_H_
-#define _PLAYLIST_H_
 
 #define PLAYORDERCOUNT 7
 static const TCHAR *gPlayOrderStr[PLAYORDERCOUNT] =
@@ -54,7 +48,7 @@ class PlayListItem
 {
 public:
 	PlayListItem(std::tstring *url):url(*url)
-		,playCount(0),starLvl(1)
+		,playCount(0),starLvl(1),indexInListView(-1)
 	{
 		//title(NULL)
 		//,artist(NULL),album(0),year(0),genre(0),comment(0)
@@ -73,7 +67,10 @@ public:
 			pPicBuf=NULL;
 		}
 	}
+
 public:
+	int indexInListView;
+
 	std::tstring url;
 	UINT          playCount;
 	UINT		  starLvl;
@@ -87,10 +84,7 @@ public:
 	CImage *img;
 public:
 	BOOL ScanId3Info();
-	const TCHAR* GetTitle()
-	{
-		return title.c_str();
-	}
+	const TCHAR* GetTitle(){return title.c_str();}
 };
 
 
@@ -100,7 +94,8 @@ public:
 	list<PlayListItem> m_songList;
 	std::tstring       m_playlistName;
 private:
-	PlayListItem *lastPlayingItem,*curPlayingItem,*nextPlayingItem;
+	PlayListItem *lastPlayingItem,*curPlayingItem,
+		*nextPlayingItem,*curSelectedItem;
 	
 public:
 	inline void SetCurPlaying(PlayListItem* item){curPlayingItem=item;}
@@ -197,6 +192,10 @@ private:
 };
 
 
+
+
+
+#ifdef asdfsdfoi
 
 
 #define ID3_NR_OF_V1_GENRES 148
@@ -352,13 +351,13 @@ static const char *ID3_v1_genre_description[ID3_NR_OF_V1_GENRES] =
 	"JPop",                  //146
 	"Synthpop"               //147
 };
-
-
-
-
-
-
 #endif
+
+
+
+
+
+
 
 
 

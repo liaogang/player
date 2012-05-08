@@ -1,22 +1,44 @@
 #pragma once
+
+unsigned int BKDRHash(char *str)
+{
+	unsigned int seed = 131; // 31 131 1313 13131 131313 etc..
+	unsigned int hash = 0;
+
+	while (*str)
+	{
+		hash = hash * seed + (*str++);
+	}
+
+	return (hash & 0x7FFFFFFF);
+}
+
 class CPlayListView:
 	public CWindowImpl<CPlayListView,CListViewCtrl>
 {
+
 public:
 	class CMainFrame *pMain;
 	void SetMain(class CMainFrame *pMain);
+
 public:
 	DECLARE_WND_SUPERCLASS(NULL,CListViewCtrl::GetWndClassName())
 
 	BEGIN_MSG_MAP_EX(CPlayListView)
 		MSG_WM_CREATE(OnCreate)
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
-		//MSG_WM_LBUTTONUP()
+		NOTIFY_HANDLER_EX(GetDlgCtrlID(),LVN_ITEMCHANGED,OnItemChanged)
+		//MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLBtnDown)
 	END_MSG_MAP()
 	
-
-
+    LRESULT OnItemChanged(LPNMHDR pnmh)
+	{
+		return 1;
+	}
+	
 	LRESULT OnDbClicked(UINT i,CPoint pt);
+	// void OnLButtonDblClk(UINT nFlags, CPoint point)
+	//OnClicked
 	LRESULT OnCreate(LPCREATESTRUCT lpcs)
 	{	
 		//ModifyStyle( 0, LVS_REPORT|LVS_REPORT );

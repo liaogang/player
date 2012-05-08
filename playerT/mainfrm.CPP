@@ -76,12 +76,13 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	//-----------------------------------------
 	//volume track bar
-	m_pVolumeBar=new CMyTrackBar;
+	m_pVolumeBar=new CMyVolumeBar;
 	HWND hWndVolumeBar=m_pVolumeBar->Create(m_hWnd,NULL,NULL,style,0);
 	m_pVolumeBar->SetPageSize(1);
 	m_pVolumeBar->SetLineSize(1);
 	m_pVolumeBar->SetThumbLength(10);
 	m_pVolumeBar->SetRange(0,10000);
+	m_pVolumeBar->SetPos(10000);
 	AddSimpleReBarBand(hWndVolumeBar,NULL,FALSE,50,TRUE);
 
 
@@ -89,6 +90,11 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//status bar  
 	//add it all
 	CreateSimpleStatusBar();
+	m_pStatus=new CMyStatusBar;
+	m_pStatus->SubclassWindow(m_hWndStatusBar);
+	m_pStatus->pMain=this;
+		
+
 
 	UIAddToolBar(hWndToolBar);
 	UISetCheck(ID_VIEW_TOOLBAR, 1);
@@ -239,10 +245,13 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 			m_pPlaylistView->SetItemText(j,k++,i->comment.c_str());
 		
 			m_pPlaylistView->SetItemData(j,(DWORD_PTR)&(*i));
+			(*i).indexInListView=j;
 		}
 	}
 	return 0;
 }
+
+
 
 
 
@@ -253,8 +262,17 @@ LRESULT CPlayListView::OnDbClicked(UINT i,CPoint pt)
 	PlayListItem *curSelectedTrack;
 	
 	GetSelectedItem(&item);
+	if (item.iItem==-1)
+	{
+		return 0;
+		
+	}
+	
 	curSelectedTrack=(PlayListItem*)GetItemData(item.iItem);
-
+	if (!curSelectedTrack)
+	{
+		return 0;
+	}
 	MyLib::curPlaylist()->SetCurPlaying(curSelectedTrack);
 
 	MyLib::stop();
@@ -342,9 +360,6 @@ LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 		OnTabChanged(sel);
 	}
 
-
-
-
 	//track bar  mouse released
 	if (pnmh->code==NM_RELEASEDCAPTURE && idCtrl==m_pTrackBar->GetDlgCtrlID())
 	{
@@ -354,15 +369,14 @@ LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 		CBasicPlayer::shared()->SetPos(pos,posMax);
 		m_pTrackBar->m_bPressing=FALSE;
 	}
-
-
-	//volume track bar  mouse released
-	if (pnmh->code==NM_RELEASEDCAPTURE && idCtrl==m_pVolumeBar->GetDlgCtrlID())
-	{
-		int vol=m_pVolumeBar->GetPos();
-		CBasicPlayer::shared()->SetVolume(vol-10000);
-
-	}
 	
 	return 0;
+}
+
+void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
+{
+	int i=MyLib::curPlaylist()->curTrack()->indexInListView;
+	if (i!=-1)
+		pMain->m_pPlaylistView->SetItemState(i,LVIS_FOCUSED|
+		LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
 }

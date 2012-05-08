@@ -51,7 +51,7 @@ public:
 	CSpectrumAnalyser* m_pSpectrumAnalyser;
 	MusicFile *m_pFile;
 	
-	
+	int m_curVolume;
 
 	volatile BOOL m_bStopped;
 	BOOL m_bPaused;

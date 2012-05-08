@@ -18,6 +18,8 @@ class CMyTabBar;
 class CPlayListView;
 class CWTLTabViewCtrl;
 class CPlayListView;
+class CMyVolumeBar;
+class CMyStatusBar;
 //-----------------------------------------
 
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFrame>,
@@ -27,7 +29,7 @@ public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 public:
 	CMyTrackBar *m_pTrackBar;
-	CMyTrackBar *m_pVolumeBar;
+	CMyVolumeBar *m_pVolumeBar;
 	
 	CCommandBarCtrl m_CmdBar;
 	CDialogConfig   m_dlgConfig;
@@ -39,6 +41,8 @@ public:
 	CSplitterWindow split;
 	CHorSplitterWindow *leftPane;
 	CAlbumCoverView    *albumView1;
+
+	CMyStatusBar *m_pStatus;
 public:
 
 	CMainFrame():m_dlgLrc(NULL),
@@ -64,7 +68,7 @@ public:
 		UPDATE_ELEMENT(ID_VIEW_STATUS_BAR, UPDUI_MENUPOPUP)
 	END_UPDATE_UI_MAP()
 
-	BEGIN_MSG_MAP(CMainFrame)
+	BEGIN_MSG_MAP_EX(CMainFrame)
 		MSG_WM_NOTIFY(OnNotify)
 		COMMAND_CODE_HANDLER_EX(CBN_SELCHANGE,OnCbnSelchanged)
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
@@ -88,17 +92,14 @@ public:
 		COMMAND_ID_HANDLER(ID_FILE_OPENDIRECTORY, OnFileOpendirectory)
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
-		//CHAIN_MSG_MAP(CWTLTabViewCtrl)
 	END_MSG_MAP()
 
 
+	LRESULT OnNotify(int idCtrl, LPNMHDR pnmh);
 	LRESULT OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnCbnSelchanged(UINT,int id, HWND hWndCtl);
 	LRESULT OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
-	
-	LRESULT OnNotify(int idCtrl, LPNMHDR pnmh);
-	void OnTabChanged(int sel);
 
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
@@ -110,7 +111,6 @@ public:
 		bHandled = FALSE;
 		return 1;
 	}
-
 
 
 	LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -182,7 +182,7 @@ public:
 
 public:
 	LRESULT OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-
+	void OnTabChanged(int sel);
 };
 
 
