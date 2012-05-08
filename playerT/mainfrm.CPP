@@ -11,7 +11,7 @@
 #include <string>
 using namespace std;
 
-void CPlayListView::SetMain(class CMainFrame *pMain){this->pMain=pMain;}
+
 
 
 
@@ -255,36 +255,6 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 
 
-LRESULT CPlayListView::OnDbClicked(UINT i,CPoint pt)
-{
-	LVITEM item;
-	
-	PlayListItem *curSelectedTrack;
-	
-	GetSelectedItem(&item);
-	if (item.iItem==-1)
-	{
-		return 0;
-		
-	}
-	
-	curSelectedTrack=(PlayListItem*)GetItemData(item.iItem);
-	if (!curSelectedTrack)
-	{
-		return 0;
-	}
-	MyLib::curPlaylist()->SetCurPlaying(curSelectedTrack);
-
-	MyLib::stop();
-	MyLib::play();
-
-	::SetWindowText(pMain->m_hWnd,curSelectedTrack->GetTitle());
-	
-	pMain->albumView1->Invalidate(TRUE);
-
-	SetMsgHandled(FALSE);
-	return 0;
-}
 
 
 LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -314,7 +284,6 @@ LRESULT CMainFrame::OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHa
 		m_pTrackBar->SetPos(used);
 	}
 
-	
 	if (m_dlgLrc && ::IsWindow(m_dlgLrc->m_hWnd))
 		::PostMessage(m_dlgLrc->m_hWnd,WM_TRACKPOS,wParam,lParam);
 
@@ -375,8 +344,45 @@ LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 
 void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
-	int i=MyLib::curPlaylist()->curTrack()->indexInListView;
+	PlayListItem *track=MyLib::curPlaylist()->curTrack();
+	if (!track)
+		return;
+
+	int i=track->indexInListView;
 	if (i!=-1)
+	{
 		pMain->m_pPlaylistView->SetItemState(i,LVIS_FOCUSED|
 		LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
+		pMain->m_pPlaylistView->SetFocus();	
+		pMain->m_pPlaylistView->EnsureVisible(i,FALSE);
+	}
+}
+
+void CPlayListView::SetMain(class CMainFrame *pMain){this->pMain=pMain;}
+
+LRESULT CPlayListView::OnDbClicked(UINT i,CPoint pt)
+{
+	LVITEM item;
+
+	PlayListItem *curSelectedTrack;
+
+	GetSelectedItem(&item);
+	if (item.iItem==-1)
+		return 0;
+
+	curSelectedTrack=(PlayListItem*)GetItemData(item.iItem);
+	if (!curSelectedTrack)
+		return 0;
+
+
+	MyLib::curPlaylist()->SetCurPlaying(curSelectedTrack);
+	MyLib::stop();
+	MyLib::play();
+
+	::SetWindowText(pMain->m_hWnd,curSelectedTrack->GetTitle());
+
+	pMain->albumView1->Invalidate(TRUE);
+
+	SetMsgHandled(FALSE);
+	return 0;
 }
