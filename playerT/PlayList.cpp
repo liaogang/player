@@ -150,6 +150,33 @@ PlayList*  MyLib::NewPlaylist()
 	return l;
 }
 
+BOOL MyLib::SaveCurPlaylist(LPTSTR filepath)
+{
+	BOOL result=FALSE;
+	FILE * pFile;
+	pFile = _tfopen((LPCTSTR)filepath , _T("wb") );
+	if (pFile!=NULL)
+	{
+		result=m_pActivePlaylist->Serialize(pFile);
+		fclose (pFile);
+	}
+
+	return result;
+}
+
+BOOL MyLib::LoadPlaylist(LPTSTR filepath)
+{
+	BOOL result=FALSE;
+	FILE * pFile;
+	pFile = _tfopen ((LPCTSTR)filepath, _T("rb") );
+	if (pFile!=NULL)
+	{
+		result=m_pActivePlaylist->ReSerialize(pFile);
+		fclose (pFile);
+	}
+	return result;
+}
+
 void MyLib::AddFolderToCurrentPlayList(LPCTSTR pszFolder)
 {
  	MyLib::curPlaylist()->AddFolderByThread(pszFolder);
@@ -185,10 +212,12 @@ PlayList* MyLib::curPlaylist()
 
 //-----------------------------------------
 
- void MyLib::playNext()
+ void MyLib::playNext(BOOL scanID3)
 {	
 	PlayListItem *track=curPlaylist()->GetNextTrackByOrder();
 	if (!track) return;
+
+	track->ScanId3Info();
 
 	CBasicPlayer *sbp=CBasicPlayer::shared();
 	if ( track==curPlaylist()->lastTrack())
@@ -224,10 +253,10 @@ PlayList::~PlayList(void)
 
 
 
-void PlayList::scanAllId3Info()
-{
-
-}
+// void PlayList::scanAllId3Info()
+// {
+// 
+// }
 
 BOOL PlayList::AddFolderByThread(LPCTSTR pszFolder)
 {
@@ -271,7 +300,6 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 			std::tstring str(pathName);
 
 			PlayListItem *pItem=new PlayListItem(&str);
-			pItem->ScanId3Info();
 			m_songList.push_back(*pItem);
 			//msonglist的析构会删除*pItem;
 		}
@@ -290,14 +318,12 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 				std::tstring str(pathName);
 
 				PlayListItem *pItem=new PlayListItem(&str);
-				pItem->ScanId3Info();
 				m_songList.push_back(*pItem);
 				//msonglist的析构会删除*pItem;
 			}
 		}
 	}
 	FindClose(hFind);
-
 
 	_tchdir(curPath);
 
@@ -319,9 +345,7 @@ BOOL PlayListItem::ScanId3Info()
 		artist=id3v2tag->artist().toWString();
 		album=id3v2tag->album().toWString();
 		genre=id3v2tag->genre().toWString();
-
 		year=id3v2tag->year();
-
 
 		// we will use bytevector to retain to memory in frame
 		pPicBuf=new ByteVector;

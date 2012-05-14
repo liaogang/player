@@ -19,9 +19,22 @@ public:
 		MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLBtnDown)
 		MESSAGE_HANDLER(TB_BUTTONCOUNT,TBB)
 		MESSAGE_HANDLER(TB_GETITEMRECT,OnGetItemRect)
+		//MSG_WM_ERASEBKGND(OnEraseBkgnd)
 	END_MSG_MAP()
 
-	
+// 	BOOL OnEraseBkgnd(CDCHandle dc);
+// 	BOOL CMyTrackBar::OnEraseBkgnd(CDCHandle dc)	
+// 	{
+// 		CBrush whiteBrush;
+// 		whiteBrush.CreateSysColorBrush(COLOR_BACKGROUND);
+// 		HBRUSH oldBrush=dc.SelectBrush(whiteBrush.m_hBrush);
+// 		RECT rc;
+// 		GetClientRect(&rc);
+// 		Rectangle(dc.m_hDC,rc.left,rc.top,rc.right,rc.bottom);
+// 		::SelectObject(dc.m_hDC,oldBrush);
+// 		return FALSE;
+// 	}
+
 	LRESULT OnLBtnDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
 		bHandled=FALSE;

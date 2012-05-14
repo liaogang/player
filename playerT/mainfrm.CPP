@@ -6,6 +6,7 @@
 #include "BasicPlayer.h"
 #include "CAlbumCoverView.h"
 #include "MyControls.h"
+#include "CMyTabBar.h"
 #include "DlgProcessing.h"
 
 #include <mpg123.h>
@@ -114,7 +115,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//right pane
 	//------------------------------------------------
 	//tab bar
-	m_pTabBar=new CWTLTabViewCtrl;
+	m_pTabBar=new CMyTabBar;
 	m_pTabBar->Create(split.m_hWnd,rcDefault,NULL,WS_CHILD|WS_VISIBLE,WS_EX_STATICEDGE);
 
 	m_pPlaylistView=new CPlayListView;
@@ -129,7 +130,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	albumView1->Create(leftPane->m_hWnd);
 	leftPane->SetSplitterPane(0,albumView1->m_hWnd);
 	m_pTabBar->AddTab(_T("д╛хо"),m_pPlaylistView->m_hWnd);
-	m_pTabBar->AddTab(_T("todo playlist"),m_pPlaylistView->m_hWnd);
+	m_pTabBar->AddTab(_T("Default"),m_pPlaylistView->m_hWnd);
+
 	
 	//set left and right
 	split.SetSplitterPanes(leftPane->m_hWnd,m_pTabBar->m_hWnd,TRUE);
@@ -157,6 +159,38 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	return 0;
 }
 
+
+LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
+{
+	if (pnmh->code==TCN_SELCHANGE)
+	{
+		//drop list combo box , changed
+		if (idCtrl==m_wndComboBox.GetDlgCtrlID())
+		{
+			int sel=m_pTabBar->GetCurSel();
+			OnTabChanged(sel);
+		}
+
+		if (idCtrl==m_pTabBar->GetDlgCtrlID())
+		{
+			m_pTabBar->OnSelectionChanged();
+		}
+	}
+	
+	//track bar  mouse released
+	if (pnmh->code==NM_RELEASEDCAPTURE && idCtrl==m_pTrackBar->GetDlgCtrlID())
+	{
+		int pos=m_pTrackBar->GetPos();
+		int posMax=m_pTrackBar->GetRangeMax();
+
+		CBasicPlayer::shared()->SetPos(pos,posMax);
+		m_pTrackBar->m_bPressing=FALSE;
+	}
+
+	
+
+	return 0;
+}
 
  LRESULT CMainFrame::OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
  {
@@ -338,45 +372,28 @@ void CMainFrame::OnTabChanged(int sel)
 
 }
 
-LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
+
+LRESULT CMainFrame::OnFileNewPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	//drop list combo box , changed
-	if (pnmh->code==TCN_SELCHANGE && idCtrl==m_wndComboBox.GetDlgCtrlID())
-	{
-		int sel=m_pTabBar->GetCurSel();
-		OnTabChanged(sel);
-	}
-
-	//track bar  mouse released
-	if (pnmh->code==NM_RELEASEDCAPTURE && idCtrl==m_pTrackBar->GetDlgCtrlID())
-	{
-		int pos=m_pTrackBar->GetPos();
-		int posMax=m_pTrackBar->GetRangeMax();
-
-		CBasicPlayer::shared()->SetPos(pos,posMax);
-		m_pTrackBar->m_bPressing=FALSE;
-	}
-	
+	MyLib::shared()->NewPlaylist();
+	//tell the play list view to add this
+	::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
 	return 0;
 }
 
-
 LRESULT CMainFrame::OnOpenPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	FILE * pFile;
-	pFile = fopen ( "default.pl" , "rb" );
-	if (pFile==NULL)
-	{
-		MessageBox(_T("Can't open file"));
-	}	
-	else
-	{
-		MyLib::shared()->ReSerialize(pFile);
-		fclose (pFile);
+	const TCHAR szFilter[]=_T("playlist files(*.pl)\0*.pl\0");
 
-		::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
-	}
+	CFileDialog dlg(TRUE,NULL,NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,szFilter,m_hWnd);
+	if(dlg.DoModal()!=IDOK)return 0;
 
+	LPTSTR filepath=dlg.m_ofn.lpstrFile;
+
+	MyLib::shared()->LoadPlaylist(filepath);
+
+	//tell the play list view to add this
+	::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
 	
 	return 0;
 }
@@ -384,22 +401,15 @@ LRESULT CMainFrame::OnOpenPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 LRESULT CMainFrame::OnSavePlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	const TCHAR szFilter[]=_T("playlist files(*.pl)\0*.pl\0");
 
-	//std::locale loc1 = std::locale::global(std::locale(".936"));
-	
-	FILE * pFile;
-	pFile = fopen ( "default.pl" , "wb" );
-	if (pFile==NULL)
-	{
-		MessageBox(_T("Can't save file"));
-	}	
-	else
-	{
-		MyLib::shared()->Serialize(pFile);
-		fclose (pFile);
-	}
+	CFileDialog dlg(TRUE,NULL,NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
+	if(dlg.DoModal()!=IDOK)return 0;
 
-	//std::locale::global(std::locale(loc1));
+	LPTSTR filepath=dlg.m_ofn.lpstrFile;
+
+	MyLib::shared()->SaveCurPlaylist(filepath);
+
 	return 0;
 }
 
@@ -437,6 +447,7 @@ LRESULT CPlayListView::OnDbClicked(UINT i,CPoint pt)
 
 
 	MyLib::curPlaylist()->SetCurPlaying(curSelectedTrack);
+
 	MyLib::stop();
 	MyLib::play();
 
@@ -453,3 +464,5 @@ LRESULT CPlayListView::OnDbClicked(UINT i,CPoint pt)
 
 void MyLib::SetMain(HWND hMain){shared()->hMain=hMain;};
 HWND MyLib::GetMain(){return shared()->hMain;};
+
+

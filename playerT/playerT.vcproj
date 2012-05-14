@@ -52,6 +52,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="..\mpg123SvnTrank\ports\MSVC++;..\mpg123SvnTrank\src\libmpg123;.\taplib\include;.\taplib\taglib\ape"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;STRICT;TAGLIB_NO_CONFIG"
+				KeepComments="false"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -984,6 +985,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\CMyTabBar.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

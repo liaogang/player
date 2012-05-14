@@ -76,6 +76,7 @@ playerT/BasicPlayer.cpp -text
 playerT/BasicPlayer.h -text
 playerT/CAlbumCoverView.h -text
 playerT/CImg.h -text
+playerT/CMyTabBar.h -text
 playerT/CPropertyDlgs.h -text
 playerT/CriticalSection.h -text
 playerT/DialogConfig.cpp -text

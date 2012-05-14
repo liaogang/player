@@ -116,9 +116,15 @@ private:
 		*nextPlayingItem,*curSelectedItem;
 	
 public:
-	inline void SetCurPlaying(PlayListItem* item){curPlayingItem=item;}
-	inline PlayListItem* lastTrack(){return lastPlayingItem;}
-	inline PlayListItem* curTrack(){return curPlayingItem;};
+	void SetCurPlaying(PlayListItem* item,BOOL scanID3=TRUE)
+	{
+		curPlayingItem=item;
+		if (scanID3)
+			curPlayingItem->ScanId3Info();
+	}
+
+	PlayListItem* lastTrack(){return lastPlayingItem;}
+	PlayListItem* curTrack(){return curPlayingItem;};
 	PlayListItem* nextTrack()
 	{
 		PlayListItem*tmp=nextPlayingItem; 
@@ -195,6 +201,7 @@ public:
 public:
 	list<PlayList> m_playLists;
 	PlayList*      m_pActivePlaylist;
+	PlayList*      m_pSelectedPlaylist;
 public:
 	MyLib():m_pActivePlaylist(NULL)
 	{
@@ -202,20 +209,23 @@ public:
 		m_pActivePlaylist=new PlayList;
 		m_playLists.push_back(*m_pActivePlaylist);
 	};
-	~MyLib(){};
+
+	~MyLib()
+	{
+	};
+
+	static MyLib* shared();
 public:
-	//playlist 
 	PlayList* NewPlaylist();
 	static void AddFolderToCurrentPlayList(LPCTSTR pszFolder);
 	inline  static PlayList* curPlaylist();
 	static void play();
 	static void pause();
 	static void stop();
-	static void playNext();
-	//cur play playlist
-	//cur operator playlist
+	static void playNext(BOOL scanID3=TRUE);
 public:
-	static MyLib* shared();
+	BOOL SaveCurPlaylist(LPTSTR filepath);
+	BOOL LoadPlaylist(LPTSTR filepath);
 };
 
 
