@@ -35,6 +35,8 @@ public:
 	}
 	UINT minute;
 	UINT second;
+
+	UINT GetTotalSec(){return minute*60+second;}
 };
 
 class LrcLine{

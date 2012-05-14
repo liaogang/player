@@ -404,6 +404,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\customMsg.h"
+				>
+			</File>
+			<File
 				RelativePath=".\DialogConfig.h"
 				>
 			</File>
@@ -413,6 +417,10 @@
 			</File>
 			<File
 				RelativePath=".\DialogLyric.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DlgProcessing.h"
 				>
 			</File>
 			<File
@@ -441,6 +449,10 @@
 			</File>
 			<File
 				RelativePath=".\MyControls.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MySerialize.h"
 				>
 			</File>
 			<File

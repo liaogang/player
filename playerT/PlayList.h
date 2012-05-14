@@ -1,4 +1,5 @@
 #pragma once
+#include "MySerialize.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -44,11 +45,23 @@ enum PlayOrderIndex
 	Shuffle_folders,
 };
 
-class PlayListItem
+class PlayListItem:
+	public SerializeObj
 {
 public:
+	virtual int SerializeB(FILE* pFile);
+	virtual int ReSerialize(FILE* pFile);
+public:
+	PlayListItem():playCount(0),starLvl(1),indexInListView(-1)
+		,pPicBuf(NULL),img(NULL)
+	{
+		//title(NULL)
+		//,artist(NULL),album(0),year(0),genre(0),comment(0)
+	}
+
 	PlayListItem(std::tstring *url):url(*url)
 		,playCount(0),starLvl(1),indexInListView(-1)
+		,pPicBuf(NULL),img(NULL)
 	{
 		//title(NULL)
 		//,artist(NULL),album(0),year(0),genre(0),comment(0)
@@ -86,10 +99,15 @@ public:
 	BOOL ScanId3Info();
 	const TCHAR* GetTitle(){return title.c_str();}
 };
+typedef PlayListItem MyTrack;
 
 
-class PlayList
+class PlayList:
+	public SerializeObj
 {
+public:
+	virtual int SerializeB(FILE* pFile);
+	virtual int ReSerialize(FILE* pFile);
 public:
 	list<PlayListItem> m_songList;
 	std::tstring       m_playlistName;
@@ -114,9 +132,9 @@ public:
 	~PlayList(void);
 	
 public:
-	BOOL AddFolder(LPCTSTR pszFolder);
+	BOOL AddFolderByThread(LPCTSTR pszFolder);
 	void scanAllId3Info();
-
+	BOOL AddFolder(LPCTSTR pszFolder);
 public:
 	PlayOrderIndex index;
 	void SetPlayOrder(enum PlayOrderIndex index)
@@ -163,8 +181,17 @@ public:
 };
 
 
-class MyLib
+class MyLib:
+	public SerializeObj
 {
+public:
+	virtual int SerializeB(FILE* pFile);
+	virtual int ReSerialize(FILE* pFile);
+public:
+	HWND hMain;
+	static void SetMain(HWND hMain);
+	static HWND GetMain();
+
 public:
 	list<PlayList> m_playLists;
 	PlayList*      m_pActivePlaylist;
@@ -187,7 +214,7 @@ public:
 	static void playNext();
 	//cur play playlist
 	//cur operator playlist
-private:
+public:
 	static MyLib* shared();
 };
 

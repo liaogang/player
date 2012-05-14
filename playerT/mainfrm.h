@@ -4,6 +4,7 @@
 
 #pragma once
 #include "stdafx.h"
+#include "customMsg.h"
 #include "AboutDlg.h"
 #include "DialogConfig.h"
 #include "WTLTabViewCtrl.h"
@@ -71,11 +72,12 @@ public:
 	BEGIN_MSG_MAP_EX(CMainFrame)
 		MSG_WM_NOTIFY(OnNotify)
 		COMMAND_CODE_HANDLER_EX(CBN_SELCHANGE,OnCbnSelchanged)
+		MESSAGE_HANDLER(WM_ADDFOLDERED,OnAddFolder)
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		MESSAGE_HANDLER(WM_DRAWSPECTRUM,OnDrawSpectrum)
-		MESSAGE_HANDLER(WM_SIZE,OnSize)
+		//MESSAGE_HANDLER(WM_SIZE,OnSize)
 		MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_NEW, OnFileNew)
@@ -90,6 +92,8 @@ public:
 		COMMAND_ID_HANDLER(ID_STOP, OnStop)
 		COMMAND_ID_HANDLER(ID_CONFIG, OnConfig)
 		COMMAND_ID_HANDLER(ID_FILE_OPENDIRECTORY, OnFileOpendirectory)
+		COMMAND_ID_HANDLER(ID_OPENPLAYLIST,OnOpenPlaylist)
+		COMMAND_ID_HANDLER(ID_FILE_SAVEPLAYLIST,OnSavePlaylist)
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
 	END_MSG_MAP()
@@ -100,6 +104,10 @@ public:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnCbnSelchanged(UINT,int id, HWND hWndCtl);
 	LRESULT OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
+
+
+
+	LRESULT OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
@@ -153,15 +161,15 @@ public:
 	}
 
 
-	LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-	{
-		int _width=LOWORD(lParam);
-		int _hight=HIWORD(lParam);
-		//m_DsoundControl.SetSpectrumRect(CRect(30,100,_width,_hight));
-
-		bHandled=FALSE;
-		return 0;
-	}
+// 	LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+// 	{
+// 		int _width=LOWORD(lParam);
+// 		int _hight=HIWORD(lParam);
+// 		//m_DsoundControl.SetSpectrumRect(CRect(30,100,_width,_hight));
+// 
+// 		bHandled=FALSE;
+// 		return 0;
+// 	}
 	
 	
 	LRESULT OnDrawSpectrum(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -178,8 +186,8 @@ public:
 	LRESULT OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-	
-
+	LRESULT OnOpenPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnSavePlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 public:
 	LRESULT OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	void OnTabChanged(int sel);

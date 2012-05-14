@@ -1,8 +1,117 @@
 #include "StdAfx.h"
 #include "PlayList.h"
 #include "BasicPlayer.h"
+#include "customMsg.h"
 
 
+
+template <class T>
+int Serialize (FILE *pFile,T t)
+{
+	
+	return 0;
+};
+
+template <>
+int Serialize (FILE *pFile,UINT t)
+{
+	fwrite(&t,1,4,pFile);
+	return 4;
+};
+
+
+template <>
+int Serialize (FILE *pFile,std::tstring t)
+{
+	const TCHAR* str=t.c_str();
+	int size=t.length()*sizeof(TCHAR);
+	int totalSize=size+4;
+
+	fwrite(&totalSize,1,4,pFile);
+	fwrite(str,1,size,pFile);
+	return totalSize;
+};
+
+template <>
+int Serialize (FILE *pFile,int t)
+{
+	fwrite(&t,1,4,pFile);
+	return 4;
+};
+
+//-----------------------------------------
+
+template <class T>
+int ReSerialize (FILE *pFile,T *t)
+{
+
+	return 0;
+};
+
+template <>
+int ReSerialize (FILE *pFile,std::tstring *str)
+{
+	int size;
+	fread(&size,1,4,pFile);
+
+	//string len is 0
+	if(size-4<0)
+	{
+		MessageBox(MyLib::GetMain(),_T("Parse File Failed,Invalide Data"),_T(""),MB_OK);
+		return 0;
+	}
+	else if (size-4==0)
+	{
+		*str=_T("");
+	}
+	else
+	{
+		int len=(size-4)/sizeof(TCHAR);
+		TCHAR* pStr=new TCHAR[len];
+		fread(pStr,sizeof(TCHAR),len,pFile);
+
+		std::tstring tmp(pStr,pStr+len);
+		delete[] pStr;
+		(*str)=tmp;
+	}
+
+	return size;
+};
+
+
+template <>
+int ReSerialize (FILE *pFile,int *pVal)
+{
+	fread(pVal,1,4,pFile);
+	return 4;
+};
+
+template <>
+int ReSerialize (FILE *pFile,uint *pVal)
+{
+	fread(pVal,1,4,pFile);
+	return 4;
+};
+
+
+
+
+struct PLANDPATH
+{
+	PlayList* pPlaylist;
+	LPCTSTR pszFolder;
+};
+
+static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
+{
+	PLANDPATH* p=(PLANDPATH*)lpParameter;
+	BOOL result=p->pPlaylist->AddFolder(p->pszFolder);
+	
+	::PostMessage(MyLib::GetMain(),WM_ADDFOLDERED,NULL,NULL);
+	
+	delete p;
+	return result;
+}
 
 
 
@@ -34,9 +143,16 @@ LPWSTR UTF82Unicode(LPSTR s)
 //-----------------------------------------
 //
 
+PlayList*  MyLib::NewPlaylist()
+{
+	PlayList *l=new PlayList;
+	m_playLists.push_back(*l);
+	return l;
+}
+
 void MyLib::AddFolderToCurrentPlayList(LPCTSTR pszFolder)
 {
-	MyLib::curPlaylist()->AddFolder(pszFolder);
+ 	MyLib::curPlaylist()->AddFolderByThread(pszFolder);
 }
 
 MyLib* MyLib::shared()
@@ -106,17 +222,33 @@ PlayList::~PlayList(void)
 {	
 }
 
+
+
 void PlayList::scanAllId3Info()
 {
 
 }
 
+BOOL PlayList::AddFolderByThread(LPCTSTR pszFolder)
+{
+	PLANDPATH* p=new PLANDPATH;
+	p->pPlaylist=this;
+	p->pszFolder=pszFolder;
+
+	HANDLE handle=::CreateThread(NULL,NULL,AddFolderThreadProc,(LPVOID)p,
+		NULL,NULL);
+	return 0;
+}
+
 BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 {
+	
 	// for each mp3 file in this folder
 	// data . add
 
 	//忽略了子目录下的mp3文件
+	TCHAR* curPath=new TCHAR[256];
+	_tgetcwd(curPath,256);
 
 	//改变当前目录
 	_tchdir(pszFolder);
@@ -165,6 +297,9 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 		}
 	}
 	FindClose(hFind);
+
+
+	_tchdir(curPath);
 
 	return TRUE;
 }
@@ -236,9 +371,104 @@ BOOL PlayListItem::ScanId3Info()
 	return TRUE;
 }
 
-PlayList*  MyLib::NewPlaylist()
+
+
+int MyLib::SerializeB(FILE *pFile)
 {
-	PlayList *l=new PlayList;
-	m_playLists.push_back(*l);
-	return l;
+	int size=0;
+// 	list<PlayList>::iterator i;
+// 	for (i=m_playLists.begin();i!=m_playLists.end();++i)
+// 	{
+// 		size+=(*i).Serialize(out);
+// 	}
+	size+=m_pActivePlaylist->Serialize(pFile);
+	return size;
 }
+
+int MyLib::ReSerialize(FILE *pFile)
+{
+	int totalSize=0;
+	fread(&totalSize,1,4,pFile);
+
+	int size=m_pActivePlaylist->ReSerialize(pFile);
+
+	return size;
+}
+
+ int PlayList::SerializeB(FILE *pFile)
+{
+	int size=0;
+
+	//m_playlistName Serialize
+	size+=::Serialize(pFile,m_playlistName);
+
+	//m_songList Serialize
+	list<PlayListItem>::iterator i;
+	for (i=m_songList.begin();i!=m_songList.end();++i)
+	{
+		size+=(*i).Serialize(pFile);
+	}
+
+	return size;
+}
+
+ int PlayList::ReSerialize(FILE *pFile)
+{
+	int size=0;
+	int totalSize=0;
+	int playlistnameSize=0;
+	fread(&totalSize,1,4,pFile);
+	
+	playlistnameSize=::ReSerialize(pFile,&m_playlistName);
+	size+=playlistnameSize;
+
+	while(size<totalSize-playlistnameSize)
+	{
+		PlayListItem *track=new PlayListItem;
+		size+=track->ReSerialize(pFile);
+		m_songList.push_back(*track);
+	}
+	
+
+	
+
+	return size;
+}
+
+
+ int PlayListItem::SerializeB(FILE *pFile)
+ {
+	 int size=0;
+	 size+=::Serialize(pFile,url);
+	 size+=::Serialize(pFile,playCount);
+	 size+=::Serialize(pFile,starLvl);
+  	 size+=::Serialize(pFile,title);
+ 	 size+=::Serialize(pFile,artist);
+	 size+=::Serialize(pFile,album);
+	 size+=::Serialize(pFile,genre);
+	 size+=::Serialize(pFile,comment);
+	 size+=::Serialize(pFile,year);
+	 size+=::Serialize(pFile,indexInListView);
+	return size;
+ }
+
+ int PlayListItem::ReSerialize(FILE *pFile)
+ {
+	int size=0;
+
+	int totalSize=0;
+	fread(&totalSize,1,4,pFile);
+	size+=4;
+
+	size+=::ReSerialize(pFile,&url);
+	size+=::ReSerialize(pFile,&playCount);
+	size+=::ReSerialize(pFile,&starLvl);
+	size+=::ReSerialize(pFile,&title);
+	size+=::ReSerialize(pFile,&artist);
+	size+=::ReSerialize(pFile,&album);
+	size+=::ReSerialize(pFile,&genre);
+	size+=::ReSerialize(pFile,&comment);
+	size+=::ReSerialize(pFile,&year);
+	size+=::ReSerialize(pFile,&indexInListView);
+	return size;
+ }

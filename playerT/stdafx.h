@@ -43,28 +43,20 @@ extern CAppModule _Module;
 #ifdef _UNICODE
 #define tstring   wstring
 #define tifstream wifstream
+#define tofstream wofstream
+#define tfilebuf wfilebuf
 #else
 #define tstring        string
 #define tifstream ifstream
+#define tofstream ofstream
+#define tfilebuf filebuf
 #endif
-
-
-
-
-
-#define  WM_TRACKPOS  (WM_USER+22)  
-#define  WM_TRACKSTOPPED (WM_USER+34)
-#define  WM_DRAWSPECTRUM (WM_PAINT+913)
-
-
-
 
 #pragma comment(lib,"dsound.lib")
 #pragma comment(lib,"Winmm.lib")
 #pragma comment(lib,"dxerr8.lib")
 #pragma comment(lib,"dxguid.lib")
  
-
 
 #if defined _M_IX86
 #pragma comment(linker, "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'\"")

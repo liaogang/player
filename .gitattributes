@@ -84,6 +84,7 @@ playerT/DialogFFT.h -text
 playerT/DialogLyric.h -text
 playerT/DirectSoundController.cpp -text
 playerT/DirectSoundController.h -text
+playerT/DlgProcessing.h -text
 playerT/DsoundControl.cpp -text
 playerT/DsoundControl.h -text
 playerT/FFT.h -text
@@ -98,6 +99,7 @@ playerT/LrcMng.h -text
 playerT/Mp3File.h -text
 playerT/MusicFile.h -text
 playerT/MyControls.h -text
+playerT/MySerialize.h -text
 playerT/PlayList.cpp -text
 playerT/PlayList.h -text
 playerT/PlayListView.h -text
@@ -118,6 +120,7 @@ playerT/WaveFile.h -text
 playerT/WaveFileEx.h -text
 playerT/aboutdlg.h -text
 playerT/atlsplit.h -text
+playerT/customMsg.h -text
 playerT/id3lib/id3.h -text
 playerT/id3lib/id3Config.h -text
 playerT/id3lib/id3lib/id3/c_wrapper.cpp -text

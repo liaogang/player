@@ -5,7 +5,6 @@
 #include "MusicFile.h"
 #include "mainfrm.h"
 
-
 CPlayerThread::CPlayerThread(CBasicPlayer *pPlayer):CThread(FALSE),
 m_lpDSBuffer(NULL),m_lpDsound(NULL),m_dwCurWritePos(-1)
 {

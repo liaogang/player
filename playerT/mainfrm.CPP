@@ -6,6 +6,7 @@
 #include "BasicPlayer.h"
 #include "CAlbumCoverView.h"
 #include "MyControls.h"
+#include "DlgProcessing.h"
 
 #include <mpg123.h>
 #include <string>
@@ -13,7 +14,7 @@ using namespace std;
 
 
 
-
+#define APPNAME "unnamed music player"
 
 
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -224,36 +225,53 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 	CFolderDialog dlg(m_hWnd,_T("请选择要添加的文件夹"),uFlags);
 	if (dlg.DoModal()==IDOK)
 	{
+		CProcessingDlg *pDlgProcess=NULL;
+		pDlgProcess=new CProcessingDlg;
+		pDlgProcess->Create(m_hWnd);
+		pDlgProcess->ShowWindow(SW_SHOW);
+
+
 		LPCTSTR path=dlg.GetFolderPath();
 		TCHAR *tmp=new TCHAR[MAX_PATH];
 		_tcscpy(tmp,path);
+		MyLib::SetMain(m_hWnd);
 		MyLib::AddFolderToCurrentPlayList(tmp);
-		
-		list<PlayListItem> *songList=&(MyLib::curPlaylist()->m_songList);
-		list<PlayListItem>::iterator i;
-		int j;
-
-		for (j=0,i=songList->begin();i!=songList->end();i++,j++)
-		{
-			int k=0;
-			m_pPlaylistView->InsertItem(j,i->url.c_str());
-
-			m_pPlaylistView->SetItemText(j,k++,i->title.c_str());
-			m_pPlaylistView->SetItemText(j,k++,i->album.c_str());
-			m_pPlaylistView->SetItemText(j,k++,i->artist.c_str());
-			m_pPlaylistView->SetItemText(j,k++,i->genre.c_str());
-			m_pPlaylistView->SetItemText(j,k++,i->comment.c_str());
-		
-			m_pPlaylistView->SetItemData(j,(DWORD_PTR)&(*i));
-			(*i).indexInListView=j;
-		}
 	}
 	return 0;
 }
 
+LRESULT CMainFrame::OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	list<PlayListItem> *songList=&(MyLib::curPlaylist()->m_songList);
+	list<PlayListItem>::iterator i;
+	int j;
 
+	m_pPlaylistView->DeleteAllItems();
+	for (j=0,i=songList->begin();i!=songList->end();i++,j++)
+	{
+		int k=0;
+		m_pPlaylistView->InsertItem(j,i->url.c_str());
 
+		m_pPlaylistView->SetItemText(j,k++,i->title.c_str());
+		m_pPlaylistView->SetItemText(j,k++,i->artist.c_str());
+		m_pPlaylistView->SetItemText(j,k++,i->album.c_str());
+		TCHAR year[256]={};
 
+#ifdef _UNICODE
+		wsprintf(year,_T("%u"),i->year);
+#else
+		sprintf(year,_T("%u"),i->year);
+#endif
+
+		m_pPlaylistView->SetItemText(j,k++,(const TCHAR*)year);
+		m_pPlaylistView->SetItemText(j,k++,i->comment.c_str());
+		m_pPlaylistView->SetItemText(j,k++,i->genre.c_str());
+
+		m_pPlaylistView->SetItemData(j,(DWORD_PTR)&(*i));
+		(*i).indexInListView=j;
+	}
+	return 0;
+}
 
 
 
@@ -342,6 +360,49 @@ LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 	return 0;
 }
 
+
+LRESULT CMainFrame::OnOpenPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	FILE * pFile;
+	pFile = fopen ( "default.pl" , "rb" );
+	if (pFile==NULL)
+	{
+		MessageBox(_T("Can't open file"));
+	}	
+	else
+	{
+		MyLib::shared()->ReSerialize(pFile);
+		fclose (pFile);
+
+		::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
+	}
+
+	
+	return 0;
+}
+
+
+LRESULT CMainFrame::OnSavePlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+
+	//std::locale loc1 = std::locale::global(std::locale(".936"));
+	
+	FILE * pFile;
+	pFile = fopen ( "default.pl" , "wb" );
+	if (pFile==NULL)
+	{
+		MessageBox(_T("Can't save file"));
+	}	
+	else
+	{
+		MyLib::shared()->Serialize(pFile);
+		fclose (pFile);
+	}
+
+	//std::locale::global(std::locale(loc1));
+	return 0;
+}
+
 void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
 	PlayListItem *track=MyLib::curPlaylist()->curTrack();
@@ -386,3 +447,9 @@ LRESULT CPlayListView::OnDbClicked(UINT i,CPoint pt)
 	SetMsgHandled(FALSE);
 	return 0;
 }
+
+
+
+
+void MyLib::SetMain(HWND hMain){shared()->hMain=hMain;};
+HWND MyLib::GetMain(){return shared()->hMain;};

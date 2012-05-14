@@ -7,7 +7,7 @@
 class CDialogLyric : public CDialogImpl<CDialogLyric>
 {
 public:
-	enum { IDD = IDD_DIALOG2};
+	enum { IDD = IDD_DIALOGLRC};
 
 	BEGIN_MSG_MAP(CDialogLyric)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
@@ -35,10 +35,13 @@ public:
 		bHandled=FALSE;
 		return 0;
 	}
-
+LrcMng *mng;
+	double used,lefted;
+	vector<LrcLine>::iterator preLine,lastLine;
+	RECT tRc;
 	LRESULT OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		double used,lefted;
+
 		used=wParam;
 		lefted=lParam;
 		
@@ -49,7 +52,24 @@ public:
 
 
 
-
+		//-----------------------------------------
+		vector<LrcLine>::iterator i;
+		for (i=mng->lib.begin(),lastLine=i,preLine=i,lrcLines=0;i!=mng->lib.end();preLine=i,++i,++lrcLines)
+		{
+			
+			if (used < (*i).time.GetTotalSec() &&used > (*preLine).time.GetTotalSec() )
+			{
+				if (lastLine!=preLine)
+				{
+					Invalidate(TRUE);
+					::DrawText(GetDC(),(*preLine).text.c_str(),(*preLine).text.length(),&tRc,DT_CENTER);
+					lastLine=preLine;
+				}
+				break;
+			}
+			//lrcText+=(*i).text+_T("\n");
+		}
+		//-----------------------------------------
 
 		bHandled=FALSE;
 		return 0;
@@ -57,7 +77,8 @@ public:
 
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		::DrawText(GetDC(),lrcText.c_str(),lrcText.length(),&lrcRect,DT_CENTER);
+		::DrawText(GetDC(),(*preLine).text.c_str(),(*preLine).text.length(),&tRc,DT_CENTER);
+		//::DrawText(GetDC(),lrcText.c_str(),lrcText.length(),&lrcRect,DT_CENTER);
 		bHandled=FALSE;
 		return 1;
 	}
@@ -72,15 +93,13 @@ public:
 		lrcHeight=lrcTextHeight+lrcSpare;
 
 
-		LrcMng *mng=LrcMng::Get();
+		mng=LrcMng::Get();
 		mng->Open(_T("D:\\lrc\\林凡 - 一个人生活.lrc"));
-		vector<LrcLine>::iterator i;
-		for (i=mng->lib.begin(),lrcLines=0;i!=mng->lib.end();++i,++lrcLines)
-		{
-			lrcText+=(*i).text+_T("\n");
-		}
+		preLine=mng->lib.begin();
+		GetClientRect(&tRc);
 		
 		
+
 		lrcRect.bottom=0;
 		lrcRect.left=0;
 		lrcRect.top=0;

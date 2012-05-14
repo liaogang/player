@@ -148,6 +148,7 @@ private:
 		return PLAYERMANAGER_RESULT_OK;
 	}
 
+	//get the time cur/left
 	LONG  GetPos(double *e,double *f)
 	{
 		off_t a=0,b=0,c,d;
