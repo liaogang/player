@@ -143,9 +143,9 @@ LPWSTR UTF82Unicode(LPSTR s)
 //-----------------------------------------
 //
 
-PlayList*  MyLib::NewPlaylist()
+PlayList*  MyLib::NewPlaylist(std::tstring playlistname)
 {
-	PlayList *l=new PlayList;
+	PlayList *l=new PlayList(playlistname);
 	m_playLists.push_back(*l);
 	return l;
 }
@@ -157,7 +157,7 @@ BOOL MyLib::SaveCurPlaylist(LPTSTR filepath)
 	pFile = _tfopen((LPCTSTR)filepath , _T("wb") );
 	if (pFile!=NULL)
 	{
-		result=m_pActivePlaylist->Serialize(pFile);
+		result=m_pSelPlaylist->Serialize(pFile);
 		fclose (pFile);
 	}
 
@@ -171,7 +171,7 @@ BOOL MyLib::LoadPlaylist(LPTSTR filepath)
 	pFile = _tfopen ((LPCTSTR)filepath, _T("rb") );
 	if (pFile!=NULL)
 	{
-		result=m_pActivePlaylist->ReSerialize(pFile);
+		result=m_pSelPlaylist->ReSerialize(pFile);
 		fclose (pFile);
 	}
 	return result;
@@ -179,7 +179,7 @@ BOOL MyLib::LoadPlaylist(LPTSTR filepath)
 
 void MyLib::AddFolderToCurrentPlayList(LPCTSTR pszFolder)
 {
- 	MyLib::curPlaylist()->AddFolderByThread(pszFolder);
+ 	MyLib::shared()->m_pSelPlaylist->AddFolderByThread(pszFolder);
 }
 
 MyLib* MyLib::shared()
@@ -188,19 +188,16 @@ MyLib* MyLib::shared()
 	return p==NULL?p=new MyLib():p;
 }
 
-PlayList* MyLib::curPlaylist()
-{
-	return shared()->m_pActivePlaylist;
-}
 
  void MyLib::play()
 {
-	CBasicPlayer::shared()->open(curPlaylist()->curTrack());
-	CBasicPlayer::shared()->play();
+	CBasicPlayer* s=CBasicPlayer::shared();
+	s->open(MyLib::shared()->ActivePlaylist()->curTrack());
+	s->play();
 }
 
 
- void MyLib::pause()
+void MyLib::pause()
 {
 	CBasicPlayer::shared()->pause();
 }
@@ -214,13 +211,13 @@ PlayList* MyLib::curPlaylist()
 
  void MyLib::playNext(BOOL scanID3)
 {	
-	PlayListItem *track=curPlaylist()->GetNextTrackByOrder();
+	PlayListItem *track=shared()->ActivePlaylist()->GetNextTrackByOrder();
 	if (!track) return;
 
 	track->ScanId3Info();
 
 	CBasicPlayer *sbp=CBasicPlayer::shared();
-	if ( track==curPlaylist()->lastTrack())
+	if ( track==shared()->ActivePlaylist()->lastTrack())
 	{
 		sbp->ResetFile();
 	}
@@ -235,7 +232,7 @@ PlayList* MyLib::curPlaylist()
 
 //-----------------------------------------
 //PlayList
- PlayList::PlayList(void):curPlayingItem(NULL)
+ PlayList::PlayList(void):curPlayingItem(NULL),curSelectedItem(NULL)
 {
 	index=Default;
 }
@@ -300,6 +297,7 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 			std::tstring str(pathName);
 
 			PlayListItem *pItem=new PlayListItem(&str);
+			pItem->ScanId3Info();
 			m_songList.push_back(*pItem);
 			//msonglist的析构会删除*pItem;
 		}
@@ -318,6 +316,7 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 				std::tstring str(pathName);
 
 				PlayListItem *pItem=new PlayListItem(&str);
+				pItem->ScanId3Info();
 				m_songList.push_back(*pItem);
 				//msonglist的析构会删除*pItem;
 			}

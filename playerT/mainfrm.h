@@ -59,15 +59,13 @@ public:
 		return CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg);
 	}
 
-	virtual BOOL OnIdle()
-	{
-		UIUpdateToolBar();
-		return FALSE;
-	}
+	virtual BOOL OnIdle();
 
 	BEGIN_UPDATE_UI_MAP(CMainFrame)
 		UPDATE_ELEMENT(ID_VIEW_TOOLBAR, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_VIEW_STATUS_BAR, UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_FILE_OPENDIRECTORY, UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_FILE_OPEN, UPDUI_MENUPOPUP)
 	END_UPDATE_UI_MAP()
 
 	BEGIN_MSG_MAP_EX(CMainFrame)
@@ -87,7 +85,7 @@ public:
 		COMMAND_ID_HANDLER(ID_SHOWLYRIC,OnShowLyric)
 		COMMAND_ID_HANDLER(ID_MENU_FFTTEST,OnFftDialog)
 		COMMAND_ID_HANDLER(ID_PLAY, OnPlay)
-		COMMAND_ID_HANDLER(ID_OPEN, OnOpen)
+		COMMAND_ID_HANDLER(ID_FILE_OPEN, OnOpen)
 		COMMAND_ID_HANDLER(ID_PAUSE, OnPause)
 		COMMAND_ID_HANDLER(ID_STOP, OnStop)
 		COMMAND_ID_HANDLER(ID_CONFIG, OnConfig)
@@ -173,12 +171,15 @@ public:
 	LRESULT OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	//新建播放列表
 	LRESULT OnFileNewPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	//加载选中的播放列表文件
 	LRESULT OnOpenPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	//保存选中的播放列表
 	LRESULT OnSavePlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 public:
-	void OnTabChanged(int sel);
+	void OnSelectionChanged();
 };
 
 

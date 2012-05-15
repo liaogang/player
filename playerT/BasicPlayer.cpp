@@ -128,13 +128,17 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
 		delete m_pFile;
 	m_bFileEnd=FALSE;
 	
-	if (_tcscmp(p,_T("wav"))==0)
+	if (_tcscmp(p,_T("wav"))==0 || _tcscmp(p,_T("WAV"))==0)
 		m_pFile=new WaveFile();
-	if (_tcscmp(p,_T("mp3"))==0)
+	else if (_tcscmp(p,_T("mp3"))==0 || _tcscmp(p,_T("MP3"))==0)
 		m_pFile=new Mp3File();
-	if (_tcscmp(p,_T("wma"))==0)
+	else if (_tcscmp(p,_T("wma"))==0 || _tcscmp(p,_T("WMA"))==0)
 		m_pFile=new Mp3File();
-
+	else
+	{
+		MessageBox(m_pMainFrame->m_hWnd,_T("不支持的文件类型"),_T(""),MB_OK);
+		return -1;
+	}
 	return m_pFile->Open(filepath);
 }
 

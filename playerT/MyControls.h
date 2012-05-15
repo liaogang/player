@@ -167,6 +167,8 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 	BEGIN_MSG_MAP_EX(CMyStatusBar)
 		MSG_WM_LBUTTONDBLCLK(OnLButtonDblClk)
 	END_MSG_MAP()
+
+	//Ë«»÷×´Ì¬À¸,¼¤»îµ±Ç°²¥·ÅÒô¹ì
 	void OnLButtonDblClk(UINT nFlags, CPoint point);
 
 	CMainFrame *pMain;

@@ -21,10 +21,17 @@ public:
 		RECT rc;
 		GetClientRect(&rc);
 		
-		PlayListItem *i=MyLib::curPlaylist()->curTrack();
+		PlayList* ppl=MyLib::shared()->ActivePlaylist();
+		if (ppl)
+		{
+			PlayListItem *i=ppl->curTrack();
 
-		if (i &&i->img)
-			i->img->Draw(this->GetDC(),rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top,0,0,i->img->GetWidth(),i->img->GetHeight());
+			if (i &&i->img)
+				i->img->Draw(this->GetDC(),rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top,0,0,i->img->GetWidth(),i->img->GetHeight());
+		}
+		
+
+
 		
 		return 0;
 	}

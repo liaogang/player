@@ -160,8 +160,8 @@ CAPTION "About"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,177,56,50,22
-    CTEXT           "player Application v1.0\n\n(c) Copyright 2011",IDC_STATIC,50,36,123,25
-    ICON            IDR_MAINFRAME,IDC_STATIC,19,35,21,23
+    CTEXT           "simple player by lg v0.1\n\n(c) Copyright 2011",IDC_STATIC,50,36,123,25
+    ICON            IDR_MAINFRAME,IDC_STATIC,19,35,20,20
 END
 
 
@@ -241,7 +241,7 @@ BEGIN
     BEGIN
         MENUITEM "Open ",                       ID_OPEN
         MENUITEM SEPARATOR
-        MENUITEM "Add File",                    ID_FILE_OPEN32799
+        MENUITEM "Add File",                    ID_FILE_OPEN
         MENUITEM "Add Directory",               ID_FILE_OPENDIRECTORY
         MENUITEM SEPARATOR
         MENUITEM "New Playlist",                ID_FILE_NEWPLAYLIST
@@ -378,7 +378,7 @@ END
 STRINGTABLE 
 BEGIN
     ID_FILE_NEW             "Create a new document\nNew"
-    ID_FILE_OPEN            "Open an existing document\nOpen"
+    ID_FILE_OPEN            "Add a music file to current playlist\nOpen"
     ID_FILE_CLOSE           "Close the active document\nClose"
     ID_FILE_SAVE            "Save the active document\nSave"
     ID_FILE_SAVE_AS         "Save the active document with a new name\nSave As"

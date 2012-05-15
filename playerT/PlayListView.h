@@ -60,6 +60,7 @@ public:
 		SetMsgHandled(FALSE);
 		return 0;
 	}
-
+	
+	void Reload(class PlayList* pPl);
 
 };

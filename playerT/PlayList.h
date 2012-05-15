@@ -53,7 +53,7 @@ public:
 	virtual int ReSerialize(FILE* pFile);
 public:
 	PlayListItem():playCount(0),starLvl(1),indexInListView(-1)
-		,pPicBuf(NULL),img(NULL)
+		,pPicBuf(NULL),img(NULL),year(0)
 	{
 		//title(NULL)
 		//,artist(NULL),album(0),year(0),genre(0),comment(0)
@@ -61,7 +61,7 @@ public:
 
 	PlayListItem(std::tstring *url):url(*url)
 		,playCount(0),starLvl(1),indexInListView(-1)
-		,pPicBuf(NULL),img(NULL)
+		,pPicBuf(NULL),img(NULL),year(0)
 	{
 		//title(NULL)
 		//,artist(NULL),album(0),year(0),genre(0),comment(0)
@@ -194,20 +194,8 @@ public:
 	virtual int SerializeB(FILE* pFile);
 	virtual int ReSerialize(FILE* pFile);
 public:
-	HWND hMain;
-	static void SetMain(HWND hMain);
-	static HWND GetMain();
-
-public:
-	list<PlayList> m_playLists;
-	PlayList*      m_pActivePlaylist;
-	PlayList*      m_pSelectedPlaylist;
-public:
-	MyLib():m_pActivePlaylist(NULL)
+	MyLib():m_pActivePlaylist(NULL),m_pSelPlaylist(NULL)
 	{
-		//todo
-		m_pActivePlaylist=new PlayList;
-		m_playLists.push_back(*m_pActivePlaylist);
 	};
 
 	~MyLib()
@@ -216,10 +204,26 @@ public:
 
 	static MyLib* shared();
 public:
-	PlayList* NewPlaylist();
+	HWND hMain;
+	static void SetMain(HWND hMain);
+	static HWND GetMain();
+
+public:
+	//data member
+	list<PlayList> m_playLists;
+private:
+	//pointers
+	PlayList*      m_pActivePlaylist;  //playing
+	PlayList*      m_pSelPlaylist;//operating
+public:
+	void SetSelPlaylist(PlayList* p){m_pSelPlaylist=p;}
+	PlayList* SelPlaylist(){return m_pSelPlaylist;}
+	void SetActivePlaylist(PlayList* p){m_pActivePlaylist=p;}
+	PlayList* ActivePlaylist(){return m_pActivePlaylist;}
+public:
+	PlayList* NewPlaylist(std::tstring playlistname=_T("新建播放列表"));
 	static void AddFolderToCurrentPlayList(LPCTSTR pszFolder);
-	inline  static PlayList* curPlaylist();
-	static void play();
+	static void play();//set active track, play 
 	static void pause();
 	static void stop();
 	static void playNext(BOOL scanID3=TRUE);
