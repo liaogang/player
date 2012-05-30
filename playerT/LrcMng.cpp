@@ -10,7 +10,7 @@ LrcMng::~LrcMng(void)
 }
 
 
-  LrcMng* LrcMng::Get()
+LrcMng* LrcMng::Get()
 {
 	static LrcMng *p=NULL;
 	if (!p)
@@ -20,14 +20,7 @@ LrcMng::~LrcMng(void)
 
 bool pred(LrcLine fir,LrcLine sec)//litter true,else flase
 {
-	if (fir-sec<0)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return fir-sec<0?true:false;
 }
 
 void LrcMng::SortLrcLib()

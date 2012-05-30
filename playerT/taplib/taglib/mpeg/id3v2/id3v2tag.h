@@ -141,6 +141,7 @@ namespace TagLib {
       virtual String genre() const;
       virtual uint year() const;
       virtual uint track() const;
+	  virtual String lyric() const;
 
       virtual void setTitle(const String &s);
       virtual void setArtist(const String &s);

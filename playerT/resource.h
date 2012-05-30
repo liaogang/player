@@ -14,13 +14,23 @@
 #define IDD_DIALOG3                     206
 #define IDD_PROCESSING                  206
 #define IDD_DIALOGLRC                   207
+#define IDD_DIALOG_MEDIAlIB             208
+#define IDD_DIALOG_LYRICS               209
 #define IDC_TREE                        1000
 #define IDC_RESET_ALL                   1001
 #define IDC_RESET_THIS                  1002
 #define ID_OK                           1003
 #define IDC_BUTTON1                     1005
 #define IDC_PROGRESS1                   1006
+#define IDC_BTN_DEL                     1006
 #define IDC_SLIDER1                     1007
+#define IDC_MEDIA_LIST                  1008
+#define IDC_BTN_ADD                     1011
+#define IDC_EDIT3                       1012
+#define IDC_EDIT_SAVE                   1012
+#define IDC_EDIT_SEARCH                 1013
+#define IDC_BUTTON2                     1014
+#define IDC_BTN_OPENDIR                 1014
 #define IDD_DLG_CFG_1                   2055
 #define ID_FILE_PLAY                    32775
 #define ID_FILE_OPEN32776               32776
@@ -58,9 +68,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        208
+#define _APS_NEXT_RESOURCE_VALUE        210
 #define _APS_NEXT_COMMAND_VALUE         32806
-#define _APS_NEXT_CONTROL_VALUE         1008
+#define _APS_NEXT_CONTROL_VALUE         1015
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

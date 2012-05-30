@@ -1,28 +1,31 @@
 // aboutdlg.h : interface of the CAboutDlg class
 //
 /////////////////////////////////////////////////////////////////////////////
+#include <vector>
+#include "LrcMng.h"
+#include "MyLib.h"
+#include "PlayList.h"
 
 #pragma once
-#include "LrcMng.h"
 class CDialogLyric : public CDialogImpl<CDialogLyric>
 {
 public:
 	enum { IDD = IDD_DIALOGLRC};
 
-	BEGIN_MSG_MAP(CDialogLyric)
+	BEGIN_MSG_MAP_EX(CDialogLyric)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
-		MESSAGE_HANDLER( WM_PAINT , OnPaint)
+		MSG_WM_PAINT(OnPaint)
 		MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
 		MESSAGE_HANDLER(WM_SIZE,OnSize)
+		MESSAGE_HANDLER(WM_TRACKPOS)
 	END_MSG_MAP()
 
 	// Handler prototypes (uncomment arguments if needed):
 	//	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	//	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
-
 	RECT rc ,lrcRect;
 	SIZE sz;
 	std::tstring lrcText;
@@ -35,12 +38,16 @@ public:
 		bHandled=FALSE;
 		return 0;
 	}
-LrcMng *mng;
+	
 	double used,lefted;
 	vector<LrcLine>::iterator preLine,lastLine;
 	RECT tRc;
 	LRESULT OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
+		bHandled=FALSE;
+		if(!bLrcReady)
+			return 0;
+		LrcMng *mng=LrcMng::Get();
 
 		used=wParam;
 		lefted=lParam;
@@ -50,18 +57,20 @@ LrcMng *mng;
 		lrcRect=rc;
 		lrcRect.top=  (rc.bottom-rc.top)/2 - (used/lrcContent) * lrcLines*lrcHeight;
 
-
-
 		//-----------------------------------------
 		vector<LrcLine>::iterator i;
 		for (i=mng->lib.begin(),lastLine=i,preLine=i,lrcLines=0;i!=mng->lib.end();preLine=i,++i,++lrcLines)
 		{
-			
 			if (used < (*i).time.GetTotalSec() &&used > (*preLine).time.GetTotalSec() )
 			{
 				if (lastLine!=preLine)
 				{
-					Invalidate(TRUE);
+					RECT eraseRC={};
+					eraseRC.left=tRc.left;
+					eraseRC.top=tRc.top;
+					eraseRC.right=rc.right;
+					eraseRC.bottom=sz.cy+eraseRC.top;
+					InvalidateRect(&eraseRC);
 					::DrawText(GetDC(),(*preLine).text.c_str(),(*preLine).text.length(),&tRc,DT_CENTER);
 					lastLine=preLine;
 				}
@@ -71,19 +80,20 @@ LrcMng *mng;
 		}
 		//-----------------------------------------
 
-		bHandled=FALSE;
+		
 		return 0;
 	}
 
-	LRESULT OnPaint(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	void OnPaint(CDCHandle dc)
 	{
-		::DrawText(GetDC(),(*preLine).text.c_str(),(*preLine).text.length(),&tRc,DT_CENTER);
-		//::DrawText(GetDC(),lrcText.c_str(),lrcText.length(),&lrcRect,DT_CENTER);
-		bHandled=FALSE;
-		return 1;
+		PAINTSTRUCT ps;
+		::BeginPaint(m_hWnd,&ps);
+		if( bLrcReady)
+			::DrawText(ps.hdc,(*preLine).text.c_str(),(*preLine).text.length(),&tRc,DT_CENTER);
+
+		::EndPaint(m_hWnd,&ps);	
 	}
 
-	
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		CenterWindow(GetParent());
@@ -92,12 +102,7 @@ LrcMng *mng;
 		lrcSpare=3;
 		lrcHeight=lrcTextHeight+lrcSpare;
 
-
-		mng=LrcMng::Get();
-		mng->Open(_T("D:\\lrc\\林凡 - 一个人生活.lrc"));
-		preLine=mng->lib.begin();
 		GetClientRect(&tRc);
-		
 		
 
 		lrcRect.bottom=0;
@@ -110,7 +115,21 @@ LrcMng *mng;
 		rc.top=0;
 		rc.right=0;
 
+		bLrcReady=FALSE;
 		return TRUE;
+	}
+
+	BOOL bLrcReady;
+	//void TrackChanged();
+	void TrackChanged()
+	{
+		PlayListItem* track=MyLib::shared()->ActivePlaylist()->curTrack();
+		if (!track->lyric.empty())
+		{
+			LrcMng *sLM=LrcMng::Get();
+			sLM->Open((LPTSTR)track->lyric.c_str());
+			bLrcReady=TRUE;
+		}
 	}
 
 	LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)

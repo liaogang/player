@@ -106,6 +106,16 @@ void ID3v2::Tag::retainPicBuf(ByteVector* buf) const
 	return;
 }
 
+String ID3v2::Tag::lyric() const
+{
+// 	if(!d->frameListMap["SYLT"].isEmpty())
+// 		return d->frameListMap["SYLT"].front()->toString();
+	
+	if(!d->frameListMap["USLT"].isEmpty())
+		return d->frameListMap["USLT"].front()->toString();
+	return String::null;
+}
+
 String ID3v2::Tag::title() const
 {
   if(!d->frameListMap["TIT2"].isEmpty())

@@ -24,10 +24,6 @@ public:
 	 void OnInitialUpdate() // called first time after construct
 	 {
 
-
-		TextOut(GetDC(),50,50,_T("Hello world"),11); 
-
-
 	 }
 	
 	BEGIN_MSG_MAP(CPlayerTView)

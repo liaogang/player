@@ -99,17 +99,10 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	CreateSimpleStatusBar();
 	m_pStatus=new CMyStatusBar;
 	m_pStatus->SubclassWindow(m_hWndStatusBar);
-	m_pStatus->pMain=this;
 		
-
-
 	UIAddToolBar(hWndToolBar);
 	UISetCheck(ID_VIEW_TOOLBAR, 1);
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
-
-
-	
-
 
 	DWORD dwSplitStyle = WS_CHILD|WS_VISIBLE| WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 	DWORD dwSplitExStyle =WS_EX_CLIENTEDGE;
@@ -126,23 +119,17 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_pPlaylistView=new CPlayListView;
 	m_pPlaylistView->Create(m_pTabBar->m_hWnd, rcDefault, NULL, LVS_SINGLESEL | WS_CHILD | WS_VISIBLE |WS_CLIPSIBLINGS  | LVS_REPORT | LVS_SHOWSELALWAYS, /*WS_EX_CLIENTEDGE*/NULL);
 		
-		
-	
 	//left pane
 	leftPane=new CHorSplitterWindow;
 	leftPane->Create(split.m_hWnd,rcDefault,NULL,dwSplitStyle,NULL);
 	albumView1=new CAlbumCoverView;
 	albumView1->Create(leftPane->m_hWnd);
 	leftPane->SetSplitterPane(0,albumView1->m_hWnd);
-// 	m_pTabBar->AddTab(_T("д╛хо"),m_pPlaylistView->m_hWnd);
-// 	m_pTabBar->AddTab(_T("Default"),m_pPlaylistView->m_hWnd);
-
 	
 	//set left and right
 	split.SetSplitterPanes(leftPane->m_hWnd,m_pTabBar->m_hWnd,TRUE);
 
 	//-----------------------------------------
-	//
 	m_hWndClient=split.m_hWnd;
 	UpdateLayout();
 
@@ -155,12 +142,12 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	pLoop->AddMessageFilter(this);
 	pLoop->AddIdleHandler(this);
 
-
-
 	//set main pointer
 	m_pPlaylistView->SetMain(this);
 	CBasicPlayer::shared()->m_pMainFrame=this;
 	m_pTabBar->pMain=this;
+	m_pStatus->pMain=this;
+
 	return 0;
 }
 
@@ -218,12 +205,14 @@ LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	MyLib::play();
+	m_dlgLrc->TrackChanged();
 	return 0;
 }
 
 LRESULT CMainFrame::OnOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	CFileDialog dlg(TRUE,NULL,NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,_T("wave files(*.wav) \0 *.wav\0 mp3 files\0 *.mp3"),this->m_hWnd);
+	const TCHAR szFilter[]=_T("wave files(*.wav)\0*.wav\0mp3 files(*.mp3)\0*.mp3\0");
+	CFileDialog dlg(TRUE,NULL,NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,szFilter,this->m_hWnd);
 	if(dlg.DoModal()!=IDOK)return 0;
 
 	LPTSTR filepath=dlg.m_ofn.lpstrFile;
@@ -291,7 +280,7 @@ LRESULT CMainFrame::OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
 LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	static CDialogLyric *dlg=NULL;
+	CDialogLyric *dlg=NULL;
 	if (!dlg)
 	{
 		dlg=new CDialogLyric;
@@ -379,12 +368,36 @@ LRESULT CMainFrame::OnSavePlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 {
 	const TCHAR szFilter[]=_T("playlist files(*.pl)\0*.pl\0");
 
-	CFileDialog dlg(TRUE,NULL,NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
+	CFileDialog dlg(FALSE,NULL,NULL,OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
 	if(dlg.DoModal()!=IDOK)return 0;
 
 	LPTSTR filepath=dlg.m_ofn.lpstrFile;
+	
+	//if isn't end with .pl , add it
+	int len=_tcslen(filepath);
+	int len1=len;
+	TCHAR* p=(TCHAR*)filepath+len;
+	while (p--)
+	{
+		if ((TCHAR)(*p)=='.')
+		{
+			break;
+		}
+		if (--len==0)
+			break;
+	}
 
-	MyLib::shared()->SaveCurPlaylist(filepath);
+	if (_tcscmp(p,_T(".pl"))!=0)
+	{
+		TCHAR *pStr=new TCHAR[len1+4];
+		_tcsncpy(pStr,filepath,len1);
+		_tcsncpy(pStr+len1,_T(".pl\0"),4);
+
+		MyLib::shared()->SaveCurPlaylist(pStr);
+	}
+
+
+	
 
 	return 0;
 }
@@ -392,7 +405,11 @@ LRESULT CMainFrame::OnSavePlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
-	PlayListItem *track=MyLib::shared()->ActivePlaylist()->curTrack();
+	PlayList *curPl=MyLib::shared()->ActivePlaylist();
+	if (!curPl)
+		return;
+
+	PlayListItem *track=curPl->curTrack();
 	if (!track)
 		return;
 
@@ -448,18 +465,25 @@ void CPlayListView::Reload(PlayList* pPl)
 	}
 }
 
-LRESULT CPlayListView::OnDbClicked(UINT i,CPoint pt)
+
+void PlayListViewItem(int index)
 {
+
+}
+
+void CPlayListView::PlaySelectedItem()
+{
+
 	LVITEM item;
 	PlayListItem *curSelectedTrack;
 
 	GetSelectedItem(&item);
 	if (item.iItem==-1)
-		return 0;
+		return;
 
 	curSelectedTrack=(PlayListItem*)GetItemData(item.iItem);
 	if (!curSelectedTrack)
-		return 0;
+		return;
 
 
 	MyLib* s=MyLib::shared();
@@ -474,9 +498,12 @@ LRESULT CPlayListView::OnDbClicked(UINT i,CPoint pt)
 
 	pMain->albumView1->Invalidate(TRUE);
 
-	SetMsgHandled(FALSE);
-	return 0;
+	if (pMain->m_dlgLrc)
+		pMain->m_dlgLrc->TrackChanged();
+	
+	
 }
+
 
 
 

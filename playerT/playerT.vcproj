@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="playerT"
+	Name="player"
 	ProjectGUID="{8D04563F-6B16-4538-B5BC-F2A7FB4772CF}"
 	RootNamespace="playerT"
 	TargetFrameworkVersion="0"
@@ -349,6 +349,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MyLib.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MySerialize.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\player.cpp"
 				>
 			</File>
@@ -398,6 +406,10 @@
 			</File>
 			<File
 				RelativePath=".\CImg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CMyTabBar.h"
 				>
 			</File>
 			<File
@@ -453,6 +465,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MyLib.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MySerialize.h"
 				>
 			</File>
@@ -490,6 +506,10 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\StringConvertions.h"
 				>
 			</File>
 			<File
@@ -985,11 +1005,11 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\CMyTabBar.h"
-			>
-		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="player.rc"
+		/>
 	</Globals>
 </VisualStudioProject>

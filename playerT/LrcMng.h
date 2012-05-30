@@ -1,5 +1,4 @@
 /*
-
 　　无论是否在行首，行内凡具有“[*:*]”形式的都应认为是标签
   　凡是标签都不应显示
 　  凡是标签，且被冒号分隔的两部分都为非负数 ，则应认为是时间标签  (0或正数)
@@ -10,7 +9,6 @@
 　　应对注释标签（[:]）后的同一行内容作忽略处理
 　　应允许一行中存在多个标签，并能正确处理 
   　应能正确处理未排序的标签。
-
 */
 
 
@@ -26,6 +24,28 @@
 #include <string>
 using namespace std;
 
+
+
+enum TagType
+{
+	InvalidTag,  //不是标签      非[*:*]
+	TimeTag,     //时间标签      是[*:*]  --->[非负数:非负数]
+	IdentifyTag, //标识标签      是[*:*]  --->非时间标签
+	NoteTag      //注释标签      是[*:*]  --->标识标签--->两端为空
+};
+
+
+
+struct TagTypeInfo
+{
+	TagType tag;
+	
+	UINT minute;
+	UINT second;                                                                                                                                                                                                                                                                                                                                                                                                                                 
+	std::tstring identity;
+};
+
+
 class LrcTime
 {
 public:
@@ -39,21 +59,17 @@ public:
 	UINT GetTotalSec(){return minute*60+second;}
 };
 
-class LrcLine{
+
+class LrcLine
+{
 public:
-	LrcLine(UINT min,UINT sec,std::tstring text)
-		:time(min,sec),text(text)
-	{}
 	LrcTime time;
 	std::tstring text;
-	/*return second between*/
-	int operator - (LrcLine& r)
-	{
-		return (this->time.minute-r.time.minute)*60+(this->time.second-r.time.second);
-	}
+
+	LrcLine(UINT min,UINT sec,std::tstring text)
+		:time(min,sec),text(text){}
+	int operator - (LrcLine& r){return (time.minute-r.time.minute)*60+(time.second-r.time.second);}
 };
-
-
 
 
 class LrcMng
@@ -73,6 +89,7 @@ public:
 public:
 	void Open(LPTSTR pstrPath)
 	{ 
+		lib.clear();
 		std::locale loc1 = std::locale::global(std::locale(".936"));
 		tifstream fin(pstrPath);
 		std::tstring s;
@@ -86,82 +103,99 @@ public:
 	}
 
 
-
-
 private:
 	void Parse(std::tstring& s)
 	{
-		static bool shouldparseideinfo=true;
+		TagTypeInfo tagInfo;
+		tagInfo.tag=InvalidTag;
 
-		std::tstring *pLine=new std::tstring;
-		std::tstring temp;
-		bool Parsing=false;
-		for (int i=0;i<s.length();i++)
+		vector<UINT> miniteList,secondList;
+		
+		std::tstring::iterator first;
+		std::tstring::iterator last;
+		
+		
+		for( first=s.begin(), last=s.end() ;
+			PrepareFindTag(first,last) ;	
+			s.erase(--first,++last),first=s.begin(),last=s.end()
+		)
 		{
-			if (s[i]=='[')
+			tagInfo=FindTagType(++first,last);
+			if(tagInfo.tag==TimeTag)
 			{
-				Parsing=true;
-				continue;
+				//save ,add to lib later
+				miniteList.push_back(tagInfo.minute);
+				secondList.push_back(tagInfo.second);
 			}
-			if (s[i]==']')
-			{
-				if (Parsing)//if has '[' before
-				{
-					Parsing=false;//匹配成功
-					continue;
-				}
-			}
-
-			if (Parsing)    //收集标签信息,如00:00 00:11 00:18 
-				temp+=s[i];
-			else            //收集歌词信息
-			(*pLine)+=s[i];
+			else
+				break;
 		}
 
-		if (shouldparseideinfo)
-			shouldparseideinfo=parseIDEinfo(temp);
-		if (!shouldparseideinfo)
-			parseTimeInfo(temp,pLine);
+		if (tagInfo.tag==TimeTag)
+		{
+			vector<UINT>::iterator k,j;
+			for (k=miniteList.begin(),j=secondList.begin();k!=miniteList.end();k++,j++)
+				InsertIntoLib(*k,*j,s);
+		}
 	}
 
 
-
-	bool parseIDEinfo(std::tstring& temp)
+	//找到[],返回]的指针
+	BOOL PrepareFindTag(std::tstring::iterator &v1,std::tstring::iterator &v2)
 	{
-		const std::tstring torken_[]={_T("id"),_T("encoding"),_T("ti"),_T("ar"),_T("al"),_T("by")};
-
-		for (int i=0;i<6;i++)
+		std::tstring::iterator first,last;
+		first=find(v1,v2,'[');
+		last=find(v1,v2,']');
+		if (last-first>0 && last!= v2)  //find [] succeed
 		{
-			std::tstring::iterator f;
-			f=find_end(temp.begin(),temp.end(),torken_[i].begin(),torken_[i].end());
-			if (f!=temp.end())
-			{
-				return true;
-			}
+			v1=first;
+			v2=last;
+			return TRUE;
 		}
-		return false;
+
+		return FALSE;
 	}
 
-	void parseTimeInfo(std::tstring& temp,std::tstring* pLine)
-	{
-		int length=temp.length();
 
-		int timeInfoNum=length/5;
-
-		LPCTSTR pbuf=temp.c_str();
-		int minute=-2,second=-2;
-
-		for (int i=0;i<timeInfoNum;i++)
-		{
-			_stscanf(pbuf,_T("%2d:%2d"),&minute,&second);
-			InsertIntoLib(minute,second,*pLine);
-			pbuf+=5;
-		}
-	}
 
 
 public:
 	~LrcMng(void);
+
+	//是否是非负数,00,或12.23
+	static BOOL IsNaturalNumber(std::tstring::iterator v1,std::tstring::iterator v2)
+	{
+		for ( ; (isdigit(*v1)|| (*v1)=='.') && v1!=v2 ; v1++);
+		return v1==v2;
+	}
+
+
+	//返回标签类型
+	TagTypeInfo FindTagType(std::tstring::iterator v1,std::tstring::iterator &v2)
+	{
+		TagTypeInfo tagInfo;
+		std::tstring::iterator i;
+
+		i=find(v1,v2,':');                      //invalid tag?
+		if(i==v2)	
+			tagInfo.tag=InvalidTag;
+		else  if( IsNaturalNumber(v1,i)           //time tag?
+			&& IsNaturalNumber(++i,v2) )
+		{
+			std::tstring tmp(v1,v2);
+			LPCTSTR pbuf=tmp.c_str();
+			_stscanf(pbuf,_T("%2d:%2d"),&tagInfo.minute,&tagInfo.second);
+			tagInfo.tag=TimeTag;		
+		}
+		else 
+		{
+
+			tagInfo.tag=IdentifyTag;
+		}
+
+		//v2=i;
+		return tagInfo;
+	}
 };
 
 #endif

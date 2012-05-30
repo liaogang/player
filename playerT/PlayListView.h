@@ -28,7 +28,7 @@ public:
 		MSG_WM_CREATE(OnCreate)
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
 		NOTIFY_HANDLER_EX(GetDlgCtrlID(),LVN_ITEMCHANGED,OnItemChanged)
-		//MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLBtnDown)
+		MSG_WM_CHAR(OnChar)
 	END_MSG_MAP()
 	
     LRESULT OnItemChanged(LPNMHDR pnmh)
@@ -36,9 +36,25 @@ public:
 		return 1;
 	}
 	
-	LRESULT OnDbClicked(UINT i,CPoint pt);
-	// void OnLButtonDblClk(UINT nFlags, CPoint point)
-	//OnClicked
+	void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+	{
+		if (nChar==VK_RETURN)
+		{
+			PlaySelectedItem();
+		}
+	}
+
+	void PlaySelectedItem();
+
+	LRESULT OnDbClicked(UINT i,CPoint pt)
+	{
+		PlaySelectedItem();
+
+		SetMsgHandled(FALSE);
+		return 0;
+	}
+
+
 	LRESULT OnCreate(LPCREATESTRUCT lpcs)
 	{	
 		//ModifyStyle( 0, LVS_REPORT|LVS_REPORT );
@@ -47,7 +63,6 @@ public:
 		style=this->GetExtendedListViewStyle();
 		style|= LVS_EX_FULLROWSELECT ;
 		SetExtendedListViewStyle(style);
-
 
 		std::tstring columnName[]={_T("     title       "),_T(" artist "),_T(" album "),_T(" year "),_T(" comment "),_T(" genre ")};
 		for (int i=0;i<6;i++)

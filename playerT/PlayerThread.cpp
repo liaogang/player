@@ -21,7 +21,7 @@ void CPlayerThread::reset()
 	static DWORD lastAvgBytesPerSec=0;
 	WAVEFORMATEX *pwfx=0;
 	pwfx=m_pPlayer->m_pFile->GetFormat();
-	if (pwfx->nAvgBytesPerSec!=lastAvgBytesPerSec)
+	if (pwfx && pwfx->nAvgBytesPerSec!=lastAvgBytesPerSec)
 	{
 		m_lpDSBuffer=DSoundBufferCreate(m_lpDsound,pwfx);
 		lastAvgBytesPerSec=pwfx->nAvgBytesPerSec;

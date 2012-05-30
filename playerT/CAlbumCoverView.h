@@ -1,5 +1,6 @@
 #pragma  once
 #include "mainfrm.h"
+#include "MyLib.h"
 #include "PlayList.h"
 
 class CAlbumCoverView :
