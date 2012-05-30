@@ -164,6 +164,8 @@ void CBasicPlayer::play()
 	
 	m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MAX);
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
+
+	::PostMessage(m_pMainFrame->m_hWnd,WM_NEW_TRACK_STARTED,NULL,NULL);
 	::SetEvent(m_hWStartEvent);
 
 	m_bStopped=FALSE;

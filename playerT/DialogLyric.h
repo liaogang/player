@@ -45,6 +45,9 @@ public:
 	LRESULT OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		bHandled=FALSE;
+		if(!::IsWindowVisible(m_hWnd))
+			return 0;
+
 		if(!bLrcReady)
 			return 0;
 		LrcMng *mng=LrcMng::Get();
@@ -124,10 +127,13 @@ public:
 	void TrackChanged()
 	{
 		PlayListItem* track=MyLib::shared()->ActivePlaylist()->curTrack();
+		track->GetLrcFileFromLib();
 		if (!track->lyric.empty())
 		{
 			LrcMng *sLM=LrcMng::Get();
 			sLM->Open((LPTSTR)track->lyric.c_str());
+
+			SetWindowText((LPTSTR)track->lyric.c_str());
 			bLrcReady=TRUE;
 		}
 	}

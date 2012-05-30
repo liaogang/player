@@ -205,7 +205,6 @@ LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	MyLib::play();
-	m_dlgLrc->TrackChanged();
 	return 0;
 }
 
@@ -292,6 +291,16 @@ LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 	dlg->ShowWindow(SW_SHOW);
 	return 0;
 }
+
+
+LRESULT CMainFrame::OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	if (m_dlgLrc)
+		m_dlgLrc->TrackChanged();
+
+	return 0;
+}
+
 
 LRESULT CMainFrame::OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
@@ -496,12 +505,7 @@ void CPlayListView::PlaySelectedItem()
 
 	::SetWindowText(pMain->m_hWnd,curSelectedTrack->GetTitle());
 
-	pMain->albumView1->Invalidate(TRUE);
-
-	if (pMain->m_dlgLrc)
-		pMain->m_dlgLrc->TrackChanged();
-	
-	
+	pMain->albumView1->Invalidate(TRUE);	
 }
 
 
