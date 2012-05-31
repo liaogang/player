@@ -13,9 +13,7 @@
 #include <string>
 using namespace std;
 
-
-
-#define APPNAME "unnamed music player"
+#define APPNAME "abc player"
 
 BOOL CMainFrame::OnIdle()
 {
@@ -23,6 +21,7 @@ BOOL CMainFrame::OnIdle()
 	BOOL flag=MyLib::shared()->SelPlaylist()!=NULL;
 	UIEnable(ID_FILE_OPENDIRECTORY,flag);
 	UIEnable(ID_FILE_OPEN,flag);
+	UIEnable(ID_FILE_SAVEPLAYLIST,flag);
 	return FALSE;
 }
 
@@ -271,10 +270,11 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 LRESULT CMainFrame::OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
-	m_pPlaylistView->Reload(MyLib::shared()->SelPlaylist());
+	PlayList *playlist=MyLib::shared()->SelPlaylist();
+	if (playlist)
+		m_pPlaylistView->Reload(playlist);
 	return 0;
 }
-
 
 
 LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -286,6 +286,7 @@ LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 		dlg->Create(this->m_hWnd);
 		m_dlgLrc=dlg;
 		dlg->GetClientRect(&dlg->rc);
+		dlg->TrackChanged();
 	}
 
 	dlg->ShowWindow(SW_SHOW);
@@ -405,9 +406,6 @@ LRESULT CMainFrame::OnSavePlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 		MyLib::shared()->SaveCurPlaylist(pStr);
 	}
 
-
-	
-
 	return 0;
 }
 
@@ -482,7 +480,6 @@ void PlayListViewItem(int index)
 
 void CPlayListView::PlaySelectedItem()
 {
-
 	LVITEM item;
 	PlayListItem *curSelectedTrack;
 
@@ -493,7 +490,6 @@ void CPlayListView::PlaySelectedItem()
 	curSelectedTrack=(PlayListItem*)GetItemData(item.iItem);
 	if (!curSelectedTrack)
 		return;
-
 
 	MyLib* s=MyLib::shared();
 
@@ -509,9 +505,6 @@ void CPlayListView::PlaySelectedItem()
 }
 
 
-
-
-
 void MyLib::SetMain(HWND hMain){shared()->hMain=hMain;};
 HWND MyLib::GetMain(){return shared()->hMain;};
 
@@ -519,5 +512,13 @@ BOOL CMyTabBar::AddPlaylistTab(PlayList* ppl,BOOL inActiveFlag , int inImage )
 {
 	AddTab(ppl->m_playlistName.c_str(),pMain->m_pPlaylistView->m_hWnd,inActiveFlag,inImage,(LPARAM)ppl);
 	MyLib::shared()->SetSelPlaylist(ppl);
+	return 0;
+}
+
+
+LRESULT CMainFrame::OnExit(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	delete MyLib::shared();
+	bHandled=FALSE;
 	return 0;
 }

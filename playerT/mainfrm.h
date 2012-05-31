@@ -66,10 +66,12 @@ public:
 		UPDATE_ELEMENT(ID_VIEW_STATUS_BAR, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_FILE_OPENDIRECTORY, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_FILE_OPEN, UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_FILE_SAVEPLAYLIST, UPDUI_MENUPOPUP)
 	END_UPDATE_UI_MAP()
 
 	BEGIN_MSG_MAP_EX(CMainFrame)
 		MSG_WM_NOTIFY(OnNotify)
+		MESSAGE_HANDLER(WM_CLOSE,OnExit)
 		COMMAND_CODE_HANDLER_EX(CBN_SELCHANGE,OnCbnSelchanged)
 		MESSAGE_HANDLER(WM_ADDFOLDERED,OnAddFolder)
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
@@ -94,6 +96,7 @@ public:
 		COMMAND_ID_HANDLER(ID_FILE_NEWPLAYLIST,OnFileNewPlaylist)
 		COMMAND_ID_HANDLER(ID_OPENPLAYLIST,OnOpenPlaylist)
 		COMMAND_ID_HANDLER(ID_FILE_SAVEPLAYLIST,OnSavePlaylist)
+
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
 	END_MSG_MAP()
@@ -106,8 +109,8 @@ public:
 	LRESULT OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
-	
-
+	LRESULT OnExit(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
+		
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 		// unregister message filtering and idle updates

@@ -247,8 +247,8 @@ BOOL PlayListItem::LrcFileMacth(std::tstring &filename)
 	if( search(filename.begin(),filename.end(),title.begin(),title.end())!=filename.end() )
 		return TRUE;
 
-	if( search(filename.begin(),filename.end(),artist.begin(),artist.end()) !=filename.end())
-		return TRUE;
+// 	if( search(filename.begin(),filename.end(),artist.begin(),artist.end()) !=filename.end())
+// 		return TRUE;
 
 	int index=url.find_last_of('\\');
 	if(index!=url.length())

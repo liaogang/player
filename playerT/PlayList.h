@@ -101,6 +101,7 @@ public:
 public:
 	list<PlayListItem> m_songList;
 	std::tstring       m_playlistName;
+	std::tstring       m_saveLocation;
 private:
 	PlayListItem *lastPlayingItem,*curPlayingItem,
 		*nextPlayingItem,*curSelectedItem;

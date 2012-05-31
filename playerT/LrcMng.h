@@ -1,15 +1,15 @@
 /*
 　　无论是否在行首，行内凡具有“[*:*]”形式的都应认为是标签
   　凡是标签都不应显示
-　  凡是标签，且被冒号分隔的两部分都为非负数 ，则应认为是时间标签  (0或正数)
-　  对于非标准形式的时间标签也应能识别（如[0:0]）  
- 　 凡是标签，且非时间标签的，应认为是标识标签
-    标识名中大小写等价
-  　为了向后兼容 ，应对未定义的新标签作忽略处理
-　　应对注释标签（[:]）后的同一行内容作忽略处理
-　　应允许一行中存在多个标签，并能正确处理 
-  　应能正确处理未排序的标签。
-*/
+   　  凡是标签，且被冒号分隔的两部分都为非负数 ，则应认为是时间标签  (0或正数)
+	  　  对于非标准形式的时间标签也应能识别（如[0:0]）  
+		 　 凡是标签，且非时间标签的，应认为是标识标签
+		   标识名中大小写等价
+		   　为了向后兼容 ，应对未定义的新标签作忽略处理
+			　　应对注释标签（[:]）后的同一行内容作忽略处理
+			  　　应允许一行中存在多个标签，并能正确处理 
+				　应能正确处理未排序的标签。
+				 */
 
 
 
@@ -39,7 +39,7 @@ enum TagType
 struct TagTypeInfo
 {
 	TagType tag;
-	
+
 	UINT minute;
 	UINT second;                                                                                                                                                                                                                                                                                                                                                                                                                                 
 	std::tstring identity;
@@ -110,15 +110,14 @@ private:
 		tagInfo.tag=InvalidTag;
 
 		vector<UINT> miniteList,secondList;
-		
+
 		std::tstring::iterator first;
 		std::tstring::iterator last;
-		
-		
+
 		for( first=s.begin(), last=s.end() ;
 			PrepareFindTag(first,last) ;	
 			s.erase(--first,++last),first=s.begin(),last=s.end()
-		)
+			)
 		{
 			tagInfo=FindTagType(++first,last);
 			if(tagInfo.tag==TimeTag)
@@ -139,7 +138,6 @@ private:
 		}
 	}
 
-
 	//找到[],返回]的指针
 	BOOL PrepareFindTag(std::tstring::iterator &v1,std::tstring::iterator &v2)
 	{
@@ -152,11 +150,8 @@ private:
 			v2=last;
 			return TRUE;
 		}
-
 		return FALSE;
 	}
-
-
 
 
 public:
@@ -189,11 +184,9 @@ public:
 		}
 		else 
 		{
-
 			tagInfo.tag=IdentifyTag;
 		}
 
-		//v2=i;
 		return tagInfo;
 	}
 };

@@ -47,9 +47,6 @@ public:
 	//return the size used
 	virtual int SerializeB(FILE *pFile)=0;
 
-
-
 	//read size
-	//
 	virtual int ReSerialize(FILE *pFile)=0;
 };

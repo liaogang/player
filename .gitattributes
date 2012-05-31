@@ -100,6 +100,9 @@ playerT/LrcMng.h -text
 playerT/Mp3File.h -text
 playerT/MusicFile.h -text
 playerT/MyControls.h -text
+playerT/MyLib.cpp -text
+playerT/MyLib.h -text
+playerT/MySerialize.cpp -text
 playerT/MySerialize.h -text
 playerT/PlayList.cpp -text
 playerT/PlayList.h -text
@@ -111,6 +114,7 @@ playerT/SpectrumAnalyser.cpp -text
 playerT/SpectrumAnalyser.h -text
 playerT/SpectrumAnalyserThread.cpp -text
 playerT/SpectrumAnalyserThread.h -text
+playerT/StringConvertions.h -text
 playerT/Thread.cpp -text
 playerT/Thread.h -text
 playerT/UpgradeLog.XML -text
