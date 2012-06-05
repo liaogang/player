@@ -77,7 +77,7 @@ public:
 
 	void OnKillFocus(CWindow wndFocus)
 	{
-		::EnableWindow(GetDlgItem(IDC_BTN_DEL),FALSE);
+		//::EnableWindow(GetDlgItem(IDC_BTN_DEL),FALSE);
 	}
 
 
@@ -99,9 +99,6 @@ public:
 		style|= LVS_EX_FULLROWSELECT;
 		m_list.SetExtendedListViewStyle(style);
 		
-	
-
-
 		m_list.InsertColumn(0,_T("Â·¾¶"),LVCFMT_LEFT,220);
 		m_list.InsertColumn(1,_T("×´Ì¬"),LVCFMT_LEFT,80);
 		return TRUE;

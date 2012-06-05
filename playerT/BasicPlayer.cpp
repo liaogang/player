@@ -29,14 +29,14 @@
 	 {
 		 ::WaitForSingleObject(decayEvent,INFINITE);
 
-		 int curVolume=m_pPlayerThread->m_pPlayer->m_curVolume;
-		 if (m_pPlayerThread->m_pPlayer->bDecay)    
-		 {
-			 for (int i=0;i<indecayLen;i++)
-			 {
-				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay[i] *(0-curVolume)/10000);
-				 Sleep(70);
-			 }
+// 		 int curVolume=m_pPlayerThread->m_pPlayer->m_curVolume;
+// 		 if (m_pPlayerThread->m_pPlayer->bDecay)    
+// 		 {
+// 			 for (int i=0;i<indecayLen;i++)
+// 			 {
+// 				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay[i] *(0-curVolume)/10000);
+// 				 Sleep(40);
+// 			 }
 
 			 m_pPlayerThread->m_lpDSBuffer->Stop();
 			 m_pPlayerThread->Suspend();
@@ -45,12 +45,12 @@
 		 {
 			 m_pPlayerThread->Resume();
 			 m_pPlayerThread->m_lpDSBuffer->Play(0,0,DSBPLAY_LOOPING);
-
-			 for (int i=indecayLen-1;i>=0;--i)
-			 {
-				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay[i]  *(0-curVolume)/10000);
-				 Sleep(70);
-			 }
+// 
+// 			 for (int i=indecayLen-1;i>=0;--i)
+// 			 {
+				// m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay[i]  *(0-curVolume)/10000);
+//			 Sleep(50);
+//			 }
 		 }
 	 }
  }
@@ -199,6 +199,9 @@ void CBasicPlayer::stop()
 {
 	if(!m_bStopped)
 	{
+		m_pPlayerThread->Teminate();
+		m_pPlayerThread->Init(FALSE);
+
 		m_cs.Enter();
 		m_bStopped=TRUE;
 		ResetEvent(m_hWStartEvent);

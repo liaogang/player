@@ -271,8 +271,12 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 LRESULT CMainFrame::OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
 	PlayList *playlist=MyLib::shared()->SelPlaylist();
+
 	if (playlist)
+	{
+		m_pTabBar->AddPlaylistTab(playlist,TRUE,-1);
 		m_pPlaylistView->Reload(playlist);
+	}
 	return 0;
 }
 
@@ -348,7 +352,9 @@ LRESULT CMainFrame::OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 LRESULT CMainFrame::OnFileNewPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	PlayList *pPl=MyLib::shared()->NewPlaylist();
-	m_pTabBar->AddPlaylistTab(pPl,TRUE,-1);
+	MyLib::shared()->SetSelPlaylist(pPl);
+
+	//m_pTabBar->AddPlaylistTab(pPl,TRUE,-1);
 	//tell the play list view to add this
 	m_pPlaylistView->Reload(pPl);
 
@@ -365,8 +371,12 @@ LRESULT CMainFrame::OnOpenPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 	LPTSTR filepath=dlg.m_ofn.lpstrFile;
 
-	MyLib::shared()->LoadPlaylist(filepath);
-
+	MyLib *s=MyLib::shared();
+	
+	PlayList* playlist =MyLib::shared()->LoadPlaylist(filepath);
+	if (playlist)
+		s->SetSelPlaylist(playlist);
+	
 	//tell the play list view to add this
 	::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
 	

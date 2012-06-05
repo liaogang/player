@@ -31,12 +31,16 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
  PlayList::PlayList(void):curPlayingItem(NULL),curSelectedItem(NULL)
 {
 	index=Default;
+	std::tstring tmp(_T("all.pl"));
+	m_saveLocation=tmp;
 }
 
  PlayList::PlayList(std::tstring name):curPlayingItem(NULL),curSelectedItem(NULL)
  {
 	index=Default;
 	m_playlistName=name;
+	std::tstring tmp(_T("all.pl"));
+	m_saveLocation=tmp;
  }
 
 

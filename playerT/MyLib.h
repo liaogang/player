@@ -58,9 +58,7 @@ public:
 	static void playNext(BOOL scanID3=TRUE);
 
 	BOOL SaveCurPlaylist(LPTSTR filepath);
-	BOOL LoadPlaylist(LPTSTR filepath);
-
-
+	PlayList* LoadPlaylist(LPTSTR filepath);
 
 	#define CFGFILENAME _T("coredata")
 

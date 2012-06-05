@@ -20,10 +20,7 @@ public:
 
 	CThread(BOOL bCreateSuspened=TRUE):m_hThread(NULL),m_dwThreadID(NULL)
 	{
-		m_hThread=CreateThread(NULL,0,ThreadProc,(void*)this,
-			bCreateSuspened?CREATE_SUSPENDED:0,&m_dwThreadID);
-		
-		m_bCreateSuspend=m_bSuspend=bCreateSuspened;
+		Init(bCreateSuspened);
 	}
 
 	~CThread(void)
@@ -52,5 +49,22 @@ public:
 	}
 
 	BOOL Suspended() { return m_bSuspend; }
+
+
+	BOOL Teminate()
+	{
+		TerminateThread(m_hThread,NULL);
+		return 0;
+	}
+
+	BOOL Init(BOOL bCreateSuspened=TRUE)
+	{
+		m_hThread=CreateThread(NULL,0,ThreadProc,(void*)this,
+			bCreateSuspened?CREATE_SUSPENDED:0,&m_dwThreadID);
+
+		m_bCreateSuspend=m_bSuspend=bCreateSuspened;
+		
+		return TRUE;
+	}
 
 };

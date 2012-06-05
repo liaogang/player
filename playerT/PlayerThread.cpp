@@ -54,6 +54,9 @@ void CPlayerThread::Excute()
 	{
 		m_pPlayer->m_cs.Enter();
 		::WaitForSingleObject(m_pPlayer->m_hWStartEvent,INFINITE);
+		if (m_pPlayer->m_bStopped)
+			break;
+		
 		WriteDataToDSBuf();
 		m_pPlayer->m_cs.Leave();
 	}

@@ -207,20 +207,21 @@ BOOL MyLib::SaveCurPlaylist(LPTSTR filepath)
 	return result;
 }
 
-BOOL MyLib::LoadPlaylist(LPTSTR filepath)
+PlayList* MyLib::LoadPlaylist(LPTSTR filepath)
 {
+	PlayList *playlist=NULL;
 	BOOL result=FALSE;
 	FILE * pFile;
 	pFile = _tfopen ((LPCTSTR)filepath, _T("rb") );
 	if (pFile!=NULL)
 	{
-		PlayList *playlist=new PlayList;
+		playlist=new PlayList;
 		result=playlist->ReSerialize(pFile);
 		m_playLists.push_back(*playlist);
-
 		fclose (pFile);
 	}
-	return result;
+
+	return playlist;
 }
 
 
@@ -248,7 +249,7 @@ BOOL MyLib::SaveCoreCfg()
 		vector<std::tstring>::iterator k;
 		for (k=lrcDirs.begin();k!=lrcDirs.end();++k)
 		{
-			::Serialize(pFile,&(*k));
+			::Serialize<>(pFile,*k);
 		}
 		
 		fclose (pFile);
@@ -269,23 +270,25 @@ BOOL MyLib::LoadCoreCfg()
 		//playlists
 		int size=0;
 		::ReSerialize(pFile,&size);
-		do 
+		while (size--) 
 		{
 			std::tstring playlistLocation;
 			::ReSerialize(pFile,&playlistLocation);
 			MyLib::shared()->LoadPlaylist(const_cast<LPTSTR>(playlistLocation.c_str()));
-		} while (size--);
+		} 
 
 
 		//lrc dir list
 		size=0;
 		::ReSerialize(pFile,&size);
-		do 
+		 while (size--)
 		{
 			std::tstring lrcDir;
+
 			::ReSerialize(pFile,&lrcDir);
-			lrcDirs.push_back(lrcDir);
-		} while (size--);
+			if(!lrcDir.empty())
+				lrcDirs.push_back(lrcDir);
+		}
 
 		fclose (pFile);
 	}

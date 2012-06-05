@@ -26,6 +26,3 @@ public:
 	DWORD m_dwCurWritePos;
 	DWORD m_dwSilencedBytes;
 };
-
-
-

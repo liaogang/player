@@ -31,6 +31,7 @@ MyLib::~MyLib()
 {
 	SaveCoreCfg();
 }
+
 void MyLib::play()
 {
 	PlayListItem* curTrack=MyLib::shared()->ActivePlaylist()->curTrack();
@@ -72,33 +73,6 @@ void MyLib::playNext(BOOL scanID3)
 	}
 
 }
-
-
-
-//-----------------------------------------
-// lrc search
-
-void MatchWords(int i,TCHAR* pszWord1,...)
-{
-	int *p;
-	p=(int*)&i;
-
-	for(int k=0;k<i+1;k++,p++)
-	{
-		TCHAR* val=(TCHAR*)(void*)(*p);
-		if(k!=0)
-		{
-			//do something
-			_tprintf(_T("param %d is %s \n"),k+1,val);
-		}
-	}
-}
-
-
-
-
-
-
 
 
 LRESULT CPropertyDlgMediaLib::OnBtnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -151,15 +125,9 @@ LRESULT CPropertyDlgLyricsLib::OnCfgToSave(UINT /*uMsg*/, WPARAM /*wParam*/, LPA
 	return 0;
 }
 
-void gfunc(std::tstring str)
-{
-
-}
-
 void MyLib::InitLrcLib()
 {
 	for_each(lrcDirs.begin(),lrcDirs.end(),&MyLib::ImportLycByPath);
-	return;
 }
 
 void MyLib::ImportLycByPath(std::tstring path)
@@ -201,6 +169,3 @@ void MyLib::ImportLycByPath(std::tstring path)
 	//回复当前目录
 	_tchdir(curPath);
 }
-
-
-
