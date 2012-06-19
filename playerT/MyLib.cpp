@@ -61,12 +61,10 @@ void MyLib::playNext(BOOL scanID3)
 	track->ScanId3Info();
 
 	CBasicPlayer *sbp=CBasicPlayer::shared();
-	if ( track==shared()->ActivePlaylist()->lastTrack())
-	{
+	if ( track==shared()->ActivePlaylist()->lastTrack()){
 		sbp->ResetFile();
 	}
-	else
-	{
+	else{
 		sbp->stop();
 		sbp->open(track);
 		sbp->play();
@@ -80,11 +78,9 @@ LRESULT CPropertyDlgMediaLib::OnBtnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 	UINT uFlags=BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE;
 	uFlags&=~BIF_NONEWFOLDERBUTTON ;
 	CFolderDialog dlg(m_hWnd,_T("请选择要添加的文件夹"),uFlags);
-	if (dlg.DoModal()==IDOK)
-	{
+	if (dlg.DoModal()==IDOK){
 		LPCTSTR path=dlg.GetFolderPath();
 		//MyLib::shared()->AddFolder2LrcSearchLib(path);
-
 		m_list.InsertItem(0,path);
 	}
 
@@ -93,7 +89,6 @@ LRESULT CPropertyDlgMediaLib::OnBtnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 
 LRESULT CPropertyDlgMediaLib::OnBtnDel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	
 	return 0;
 }
 
@@ -104,8 +99,7 @@ LRESULT CPropertyDlgLyricsLib::OnBtnOpenDir(WORD /*wNotifyCode*/, WORD /*wID*/, 
 	UINT uFlags=BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE;
 	uFlags&=~BIF_NONEWFOLDERBUTTON ;
 	CFolderDialog dlg(m_hWnd,_T("请选择要添加的文件夹"),uFlags);
-	if (dlg.DoModal()==IDOK)
-	{
+	if (dlg.DoModal()==IDOK){
 		LPCTSTR path=dlg.GetFolderPath();
 		::SetWindowText(GetDlgItem(IDC_EDIT_SEARCH),path);
 	}
@@ -145,8 +139,7 @@ void MyLib::ImportLycByPath(std::tstring path)
 	HANDLE hFind;
 
 	hFind=::FindFirstFile(_T("*.lrc"),&findFileData);
-	if(hFind!=INVALID_HANDLE_VALUE)
-	{
+	if(hFind!=INVALID_HANDLE_VALUE){
 		findResult=TRUE;
 		while(findResult)
 		{

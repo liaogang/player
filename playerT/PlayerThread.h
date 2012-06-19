@@ -18,7 +18,7 @@ public:
 	~CPlayerThread();
 
 	void Excute(); 
-	void reset();
+	void Reset();
 
 	DWORD DSoundBufferWrite(void* pBuf , int len);
 	void CleanDSBuffer();

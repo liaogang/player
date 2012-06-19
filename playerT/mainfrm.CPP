@@ -153,24 +153,20 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 {
-	if (pnmh->code==TCN_SELCHANGE)
-	{
+	if (pnmh->code==TCN_SELCHANGE){
 		//drop list combo box , changed
-		if (idCtrl==m_wndComboBox.GetDlgCtrlID())
-		{
+		if (idCtrl==m_wndComboBox.GetDlgCtrlID()){
 // 			int sel=m_pTabBar->GetCurSel();
 // 			OnTabChanged(sel);
 		}
 
-		if (idCtrl==m_pTabBar->GetDlgCtrlID())
-		{
+		if (idCtrl==m_pTabBar->GetDlgCtrlID()){
 			OnSelectionChanged();
 		}
 	}
 	
 	//track bar  mouse released
-	if (pnmh->code==NM_RELEASEDCAPTURE && idCtrl==m_pTrackBar->GetDlgCtrlID())
-	{
+	if (pnmh->code==NM_RELEASEDCAPTURE && idCtrl==m_pTrackBar->GetDlgCtrlID()){
 		int pos=m_pTrackBar->GetPos();
 		int posMax=m_pTrackBar->GetRangeMax();
 
@@ -179,7 +175,6 @@ LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 	}
 
 	
-
 	return 0;
 }
 
@@ -251,8 +246,7 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 	UINT uFlags=BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE;
 	uFlags&=~BIF_NONEWFOLDERBUTTON ;
 	CFolderDialog dlg(m_hWnd,_T("请选择要添加的文件夹"),uFlags);
-	if (dlg.DoModal()==IDOK)
-	{
+	if (dlg.DoModal()==IDOK){
 		CProcessingDlg *pDlgProcess=NULL;
 		pDlgProcess=new CProcessingDlg;
 		pDlgProcess->Create(m_hWnd);
@@ -272,8 +266,7 @@ LRESULT CMainFrame::OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 {
 	PlayList *playlist=MyLib::shared()->SelPlaylist();
 
-	if (playlist)
-	{
+	if (playlist){
 		m_pTabBar->AddPlaylistTab(playlist,TRUE,-1);
 		m_pPlaylistView->Reload(playlist);
 	}
@@ -284,8 +277,7 @@ LRESULT CMainFrame::OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	CDialogLyric *dlg=NULL;
-	if (!dlg)
-	{
+	if (!dlg){
 		dlg=new CDialogLyric;
 		dlg->Create(this->m_hWnd);
 		m_dlgLrc=dlg;
@@ -309,8 +301,7 @@ LRESULT CMainFrame::OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 LRESULT CMainFrame::OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	if (!m_pTrackBar->m_bPressing)
-	{
+	if (!m_pTrackBar->m_bPressing){
 		double used,lefted;
 		used=wParam;
 		lefted=lParam;
@@ -328,8 +319,7 @@ LRESULT CMainFrame::OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHa
 
 LRESULT CMainFrame::OnCbnSelchanged(UINT,int id, HWND hWndCtl)
 {
-	if (::IsWindow(m_wndComboBox.m_hWnd) && hWndCtl==m_wndComboBox.m_hWnd)
-	{
+	if (::IsWindow(m_wndComboBox.m_hWnd) && hWndCtl==m_wndComboBox.m_hWnd){
 		int i=m_wndComboBox.GetCurSel();
 		MyLib::shared()->ActivePlaylist()->SetPlayOrder(static_cast< PlayOrderIndex >( i ));
 	}
@@ -399,16 +389,14 @@ LRESULT CMainFrame::OnSavePlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 	TCHAR* p=(TCHAR*)filepath+len;
 	while (p--)
 	{
-		if ((TCHAR)(*p)=='.')
-		{
+		if ((TCHAR)(*p)=='.'){
 			break;
 		}
 		if (--len==0)
 			break;
 	}
 
-	if (_tcscmp(p,_T(".pl"))!=0)
-	{
+	if (_tcscmp(p,_T(".pl"))!=0){
 		TCHAR *pStr=new TCHAR[len1+4];
 		_tcsncpy(pStr,filepath,len1);
 		_tcsncpy(pStr+len1,_T(".pl\0"),4);
@@ -431,8 +419,7 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 		return;
 
 	int i=track->indexInListView;
-	if (i!=-1)
-	{
+	if (i!=-1){
 		pMain->m_pPlaylistView->SetFocus();
 		pMain->m_pPlaylistView->SetItemState(i,LVIS_FOCUSED|
 		LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);	

@@ -8,56 +8,6 @@
 #include "mainfrm.h"
 #include "PlayList.h"
 
-
-
- //-----------------------------------------
-
- CPlayerController::CPlayerController(CPlayerThread *_playerThread)//:CThread(FALSE)
- {
-	 m_pPlayerThread=_playerThread;
-	 decayEvent=CreateEvent(NULL,FALSE,FALSE,NULL);
- }
-
- void CPlayerController::Excute()
- {
-	 const static int indecayLen=13;
-	 //static LONG indecay[indecayLen]={ -150 , -170,  -200,  -500,  -800, -1000, -2000, -3000, -4000, -5000, -6000, -8000, -9000};
-	 static LONG indecay[indecayLen]={ -7000 , -7100,  -7200,  -7300,  -7500, -7800, -8000, -8300, -8500, -9000, -9500, -9700, -9900};
-
-	 
-	 while(1)
-	 {
-		 ::WaitForSingleObject(decayEvent,INFINITE);
-
-// 		 int curVolume=m_pPlayerThread->m_pPlayer->m_curVolume;
-// 		 if (m_pPlayerThread->m_pPlayer->bDecay)    
-// 		 {
-// 			 for (int i=0;i<indecayLen;i++)
-// 			 {
-// 				 m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay[i] *(0-curVolume)/10000);
-// 				 Sleep(40);
-// 			 }
-
-			 m_pPlayerThread->m_lpDSBuffer->Stop();
-			 m_pPlayerThread->Suspend();
-		 }
-		 else
-		 {
-			 m_pPlayerThread->Resume();
-			 m_pPlayerThread->m_lpDSBuffer->Play(0,0,DSBPLAY_LOOPING);
-// 
-// 			 for (int i=indecayLen-1;i>=0;--i)
-// 			 {
-				// m_pPlayerThread->m_lpDSBuffer->SetVolume(indecay[i]  *(0-curVolume)/10000);
-//			 Sleep(50);
-//			 }
-		 }
-	 }
- }
-
-
- //-----------------------------------------
- //
  CBasicPlayer* CBasicPlayer::shared()
  {
 	 static CBasicPlayer *pGlobalBasePlayer=NULL;
@@ -66,18 +16,12 @@
 	 return pGlobalBasePlayer;
  }
 
-
  CBasicPlayer :: CBasicPlayer(void):
  m_bStopped(TRUE),m_bPaused(TRUE),
 	 m_pFile(NULL),m_bFileEnd(TRUE)
 {
-	m_hWStartEvent=::CreateEvent(NULL,TRUE,FALSE,NULL);	
-
 	m_pPlayerThread=new CPlayerThread(this);
 	m_pSpectrumAnalyser=new CSpectrumAnalyser;
-
-	ctl=new CPlayerController(m_pPlayerThread);
-	ctl->Resume();
 }
 
 CBasicPlayer :: ~CBasicPlayer(void)
@@ -85,19 +29,6 @@ CBasicPlayer :: ~CBasicPlayer(void)
 	if(!m_pPlayerThread) delete m_pPlayerThread;
 	if (!m_pSpectrumAnalyser) delete m_pSpectrumAnalyser; 
 }
-
-// const TCHAR* CBasicPlayer::playNextPlaylistItem()
-// {
-// 	PlayListItem *item=MyLib::GetPlayListObj().GetNextTrackByOrder();
-// 
-// 	stop();
-// 	if(item  && open((LPTSTR) item->url.c_str()) )
-// 	{
-// 		play();
-// 		return item->title.c_str();
-// 	}
-//  	return NULL;
-// }
 
 void CBasicPlayer::ResetFile()
 {
@@ -118,8 +49,7 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
 	int len=_tcslen(filepath);
 	TCHAR* p=(TCHAR*)filepath+len;
 	while (p--)
-		if ((TCHAR)(*p)=='.')
-		{
+		if ((TCHAR)(*p)=='.'){
 			p++;
 			break;
 		}
@@ -134,8 +64,7 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
 		m_pFile=new Mp3File();
 	else if (_tcscmp(p,_T("wma"))==0 || _tcscmp(p,_T("WMA"))==0)
 		m_pFile=new Mp3File();
-	else
-	{
+	else{
 		MessageBox(m_pMainFrame->m_hWnd,_T("不支持的文件类型"),_T(""),MB_OK);
 		return -1;
 	}
@@ -148,8 +77,7 @@ void CBasicPlayer::play()
 	if (m_bFileEnd)	return;
 	
 	if (!m_bStopped)
-		if (m_bPaused)      //未停止且暂停
-		{
+		if (m_bPaused){      //未停止且暂停
 			pause();        //继续
 			return;
 		}
@@ -157,16 +85,16 @@ void CBasicPlayer::play()
 			stop();        //先停止
 
 	m_pFile->ResetFile();
-	m_pPlayerThread->reset();
+	m_pPlayerThread->Reset();
 	m_pPlayerThread->CleanDSBuffer();
 	m_pPlayerThread->WriteDataToDSBuf();
-	m_pPlayerThread->WriteDataToDSBuf();
-	
-	m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MAX);
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
+	if(m_pPlayerThread->Suspended())
+		m_pPlayerThread->Resume();
+	m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MAX);
 
 	::PostMessage(m_pMainFrame->m_hWnd,WM_NEW_TRACK_STARTED,NULL,NULL);
-	::SetEvent(m_hWStartEvent);
+
 
 	m_bStopped=FALSE;
 	m_bPaused=FALSE;
@@ -176,45 +104,30 @@ void CBasicPlayer::pause()
 {
 	if (m_bStopped)return;
 
-	if (m_bPaused)    //resume
-	{
+	if (m_bPaused){               
 		m_bPaused=FALSE;
-		bDecay=FALSE;
-		::SetEvent(ctl->decayEvent);
+		m_pPlayerThread->Suspend();
 	}
-	else                        //pause       
-	{
+	else{                             
 		m_bPaused=TRUE;
-		bDecay=TRUE;
-		::SetEvent(ctl->decayEvent);
+		m_pPlayerThread->Resume();
 	}
 }
 
-BOOL CBasicPlayer::stoped()
-{
-	return m_bStopped;
-}
+
 
 void CBasicPlayer::stop()
 {
-	if(!m_bStopped)
-	{
-		m_pPlayerThread->Teminate();
-		m_pPlayerThread->Init(FALSE);
-
-		m_cs.Enter();
-		m_bStopped=TRUE;
-		ResetEvent(m_hWStartEvent);
-		m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
+	if(!m_bStopped){
 		m_pPlayerThread->m_lpDSBuffer->Stop();
-		m_cs.Leave();
 		
-		if (m_bPaused)
-		{
-			m_pPlayerThread->Resume();
-			m_bPaused=FALSE;
-		}
+		m_cs.Enter();
+		m_pPlayerThread->Teminate();
+		m_bStopped=TRUE;
+		m_pPlayerThread->Init(TRUE);
+		m_cs.Leave();
 	}
+
 }
 
 BOOL CBasicPlayer::open( PlayListItem *track)
@@ -225,9 +138,5 @@ BOOL CBasicPlayer::open( PlayListItem *track)
 void CBasicPlayer:: SetPos(int cur,int max)
 {
 	if (!m_bStopped)
-	{
-		m_cs.Enter();
 		m_pFile->SetPos(cur,max);
-		m_cs.Leave();
-	}
 }

@@ -16,13 +16,12 @@ CPlayerThread::~CPlayerThread(void)
 {
 }
 
-void CPlayerThread::reset()
+void CPlayerThread::Reset()
 {
 	static DWORD lastAvgBytesPerSec=0;
 	WAVEFORMATEX *pwfx=0;
 	pwfx=m_pPlayer->m_pFile->GetFormat();
-	if (pwfx && pwfx->nAvgBytesPerSec!=lastAvgBytesPerSec)
-	{
+	if (pwfx && pwfx->nAvgBytesPerSec!=lastAvgBytesPerSec){
 		m_lpDSBuffer=DSoundBufferCreate(m_lpDsound,pwfx);
 		lastAvgBytesPerSec=pwfx->nAvgBytesPerSec;
 	}
@@ -53,9 +52,10 @@ void CPlayerThread::Excute()
 	while(TRUE)
 	{
 		m_pPlayer->m_cs.Enter();
-		::WaitForSingleObject(m_pPlayer->m_hWStartEvent,INFINITE);
-		if (m_pPlayer->m_bStopped)
+		if (m_pPlayer->m_bStopped){
+			m_pPlayer->m_cs.Leave();
 			break;
+		}
 		
 		WriteDataToDSBuf();
 		m_pPlayer->m_cs.Leave();
@@ -68,17 +68,15 @@ void CPlayerThread::WriteDataToDSBuf()
 	char fileBuffer[dwSizeToRead];
 	char *pFileBuffer=fileBuffer;
 
-	if (!m_pPlayer->m_pFile->Read(pFileBuffer,dwSizeToRead,&m_dwSizeRead))
-	{
+	if (!m_pPlayer->m_pFile->Read(pFileBuffer,dwSizeToRead,&m_dwSizeRead)){
 		::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,0,100);
 		::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKSTOPPED,0,0);
 		m_lpDSBuffer->Stop();
 		m_pPlayer->m_bFileEnd=TRUE;
 		m_pPlayer->m_bStopped=TRUE;
-		::ResetEvent(m_pPlayer->m_hWStartEvent);
+		//::ResetEvent(m_pPlayer->m_hWStartEvent);
 		return; 
 	}
-
 
 	DOUBLE used,lefted;
 	m_pPlayer->m_pFile->GetPos(&used,&lefted);
@@ -97,8 +95,7 @@ void CPlayerThread::WriteDataToDSBuf()
 	while(m_dwSizeToWrite > 0)
 	{
 		written= DSoundBufferWrite(pFileBuffer, m_dwSizeToWrite);
-		if (written==-1)
-		{
+		if (written==-1){
 			m_pPlayer->m_bStopped=TRUE;
 			break;
 		}
@@ -108,15 +105,13 @@ void CPlayerThread::WriteDataToDSBuf()
 	}
 }
 
-
 DWORD CPlayerThread::DSoundBufferWrite(void* pBuf , int len)
 {
 	HRESULT result;
 	LPVOID buffer1   ,buffer2;
 	DWORD  buffer1Len,buffer2Len;
 	result=m_lpDSBuffer->Lock(m_dwCurWritePos,len ,&buffer1,&buffer1Len,&buffer2,&buffer2Len,NULL );
-	if (result==DS_OK)
-	{
+	if (result==DS_OK){
 		memcpy(buffer1,pBuf,buffer1Len);
 		if (buffer2!=NULL)
 			memcpy(buffer2,(char*)pBuf+buffer1Len,buffer2Len);
