@@ -1,5 +1,6 @@
 #pragma once
 #include "MySerialize.h"
+#include "LrcMng.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -54,17 +55,17 @@ public:
 public:
 	PlayListItem():playCount(0),starLvl(1),indexInListView(-1)
 		,pPicBuf(NULL),img(NULL),year(0)
+		,m_bLrcInner(FALSE),m_bLrcFromLrcFile(FALSE)
+		,bUnsynLyc(FALSE)
 	{
-		//title(NULL)
-		//,artist(NULL),album(0),year(0),genre(0),comment(0)
 	}
 
 	PlayListItem(std::tstring *url):url(*url)
 		,playCount(0),starLvl(1),indexInListView(-1)
 		,pPicBuf(NULL),img(NULL),year(0)
+		,m_bLrcInner(FALSE),m_bLrcFromLrcFile(FALSE)
+		,bUnsynLyc(FALSE)
 	{
-		//title(NULL)
-		//,artist(NULL),album(0),year(0),genre(0),comment(0)
 	}
 
 	~PlayListItem();
@@ -75,11 +76,20 @@ public:
 	UINT          playCount;
 	UINT		  starLvl;
 	//-----id3 info-------
-	std::tstring  title,artist,album,genre,comment,lyric;
-	BOOL bUnsynLyc;
+	std::tstring  title,artist,album,genre,comment;
 	UINT year;
 	TagLib::ByteVector *pPicBuf;
 	CImage *img;
+
+	//lrc
+	BOOL m_bLrcInner;
+	std::tstring  lyricInner;
+
+	BOOL m_bLrcFromLrcFile;
+	std::tstring  lycPath;
+	LrcLines      lyricFromLrcFile;
+
+	BOOL bUnsynLyc;
 public:
 	BOOL ScanId3Info();
 	const TCHAR* GetTitle(){return title.c_str();}

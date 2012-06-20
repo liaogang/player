@@ -14,13 +14,12 @@ public:
 	{
 		CThread *caller=(CThread*)lpParameter;
 		caller->Excute();
-
 		return 0;
 	}
 
 	CThread(BOOL bCreateSuspened=TRUE):m_hThread(NULL),m_dwThreadID(NULL)
 	{
-		Init(bCreateSuspened);
+		//Init(bCreateSuspened);
 	}
 
 	~CThread(void)
@@ -32,8 +31,7 @@ public:
 
 	void Resume()
 	{
-		if (m_bSuspend==TRUE&& m_hThread!=NULL)
-		{
+		if (m_bSuspend==TRUE&& m_hThread!=NULL){
 			ResumeThread(m_hThread);
 			m_bSuspend=FALSE;
 		}
@@ -41,8 +39,7 @@ public:
 
 	void Suspend()
 	{
-		if (m_bSuspend==FALSE && m_hThread!=NULL)
-		{
+		if (m_bSuspend==FALSE && m_hThread!=NULL){
 			SuspendThread(m_hThread);
 			m_bSuspend=TRUE;
 		}

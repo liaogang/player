@@ -38,15 +38,13 @@ public:
 	CDialogLyric *m_dlgLrc;
 	
 	CMyTabBar *m_pTabBar;
-	//CWTLTabViewCtrl *m_pTabBar;
 	CPlayListView *m_pPlaylistView;
 	CSplitterWindow split;
 	CHorSplitterWindow *leftPane;
 	CAlbumCoverView    *albumView1;
-
 	CMyStatusBar *m_pStatus;
-public:
 
+public:
 	CMainFrame():m_dlgLrc(NULL),
 		m_pTrackBar(NULL),m_pVolumeBar(NULL)
 	{

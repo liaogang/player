@@ -269,6 +269,7 @@ BOOL MyLib::LoadCoreCfg()
 	{
 		//playlists
 		int size=0;
+
 		::ReSerialize(pFile,&size);
 		while (size--) 
 		{

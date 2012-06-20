@@ -68,6 +68,7 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
 		MessageBox(m_pMainFrame->m_hWnd,_T("不支持的文件类型"),_T(""),MB_OK);
 		return -1;
 	}
+
 	return m_pFile->Open(filepath);
 }
 
@@ -89,8 +90,12 @@ void CBasicPlayer::play()
 	m_pPlayerThread->CleanDSBuffer();
 	m_pPlayerThread->WriteDataToDSBuf();
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
-	if(m_pPlayerThread->Suspended())
-		m_pPlayerThread->Resume();
+	
+	m_pPlayerThread->Init(FALSE);
+
+	//if(m_pPlayerThread->Suspended())
+	//	m_pPlayerThread->Resume();
+
 	m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MAX);
 
 	::PostMessage(m_pMainFrame->m_hWnd,WM_NEW_TRACK_STARTED,NULL,NULL);
@@ -121,13 +126,11 @@ void CBasicPlayer::stop()
 	if(!m_bStopped){
 		m_pPlayerThread->m_lpDSBuffer->Stop();
 		
-		m_cs.Enter();
+		//m_cs.Enter();
 		m_pPlayerThread->Teminate();
 		m_bStopped=TRUE;
-		m_pPlayerThread->Init(TRUE);
-		m_cs.Leave();
+		//m_cs.Leave();
 	}
-
 }
 
 BOOL CBasicPlayer::open( PlayListItem *track)

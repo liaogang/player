@@ -49,12 +49,6 @@ PlayList::~PlayList(void)
 }
 
 
-
-// void PlayList::scanAllId3Info()
-// {
-// 
-// }
-
 BOOL PlayList::AddFolderByThread(LPCTSTR pszFolder)
 {
 	PLANDPATH* p=new PLANDPATH;
@@ -81,8 +75,7 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 	HANDLE hFind;
 
 	hFind=::FindFirstFile(_T("*.mp3"),&findFileData);
-	if(hFind!=INVALID_HANDLE_VALUE)
-	{
+	if(hFind!=INVALID_HANDLE_VALUE){
 		findResult=TRUE;
 		while(findResult)
 		{
@@ -129,8 +122,7 @@ PlayListItem* PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 {
 	list<PlayListItem>::iterator cur,next;
 
-	for (cur=m_songList.begin();cur!=m_songList.end();cur++)
-	{
+	for (cur=m_songList.begin();cur!=m_songList.end();cur++){
 		if (&(*cur)==curPlayingItem)
 			break;
 	}
@@ -140,21 +132,16 @@ PlayListItem* PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 	if (++cur==m_songList.end())
 		return NULL;
 
-
-	if (index==Default)
-	{
+	if (index==Default){
 		next=cur;
 	}
-	if (index==Repeat_playlist)
-	{
+	if (index==Repeat_playlist){
 		next=cur;
 	}
-	if (index==Random)
-	{
+	if (index==Random){
 		next=cur;
 	}
-	if (index==Repeat_track)
-	{
+	if (index==Repeat_track){
 		next=cur;
 	}
 
@@ -165,13 +152,11 @@ PlayListItem* PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 
 PlayListItem::~PlayListItem()
 {
-	if (img)
-	{
+	if (img){
 		delete img;
 		img=NULL;
 	}
-	if (pPicBuf)
-	{	
+	if (pPicBuf){	
 		delete pPicBuf;
 		pPicBuf=NULL;
 	}
@@ -184,16 +169,15 @@ BOOL PlayListItem::ScanId3Info()
 	MPEG::File f(url.c_str());
 
 	ID3v2::Tag *id3v2tag = f.ID3v2Tag();
-	if(id3v2tag) 
-	{
+	if(id3v2tag) {
 		title=id3v2tag->title().toWString();
 		artist=id3v2tag->artist().toWString();
 		album=id3v2tag->album().toWString();
 		genre=id3v2tag->genre().toWString();
 		year=id3v2tag->year();
-		lyric=id3v2tag->lyric().toWString();
-		//-----------------------------------------
-		//id3v2 lyric info
+		lyricInner=id3v2tag->lyric().toWString();
+		if (!lyricInner.empty())
+			m_bLrcInner=TRUE;
 
 		// we will use bytevector to retain to memory in frame
 		pPicBuf=new ByteVector;
@@ -211,8 +195,7 @@ BOOL PlayListItem::ScanId3Info()
 		memcpy(pmem,lpRsrc,len);
 		IStream* pstm;
 		CreateStreamOnHGlobal(m_hMem,FALSE,&pstm);
-		if (S_OK != img->Load(pstm))
-		{
+		if (S_OK != img->Load(pstm)){
 			delete img;
 			img=NULL;
 		}
@@ -226,11 +209,9 @@ BOOL PlayListItem::ScanId3Info()
 		bInvalidID3V2=TRUE;
 	
 
-	if(bInvalidID3V2)
-	{
+	if(bInvalidID3V2){
 		ID3v1::Tag *id3v1tag = f.ID3v1Tag();
-		if(id3v1tag) 
-		{
+		if(id3v1tag) {
 			title=id3v1tag->title().toWString();
 			artist=id3v1tag->artist().toWString();
 			album=id3v1tag->album().toWString();
@@ -255,8 +236,7 @@ BOOL PlayListItem::LrcFileMacth(std::tstring &filename)
 // 		return TRUE;
 
 	int index=url.find_last_of('\\');
-	if(index!=url.length())
-	{
+	if(index!=url.length()){
 		std::tstring filename=url.substr(index);
 		if( search(filename.begin(),filename.end(),artist.begin(),artist.end()) !=filename.end())
 			return TRUE;	
@@ -271,12 +251,10 @@ BOOL PlayListItem::GetLrcFileFromLib()
 	for (i=MyLib::shared()->dataPaths.begin();i!=MyLib::shared()->dataPaths.end();i++)
 	{
 		int index=(*i).find_last_of('\\');
-		if(index!=(*i).length())
-		{
+		if(index!=(*i).length()){
 			std::tstring filename=(*i).substr(index);
-			if (LrcFileMacth(filename))
-			{
-				lyric=*i;
+			if (LrcFileMacth(filename)){
+				lycPath=*i;
 				return TRUE;
 			}
 		}
@@ -285,3 +263,12 @@ BOOL PlayListItem::GetLrcFileFromLib()
 	return FALSE;
 }
 
+
+
+BOOL LrcMng::OpenTrackPath(PlayListItem* track)
+{
+	Open((LPTSTR)track->lycPath.c_str());
+	track->lyricFromLrcFile=lib;
+	track->m_bLrcFromLrcFile=TRUE;
+	return TRUE;
+}

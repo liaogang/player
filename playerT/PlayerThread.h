@@ -5,6 +5,7 @@ class CBasicPlayer;
 class CPlayerThread : public CThread
 {
 public:
+	BOOL  m_bKeepPlaying;
 	BOOL  m_bSleep;
 	DWORD m_dwSizeRead;
 	DWORD m_dwSizeToWrite;

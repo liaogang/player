@@ -1,15 +1,15 @@
 /*
-　　无论是否在行首，行内凡具有“[*:*]”形式的都应认为是标签
-  　凡是标签都不应显示
-   　  凡是标签，且被冒号分隔的两部分都为非负数 ，则应认为是时间标签  (0或正数)
-	  　  对于非标准形式的时间标签也应能识别（如[0:0]）  
-		 　 凡是标签，且非时间标签的，应认为是标识标签
-		   标识名中大小写等价
-		   　为了向后兼容 ，应对未定义的新标签作忽略处理
-			　　应对注释标签（[:]）后的同一行内容作忽略处理
-			  　　应允许一行中存在多个标签，并能正确处理 
-				　应能正确处理未排序的标签。
-				 */
+无论是否在行首，行内凡具有“[*:*]”形式的都应认为是标签
+凡是标签都不应显示
+凡是标签，且被冒号分隔的两部分都为非负数 ，则应认为是时间标签  (0或正数)
+对于非标准形式的时间标签也应能识别（如[0:0]）  
+凡是标签，且非时间标签的，应认为是标识标签
+标识名中大小写等价
+为了向后兼容 ，应对未定义的新标签作忽略处理
+应对注释标签（[:]）后的同一行内容作忽略处理
+应允许一行中存在多个标签，并能正确处理 
+应能正确处理未排序的标签。
+*/
 
 
 
@@ -23,7 +23,7 @@
 #include <fstream>
 #include <string>
 using namespace std;
-
+class PlayListItem;
 
 
 enum TagType
@@ -71,7 +71,7 @@ public:
 	int operator - (LrcLine& r){return (time.minute-r.time.minute)*60+(time.second-r.time.second);}
 };
 
-
+typedef vector<LrcLine> LrcLines;
 class LrcMng
 {
 public:
@@ -87,6 +87,8 @@ public:
 	static LrcMng* Get();
 
 public:
+	BOOL OpenTrackPath(PlayListItem* track);
+	
 	void Open(LPTSTR pstrPath)
 	{ 
 		lib.clear();
@@ -94,9 +96,8 @@ public:
 		tifstream fin(pstrPath);
 		std::tstring s;
 		while(getline(fin,s))
-		{
 			Parse(s);
-		}
+		
 		SortLrcLib();
 		fin.close();
 		std::locale::global(std::locale(loc1));
@@ -120,8 +121,7 @@ private:
 			)
 		{
 			tagInfo=FindTagType(++first,last);
-			if(tagInfo.tag==TimeTag)
-			{
+			if(tagInfo.tag==TimeTag){
 				//save ,add to lib later
 				miniteList.push_back(tagInfo.minute);
 				secondList.push_back(tagInfo.second);
@@ -130,8 +130,7 @@ private:
 				break;
 		}
 
-		if (tagInfo.tag==TimeTag)
-		{
+		if (tagInfo.tag==TimeTag){
 			vector<UINT>::iterator k,j;
 			for (k=miniteList.begin(),j=secondList.begin();k!=miniteList.end();k++,j++)
 				InsertIntoLib(*k,*j,s);
@@ -144,12 +143,12 @@ private:
 		std::tstring::iterator first,last;
 		first=find(v1,v2,'[');
 		last=find(v1,v2,']');
-		if (last-first>0 && last!= v2)  //find [] succeed
-		{
+		if (last-first>0 && last!= v2){  //find [] succeed
 			v1=first;
 			v2=last;
 			return TRUE;
 		}
+
 		return FALSE;
 	}
 
@@ -183,9 +182,7 @@ public:
 			tagInfo.tag=TimeTag;		
 		}
 		else 
-		{
 			tagInfo.tag=IdentifyTag;
-		}
 
 		return tagInfo;
 	}

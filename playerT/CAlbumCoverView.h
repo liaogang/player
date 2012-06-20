@@ -18,22 +18,18 @@ public:
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		CPaintDC dc(m_hWnd);
-		
 		RECT rc;
+
 		GetClientRect(&rc);
 		
 		PlayList* ppl=MyLib::shared()->ActivePlaylist();
-		if (ppl)
-		{
+		if (ppl){
 			PlayListItem *i=ppl->curTrack();
 
 			if (i &&i->img)
 				i->img->Draw(this->GetDC(),rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top,0,0,i->img->GetWidth(),i->img->GetHeight());
 		}
-		
-
-
-		
+				
 		return 0;
 	}
 

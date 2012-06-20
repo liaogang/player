@@ -5,8 +5,8 @@
 #include "MusicFile.h"
 #include "mainfrm.h"
 
-CPlayerThread::CPlayerThread(CBasicPlayer *pPlayer):CThread(FALSE),
-m_lpDSBuffer(NULL),m_lpDsound(NULL),m_dwCurWritePos(-1)
+CPlayerThread::CPlayerThread(CBasicPlayer *pPlayer):CThread(TRUE),
+m_lpDSBuffer(NULL),m_lpDsound(NULL),m_dwCurWritePos(-1),m_bKeepPlaying(TRUE)
 {
 	m_pPlayer=pPlayer;
 	m_lpDsound=DSoundDeviceCreate();
@@ -37,8 +37,7 @@ void CPlayerThread::CleanDSBuffer()
 	DWORD buffer1Len;
 
 	result= m_lpDSBuffer->Lock(0,0,&buffer1,&buffer1Len,NULL,NULL,DSBLOCK_ENTIREBUFFER);
-	if (result==DS_OK)
-	{
+	if (result==DS_OK){
 		int emptyByte=(m_pPlayer->m_pFile->GetFormat()->wBitsPerSample == 8)?128:0;
 		memset(buffer1, emptyByte, buffer1Len);
 		m_lpDSBuffer->Unlock(buffer1,buffer1Len,NULL,NULL);
@@ -49,17 +48,12 @@ void CPlayerThread::CleanDSBuffer()
 
 void CPlayerThread::Excute()
 {
-	while(TRUE)
-	{
-		m_pPlayer->m_cs.Enter();
-		if (m_pPlayer->m_bStopped){
-			m_pPlayer->m_cs.Leave();
-			break;
-		}
-		
+	while(m_bKeepPlaying){
+		//m_pPlayer->m_cs.Enter();
 		WriteDataToDSBuf();
-		m_pPlayer->m_cs.Leave();
+		//m_pPlayer->m_cs.Leave();
 	}
+	m_bKeepPlaying=TRUE;
 }
 
 void CPlayerThread::WriteDataToDSBuf()
@@ -74,8 +68,8 @@ void CPlayerThread::WriteDataToDSBuf()
 		m_lpDSBuffer->Stop();
 		m_pPlayer->m_bFileEnd=TRUE;
 		m_pPlayer->m_bStopped=TRUE;
-		//::ResetEvent(m_pPlayer->m_hWStartEvent);
-		return; 
+		m_bKeepPlaying=FALSE;
+		return;
 	}
 
 	DOUBLE used,lefted;
