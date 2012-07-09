@@ -13,7 +13,7 @@
 #include <string>
 using namespace std;
 
-#define APPNAME "abc player"
+#define APPNAME "mp3 player"
 
 BOOL CMainFrame::OnIdle()
 {
@@ -44,16 +44,20 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//-----------------------------------------
 	//stanted toobar 
 	HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd,IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+
+
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 	AddSimpleReBarBand(hWndCmdBar);
 	AddSimpleReBarBand(hWndToolBar, NULL,TRUE,110,TRUE);
 
+	
 	//------------------------------------------------
 	//progress track bar
 	m_pTrackBar=new CMyTrackBar;
-	UINT style=WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
-	style|= TBS_TOOLTIPS  |TBS_NOTICKS;
-	HWND hWndProgressBar=m_pTrackBar->Create(m_hWnd,NULL,NULL,style,0);
+	UINT style=WS_CHILD | WS_VISIBLE ;//| WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+	style|=TBS_TOOLTIPS  |TBS_NOTICKS |TBS_AUTOTICKS  | TBS_BOTH ;
+	UINT styleEx=0; 
+	HWND hWndProgressBar=m_pTrackBar->Create( m_hWndToolBar,NULL,NULL,style,styleEx);
 	m_pTrackBar->SetPageSize(1);
 	m_pTrackBar->SetLineSize(1);
 	m_pTrackBar->SetThumbLength(30);
@@ -134,6 +138,12 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	split.SetSplitterPos(250,TRUE);
 	leftPane->SetSplitterPos(500,TRUE);
+
+
+	//chaneg toobar's backgound color
+	CMySimpleRebar *myRebar=new CMySimpleRebar;
+	myRebar->SubclassWindow(m_hWndToolBar);
+
 
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();

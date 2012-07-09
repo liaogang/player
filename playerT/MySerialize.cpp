@@ -60,8 +60,7 @@ int ReSerialize (FILE *pFile,std::tstring *str)
 	{
 		*str=_T("");
 	}
-	else
-	{
+	else{
 		int len=(size-4)/sizeof(TCHAR);
 		TCHAR* pStr=new TCHAR[len];
 		fread(pStr,sizeof(TCHAR),len,pFile);
@@ -122,8 +121,7 @@ int PlayList::SerializeB(FILE *pFile)
 
 	//m_songList Serialize
 	list<PlayListItem>::iterator i;
-	for (i=m_songList.begin();i!=m_songList.end();++i)
-	{
+	for (i=m_songList.begin();i!=m_songList.end();++i){
 		size+=(*i).Serialize(pFile);
 	}
 
@@ -140,8 +138,7 @@ int PlayList::ReSerialize(FILE *pFile)
 	playlistnameSize=::ReSerialize(pFile,&m_playlistName);
 	size+=playlistnameSize;
 
-	while(size<totalSize-playlistnameSize)
-	{
+	while(size<totalSize-playlistnameSize){
 		PlayListItem *track=new PlayListItem;
 		size+=track->ReSerialize(pFile);
 		m_songList.push_back(*track);
@@ -198,8 +195,7 @@ BOOL MyLib::SaveCurPlaylist(LPTSTR filepath)
 	BOOL result=FALSE;
 	FILE * pFile;
 	pFile = _tfopen((LPCTSTR)filepath , _T("wb") );
-	if (pFile!=NULL)
-	{
+	if (pFile!=NULL){
 		result=m_pSelPlaylist->Serialize(pFile);
 		fclose (pFile);
 	}
@@ -213,8 +209,7 @@ PlayList* MyLib::LoadPlaylist(LPTSTR filepath)
 	BOOL result=FALSE;
 	FILE * pFile;
 	pFile = _tfopen ((LPCTSTR)filepath, _T("rb") );
-	if (pFile!=NULL)
-	{
+	if (pFile!=NULL){
 		playlist=new PlayList;
 		result=playlist->ReSerialize(pFile);
 		m_playLists.push_back(*playlist);
@@ -237,8 +232,7 @@ BOOL MyLib::SaveCoreCfg()
 		::Serialize(pFile,len);
 		
 		list<PlayList>::iterator i;
-		for (i=m_playLists.begin();i!=m_playLists.end();++i)
-		{
+		for (i=m_playLists.begin();i!=m_playLists.end();++i){
 			::Serialize(pFile,(*i).m_saveLocation);
 		}
 
@@ -247,8 +241,7 @@ BOOL MyLib::SaveCoreCfg()
 		::Serialize(pFile,len);
 
 		vector<std::tstring>::iterator k;
-		for (k=lrcDirs.begin();k!=lrcDirs.end();++k)
-		{
+		for (k=lrcDirs.begin();k!=lrcDirs.end();++k){
 			::Serialize<>(pFile,*k);
 		}
 		

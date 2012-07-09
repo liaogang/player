@@ -109,13 +109,15 @@ void CBasicPlayer::pause()
 {
 	if (m_bStopped)return;
 
-	if (m_bPaused){               
-		m_bPaused=FALSE;
+	if (!m_bPaused){               
+		m_bPaused=TRUE;
+		m_pPlayerThread->m_lpDSBuffer->Stop();
 		m_pPlayerThread->Suspend();
 	}
 	else{                             
-		m_bPaused=TRUE;
+		m_bPaused=FALSE;
 		m_pPlayerThread->Resume();
+		m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
 	}
 }
 

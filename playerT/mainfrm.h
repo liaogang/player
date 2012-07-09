@@ -44,6 +44,7 @@ public:
 	CAlbumCoverView    *albumView1;
 	CMyStatusBar *m_pStatus;
 
+	 
 public:
 	CMainFrame():m_dlgLrc(NULL),
 		m_pTrackBar(NULL),m_pVolumeBar(NULL)

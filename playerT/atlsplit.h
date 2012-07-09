@@ -390,7 +390,7 @@ public:
 			// draw 3D edge if needed
 			T* pT = static_cast<T*>(this);
 			if((pT->GetExStyle() & WS_EX_CLIENTEDGE) != 0)
-				dc.DrawEdge(&rect, EDGE_RAISED, t_bVertical ? (BF_LEFT | BF_RIGHT) : (BF_TOP | BF_BOTTOM));
+				dc.DrawEdge(&rect,EDGE_RAISED, t_bVertical ? (BF_LEFT | BF_RIGHT) : (BF_TOP | BF_BOTTOM));
 		}
 	}
 
@@ -748,11 +748,14 @@ public:
 
 	void GetSystemSettings(bool bUpdate)
 	{
+/*
 #ifndef _WIN32_WCE
 		m_cxySplitBar = ::GetSystemMetrics(t_bVertical ? SM_CXSIZEFRAME : SM_CYSIZEFRAME);
 #else // CE specific
 		m_cxySplitBar = 2 * ::GetSystemMetrics(t_bVertical ? SM_CXEDGE : SM_CYEDGE);
 #endif // _WIN32_WCE
+
+		
 
 		T* pT = static_cast<T*>(this);
 		if((pT->GetExStyle() & WS_EX_CLIENTEDGE))
@@ -765,10 +768,15 @@ public:
 			m_cxyBarEdge = 0;
 			m_cxyMin = 2 * ::GetSystemMetrics(t_bVertical ? SM_CXEDGE : SM_CYEDGE);
 		}
+*/
 
 #ifndef _WIN32_WCE
 		::SystemParametersInfo(SPI_GETDRAGFULLWINDOWS, 0, &m_bFullDrag, 0);
 #endif // !_WIN32_WCE
+
+
+		m_cxySplitBar=2;
+		m_cxyBarEdge=2;
 
 		if(bUpdate)
 			UpdateSplitterLayout();
@@ -854,9 +862,20 @@ public:
 		FORWARD_NOTIFICATIONS()
 	END_MSG_MAP()
 
-	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	
+
+	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		// handled, no background painting needed
+		// by lg
+		//HDC hdc=(HDC)wParam;
+		//HBRUSH newBrush,oldBrush;
+		//RECT rc;
+		////COLOR_WINDOW
+		//newBrush=GetSysColorBrush(COLOR_BTNFACE);
+		//GetClientRect(&rc);
+		//oldBrush=(HBRUSH)::SelectObject(hdc,newBrush);
+		//::Rectangle(hdc,rc.left,rc.top,rc.right,rc.bottom);
+		//::SelectObject(hdc,oldBrush);
 		bHandled=FALSE;
 		return 1;
 	}
