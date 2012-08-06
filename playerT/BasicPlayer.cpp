@@ -20,6 +20,7 @@
  m_bStopped(TRUE),m_bPaused(TRUE),
 	 m_pFile(NULL),m_bFileEnd(TRUE)
 {
+
 	m_pPlayerThread=new CPlayerThread(this);
 	m_pSpectrumAnalyser=new CSpectrumAnalyser;
 }
@@ -75,6 +76,7 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
 
 void CBasicPlayer::play()
 {
+	BOOL bRet;
 	if (m_bFileEnd)	return;
 	
 	if (!m_bStopped)
@@ -87,37 +89,102 @@ void CBasicPlayer::play()
 
 	m_pFile->ResetFile();
 	m_pPlayerThread->Reset();
-	m_pPlayerThread->CleanDSBuffer();
+
+	if(!m_pPlayerThread->CleanDSBuffer())
+		return;
+
 	m_pPlayerThread->WriteDataToDSBuf();
-	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
+	
 	
 	m_pPlayerThread->Init(FALSE);
 
-	//if(m_pPlayerThread->Suspended())
-	//	m_pPlayerThread->Resume();
-
-	m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MAX);
-
-	::PostMessage(m_pMainFrame->m_hWnd,WM_NEW_TRACK_STARTED,NULL,NULL);
-
+	m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
+	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
+	InitSlowDown(FALSE);
+	
 
 	m_bStopped=FALSE;
 	m_bPaused=FALSE;
+
+	::PostMessage(m_pMainFrame->m_hWnd,WM_NEW_TRACK_STARTED,NULL,NULL);
+}
+
+void CALLBACK SlowDownVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD dw2)
+{
+	CBasicPlayer *p=(CBasicPlayer*)dwUser;
+	p->SlowDownVol();
+}
+
+
+void CBasicPlayer::InitSlowDown(BOOL bSlowDown,BOOL bCloseFile)
+{
+	UINT timerDelay;
+	//max vol it 0     ,no attenuation
+	//min vol is -10000,silence
+	maxTimerCount=50;
+	volDownSpec= (-(DSBVOLUME_MIN) ) /maxTimerCount;
+	if (bSlowDown)	
+	{
+		volDownSpec*=-1;
+		volA=DSBVOLUME_MAX;
+		volB=DSBVOLUME_MIN;
+		timerDelay=20;
+	}else         //slowup
+	{
+		volA=DSBVOLUME_MIN;
+		volB=DSBVOLUME_MAX;
+		timerDelay=14;
+	}
+
+
+	timerCount=0;
+	m_bSlowDown=bSlowDown;
+	m_bCloseFileInSlowDown=bCloseFile;
+	m_timerID=::timeSetEvent(timerDelay,100,SlowDownVolFunc,(DWORD)this,TIME_PERIODIC|TIME_CALLBACK_FUNCTION); 
+}
+
+
+void CBasicPlayer::SlowDownVol()
+{
+	int vol;
+	vol=volA+timerCount*volDownSpec;
+
+	m_pPlayerThread->m_lpDSBuffer->SetVolume(vol);
+
+	timerCount++;
+
+	if ( m_bSlowDown)
+		if ( vol < volB )
+		{
+			m_pPlayerThread->m_lpDSBuffer->Stop();
+			m_pPlayerThread->Suspend();
+			if(m_bCloseFileInSlowDown)
+				m_pFile->Close();
+			::timeKillEvent( m_timerID);
+		}
+	else
+		if ( vol > volB )
+			::timeKillEvent( m_timerID);
+	
 }
 
 void CBasicPlayer::pause()
 {
 	if (m_bStopped)return;
 
-	if (!m_bPaused){               
+	if (!m_bPaused){  
 		m_bPaused=TRUE;
-		m_pPlayerThread->m_lpDSBuffer->Stop();
-		m_pPlayerThread->Suspend();
+
+		//slow down the volumn
+		InitSlowDown();
 	}
-	else{                             
+	else{
 		m_bPaused=FALSE;
 		m_pPlayerThread->Resume();
 		m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
+
+		//slow up the volumn
+		InitSlowDown(FALSE);
 	}
 }
 
@@ -126,8 +193,12 @@ void CBasicPlayer::pause()
 void CBasicPlayer::stop()
 {
 	if(!m_bStopped){
-		m_pPlayerThread->m_lpDSBuffer->Stop();
-		
+		if (!m_bPaused)
+		{
+			m_pFile->Close();
+			InitSlowDown(FALSE,TRUE);
+		}
+
 		//m_cs.Enter();
 		m_pPlayerThread->Teminate();
 		m_bStopped=TRUE;

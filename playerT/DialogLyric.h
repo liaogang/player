@@ -27,6 +27,8 @@ public:
 
 
 	BEGIN_DLGRESIZE_MAP(CDialogLyric)
+		DLGRESIZE_CONTROL(IDC_BUTTON1,DLSZ_SIZE_X)
+		DLGRESIZE_CONTROL(IDC_BUTTON2,DLSZ_MOVE_X)
 	END_DLGRESIZE_MAP()
 
 	// Handler prototypes (uncomment arguments if needed):

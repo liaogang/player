@@ -22,7 +22,7 @@ public:
 	void Reset();
 
 	DWORD DSoundBufferWrite(void* pBuf , int len);
-	void CleanDSBuffer();
+	BOOL CleanDSBuffer();
 	void WriteDataToDSBuf();
 	DWORD m_dwCurWritePos;
 	DWORD m_dwSilencedBytes;

@@ -34,6 +34,12 @@ public:
 		}
 	}
 
+	void Close()
+	{
+		if (m_hmp3)
+			mpg123_tclose(m_hmp3);
+	}
+
 	virtual DWORD GetSize()
 	{
 		return mpg123_length(m_hmp3);

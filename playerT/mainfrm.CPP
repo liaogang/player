@@ -354,7 +354,7 @@ LRESULT CMainFrame::OnFileNewPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /
 	PlayList *pPl=MyLib::shared()->NewPlaylist();
 	MyLib::shared()->SetSelPlaylist(pPl);
 
-	//m_pTabBar->AddPlaylistTab(pPl,TRUE,-1);
+	m_pTabBar->AddPlaylistTab(pPl,TRUE,-1);
 	//tell the play list view to add this
 	m_pPlaylistView->Reload(pPl);
 

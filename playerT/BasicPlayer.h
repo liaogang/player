@@ -20,6 +20,14 @@ public:
 	static CBasicPlayer* shared();
 
 public:
+	int      volA;
+	int      volB;
+	int      volDownSpec;
+	BOOL     m_bSlowDown,m_bCloseFileInSlowDown;
+	int      timerCount;
+	int      maxTimerCount;
+	MMRESULT m_timerID;
+
 	INT m_curVolume;
 	BOOL m_bStopped;
 	BOOL m_bPaused;
@@ -32,6 +40,8 @@ public:
 	CSpectrumAnalyser* m_pSpectrumAnalyser;
 
 
+	void InitSlowDown(BOOL bSlowDown=TRUE,BOOL bCloseFile=FALSE);
+	void SlowDownVol();
 	void SetVolume(double vol);
 	BOOL open( PlayListItem *track);
 	void ResetFile();
@@ -39,7 +49,7 @@ public:
 
 protected:
 	void play();
-	void pause();
+	void pause();//pause or resume play
 	void stop();
 	BOOL stoped(){return m_bStopped;}
 	BOOL open( LPCTSTR filepath );

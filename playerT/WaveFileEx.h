@@ -32,6 +32,11 @@ public:
 		return 0;
 	}
 
+	void Close()
+	{
+		m_wavefile.Close();
+	}
+	
 	virtual bool Read(void* pBuf,DWORD dwSizeToRead, DWORD* pdwSizeRead)
 	{
 		m_wavefile.Read((BYTE*)pBuf,dwSizeToRead,pdwSizeRead);

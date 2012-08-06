@@ -30,20 +30,25 @@ void CPlayerThread::Reset()
 	m_dwCurWritePos=0;
 }
 
-void CPlayerThread::CleanDSBuffer()
+BOOL CPlayerThread::CleanDSBuffer()
 {
+	BOOL bRet=TRUE;
 	HRESULT result;
 	LPVOID buffer1;
 	DWORD buffer1Len;
 
 	result= m_lpDSBuffer->Lock(0,0,&buffer1,&buffer1Len,NULL,NULL,DSBLOCK_ENTIREBUFFER);
 	if (result==DS_OK){
-		int emptyByte=(m_pPlayer->m_pFile->GetFormat()->wBitsPerSample == 8)?128:0;
-		memset(buffer1, emptyByte, buffer1Len);
-		m_lpDSBuffer->Unlock(buffer1,buffer1Len,NULL,NULL);
+		WAVEFORMATEX* format=m_pPlayer->m_pFile->GetFormat();
+		if (format){
+			int emptyByte=(format->wBitsPerSample == 8)?128:0;
+			memset(buffer1, emptyByte, buffer1Len);
+			m_lpDSBuffer->Unlock(buffer1,buffer1Len,NULL,NULL);
+		}else bRet=FALSE;
 	}
 
 	m_lpDSBuffer->SetCurrentPosition(0);
+	return bRet;
 }
 
 void CPlayerThread::Excute()
