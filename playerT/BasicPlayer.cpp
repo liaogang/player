@@ -121,19 +121,19 @@ void CBasicPlayer::InitSlowDown(BOOL bSlowDown,BOOL bCloseFile)
 	UINT timerDelay;
 	//max vol it 0     ,no attenuation
 	//min vol is -10000,silence
-	maxTimerCount=50;
+	maxTimerCount=80;
 	volDownSpec= (-(DSBVOLUME_MIN) ) /maxTimerCount;
 	if (bSlowDown)	
 	{
 		volDownSpec*=-1;
 		volA=DSBVOLUME_MAX;
 		volB=DSBVOLUME_MIN;
-		timerDelay=20;
+		timerDelay=15;
 	}else         //slowup
 	{
 		volA=DSBVOLUME_MIN;
 		volB=DSBVOLUME_MAX;
-		timerDelay=14;
+		timerDelay=5;
 	}
 
 

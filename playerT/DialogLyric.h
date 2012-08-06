@@ -111,7 +111,11 @@ public:
 		if(track->m_bLrcInner)
 			::DrawText(ps.hdc,track->lyricInner.c_str(),track->lyricInner.length(),&rc,DT_CENTER);
 		else if(track->m_bLrcFromLrcFile)
-			::DrawText(ps.hdc,(*preLine).text.c_str(),(*preLine).text.length(),&tRc,DT_CENTER);
+		{
+			LrcLine l=*preLine;
+			if (!l.text.empty() )
+				::DrawText(ps.hdc,(*preLine).text.c_str(),(*preLine).text.length(),&tRc,DT_CENTER);
+		}
 
 		::EndPaint(m_hWnd,&ps);	
 	}
