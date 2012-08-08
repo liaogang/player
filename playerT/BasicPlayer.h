@@ -20,6 +20,9 @@ public:
 	static CBasicPlayer* shared();
 
 public:
+	int indexA,indexB;
+	int indexPoint;
+	int indexVec;
 	double *volBuffer;
 	BOOL     m_bSlowingDown;         //is slowing?
 	BOOL     m_bSlowDown;           //down or up

@@ -22,7 +22,7 @@ using namespace std;
  CBasicPlayer :: CBasicPlayer(void):
  m_bStopped(TRUE),m_bPaused(TRUE),
 	 m_pFile(NULL),m_bFileEnd(TRUE)
-	 ,timerCount(0)
+	 ,timerCount(0),m_curVolume(50)
 {
 	InitSlowDownVolBuffer();
 	m_pPlayerThread=new CPlayerThread(this);
@@ -51,7 +51,8 @@ void CBasicPlayer:: SetVolumeByEar(int vol)
 	
 	if (m_pPlayerThread && m_pPlayerThread->m_lpDSBuffer)
 		m_pPlayerThread->m_lpDSBuffer->SetVolume(volBuffer[index]);
-	m_curVolume=vol;
+	
+	m_curVolume=index;
 }
 
 
@@ -142,8 +143,28 @@ void CBasicPlayer::InitSlowDown(BOOL bSlowDown,BOOL bCloseFile)
 		timerDelay=12;
 	
 	m_bSlowingDown=TRUE;
-	timerCount=0;
+
+
+	
 	m_bSlowDown=bSlowDown;
+	
+	
+	if (!m_bSlowDown)
+	{
+		indexA=0;
+		indexB=m_curVolume;
+		indexVec=1;
+	}
+	else
+	{
+		indexA=m_curVolume;
+		indexB=0;
+		indexVec=-1;
+	}
+	indexPoint=indexA;
+	//to indexB
+	
+
 	m_bCloseFileInSlowDown=bCloseFile;
 	m_timerID=::timeSetEvent(timerDelay,100,SlowDownVolFunc,(DWORD)this,TIME_PERIODIC|TIME_CALLBACK_FUNCTION); 
 }
@@ -180,15 +201,19 @@ void CBasicPlayer::SlowDownVol()
 {
 	int index;
 
-	if (!m_bSlowDown)
-		index=timerCount;
-	else
-		index=maxTimerCount-1-timerCount;
+// 	if (!m_bSlowDown)
+// 		index=timerCount;
+// 	else
+// 		index=maxTimerCount-1-timerCount;
 
-	m_pPlayerThread->m_lpDSBuffer->SetVolume(volBuffer[index]);
+	m_pPlayerThread->m_lpDSBuffer->SetVolume(volBuffer[indexPoint]);
 
-	timerCount++;
-	if ( timerCount == maxTimerCount )
+	indexPoint+=indexVec;
+
+	//todo
+	//´ÓcurVol¿ªÊ¼
+
+	if ( indexPoint == indexB)
 	{
 		timerCount=0;
 		m_bSlowingDown=FALSE;
