@@ -8,6 +8,9 @@
 #include "mainfrm.h"
 #include "PlayList.h"
 
+#include <complex>
+using namespace std;
+
  CBasicPlayer* CBasicPlayer::shared()
  {
 	 static CBasicPlayer *pGlobalBasePlayer=NULL;
@@ -19,14 +22,16 @@
  CBasicPlayer :: CBasicPlayer(void):
  m_bStopped(TRUE),m_bPaused(TRUE),
 	 m_pFile(NULL),m_bFileEnd(TRUE)
+	 ,timerCount(0)
 {
-
+	InitSlowDownVolBuffer();
 	m_pPlayerThread=new CPlayerThread(this);
 	m_pSpectrumAnalyser=new CSpectrumAnalyser;
 }
 
 CBasicPlayer :: ~CBasicPlayer(void)
 {
+	delete[] volBuffer;
 	if(!m_pPlayerThread) delete m_pPlayerThread;
 	if (!m_pSpectrumAnalyser) delete m_pSpectrumAnalyser; 
 }
@@ -36,12 +41,19 @@ void CBasicPlayer::ResetFile()
 	m_pFile->ResetFile();
 }
 
-void CBasicPlayer:: SetVolume(double vol)
+
+//0 by silence
+//100 by ,the max volume
+void CBasicPlayer:: SetVolumeByEar(int vol)
 {
+	int index=vol/2;
+	if(index==50)index=49;
+	
 	if (m_pPlayerThread && m_pPlayerThread->m_lpDSBuffer)
-		m_pPlayerThread->m_lpDSBuffer->SetVolume(vol);
+		m_pPlayerThread->m_lpDSBuffer->SetVolume(volBuffer[index]);
 	m_curVolume=vol;
 }
+
 
 BOOL CBasicPlayer::open( LPCTSTR filepath )
 {
@@ -66,7 +78,7 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
 	else if (_tcscmp(p,_T("wma"))==0 || _tcscmp(p,_T("WMA"))==0)
 		m_pFile=new Mp3File();
 	else{
-		MessageBox(m_pMainFrame->m_hWnd,_T("不支持的文件类型"),_T(""),MB_OK);
+		//MessageBox(m_pMainFrame->m_hWnd,_T("不支持的文件类型"),_T(""),MB_OK);
 		return -1;
 	}
 
@@ -90,15 +102,15 @@ void CBasicPlayer::play()
 	m_pFile->ResetFile();
 	m_pPlayerThread->Reset();
 
-	if(!m_pPlayerThread->CleanDSBuffer())
-		return;
-
-	m_pPlayerThread->WriteDataToDSBuf();
-	
-	
-	m_pPlayerThread->Init(FALSE);
 
 	m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
+
+	if(!m_pPlayerThread->CleanDSBuffer())
+		return;
+	m_pPlayerThread->WriteDataToDSBuf();
+	m_pPlayerThread->Init(FALSE);
+	
+	
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
 	InitSlowDown(FALSE);
 	
@@ -121,22 +133,15 @@ void CBasicPlayer::InitSlowDown(BOOL bSlowDown,BOOL bCloseFile)
 	UINT timerDelay;
 	//max vol it 0     ,no attenuation
 	//min vol is -10000,silence
-	maxTimerCount=80;
-	volDownSpec= (-(DSBVOLUME_MIN) ) /maxTimerCount;
+
+	//UINT during;//在during指定时间内完成淡入淡出效果
+	
 	if (bSlowDown)	
-	{
-		volDownSpec*=-1;
-		volA=DSBVOLUME_MAX;
-		volB=DSBVOLUME_MIN;
-		timerDelay=15;
-	}else         //slowup
-	{
-		volA=DSBVOLUME_MIN;
-		volB=DSBVOLUME_MAX;
-		timerDelay=5;
-	}
-
-
+		timerDelay=12;
+	else				//slowup
+		timerDelay=12;
+	
+	m_bSlowingDown=TRUE;
 	timerCount=0;
 	m_bSlowDown=bSlowDown;
 	m_bCloseFileInSlowDown=bCloseFile;
@@ -144,33 +149,72 @@ void CBasicPlayer::InitSlowDown(BOOL bSlowDown,BOOL bCloseFile)
 }
 
 
+void CBasicPlayer::InitSlowDownVolBuffer()
+{
+	maxTimerCount=50;
+
+	//buffer 0    10000 
+	//buffer max  0
+	volBuffer=new double[maxTimerCount];
+	double aa;
+
+	//-----------------------------------------
+	//使用对数函数
+	//-----------------------------------------
+	//aa 为底数
+	//aa=10000的开maxtimercount次方
+	//即10000的1/maxtimercoun乘方
+	aa=pow((double)maxTimerCount,(double)1/(double)abs(DSBVOLUME_MIN));
+	
+	for (int i=1;i<maxTimerCount;i++)
+		volBuffer[i]=log10((double)i)/log10(aa);
+	
+	volBuffer[0]=0;
+
+	//set behind 0
+	for (int i=0;i<maxTimerCount;i++)
+		volBuffer[i]=volBuffer[i]-abs(DSBVOLUME_MIN);
+}
+
 void CBasicPlayer::SlowDownVol()
 {
-	int vol;
-	vol=volA+timerCount*volDownSpec;
+	int index;
 
-	m_pPlayerThread->m_lpDSBuffer->SetVolume(vol);
+	if (!m_bSlowDown)
+		index=timerCount;
+	else
+		index=maxTimerCount-1-timerCount;
+
+	m_pPlayerThread->m_lpDSBuffer->SetVolume(volBuffer[index]);
 
 	timerCount++;
-
-	if ( m_bSlowDown)
-		if ( vol < volB )
+	if ( timerCount == maxTimerCount )
+	{
+		timerCount=0;
+		m_bSlowingDown=FALSE;
+		::timeKillEvent( m_timerID);
+		if ( m_bSlowDown)
 		{
 			m_pPlayerThread->m_lpDSBuffer->Stop();
-			m_pPlayerThread->Suspend();
 			if(m_bCloseFileInSlowDown)
+			{
+				::PostMessage(m_pMainFrame->m_hWnd,WM_TRACKPOS,0,0);
+				m_pPlayerThread->Teminate();
 				m_pFile->Close();
-			::timeKillEvent( m_timerID);
+			}
+			else
+			{
+				m_pPlayerThread->Suspend();
+			}
 		}
-	else
-		if ( vol > volB )
-			::timeKillEvent( m_timerID);
-	
+	}
+
 }
 
 void CBasicPlayer::pause()
 {
-	if (m_bStopped)return;
+	if (m_bStopped || m_bSlowingDown)return;
+
 
 	if (!m_bPaused){  
 		m_bPaused=TRUE;
@@ -192,17 +236,18 @@ void CBasicPlayer::pause()
 
 void CBasicPlayer::stop()
 {
-	if(!m_bStopped){
+	if(!m_bStopped ){
+		m_bStopped=TRUE;
+
 		if (!m_bPaused)
 		{
-			m_pFile->Close();
-			InitSlowDown(FALSE,TRUE);
+			InitSlowDown(TRUE,TRUE);
 		}
-
-		//m_cs.Enter();
-		m_pPlayerThread->Teminate();
-		m_bStopped=TRUE;
-		//m_cs.Leave();
+		else
+		{
+			m_pPlayerThread->m_lpDSBuffer->Stop();
+			m_pPlayerThread->Teminate();
+		}
 	}
 }
 

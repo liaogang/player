@@ -90,9 +90,9 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	HWND hWndVolumeBar=m_pVolumeBar->Create(m_hWnd,NULL,NULL,style,0);
 	m_pVolumeBar->SetPageSize(1);
 	m_pVolumeBar->SetLineSize(1);
-	m_pVolumeBar->SetThumbLength(10);
-	m_pVolumeBar->SetRange(0,10000);
-	m_pVolumeBar->SetPos(10000);
+	m_pVolumeBar->SetThumbLength(2);
+	m_pVolumeBar->SetRange(0,100);
+	m_pVolumeBar->SetPos(100);
 	AddSimpleReBarBand(hWndVolumeBar,NULL,FALSE,50,TRUE);
 
 

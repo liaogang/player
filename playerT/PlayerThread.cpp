@@ -53,11 +53,8 @@ BOOL CPlayerThread::CleanDSBuffer()
 
 void CPlayerThread::Excute()
 {
-	while(m_bKeepPlaying){
-		//m_pPlayer->m_cs.Enter();
+	while(m_bKeepPlaying)
 		WriteDataToDSBuf();
-		//m_pPlayer->m_cs.Leave();
-	}
 	m_bKeepPlaying=TRUE;
 }
 
@@ -68,8 +65,16 @@ void CPlayerThread::WriteDataToDSBuf()
 	char *pFileBuffer=fileBuffer;
 
 	if (!m_pPlayer->m_pFile->Read(pFileBuffer,dwSizeToRead,&m_dwSizeRead)){
-		::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,0,100);
-		::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKSTOPPED,0,0);
+		if(m_pPlayer->m_bStopped=FALSE)
+		{
+			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,0,100);
+		}
+		else
+		{
+			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,0,0);
+			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKSTOPPED,0,0);
+		}
+
 		m_lpDSBuffer->Stop();
 		m_pPlayer->m_bFileEnd=TRUE;
 		m_pPlayer->m_bStopped=TRUE;

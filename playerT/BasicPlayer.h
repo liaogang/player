@@ -20,10 +20,10 @@ public:
 	static CBasicPlayer* shared();
 
 public:
-	int      volA;
-	int      volB;
-	int      volDownSpec;
-	BOOL     m_bSlowDown,m_bCloseFileInSlowDown;
+	double *volBuffer;
+	BOOL     m_bSlowingDown;         //is slowing?
+	BOOL     m_bSlowDown;           //down or up
+	BOOL     m_bCloseFileInSlowDown;
 	int      timerCount;
 	int      maxTimerCount;
 	MMRESULT m_timerID;
@@ -42,7 +42,7 @@ public:
 
 	void InitSlowDown(BOOL bSlowDown=TRUE,BOOL bCloseFile=FALSE);
 	void SlowDownVol();
-	void SetVolume(double vol);
+	void SetVolumeByEar(int vol);
 	BOOL open( PlayListItem *track);
 	void ResetFile();
 	void SetPos(int cur,int max);
@@ -53,4 +53,7 @@ protected:
 	void stop();
 	BOOL stoped(){return m_bStopped;}
 	BOOL open( LPCTSTR filepath );
+
+private:
+	void InitSlowDownVolBuffer();
 };

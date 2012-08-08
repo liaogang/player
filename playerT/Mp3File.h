@@ -37,7 +37,10 @@ public:
 	void Close()
 	{
 		if (m_hmp3)
+		{
 			mpg123_tclose(m_hmp3);
+			m_hmp3=NULL;
+		}
 	}
 
 	virtual DWORD GetSize()

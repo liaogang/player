@@ -385,9 +385,9 @@ public:
 	{
 		SetPageSize(1);
 		SetLineSize(1);
-		SetThumbLength(10);
-		SetRange(0,10000);
-		SetPos(10000);
+		SetThumbLength(2);
+		SetRange(0,100);
+		SetPos(100);
 		bHandled=FALSE;
 		return 1;
 	}
@@ -428,7 +428,7 @@ public:
 
 	void OnPos(int pos)
 	{
-		CBasicPlayer::shared()->SetVolume(pos-10000);
+		CBasicPlayer::shared()->SetVolumeByEar(pos);
 	}
 
 
