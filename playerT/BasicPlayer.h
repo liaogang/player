@@ -20,14 +20,15 @@ public:
 	static CBasicPlayer* shared();
 
 public:
+	HANDLE m_eventSlowDown;
+
+
 	int indexA,indexB;
 	int indexPoint;
 	int indexVec;
 	double *volBuffer;
-	BOOL     m_bSlowingDown;         //is slowing?
 	BOOL     m_bSlowDown;           //down or up
 	BOOL     m_bCloseFileInSlowDown;
-	int      timerCount;
 	int      maxTimerCount;
 	MMRESULT m_timerID;
 
@@ -49,7 +50,8 @@ public:
 	BOOL open( PlayListItem *track);
 	void ResetFile();
 	void SetPos(int cur,int max);
-
+	void WaitPlay();
+	void OpenAfterSlowDown();
 protected:
 	void play();
 	void pause();//pause or resume play

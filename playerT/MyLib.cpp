@@ -32,6 +32,11 @@ MyLib::~MyLib()
 	SaveCoreCfg();
 }
 
+void MyLib::playAfterSlowDown()
+{
+	CBasicPlayer::shared()->OpenAfterSlowDown();
+}
+
 void MyLib::play()
 {
 	PlayListItem* curTrack=MyLib::shared()->ActivePlaylist()->curTrack();

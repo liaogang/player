@@ -11,6 +11,14 @@
 #include <complex>
 using namespace std;
 
+
+static DWORD CALLBACK WaitPlayThread(LPVOID lpParameter)
+{
+	CBasicPlayer* p=(CBasicPlayer*)lpParameter;
+	p->WaitPlay();
+	return 0;
+}
+
  CBasicPlayer* CBasicPlayer::shared()
  {
 	 static CBasicPlayer *pGlobalBasePlayer=NULL;
@@ -22,8 +30,12 @@ using namespace std;
  CBasicPlayer :: CBasicPlayer(void):
  m_bStopped(TRUE),m_bPaused(TRUE),
 	 m_pFile(NULL),m_bFileEnd(TRUE)
-	 ,timerCount(0),m_curVolume(50)
+	 ,m_curVolume(50)
 {
+	m_eventSlowDown=::CreateEvent(0,TRUE,TRUE,0);
+	//nosignaled state,to enter the slowdown
+	//signaled,to leave the slowdown
+
 	InitSlowDownVolBuffer();
 	m_pPlayerThread=new CPlayerThread(this);
 	m_pSpectrumAnalyser=new CSpectrumAnalyser;
@@ -55,6 +67,10 @@ void CBasicPlayer:: SetVolumeByEar(int vol)
 	m_curVolume=index;
 }
 
+void CBasicPlayer::OpenAfterSlowDown()
+{
+	::CreateThread(NULL,0,WaitPlayThread,(LPVOID)this,0,0);
+}
 
 BOOL CBasicPlayer::open( LPCTSTR filepath )
 {
@@ -103,23 +119,39 @@ void CBasicPlayer::play()
 	m_pFile->ResetFile();
 	m_pPlayerThread->Reset();
 
-
 	m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
 
 	if(!m_pPlayerThread->CleanDSBuffer())
 		return;
 	m_pPlayerThread->WriteDataToDSBuf();
 	m_pPlayerThread->Init(FALSE);
-	
-	
+
+
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
 	InitSlowDown(FALSE);
-	
 
 	m_bStopped=FALSE;
 	m_bPaused=FALSE;
 
 	::PostMessage(m_pMainFrame->m_hWnd,WM_NEW_TRACK_STARTED,NULL,NULL);
+	  
+}
+
+
+//这个函数放在线程里,有问题,声音出不来,???
+//所以改用消息通知主线程启动
+//等淡入淡出效果结果
+void CBasicPlayer::WaitPlay()
+{
+	DWORD waitResult=::WaitForSingleObject(m_eventSlowDown,1000);
+	if (waitResult==WAIT_TIMEOUT)
+	{
+		return;
+	}
+	else if (waitResult==WAIT_OBJECT_0)//slowdown ending sign
+	{
+		::SendMessage(m_pMainFrame->m_hWnd,WM_PLAY_DIRECTLY,NULL,NULL);
+	}
 }
 
 void CALLBACK SlowDownVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD dw2)
@@ -131,6 +163,15 @@ void CALLBACK SlowDownVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWO
 
 void CBasicPlayer::InitSlowDown(BOOL bSlowDown,BOOL bCloseFile)
 {
+	if (bSlowDown)
+	
+		AtlTrace(L"slowdown\n ");
+	else
+		AtlTrace(L"slow up\n ");
+	
+
+	ResetEvent(m_eventSlowDown);
+
 	UINT timerDelay;
 	//max vol it 0     ,no attenuation
 	//min vol is -10000,silence
@@ -142,13 +183,9 @@ void CBasicPlayer::InitSlowDown(BOOL bSlowDown,BOOL bCloseFile)
 	else				//slowup
 		timerDelay=12;
 	
-	m_bSlowingDown=TRUE;
-
-
-	
 	m_bSlowDown=bSlowDown;
 	
-	
+
 	if (!m_bSlowDown)
 	{
 		indexA=0;
@@ -188,23 +225,28 @@ void CBasicPlayer::InitSlowDownVolBuffer()
 	aa=pow((double)maxTimerCount,(double)1/(double)abs(DSBVOLUME_MIN));
 	
 	for (int i=1;i<maxTimerCount;i++)
+	{
 		volBuffer[i]=log10((double)i)/log10(aa);
-	
-	volBuffer[0]=0;
+		AtlTrace(L"%d ",(int)volBuffer[i]);
+	}
+
+	volBuffer[0]=DSBVOLUME_MAX;
+	//volBuffer[maxTimerCount-1]=abs(DSBVOLUME_MIN);
 
 	//set behind 0
 	for (int i=0;i<maxTimerCount;i++)
-		volBuffer[i]=volBuffer[i]-abs(DSBVOLUME_MIN);
+	{volBuffer[i]=volBuffer[i]-abs(DSBVOLUME_MIN);
+	AtlTrace(L"%d ",(int)volBuffer[i]);
+	}
+
+
+
 }
 
 void CBasicPlayer::SlowDownVol()
 {
-	int index;
-
-// 	if (!m_bSlowDown)
-// 		index=timerCount;
-// 	else
-// 		index=maxTimerCount-1-timerCount;
+	
+	AtlTrace(L"%d ",(int)volBuffer[indexPoint]);
 
 	m_pPlayerThread->m_lpDSBuffer->SetVolume(volBuffer[indexPoint]);
 
@@ -215,8 +257,6 @@ void CBasicPlayer::SlowDownVol()
 
 	if ( indexPoint == indexB)
 	{
-		timerCount=0;
-		m_bSlowingDown=FALSE;
 		::timeKillEvent( m_timerID);
 		if ( m_bSlowDown)
 		{
@@ -232,14 +272,18 @@ void CBasicPlayer::SlowDownVol()
 				m_pPlayerThread->Suspend();
 			}
 		}
-	}
 
+		::SetEvent(m_eventSlowDown);
+	}
 }
 
 void CBasicPlayer::pause()
 {
-	if (m_bStopped || m_bSlowingDown)return;
+	if (m_bStopped )return;
 
+	//be in slowdown?
+	if(::WaitForSingleObject(m_eventSlowDown,0)!=WAIT_OBJECT_0)
+		return;
 
 	if (!m_bPaused){  
 		m_bPaused=TRUE;
@@ -261,6 +305,10 @@ void CBasicPlayer::pause()
 
 void CBasicPlayer::stop()
 {
+	//be in slowdown?
+	if(::WaitForSingleObject(m_eventSlowDown,0)!=WAIT_OBJECT_0)
+		return;
+
 	if(!m_bStopped ){
 		m_bStopped=TRUE;
 
@@ -272,6 +320,7 @@ void CBasicPlayer::stop()
 		{
 			m_pPlayerThread->m_lpDSBuffer->Stop();
 			m_pPlayerThread->Teminate();
+			m_pFile->Close();
 		}
 	}
 }

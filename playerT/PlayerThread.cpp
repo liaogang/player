@@ -65,7 +65,7 @@ void CPlayerThread::WriteDataToDSBuf()
 	char *pFileBuffer=fileBuffer;
 
 	if (!m_pPlayer->m_pFile->Read(pFileBuffer,dwSizeToRead,&m_dwSizeRead)){
-		if(m_pPlayer->m_bStopped=FALSE)
+		if(m_pPlayer->m_bStopped)
 		{
 			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,0,100);
 		}

@@ -208,7 +208,7 @@ LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 
 LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	MyLib::play();
+	MyLib::playAfterSlowDown();
 	return 0;
 }
 
@@ -308,6 +308,11 @@ LRESULT CMainFrame::OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	return 0;
 }
 
+LRESULT CMainFrame::OnPlayDirectly(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	MyLib().play();
+	return 0;
+}
 
 LRESULT CMainFrame::OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
@@ -504,7 +509,8 @@ void CPlayListView::PlaySelectedItem()
 	s->ActivePlaylist()->SetCurPlaying(curSelectedTrack);
 
 	MyLib::stop();
-	MyLib::play();
+	MyLib::playAfterSlowDown();
+
 
 	::SetWindowText(pMain->m_hWnd,curSelectedTrack->GetTitle());
 
