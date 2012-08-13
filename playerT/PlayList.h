@@ -70,10 +70,10 @@ public:
 
 	BOOL bUnsynLyc;
 public:
-	BOOL ScanId3Info();
+	BOOL  ScanId3Info();
 	const TCHAR* GetTitle(){return title.c_str();}
 	BOOL  GetLrcFileFromLib();
-
+	BOOL  HaveKeywords(TCHAR *keywords);
 private:
 	BOOL  IsInalid();//abondaned
 	BOOL LrcFileMacth(std::tstring &filename);

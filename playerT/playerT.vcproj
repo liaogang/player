@@ -433,6 +433,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DialogSearch.h"
+				>
+			</File>
+			<File
 				RelativePath=".\DlgProcessing.h"
 				>
 			</File>

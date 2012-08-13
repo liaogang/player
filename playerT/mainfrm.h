@@ -21,6 +21,7 @@ class CWTLTabViewCtrl;
 class CPlayListView;
 class CMyVolumeBar;
 class CMyStatusBar;
+class DialogSearch;
 //-----------------------------------------
 
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFrame>,
@@ -43,10 +44,11 @@ public:
 	CHorSplitterWindow *leftPane;
 	CAlbumCoverView    *albumView1;
 	CMyStatusBar *m_pStatus;
-	 
+	DialogSearch *m_pDlgSearch;
 public:
 	CMainFrame():m_dlgLrc(NULL),
-		m_pTrackBar(NULL),m_pVolumeBar(NULL)
+		m_pTrackBar(NULL),m_pVolumeBar(NULL),
+		m_pDlgSearch(NULL)
 	{
 	}
 
@@ -54,6 +56,16 @@ public:
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg)
 	{
+		if (pMsg->message==WM_KEYDOWN)
+		{
+			if(pMsg->wParam==VK_F3)
+				ShowSearchDialog();
+			if(pMsg->wParam=='f' ||pMsg->wParam=='F')
+				if (GetKeyState(VK_CONTROL) &0x80)
+					ShowSearchDialog();
+		}
+
+
 		return CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg);
 	}
 
@@ -208,6 +220,9 @@ public:
 		const static TCHAR *gpAppName=_T("mp3 player");
 		return gpAppName;
 	}
+
+	
+	void ShowSearchDialog();
 };
 
 

@@ -83,6 +83,7 @@ playerT/DialogConfig.cpp -text
 playerT/DialogConfig.h -text
 playerT/DialogFFT.h -text
 playerT/DialogLyric.h -text
+playerT/DialogSearch.h -text
 playerT/DirectSoundController.cpp -text
 playerT/DirectSoundController.h -text
 playerT/DlgProcessing.h -text

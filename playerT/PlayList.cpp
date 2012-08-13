@@ -250,6 +250,37 @@ BOOL PlayListItem::GetLrcFileFromLib()
 	return FALSE;
 }
 
+BOOL HaveHeywordsNoCase(std::tstring &my,TCHAR *keywords)
+{
+	std ::tstring tmp(my);	
+	
+	_tcsupr(const_cast<TCHAR*>(tmp.c_str()) );
+	_tcsupr(keywords);
+
+	return tmp.find(keywords)!=std::tstring::npos;
+}
+
+
+BOOL PlayListItem::HaveKeywords(TCHAR *keywords)
+{	
+	BOOL have=FALSE;
+	if(
+		HaveHeywordsNoCase(title,keywords)||
+		HaveHeywordsNoCase(artist,keywords)||
+		HaveHeywordsNoCase(album,keywords)||
+		HaveHeywordsNoCase(genre,keywords)||
+		HaveHeywordsNoCase(comment,keywords)
+		)
+		have=TRUE;
+
+	if(!m_bLrcFromLrcFile && m_bLrcInner)
+		if(HaveHeywordsNoCase(title,keywords))
+			have=TRUE;
+	return have;
+}
+
+
+
 
 
 BOOL LrcMng::OpenTrackPath(PlayListItem* track)

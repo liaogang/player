@@ -19,7 +19,7 @@ class CPlayListView:
 public:
 	class CMainFrame *pMain;
 	void SetMain(class CMainFrame *pMain);
-
+	PlayListItem *m_pPlayTrack;
 public:
 	DECLARE_WND_SUPERCLASS(NULL,CListViewCtrl::GetWndClassName())
 
@@ -39,19 +39,34 @@ public:
 	{
 		if (nChar==VK_RETURN)
 		{
-			PlaySelectedItem();
+			if(GetSelTrack())
+				PlaySelectedItem();
 		}
 	}
+
+	BOOL GetSelTrack()
+	{
+		int nItem=-1;
+		if (GetItemCount()>0)
+		{
+			nItem=GetNextItem(nItem,LVNI_SELECTED);
+			m_pPlayTrack=(PlayListItem*)GetItemData(nItem);
+			return TRUE;
+		}
+		return FALSE;
+	}
+
 
 	void PlaySelectedItem();
 
 	LRESULT OnDbClicked(UINT i,CPoint pt)
 	{
-		PlaySelectedItem();
+		if(GetSelTrack())
+			PlaySelectedItem();
 
 		SetMsgHandled(FALSE);
 		return 0;
-	}
+	} 
 
 
 	LRESULT OnCreate(LPCREATESTRUCT lpcs)
@@ -63,7 +78,7 @@ public:
 		style|= LVS_EX_FULLROWSELECT ;
 		SetExtendedListViewStyle(style);
 
-		std::tstring columnName[]={_T("     title       "),_T(" artist "),_T(" album "),_T(" year "),_T(" comment "),_T(" genre ")};
+		std::tstring columnName[]={_T("     title              "),_T(" artist      "),_T(" album       "),_T(" year "),_T(" comment "),_T(" genre      ")};
 		for (int i=0;i<6;i++)
 		{
 			std::tstring str=columnName[i];
@@ -76,5 +91,4 @@ public:
 	}
 	
 	void Reload(class PlayList* pPl);
-
 };

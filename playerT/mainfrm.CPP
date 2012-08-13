@@ -8,6 +8,7 @@
 #include "MyControls.h"
 #include "CMyTabBar.h"
 #include "DlgProcessing.h"
+#include "DialogSearch.h"
 
 #include <mpg123.h>
 #include <string>
@@ -48,7 +49,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 	AddSimpleReBarBand(hWndCmdBar);
-	AddSimpleReBarBand(hWndToolBar, NULL,TRUE,110,TRUE);
+	AddSimpleReBarBand(hWndToolBar, NULL,TRUE,0,TRUE);
 
 	
 	//------------------------------------------------
@@ -495,21 +496,10 @@ void PlayListViewItem(int index)
 
 void CPlayListView::PlaySelectedItem()
 {
-	LVITEM item;
-	PlayListItem *curSelectedTrack;
-
-	GetSelectedItem(&item);
-	if (item.iItem==-1)
-		return;
-
-	curSelectedTrack=(PlayListItem*)GetItemData(item.iItem);
-	if (!curSelectedTrack)
-		return;
-
 	MyLib* s=MyLib::shared();
 
 	s->SetActivePlaylist(s->SelPlaylist());
-	s->ActivePlaylist()->SetCurPlaying(curSelectedTrack);
+	s->ActivePlaylist()->SetCurPlaying(m_pPlayTrack);
 
 	MyLib::stop();
 	MyLib::playAfterSlowDown();
@@ -560,4 +550,17 @@ void CMainFrame::ChangeTitle()
 	}
 
 	SetWindowText(title.c_str());
+}
+
+
+void CMainFrame::ShowSearchDialog()
+{
+	if (!m_pDlgSearch)
+	{
+		m_pDlgSearch=new DialogSearch;
+		m_pDlgSearch->pM=this;
+		m_pDlgSearch->Create(m_hWnd);
+	}
+
+	::ShowWindow(m_pDlgSearch->m_hWnd,SW_SHOW);
 }
