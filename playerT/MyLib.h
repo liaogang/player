@@ -27,6 +27,7 @@ public:
 	//
 public:
 	MyLib():m_pActivePlaylist(NULL),m_pSelPlaylist(NULL)
+		,playorder(Default)
 	{
 	};
 	~MyLib();
@@ -64,4 +65,67 @@ public:
 
 	BOOL LoadCoreCfg();
 	BOOL SaveCoreCfg();
+
+	//-----------------------------------------
+	enum PlayOrder
+	{
+		Default,
+		Repeat_playlist,
+		Repeat_track,
+		Random,
+		Shuffle_tracks,
+		Shuffle_albums,
+		Shuffle_folders,
+	};
+	PlayOrder playorder;
+	void SetPlayOrder(enum PlayOrder index){playorder=index;}
+
+	template<class _InIt> inline
+	_InIt GetNextByOrder(_InIt _cur)
+	{
+		_InIt next;
+
+		if (playorder==Default)
+		{
+			next=++_cur;
+		}
+		else if (playorder==Repeat_playlist)
+		{
+			next=++(++_cur);
+		}
+		else if (playorder==Repeat_track)
+		{
+			next=_cur;
+		}
+		else if (playorder==Random)
+		{
+			next=++_cur;
+		}
+		else if (playorder==Shuffle_tracks)
+		{
+			next=++_cur;
+		}
+		else if (playorder==Shuffle_albums)
+		{
+			next=++_cur;
+		}
+		else if (playorder==Shuffle_folders)
+		{
+			next=++_cur;
+		}
+
+		return next;
+	}
+};
+
+//count=sizeof(gPlayOrderStr)/sizeof(int)
+static const TCHAR *gPlayOrderStr[] =
+{
+	_T("Default"),
+	_T("Repeat (playlist)"),
+	_T("Repeat (track)"),
+	_T("Random"),
+	_T("Shuffle (tracks)"),
+	_T("Shuffle (albums)"),
+	_T("Shuffle (folders)"),
 };

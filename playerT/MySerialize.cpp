@@ -139,7 +139,7 @@ int PlayList::ReSerialize(FILE *pFile)
 	size+=playlistnameSize;
 
 	while(size<totalSize-playlistnameSize){
-		PlayListItem *track=new PlayListItem;
+		PlayListItem *track=new PlayListItem(this);
 		size+=track->ReSerialize(pFile);
 		m_songList.push_back(*track);
 	}

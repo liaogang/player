@@ -20,32 +20,7 @@
 #include <fileref.h>
 #include <tbytevector.h>
 using namespace TagLib;
-
-
-
-#define PLAYORDERCOUNT 7
-static const TCHAR *gPlayOrderStr[PLAYORDERCOUNT] =
-{
-	_T("Default"),
-	_T("Repeat (playlist)"),
-	_T("Repeat (track)"),
-	_T("Random"),
-	_T("Shuffle (tracks)"),
-	_T("Shuffle (albums)"),
-	_T("Shuffle (folders)"),
-};
-
-enum PlayOrderIndex
-{
-	Default,
-	Repeat_playlist,
-	Repeat_track,
-	Random,
-	Shuffle_tracks,
-	Shuffle_albums,
-	Shuffle_folders,
-};
-
+class PlayList;
 class PlayListItem:
 	public SerializeObj
 {
@@ -53,14 +28,17 @@ public:
 	virtual int SerializeB(FILE* pFile);
 	virtual int ReSerialize(FILE* pFile);
 public:
-	PlayListItem():playCount(0),starLvl(1),indexInListView(-1)
+	PlayListItem(PlayList *playlist):
+		m_pPL(playlist)
+		,playCount(0),starLvl(1),indexInListView(-1)
 		,pPicBuf(NULL),img(NULL),year(0)
 		,m_bLrcInner(FALSE),m_bLrcFromLrcFile(FALSE)
 		,bUnsynLyc(FALSE)
 	{
 	}
 
-	PlayListItem(std::tstring *url):url(*url)
+	PlayListItem(PlayList *playlist,std::tstring *url):
+		m_pPL(playlist),url(*url)
 		,playCount(0),starLvl(1),indexInListView(-1)
 		,pPicBuf(NULL),img(NULL),year(0)
 		,m_bLrcInner(FALSE),m_bLrcFromLrcFile(FALSE)
@@ -69,7 +47,8 @@ public:
 	}
 
 	~PlayListItem();
-
+public:
+	PlayList *m_pPL;
 public:
 	int indexInListView;
 	std::tstring url;
@@ -94,7 +73,9 @@ public:
 	BOOL ScanId3Info();
 	const TCHAR* GetTitle(){return title.c_str();}
 	BOOL  GetLrcFileFromLib();
+
 private:
+	BOOL  IsInalid();//abondaned
 	BOOL LrcFileMacth(std::tstring &filename);
 };
 
@@ -131,12 +112,5 @@ public:
 	void scanAllId3Info();
 	BOOL AddFolder(LPCTSTR pszFolder);
 public:
-	PlayOrderIndex index;
-	//todo play order
-	//不属于某一个playlist
-	void SetPlayOrder(enum PlayOrderIndex index)
-	{
-		this->index=index;
-	}
 	PlayListItem* GetNextTrackByOrder(BOOL bMoveCur=TRUE);
 };

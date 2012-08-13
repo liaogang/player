@@ -13,7 +13,8 @@
 #include <string>
 using namespace std;
 
-#define APPNAME "mp3 player"
+
+
 
 BOOL CMainFrame::OnIdle()
 {
@@ -27,7 +28,7 @@ BOOL CMainFrame::OnIdle()
 
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	SetWindowText(_T(APPNAME));
+	SetWindowText(GetAppName());
 
 	// create command bar window
 	HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
@@ -65,7 +66,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//-------------------------------------------------
 	//combo box
 	HWND comboBar=m_wndComboBox.Create(m_hWnd,NULL,NULL,WS_CHILD|WS_VISIBLE|WS_VSCROLL|CBS_DROPDOWNLIST);
-	for (int i=0;i<PLAYORDERCOUNT;++i)
+
+	for (int i=0;i<sizeof(gPlayOrderStr)/sizeof(int);++i)
 		m_wndComboBox.AddString(gPlayOrderStr[i]);
 	m_wndComboBox.SetCurSel(0);
 
@@ -183,7 +185,7 @@ LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 		UpdateLayout();
 	
 	return 0;
-}
+} 
 
 
 
@@ -205,6 +207,7 @@ LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 
 LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	MyLib::stop();
 	MyLib::playAfterSlowDown();
 	return 0;
 }
@@ -226,13 +229,14 @@ LRESULT CMainFrame::OnOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 LRESULT CMainFrame::OnPause(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	MyLib::pause();
+	ChangeTitle();
 	return 0;
 }
 
 LRESULT CMainFrame::OnStop(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	MyLib::stop();
-
+	ChangeTitle();
 	return 0;
 }
 
@@ -299,6 +303,7 @@ LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 
 LRESULT CMainFrame::OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
+	ChangeTitle();
 	if (m_dlgLrc)
 		m_dlgLrc->TrackChanged();
 
@@ -307,7 +312,8 @@ LRESULT CMainFrame::OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 LRESULT CMainFrame::OnPlayDirectly(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
-	MyLib().play();
+	MyLib::stop();
+	MyLib::play();
 	return 0;
 }
 
@@ -333,7 +339,7 @@ LRESULT CMainFrame::OnCbnSelchanged(UINT,int id, HWND hWndCtl)
 {
 	if (::IsWindow(m_wndComboBox.m_hWnd) && hWndCtl==m_wndComboBox.m_hWnd){
 		int i=m_wndComboBox.GetCurSel();
-		MyLib::shared()->ActivePlaylist()->SetPlayOrder(static_cast< PlayOrderIndex >( i ));
+		MyLib::shared()->SetPlayOrder(static_cast<MyLib::PlayOrder>( i ));
 	}
 
 	return 0;
@@ -344,7 +350,7 @@ LRESULT CMainFrame::OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 {
 	MyLib::playNext();
 
-	SetWindowText(MyLib::shared()->ActivePlaylist()->curTrack()->GetTitle());
+	ChangeTitle();
 
 	bHandled=TRUE;
 	return 0;
@@ -508,8 +514,7 @@ void CPlayListView::PlaySelectedItem()
 	MyLib::stop();
 	MyLib::playAfterSlowDown();
 
-
-	::SetWindowText(pMain->m_hWnd,curSelectedTrack->GetTitle());
+	pMain->ChangeTitle();
 
 	pMain->albumView1->Invalidate(TRUE);	
 }
@@ -531,4 +536,28 @@ LRESULT CMainFrame::OnExit(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 	delete MyLib::shared();
 	bHandled=FALSE;
 	return 0;
+}
+
+
+
+void CMainFrame::ChangeTitle()
+{
+	const TCHAR *trackName=MyLib::shared()->ActivePlaylist()->curTrack()->GetTitle();
+	
+	std::tstring title;
+	if(CBasicPlayer::shared()->m_bStopped)
+	{
+		title+=GetAppName();
+	}
+	else if (CBasicPlayer::shared()->m_bPaused)
+	{
+		title+=const_cast<TCHAR*>( trackName);
+		title+=_T(" (Paused)");	
+	}
+	else 
+	{
+		title+=const_cast<TCHAR*>(trackName);
+	}
+
+	SetWindowText(title.c_str());
 }

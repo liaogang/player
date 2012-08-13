@@ -30,14 +30,12 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 //PlayList
  PlayList::PlayList(void):curPlayingItem(NULL),curSelectedItem(NULL)
 {
-	index=Default;
 	std::tstring tmp(_T("all.pl"));
 	m_saveLocation=tmp;
 }
 
  PlayList::PlayList(std::tstring name):curPlayingItem(NULL),curSelectedItem(NULL)
  {
-	index=Default;
 	m_playlistName=name;
 	std::tstring tmp(_T("all.pl"));
 	m_saveLocation=tmp;
@@ -87,7 +85,7 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 			_tcscat(pathName,_findName);
 			std::tstring str(pathName);
 
-			PlayListItem *pItem=new PlayListItem(&str);
+			PlayListItem *pItem=new PlayListItem(this,&str);
 			pItem->ScanId3Info();
 			m_songList.push_back(*pItem);
 			//msonglistµÄÎö¹¹»áÉ¾³ý*pItem;
@@ -115,35 +113,24 @@ PlayListItem* PlayList::nextTrack()
 void PlayList::SetCurPlaying(PlayListItem* item,BOOL scanID3)
 {
 	curPlayingItem=item;
-	if (scanID3)
-		curPlayingItem->ScanId3Info();
+	if (scanID3) curPlayingItem->ScanId3Info();
 }
+
 PlayListItem* PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 {
 	list<PlayListItem>::iterator cur,next;
 
-	for (cur=m_songList.begin();cur!=m_songList.end();cur++){
-		if (&(*cur)==curPlayingItem)
-			break;
+	for (cur=m_songList.begin();cur!=m_songList.end();++cur)
+	{
+		if (&(*cur)==curPlayingItem)break;
 	}
 
 	lastPlayingItem=curPlayingItem;
 
-	if (++cur==m_songList.end())
+	if ( ++cur==m_songList.end())
 		return NULL;
 
-	if (index==Default){
-		next=cur;
-	}
-	if (index==Repeat_playlist){
-		next=cur;
-	}
-	if (index==Random){
-		next=cur;
-	}
-	if (index==Repeat_track){
-		next=cur;
-	}
+	next=MyLib::shared()->GetNextByOrder(--cur);
 
 	if(bMoveCur)curPlayingItem=&(*next);
 	return &(*next);

@@ -61,7 +61,7 @@ void MyLib::stop()
 void MyLib::playNext(BOOL scanID3)
 {	
 	PlayListItem *track=shared()->ActivePlaylist()->GetNextTrackByOrder();
-	if (!track) return;
+	if(!track) return;
 
 	track->ScanId3Info();
 
@@ -69,7 +69,8 @@ void MyLib::playNext(BOOL scanID3)
 	if ( track==shared()->ActivePlaylist()->lastTrack()){
 		sbp->ResetFile();
 	}
-	else{
+	else
+	{
 		sbp->stop();
 		sbp->open(track);
 		sbp->play();
