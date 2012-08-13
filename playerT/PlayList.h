@@ -132,6 +132,11 @@ public:
 	BOOL AddFolder(LPCTSTR pszFolder);
 public:
 	PlayOrderIndex index;
-	void SetPlayOrder(enum PlayOrderIndex index){this->index=index;}
+	//todo play order
+	//不属于某一个playlist
+	void SetPlayOrder(enum PlayOrderIndex index)
+	{
+		this->index=index;
+	}
 	PlayListItem* GetNextTrackByOrder(BOOL bMoveCur=TRUE);
 };

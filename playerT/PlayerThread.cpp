@@ -84,7 +84,7 @@ void CPlayerThread::WriteDataToDSBuf()
 
 	DOUBLE used,lefted;
 	m_pPlayer->m_pFile->GetPos(&used,&lefted);
-	::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,used,lefted);
+	::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(int)used,(int)lefted);
 	
 	DWORD playCursor;
 	if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return;

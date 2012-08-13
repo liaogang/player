@@ -14,7 +14,8 @@
 #define _WTL_USE_CSTRING
 #define  _WTYPES_NS
 #define _WTL_NO_WTYPES 
-
+#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_NON_CONFORMING_SWPRINTFS
 #include <atlbase.h>
 #include <atlapp.h>
 

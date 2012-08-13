@@ -42,9 +42,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 
 	//-----------------------------------------
-	//stanted toobar 
+	//standed toobar 
 	HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd,IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
-
 
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 	AddSimpleReBarBand(hWndCmdBar);
@@ -139,12 +138,6 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	split.SetSplitterPos(250,TRUE);
 	leftPane->SetSplitterPos(500,TRUE);
 
-
-	//chaneg toobar's backgound color
-	CMySimpleRebar *myRebar=new CMySimpleRebar;
-	myRebar->SubclassWindow(m_hWndToolBar);
-
-
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
@@ -165,18 +158,18 @@ LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 {
 	if (pnmh->code==TCN_SELCHANGE){
 		//drop list combo box , changed
-		if (idCtrl==m_wndComboBox.GetDlgCtrlID()){
+		if (pnmh->hwndFrom==m_wndComboBox.m_hWnd){
 // 			int sel=m_pTabBar->GetCurSel();
 // 			OnTabChanged(sel);
 		}
 
-		if (idCtrl==m_pTabBar->GetDlgCtrlID()){
+		if (pnmh->hwndFrom==m_pTabBar->m_hWnd){
 			OnSelectionChanged();
 		}
 	}
 	
 	//track bar  mouse released
-	if (pnmh->code==NM_RELEASEDCAPTURE && idCtrl==m_pTrackBar->GetDlgCtrlID()){
+	if (pnmh->code==NM_RELEASEDCAPTURE && pnmh->hwndFrom==m_pTrackBar->m_hWnd){
 		int pos=m_pTrackBar->GetPos();
 		int posMax=m_pTrackBar->GetRangeMax();
 
@@ -184,6 +177,10 @@ LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 		m_pTrackBar->m_bPressing=FALSE;
 	}
 
+
+	//when rebar height changed ,we update the layout
+	if(pnmh->code==RBN_HEIGHTCHANGE && pnmh->hwndFrom==m_hWndToolBar)
+		UpdateLayout();
 	
 	return 0;
 }

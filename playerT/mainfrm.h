@@ -43,7 +43,6 @@ public:
 	CHorSplitterWindow *leftPane;
 	CAlbumCoverView    *albumView1;
 	CMyStatusBar *m_pStatus;
-
 	 
 public:
 	CMainFrame():m_dlgLrc(NULL),
@@ -80,6 +79,7 @@ public:
 		MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
 		MESSAGE_HANDLER(WM_PLAY_DIRECTLY,OnPlayDirectly)
+
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_NEW, OnFileNew)
 		COMMAND_ID_HANDLER(ID_VIEW_TOOLBAR, OnViewToolBar)
@@ -142,6 +142,18 @@ public:
 		CReBarCtrl rebar = m_hWndToolBar;
 		int nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 1);	// toolbar is 2nd added band
 		rebar.ShowBand(nBandIndex, bVisible);
+
+		nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 2);	// toolbar is 2nd added band
+		rebar.ShowBand(nBandIndex, bVisible);
+
+		nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 3);	// toolbar is 2nd added band
+		rebar.ShowBand(nBandIndex, bVisible);
+
+		nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 4);	// toolbar is 2nd added band
+		rebar.ShowBand(nBandIndex, bVisible);
+
+		
+
 		UISetCheck(ID_VIEW_TOOLBAR, bVisible);
 		UpdateLayout();
 		return 0;

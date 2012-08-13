@@ -105,7 +105,6 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
 
 void CBasicPlayer::play()
 {
-	BOOL bRet;
 	if (m_bFileEnd)	return;
 	
 	if (!m_bStopped)
@@ -121,20 +120,16 @@ void CBasicPlayer::play()
 
 	m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
 
-	if(!m_pPlayerThread->CleanDSBuffer())
-		return;
+	if(!m_pPlayerThread->CleanDSBuffer())return;
 	m_pPlayerThread->WriteDataToDSBuf();
 	m_pPlayerThread->Init(FALSE);
 
-
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
-	InitSlowDown(FALSE);
-
 	m_bStopped=FALSE;
 	m_bPaused=FALSE;
+	InitSlowDown(FALSE);
 
 	::PostMessage(m_pMainFrame->m_hWnd,WM_NEW_TRACK_STARTED,NULL,NULL);
-	  
 }
 
 
@@ -145,13 +140,9 @@ void CBasicPlayer::WaitPlay()
 {
 	DWORD waitResult=::WaitForSingleObject(m_eventSlowDown,1000);
 	if (waitResult==WAIT_TIMEOUT)
-	{
 		return;
-	}
 	else if (waitResult==WAIT_OBJECT_0)//slowdown ending sign
-	{
 		::SendMessage(m_pMainFrame->m_hWnd,WM_PLAY_DIRECTLY,NULL,NULL);
-	}
 }
 
 void CALLBACK SlowDownVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD dw2)
@@ -163,29 +154,8 @@ void CALLBACK SlowDownVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWO
 
 void CBasicPlayer::InitSlowDown(BOOL bSlowDown,BOOL bCloseFile)
 {
-	if (bSlowDown)
-	
-		AtlTrace(L"slowdown\n ");
-	else
-		AtlTrace(L"slow up\n ");
-	
-
 	ResetEvent(m_eventSlowDown);
-
-	UINT timerDelay;
-	//max vol it 0     ,no attenuation
-	//min vol is -10000,silence
-
-	//UINT during;//在during指定时间内完成淡入淡出效果
-	
-	if (bSlowDown)	
-		timerDelay=12;
-	else				//slowup
-		timerDelay=12;
-	
 	m_bSlowDown=bSlowDown;
-	
-
 	if (!m_bSlowDown)
 	{
 		indexA=0;
@@ -198,12 +168,10 @@ void CBasicPlayer::InitSlowDown(BOOL bSlowDown,BOOL bCloseFile)
 		indexB=0;
 		indexVec=-1;
 	}
-	indexPoint=indexA;
-	//to indexB
-	
 
+	indexPoint=indexA;
 	m_bCloseFileInSlowDown=bCloseFile;
-	m_timerID=::timeSetEvent(timerDelay,100,SlowDownVolFunc,(DWORD)this,TIME_PERIODIC|TIME_CALLBACK_FUNCTION); 
+	m_timerID=::timeSetEvent(12,100,SlowDownVolFunc,(DWORD)this,TIME_PERIODIC|TIME_CALLBACK_FUNCTION); 
 }
 
 
@@ -225,35 +193,22 @@ void CBasicPlayer::InitSlowDownVolBuffer()
 	aa=pow((double)maxTimerCount,(double)1/(double)abs(DSBVOLUME_MIN));
 	
 	for (int i=1;i<maxTimerCount;i++)
-	{
 		volBuffer[i]=log10((double)i)/log10(aa);
-		AtlTrace(L"%d ",(int)volBuffer[i]);
-	}
 
 	volBuffer[0]=DSBVOLUME_MAX;
 	//volBuffer[maxTimerCount-1]=abs(DSBVOLUME_MIN);
 
 	//set behind 0
 	for (int i=0;i<maxTimerCount;i++)
-	{volBuffer[i]=volBuffer[i]-abs(DSBVOLUME_MIN);
-	AtlTrace(L"%d ",(int)volBuffer[i]);
-	}
-
-
+		volBuffer[i]=volBuffer[i]-abs(DSBVOLUME_MIN);
 
 }
 
 void CBasicPlayer::SlowDownVol()
 {
-	
-	AtlTrace(L"%d ",(int)volBuffer[indexPoint]);
-
 	m_pPlayerThread->m_lpDSBuffer->SetVolume(volBuffer[indexPoint]);
 
 	indexPoint+=indexVec;
-
-	//todo
-	//从curVol开始
 
 	if ( indexPoint == indexB)
 	{
@@ -281,22 +236,19 @@ void CBasicPlayer::pause()
 {
 	if (m_bStopped )return;
 
-	//be in slowdown?
 	if(::WaitForSingleObject(m_eventSlowDown,0)!=WAIT_OBJECT_0)
 		return;
 
-	if (!m_bPaused){  
+	if (!m_bPaused)
+	{  
 		m_bPaused=TRUE;
-
-		//slow down the volumn
 		InitSlowDown();
 	}
-	else{
+	else
+	{
 		m_bPaused=FALSE;
 		m_pPlayerThread->Resume();
 		m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
-
-		//slow up the volumn
 		InitSlowDown(FALSE);
 	}
 }
@@ -305,11 +257,11 @@ void CBasicPlayer::pause()
 
 void CBasicPlayer::stop()
 {
-	//be in slowdown?
 	if(::WaitForSingleObject(m_eventSlowDown,0)!=WAIT_OBJECT_0)
 		return;
 
-	if(!m_bStopped ){
+	if(!m_bStopped )
+	{
 		m_bStopped=TRUE;
 
 		if (!m_bPaused)

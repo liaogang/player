@@ -471,42 +471,56 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 };
 
 
-class CMySimpleRebar:public CWindowImpl<CMySimpleRebar>
-{                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
-	static ATL::CWndClassInfo& GetWndClassInfo1() 
-	{ 
-	/*
-	typedef struct tagWNDCLASSEXA {
-		UINT        cbSize;
-		UINT        style;
-		WNDPROC     lpfnWndProc;
-		int         cbClsExtra;
-		int         cbWndExtra;
-		HINSTANCE   hInstance;
-		HICON       hIcon;
-		HCURSOR     hCursor;
-		HBRUSH      hbrBackground;
-		LPCSTR      lpszMenuName;
-		LPCSTR      lpszClassName;
-		HICON       hIconSm;
-	} WNDCLASSEXA
-	*/
-
-		HBRUSH brush;
-		brush=GetSysColorBrush(COLOR_BTNFACE);
-		static ATL::CWndClassInfo wc = 
-		{ 
-			{ sizeof(WNDCLASSEX), 0, StartWindowProc, 
-			0, 0, NULL, NULL, NULL, brush, NULL, NULL, NULL }, \
-			NULL, NULL, NULL, TRUE, 0, _T("") 
-		}; 
-		return wc; 
-	}
-
-
-	BEGIN_MSG_MAP_EX(CMySimpleRebar)
-	END_MSG_MAP()
-};	
+// 
+// class CMySimpleRebar:public CWindowImpl<CMySimpleRebar,CReBarCtrl>
+// {   
+// // 
+// // 	static ATL::CWndClassInfo& GetWndClassInfo1() 
+// // 	{ 
+// // 	/*
+// // 	typedef struct tagWNDCLASSEXA {
+// // 		UINT        cbSize;
+// // 		UINT        style;
+// // 		WNDPROC     lpfnWndProc;
+// // 		int         cbClsExtra;
+// // 		int         cbWndExtra;
+// // 		HINSTANCE   hInstance;
+// // 		HICON       hIcon;
+// // 		HCURSOR     hCursor;
+// // 		HBRUSH      hbrBackground;
+// // 		LPCSTR      lpszMenuName;
+// // 		LPCSTR      lpszClassName;
+// // 		HICON       hIconSm;
+// // 	} WNDCLASSEXA
+// // 	*/
+// // 
+// // 		HBRUSH brush;
+// // 		brush=GetSysColorBrush(COLOR_BTNFACE);
+// // 		static ATL::CWndClassInfo wc = 
+// // 		{ 
+// // 			{ sizeof(WNDCLASSEX), 0, StartWindowProc, 
+// // 			0, 0, NULL, NULL, NULL, brush, NULL, NULL, NULL }, \
+// // 			NULL, NULL, NULL, TRUE, 0, _T("") 
+// // 		}; 
+// // 		return wc; 
+// // 	}
+// 
+// 	DECLARE_WND_SUPERCLASS(NULL,CReBarCtrl::GetWndClassName())
+// 
+// 	BEGIN_MSG_MAP_EX(CMySimpleRebar)
+// 		//NOTIFY_CODE_HANDLER_EX(RBN_LAYOUTCHANGED,LayOutChanged)
+// 		//NOTIFY_CODE_HANDLER(RBN_ENDDRAG ,LayOutChanged)
+// 		
+// 		ALT_MSG_MAP(1)
+// 		REFLECTED_NOTIFY_CODE_HANDLER(RBN_ENDDRAG, LayOutChanged)
+// 	END_MSG_MAP()
+// 
+// 	LRESULT LayOutChanged(int idCtrl,NMHDR* pNMHDR, BOOL) 
+//     //LRESULT LayOutChanged(LPNMHDR pnmh)
+// 	{
+// 		return 0;
+// 	}
+// };	
 
 
 
