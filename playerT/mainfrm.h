@@ -54,20 +54,7 @@ public:
 
 	~CMainFrame(){}
 
-	virtual BOOL PreTranslateMessage(MSG* pMsg)
-	{
-		if (pMsg->message==WM_KEYDOWN)
-		{
-			if(pMsg->wParam==VK_F3)
-				ShowSearchDialog();
-			if(pMsg->wParam=='f' ||pMsg->wParam=='F')
-				if (GetKeyState(VK_CONTROL) &0x80)
-					ShowSearchDialog();
-		}
-
-
-		return CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg);
-	}
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 	virtual BOOL OnIdle();
 

@@ -123,8 +123,8 @@ CAPTION "²¥·ÅÁÐ±íËÑË÷"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     EDITTEXT        IDC_EDIT,2,2,326,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_TABSTOP,0,17,343,179,WS_EX_STATICEDGE
     PUSHBUTTON      "?",IDC_BUTTON,330,2,11,12
-    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,0,17,343,179
 END
 
 
@@ -310,9 +310,9 @@ IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
 
 IDR_MAINFRAME MENU 
 BEGIN
-    POPUP "&File"
+    POPUP "&File(F)\tF"
     BEGIN
-        MENUITEM "Open ",                       ID_OPEN
+        MENUITEM "Open\tO",                     ID_OPEN
         MENUITEM SEPARATOR
         MENUITEM "Add File",                    ID_FILE_OPEN
         MENUITEM "Add Directory",               ID_FILE_OPENDIRECTORY

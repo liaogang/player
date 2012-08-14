@@ -16,6 +16,44 @@ using namespace std;
 
 
 
+BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
+{
+	UINT nChar=(TCHAR)pMsg->wParam;
+
+	if (pMsg->message==WM_KEYDOWN)
+	{
+		if(nChar==VK_F3)
+			ShowSearchDialog();
+		if(nChar=='f' ||nChar=='F')
+			if (GetKeyState(VK_CONTROL) &0x80)
+				ShowSearchDialog();
+		if (m_pDlgSearch && pMsg->hwnd==m_pDlgSearch->m_edit.m_hWnd)
+		{
+			AtlTrace(L"%u",nChar);
+
+			if (GetKeyState(VK_CONTROL) &0x80)
+			{
+				if (nChar=='x'||nChar=='X')
+				{
+					SendMessage(m_pDlgSearch->m_edit.m_hWnd,WM_CUT,0,0);
+				}
+				else if (nChar=='c'||nChar=='C')
+				{
+					SendMessage(m_pDlgSearch->m_edit.m_hWnd,WM_COPY,0,0);
+				}
+				else if (nChar=='v'||nChar=='V')
+				{
+					SendMessage(m_pDlgSearch->m_edit.m_hWnd,WM_PASTE,0,0);
+				}
+			}
+		}
+
+	}
+
+
+	return CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg);
+}
+
 
 BOOL CMainFrame::OnIdle()
 {

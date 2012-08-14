@@ -127,7 +127,7 @@ PlayListItem* PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 
 	lastPlayingItem=curPlayingItem;
 
-	if ( ++cur==m_songList.end())
+	if ( cur==m_songList.end()|| ++cur==m_songList.end())
 		return NULL;
 
 	next=MyLib::shared()->GetNextByOrder(--cur);

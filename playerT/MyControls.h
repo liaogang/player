@@ -618,3 +618,22 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 // 	BEGIN_MSG_MAP(CMyVolumeBar)
 // 	END_MSG_MAP()
 // };
+
+class DialogSearch;
+class CMyEdit:public CWindowImpl<CMyEdit,CEdit>
+	,CEditCommands<CMyEdit>
+{
+	DECLARE_WND_SUPERCLASS(NULL,CEdit::GetWndClassName())
+	BEGIN_MSG_MAP(CMyEdit)
+		//MSG_WM_KEYDOWN(OnKeyDown)
+		MSG_WM_CHAR(OnChar)
+		CHAIN_MSG_MAP_ALT(CEditCommands<CMyEdit>, 1)
+	END_MSG_MAP()
+
+	DialogSearch *m_pDlgSearch;
+	//void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
+	
+
+	
+};
