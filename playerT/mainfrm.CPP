@@ -191,8 +191,11 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_pTabBar->pMain=this;
 	m_pStatus->pMain=this;
 
+	DoSomethingBeforeShow();
+
 	return 0;
 }
+
 
 
 LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
@@ -601,4 +604,17 @@ void CMainFrame::ShowSearchDialog()
 	}
 
 	::ShowWindow(m_pDlgSearch->m_hWnd,SW_SHOW);
+}
+
+void CMainFrame::DoSomethingBeforeShow()
+{
+	//mylib init will load cfg files 
+	//include playlist and lrc search paths
+	list<PlayList>::iterator i;
+	for (i=MyLib::shared()->m_playLists.begin();i!=MyLib::shared()->m_playLists.end();++i)
+		m_pTabBar->AddPlaylistTab(&(*i),TRUE,-1);
+
+	m_pPlaylistView->Reload(&(*--i));
+
+	MyLib::shared()->InitLrcLib();
 }

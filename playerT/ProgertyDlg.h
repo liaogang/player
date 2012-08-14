@@ -130,12 +130,7 @@ public:
 	LRESULT OnBtnOpenDir(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnBtnDel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
-	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
-	{
-		//DoDataExchange();
-
-		return TRUE;
-	}
+	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 
 	LRESULT OnCfgToSave(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 

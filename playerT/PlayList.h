@@ -104,7 +104,7 @@ public:
 	PlayListItem* nextTrack();
 public:
 	PlayList(void);
-	PlayList(std::tstring name);
+	PlayList(std::tstring &name);
 	~PlayList(void);
 	
 public:

@@ -210,6 +210,7 @@ public:
 
 	
 	void ShowSearchDialog();
+	void DoSomethingBeforeShow();
 };
 
 

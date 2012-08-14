@@ -98,7 +98,23 @@ LRESULT CPropertyDlgMediaLib::OnBtnDel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 	return 0;
 }
 
+BOOL CPropertyDlgLyricsLib::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
+{
+	//DoDataExchange();
+	std::tstring searchPath;
+	
+	vector<std::tstring>::iterator i;
+	if (MyLib::shared()->lrcDirs.size()>0)
+	{
+		i=MyLib::shared()->lrcDirs.begin();
+		searchPath=*i;
+	}
 
+	::SetWindowText(GetDlgItem(IDC_EDIT_SEARCH),searchPath.c_str());
+
+
+	return TRUE;
+}
 
 LRESULT CPropertyDlgLyricsLib::OnBtnOpenDir(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
