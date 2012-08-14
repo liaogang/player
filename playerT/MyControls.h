@@ -626,6 +626,7 @@ class CMyEdit:public CWindowImpl<CMyEdit,CEdit>
 	DECLARE_WND_SUPERCLASS(NULL,CEdit::GetWndClassName())
 	BEGIN_MSG_MAP(CMyEdit)
 		//MSG_WM_KEYDOWN(OnKeyDown)
+		//MSG_WM_SYSKEYDOWN(OnChar)
 		MSG_WM_CHAR(OnChar)
 		CHAIN_MSG_MAP_ALT(CEditCommands<CMyEdit>, 1)
 	END_MSG_MAP()
