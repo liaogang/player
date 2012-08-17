@@ -614,11 +614,17 @@ void CMainFrame::DoSomethingBeforeShow()
 {
 	//mylib init will load cfg files 
 	//include playlist and lrc search paths
-	list<PlayList>::iterator i;
-	for (i=MyLib::shared()->m_playLists.begin();i!=MyLib::shared()->m_playLists.end();++i)
-		m_pTabBar->AddPlaylistTab(&(*i),TRUE,-1);
+	MyLib *s=MyLib::shared();
 
-	m_pPlaylistView->Reload(&(*--i));
+	if (s->m_playLists.size()>0)
+	{
+		list<PlayList>::iterator i;
+		for (i=s->m_playLists.begin();i!=s->m_playLists.end();++i)
+			m_pTabBar->AddPlaylistTab(&(*i),TRUE,-1);
 
-	MyLib::shared()->InitLrcLib();
+		m_pPlaylistView->Reload(&(*--i));
+	}
+
+
+	s->InitLrcLib();
 }
