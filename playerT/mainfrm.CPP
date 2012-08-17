@@ -537,6 +537,12 @@ void PlayListViewItem(int index)
 
 void CPlayListView::PlaySelectedItem()
 {
+	//todo
+	if (!m_pPlayTrack)
+	{
+		return;
+	}
+
 	MyLib* s=MyLib::shared();
 
 	s->SetActivePlaylist(s->SelPlaylist());

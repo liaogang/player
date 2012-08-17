@@ -513,6 +513,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\StringConvertions.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\StringConvertions.h"
 				>
 			</File>

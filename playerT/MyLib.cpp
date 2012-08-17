@@ -66,8 +66,10 @@ void MyLib::playNext(BOOL scanID3)
 	track->ScanId3Info();
 
 	CBasicPlayer *sbp=CBasicPlayer::shared();
-	if ( track==shared()->ActivePlaylist()->lastTrack()){
-		sbp->ResetFile();
+	if ( track==shared()->ActivePlaylist()->lastTrack())
+	{
+		sbp->m_bFileEnd=FALSE;
+		sbp->play();
 	}
 	else
 	{

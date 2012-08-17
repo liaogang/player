@@ -8,8 +8,7 @@
 
 #pragma once
 class CDialogLyric : 
-	public CDialogImpl<CDialogLyric>,
-	public CDialogResize<CDialogLyric>
+	public CDialogImpl<CDialogLyric>
 {
 public:
 	enum { IDD = IDD_DIALOGLRC};
@@ -21,14 +20,9 @@ public:
 		MSG_WM_PAINT(OnPaint)
 		MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
 		MESSAGE_HANDLER(WM_SIZE,OnSize)
-		CHAIN_MSG_MAP(CDialogResize<CDialogLyric>)
 	END_MSG_MAP()
 
 
-	BEGIN_DLGRESIZE_MAP(CDialogLyric)
-		DLGRESIZE_CONTROL(IDC_BUTTON1,DLSZ_SIZE_X)
-		DLGRESIZE_CONTROL(IDC_BUTTON2,DLSZ_MOVE_X)
-	END_DLGRESIZE_MAP()
 
 	// Handler prototypes (uncomment arguments if needed):
 	//	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -44,7 +38,7 @@ public:
 	vector<LrcLine>::iterator preLine,lastLine;
 	RECT tRc;
 
-
+	std::wstring title;
 	LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		GetClientRect(&rc);
@@ -65,6 +59,11 @@ public:
 
 		used=wParam;
 		lefted=lParam;
+
+		if (lefted=0)
+		{
+			ResetTitle();
+		}
 		
 		//used= used%sz            //以行高为基数，取整。
 		double lrcContent=used+lefted;
@@ -98,15 +97,11 @@ public:
 
 	void OnPaint(CDCHandle dc)
 	{
+		if(!bLrcReady) return;
+
 		PAINTSTRUCT ps;
 		::BeginPaint(m_hWnd,&ps);
-
-		if(!track)
-			return;
-
-		if (!track->m_bLrcInner && !track->m_bLrcFromLrcFile)
-			return;
-
+		
 		if(track->m_bLrcInner)
 			::DrawText(ps.hdc,track->lyricInner.c_str(),track->lyricInner.length(),&rc,DT_CENTER);
 		else if(track->m_bLrcFromLrcFile)
@@ -147,6 +142,16 @@ public:
 		return TRUE;
 	}
 
+	void ChangedTitle()
+	{
+		SetWindowText((LPTSTR)title.c_str());
+	}
+
+	void ResetTitle()
+	{
+		SetWindowText(_T("歌词"));
+	}
+
 	
 	//track change , to get current song lyric
 	void TrackChanged()
@@ -158,13 +163,20 @@ public:
 		if(!track) return;
 		
 
-		SetWindowText((LPTSTR)track->lycPath.c_str());
+		title=track->lycPath;
+		ChangedTitle();
+
+		
 		//无内嵌歌词,搜索*.LRCY文件
 		if (!track->m_bLrcInner){
 			LrcMng *sLM=LrcMng::Get();
-			if( track->GetLrcFileFromLib() ){
-				sLM->OpenTrackPath(track);
-				bLrcReady=TRUE;
+			if( track->GetLrcFileFromLib() )
+			{
+				if(sLM->OpenTrackPath(track))
+				{
+					preLine=track->lyricFromLrcFile.begin();
+					bLrcReady=TRUE;
+				}
 			}
 		}
 	}

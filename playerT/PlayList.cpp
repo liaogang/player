@@ -41,6 +41,9 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 
 PlayList::~PlayList(void)
 {	
+	curPlayingItem=NULL;
+	curSelectedItem=NULL;
+	m_songList.clear();
 }
 
 
@@ -283,7 +286,14 @@ BOOL PlayListItem::HaveKeywords(TCHAR *keywords)
 BOOL LrcMng::OpenTrackPath(PlayListItem* track)
 {
 	Open((LPTSTR)track->lycPath.c_str());
-	track->lyricFromLrcFile=lib;
-	track->m_bLrcFromLrcFile=TRUE;
-	return TRUE;
+
+	//todo utf-8 and unicode ,can't read it
+	if (lib.size()>0)
+	{
+		track->lyricFromLrcFile=lib;
+		track->m_bLrcFromLrcFile=TRUE;
+		return TRUE;
+	}
+	
+	return FALSE;
 }

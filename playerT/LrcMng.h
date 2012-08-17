@@ -22,6 +22,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include "StringConvertions.h"
+
 using namespace std;
 class PlayListItem;
 
@@ -92,15 +94,43 @@ public:
 	void Open(LPTSTR pstrPath)
 	{ 
 		lib.clear();
-		std::locale loc1 = std::locale::global(std::locale(".936"));
-		tifstream fin(pstrPath);
-		std::tstring s;
-		while(getline(fin,s))
+		
+
+		ENCODETYPE filetype=UNKNOW;
+		BYTE * pBuf;
+		FILE * pFile;
+		int filesize;
+		pFile = _tfopen( pstrPath, _T("rb") );
+		if (pFile!=NULL)
+		{
+			//get the file size
+			fseek(pFile,0,SEEK_END);
+			filesize=ftell(pFile);
+			filesize+=sizeof(TCHAR);
+			pBuf=(BYTE*)malloc(filesize);
+			memset(pBuf+filesize-sizeof(TCHAR),0,sizeof(TCHAR));
+
+			fseek(pFile,0,SEEK_SET);
+			fread(pBuf,1,filesize-sizeof(TCHAR),pFile);
+
+			filetype=TellEncodeType(pBuf,filesize);
+			fclose (pFile);
+		}
+
+
+
+		TCHAR *pBufU;
+		INT   filesizeAfterCovert=0;
+		CovertFileBuf2UTF16littleEndian(pBuf,filesize,filetype,&pBufU,filesizeAfterCovert);
+
+
+		int bufUsed=0;
+		std::wstring s;
+		while(filesizeAfterCovert>(bufUsed+=MyGetLine(pBufU+bufUsed,filesizeAfterCovert-bufUsed,s)))
 			Parse(s);
 		
+		CleanAfterFileCovert(pBuf,(BYTE*)pBufU);
 		SortLrcLib();
-		fin.close();
-		std::locale::global(std::locale(loc1));
 	}
 
 

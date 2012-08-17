@@ -115,6 +115,7 @@ playerT/SpectrumAnalyser.cpp -text
 playerT/SpectrumAnalyser.h -text
 playerT/SpectrumAnalyserThread.cpp -text
 playerT/SpectrumAnalyserThread.h -text
+playerT/StringConvertions.cpp -text
 playerT/StringConvertions.h -text
 playerT/Thread.cpp -text
 playerT/Thread.h -text

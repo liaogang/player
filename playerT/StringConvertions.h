@@ -1,24 +1,27 @@
+#include "stdafx.h"
+#include <string>
+#pragma once
 
-LPSTR Unicode2Ansi(LPCWSTR s)
-{
-	DWORD dwNum= WideCharToMultiByte (CP_ACP, 0, s, -1, NULL, 0,0,0);
-	LPSTR target=new char[dwNum];
-	WideCharToMultiByte(CP_ACP,0,s,-1,target,dwNum,0,0);
-	return target;
-}
+LPSTR Unicode2Ansi(LPCWSTR s);
+LPWSTR Ansi2Unicode(LPSTR s);
+LPWSTR UTF82Unicode(LPSTR s);
 
-LPWSTR Ansi2Unicode(LPSTR s)
-{
-	DWORD dwNum= MultiByteToWideChar (CP_ACP, 0,(LPCSTR) s, -1, NULL, 0);
-	LPWSTR target=new WCHAR[dwNum];
-	MultiByteToWideChar(CP_ACP,0,(LPCSTR)s,-1,target,dwNum);
-	return target;
-}
 
-LPWSTR UTF82Unicode(LPSTR s)
+//-----------------------------------------
+//read file with encode UTF8 or UTF16 or ANSI
+//-----------------------------------------
+
+enum ENCODETYPE 
 {
-	DWORD dwNum = MultiByteToWideChar (CP_UTF8, 0, s, -1, NULL, 0);
-	LPWSTR target=new WCHAR[dwNum];
-	MultiByteToWideChar(CP_UTF8,0,(LPCSTR)s,-1,target,dwNum);
-	return target;
-}
+	UNKNOW,
+	ANSI,
+	UTF8,
+	UTF16_big_endian,
+	UTF16_little_endian
+};
+
+ENCODETYPE TellEncodeType(BYTE* pBuf,int bufLen);
+void CleanAfterFileCovert(BYTE* pBufOld,BYTE *pBufNew);
+void CovertFileBuf2UTF16littleEndian(BYTE* pBuf,int bufLen,ENCODETYPE filetype,OUT TCHAR **pBufU,OUT int &filesizeAfterCovert);
+int MyGetLine(TCHAR *pBuf,int bufLen,std::wstring &str);
+

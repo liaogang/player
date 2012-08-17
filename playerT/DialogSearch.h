@@ -29,7 +29,7 @@ public:
 	CMyEdit       m_edit;
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		DlgResize_Init(FALSE);
+		DlgResize_Init(FALSE,FALSE);
 		CenterWindow(GetParent());
 		m_list.SubclassWindow(::GetDlgItem(m_hWnd,IDC_LIST));
 		m_list.OnCreate(0);

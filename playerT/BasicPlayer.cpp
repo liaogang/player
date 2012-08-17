@@ -212,6 +212,8 @@ void CBasicPlayer::SlowDownVol()
 
 	if ( indexPoint == indexB)
 	{
+		indexPoint=0;
+
 		::timeKillEvent( m_timerID);
 		if ( m_bSlowDown)
 		{
