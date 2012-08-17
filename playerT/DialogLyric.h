@@ -8,7 +8,8 @@
 
 #pragma once
 class CDialogLyric : 
-	public CDialogImpl<CDialogLyric>
+	public CDialogImpl<CDialogLyric>,
+	public CDialogResize<CDialogLyric>
 {
 public:
 	enum { IDD = IDD_DIALOGLRC};
@@ -20,8 +21,12 @@ public:
 		MSG_WM_PAINT(OnPaint)
 		MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
 		MESSAGE_HANDLER(WM_SIZE,OnSize)
+		CHAIN_MSG_MAP(CDialogResize<CDialogLyric>)
 	END_MSG_MAP()
 
+
+	BEGIN_DLGRESIZE_MAP(CDialogResize<CDialogLyric>)
+	END_DLGRESIZE_MAP()
 
 
 	// Handler prototypes (uncomment arguments if needed):
@@ -116,6 +121,9 @@ public:
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
+		DlgResize_Init(TRUE,FALSE);
+
+
 		CenterWindow(GetParent());
 		GetTextExtentPoint32(GetDC(),_T("A"),1,&sz); 
 		lrcTextHeight=sz.cy;

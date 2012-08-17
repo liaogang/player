@@ -28,7 +28,7 @@ LPWSTR UTF82Unicode(LPSTR s)
 
 ENCODETYPE TellEncodeType(BYTE* pBuf,int bufLen)
 {
-	ENCODETYPE filetype=UNKNOW;
+	ENCODETYPE filetype=ANSI;
 
 	if (pBuf[0]==0xFF && pBuf[1]==0xFE) //fffe,Ð¡Í·,windowsÄ¬ÈÏ
 		filetype=UTF16_little_endian;

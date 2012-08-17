@@ -92,27 +92,27 @@ public:
 	
 
 
-	void InsertTrackItem(PlayListItem &track,int item);
-	void InsertTrackItem(PlayListItem *track,int item)
+	void InsertTrackItem(PlayListItem &track,int item,BOOL SetIndex=TRUE);
+	void InsertTrackItem(PlayListItem *track,int item,BOOL SetIndex=TRUE)
 	{
-		InsertTrackItem(*track,item);
+		InsertTrackItem(*track,item,SetIndex);
 	}
 
 	template<class _InIt> inline
-		void Reload(_InIt _First, _InIt _Last)
+		void Reload(_InIt _First, _InIt _Last,BOOL SetIndex=TRUE)
 	{
 		DeleteAllItems();
 
 		int j;_InIt i;
 		for (i=_First,j=0;i!=_Last;i++,j++)
 		{
-			InsertTrackItem(*i ,j);
+			InsertTrackItem(*i ,j,SetIndex);
 		}
 	}
 
-	void Reload(PlayList* pPl)
+	void Reload(PlayList* pPl,BOOL SetIndex=TRUE)
 	{
-		Reload(pPl->m_songList.begin(),pPl->m_songList.end());
+		Reload(pPl->m_songList.begin(),pPl->m_songList.end(),SetIndex);
 	}
 
 };

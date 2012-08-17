@@ -10,7 +10,6 @@ public:
 	enum { IDD = IDD_DIALOG_SEARCH };
 
 	BEGIN_MSG_MAP(DialogFFT)
-		MSG_WM_KEYDOWN(OnKeyDown)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
@@ -84,7 +83,7 @@ public:
 		}
 
 		
-		m_list.Reload(m_Searchlist.begin(),m_Searchlist.end());
+		m_list.Reload(m_Searchlist.begin(),m_Searchlist.end(),FALSE);
 		
 		m_list.SetItemState(0,LVIS_FOCUSED|
 			LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);	
@@ -105,10 +104,12 @@ public:
 		ShowWindow(SW_HIDE);
 	}
 
-	void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
-	{
-		AtlTrace(L"dlg : %c\n",nChar);
+	void ShowSelf()
+	{	
+		ShowWindow(SW_SHOW);
+		::SetFocus(GetDlgItem(IDC_EDIT));
 	}
+
 };
 
 

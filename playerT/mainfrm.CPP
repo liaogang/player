@@ -503,7 +503,7 @@ void CPlayListView::SetMain(class CMainFrame *pMain){this->pMain=pMain;}
 
 
 
-void CPlayListView::InsertTrackItem(PlayListItem &track,int item)
+void CPlayListView::InsertTrackItem(PlayListItem &track,int item,BOOL SetIndex)
 {
 	int k=0;
 	InsertItem(item,track.url.c_str());
@@ -519,7 +519,9 @@ void CPlayListView::InsertTrackItem(PlayListItem &track,int item)
 	SetItemText(item,k++,track.genre.c_str());
 
 	SetItemData(item,(DWORD_PTR)&track);
-	track.indexInListView=item;
+
+	if(SetIndex)
+		track.indexInListView=item;
 }
 
 
@@ -603,8 +605,9 @@ void CMainFrame::ShowSearchDialog()
 		m_pDlgSearch->pM=this;
 		m_pDlgSearch->Create(m_hWnd);
 	}
+	else
+		m_pDlgSearch->ShowSelf();
 
-	::ShowWindow(m_pDlgSearch->m_hWnd,SW_SHOW);
 }
 
 void CMainFrame::DoSomethingBeforeShow()
