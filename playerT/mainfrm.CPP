@@ -500,34 +500,29 @@ void CMainFrame::OnSelectionChanged()
 
 void CPlayListView::SetMain(class CMainFrame *pMain){this->pMain=pMain;}
 
-void CPlayListView::Reload(PlayList* pPl)
+
+
+
+void CPlayListView::InsertTrackItem(PlayListItem &track,int item)
 {
-	list<PlayListItem>::iterator i;	 int j;
+	int k=0;
+	InsertItem(item,track.url.c_str());
+	SetItemText(item,k++,track.title.c_str());
+	SetItemText(item,k++,track.artist.c_str());
+	SetItemText(item,k++,track.album.c_str());
 
-	DeleteAllItems();
-	for (i=pPl->m_songList.begin(),j=0;i!=pPl->m_songList.end();i++,j++)
-	{
-		int k=0;
+	TCHAR year[256]={};
+	wsprintf(year,_T("%u"),track.year);
 
-		InsertItem(j,i->url.c_str());
-		SetItemText(j,k++,i->title.c_str());
-		SetItemText(j,k++,i->artist.c_str());
-		SetItemText(j,k++,i->album.c_str());
+	SetItemText(item,k++,(const TCHAR*)year);
+	SetItemText(item,k++,track.comment.c_str());
+	SetItemText(item,k++,track.genre.c_str());
 
-		TCHAR year[256]={};
-#ifdef _UNICODE
-		wsprintf(year,_T("%u"),i->year);
-#else
-		sprintf(year,_T("%u"),i->year);
-#endif
-		SetItemText(j,k++,(const TCHAR*)year);
-		SetItemText(j,k++,i->comment.c_str());
-		SetItemText(j,k++,i->genre.c_str());
-
-		SetItemData(j,(DWORD_PTR)&(*i));
-		(*i).indexInListView=j;
-	}
+	SetItemData(item,(DWORD_PTR)&track);
+	track.indexInListView=item;
 }
+
+
 
 
 void PlayListViewItem(int index)

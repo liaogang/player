@@ -116,8 +116,6 @@ public:
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		DlgResize_Init();
-
 		CenterWindow(GetParent());
 		GetTextExtentPoint32(GetDC(),_T("A"),1,&sz); 
 		lrcTextHeight=sz.cy;
@@ -162,9 +160,13 @@ public:
 		track=playlist->curTrack();
 		if(!track) return;
 		
-
-		title=track->lycPath;
-		ChangedTitle();
+		if(track->lycPath.empty())
+			ResetTitle();
+		else
+		{
+			title=track->lycPath;
+			ChangedTitle();
+		}
 
 		
 		//无内嵌歌词,搜索*.LRCY文件

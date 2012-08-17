@@ -90,5 +90,29 @@ public:
 		return 0;
 	}
 	
-	void Reload(class PlayList* pPl);
+
+
+	void InsertTrackItem(PlayListItem &track,int item);
+	void InsertTrackItem(PlayListItem *track,int item)
+	{
+		InsertTrackItem(*track,item);
+	}
+
+	template<class _InIt> inline
+		void Reload(_InIt _First, _InIt _Last)
+	{
+		DeleteAllItems();
+
+		int j;_InIt i;
+		for (i=_First,j=0;i!=_Last;i++,j++)
+		{
+			InsertTrackItem(*i ,j);
+		}
+	}
+
+	void Reload(PlayList* pPl)
+	{
+		Reload(pPl->m_songList.begin(),pPl->m_songList.end());
+	}
+
 };

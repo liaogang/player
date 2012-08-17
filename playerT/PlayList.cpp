@@ -139,11 +139,13 @@ PlayListItem* PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 
 PlayListItem::~PlayListItem()
 {
-	if (img){
+	if (img)
+	{
 		delete img;
 		img=NULL;
 	}
-	if (pPicBuf){	
+	if (pPicBuf)
+	{	
 		delete pPicBuf;
 		pPicBuf=NULL;
 	}
@@ -169,6 +171,7 @@ BOOL PlayListItem::ScanId3Info()
 		// we will use bytevector to retain to memory in frame
 		pPicBuf=new ByteVector;
 		id3v2tag->retainPicBuf(pPicBuf);
+
 		//-----------------------------------------
 		//idev3 album picture info
 		img=new CImage;
@@ -287,7 +290,6 @@ BOOL LrcMng::OpenTrackPath(PlayListItem* track)
 {
 	Open((LPTSTR)track->lycPath.c_str());
 
-	//todo utf-8 and unicode ,can't read it
 	if (lib.size()>0)
 	{
 		track->lyricFromLrcFile=lib;

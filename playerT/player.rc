@@ -310,7 +310,7 @@ IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
 
 IDR_MAINFRAME MENU 
 BEGIN
-    POPUP "&File(F)\tF"
+    POPUP "&File"
     BEGIN
         MENUITEM "Open\tO",                     ID_OPEN
         MENUITEM SEPARATOR

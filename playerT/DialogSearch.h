@@ -45,10 +45,12 @@ public:
 	}
 
 
-	PlayList m_SearchPl;
+	vector<PlayListItem*> m_Searchlist;
 	LRESULT OnSearch(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		m_SearchPl.m_songList.clear();
+		m_Searchlist.clear();
+
+		//m_SearchPl.m_songList.clear();
 
 		TCHAR buf[MAX_PATH];
 		::GetWindowText(::GetDlgItem(m_hWnd,IDC_EDIT),buf,MAX_PATH);
@@ -59,11 +61,11 @@ public:
 			m_list.DeleteAllItems();
 			return 0;
 		}
+
 		std::tstring strBuf(buf);
 		int a,b;
 		a=strBuf.find_first_not_of(' ');
-		if (a==std::tstring::npos)
-		{
+		if (a==std::tstring::npos){
 			m_list.DeleteAllItems();
 			return 0;
 		}
@@ -72,20 +74,17 @@ public:
 		if (b<a) {m_list.DeleteAllItems();return 0;}
 		strBuf=strBuf.substr(a,b+1-a);
 
-		int count=pM->m_pPlaylistView->GetItemCount();
-		m_SearchPl.m_songList.clear();
 
+		int count=pM->m_pPlaylistView->GetItemCount();
 		for (int i=0;i<count;++i)
 		{
 			PlayListItem *track=(PlayListItem*)pM->m_pPlaylistView->GetItemData(i);
 			if (track->HaveKeywords(const_cast<TCHAR*>( strBuf.c_str()) ))
-			{
-				m_SearchPl.m_songList.push_back(*track);
-			}
+				m_Searchlist.push_back(track);
 		}
 
-
-		m_list.Reload(&m_SearchPl);
+		
+		m_list.Reload(m_Searchlist.begin(),m_Searchlist.end());
 		
 		m_list.SetItemState(0,LVIS_FOCUSED|
 			LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);	
