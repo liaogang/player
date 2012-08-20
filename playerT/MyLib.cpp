@@ -39,7 +39,11 @@ void MyLib::playAfterSlowDown()
 
 void MyLib::play()
 {
-	PlayListItem* curTrack=MyLib::shared()->ActivePlaylist()->curTrack();
+	PlayList* playlist=MyLib::shared()->ActivePlaylist();
+	if (!playlist)
+		return;
+
+	PlayListItem* curTrack=playlist->curTrack();
 	CBasicPlayer* s=CBasicPlayer::shared();
 	s->open(curTrack);
 	s->play();

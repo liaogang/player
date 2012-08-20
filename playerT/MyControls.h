@@ -39,9 +39,9 @@ public:
 		MSG_WM_ERASEBKGND(OnEraseBkgnd)
 		//CHAIN_MSG_MAP(CCustomDraw<CMyTrackBar>)
 		
-		NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW, OnReflectedCustomDraw)
-		ALT_MSG_MAP(1)
-		REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW, OnReflectedCustomDraw)
+		//NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW, OnReflectedCustomDraw)
+		//ALT_MSG_MAP(1)
+		//REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW, OnReflectedCustomDraw)
 	END_MSG_MAP()
 
 	DWORD OnPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW lpNMCustomDraw)
@@ -327,7 +327,7 @@ public:
 
 	BOOL OnEraseBkgnd(CDCHandle dc)
 	{
-		OnMyCtrlEraseBkgnd(m_hWnd,dc.m_hDC);
+		//OnMyCtrlEraseBkgnd(m_hWnd,dc.m_hDC);
 		SetMsgHandled(TRUE);
 		return 1;
 	}
@@ -343,8 +343,8 @@ public:
 	{
 		RECT *rc=(RECT*)lParam;
 		rc->left=0;
-		rc->right=30;
-		rc->bottom=30;
+		rc->right=24;
+		rc->bottom=24;
 		rc->top=0;
 		return 1;
 	}
@@ -437,8 +437,8 @@ public:
 	{
 		RECT *rc=(RECT*)lParam;
 		rc->left=0;
-		rc->right=30;
-		rc->bottom=30;
+		rc->right=24;
+		rc->bottom=24;
 		rc->top=0;
 		return 1;
 	}

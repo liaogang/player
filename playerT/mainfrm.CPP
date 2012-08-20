@@ -93,8 +93,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//------------------------------------------------
 	//progress track bar
 	m_pTrackBar=new CMyTrackBar;
-	UINT style=WS_CHILD | WS_VISIBLE ;//| WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
-	style|=TBS_TOOLTIPS  |TBS_NOTICKS |TBS_AUTOTICKS  | TBS_BOTH ;
+	UINT style=WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+	style|=TBS_TOOLTIPS  |TBS_NOTICKS |TBS_AUTOTICKS  | TBS_BOTH |0x1000; //TBS_TRANSPARENTBKGND
 	UINT styleEx=0; 
 	HWND hWndProgressBar=m_pTrackBar->Create( m_hWndToolBar,NULL,NULL,style,styleEx);
 	m_pTrackBar->SetPageSize(1);
@@ -127,7 +127,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//-----------------------------------------
 	//volume track bar
 	m_pVolumeBar=new CMyVolumeBar;
-	HWND hWndVolumeBar=m_pVolumeBar->Create(m_hWnd,NULL,NULL,style,0);
+	HWND hWndVolumeBar=m_pVolumeBar->Create(m_hWnd,NULL,NULL,style,styleEx);
 	m_pVolumeBar->SetPageSize(1);
 	m_pVolumeBar->SetLineSize(1);
 	m_pVolumeBar->SetThumbLength(2);
@@ -147,8 +147,11 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	UISetCheck(ID_VIEW_TOOLBAR, 1);
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
 
-	DWORD dwSplitStyle = WS_CHILD|WS_VISIBLE| WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
-	DWORD dwSplitExStyle =WS_EX_CLIENTEDGE;
+
+	//-----------------------------------------
+	//split
+	DWORD dwSplitStyle = WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+	DWORD dwSplitExStyle =0;
 
 	split.Create(m_hWnd, rcDefault, NULL, 
 		dwSplitStyle, dwSplitExStyle );
@@ -157,20 +160,21 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//------------------------------------------------
 	//tab bar
 	m_pTabBar=new CMyTabBar;
-	m_pTabBar->Create(split.m_hWnd,rcDefault,NULL,WS_CHILD|WS_VISIBLE,0/*WS_EX_STATICEDGE*/);
+	m_pTabBar->Create(split.m_hWnd,rcDefault,NULL,WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN | WS_CLIPSIBLINGS,0/*WS_EX_STATICEDGE*/);
 
 	m_pPlaylistView=new CPlayListView;
-	m_pPlaylistView->Create(m_pTabBar->m_hWnd, rcDefault, NULL, LVS_SINGLESEL | WS_CHILD | WS_VISIBLE |WS_CLIPSIBLINGS  | LVS_REPORT | LVS_SHOWSELALWAYS, /*WS_EX_CLIENTEDGE*/NULL);
-		
+	m_pPlaylistView->Create(m_pTabBar->m_hWnd, rcDefault, NULL, LVS_SINGLESEL | WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN | WS_CLIPSIBLINGS| LVS_REPORT | LVS_SHOWSELALWAYS, /*WS_EX_CLIENTEDGE*/NULL);
+	m_pPlaylistView->Init();	
+
 	//left pane
 	leftPane=new CHorSplitterWindow;
-	leftPane->Create(split.m_hWnd,rcDefault,NULL,dwSplitStyle,NULL);
+	leftPane->Create(split.m_hWnd,rcDefault,0,dwSplitStyle);
 	albumView1=new CAlbumCoverView;
 	albumView1->Create(leftPane->m_hWnd);
 	leftPane->SetSplitterPane(0,albumView1->m_hWnd);
 	
 	//set left and right
-	split.SetSplitterPanes(leftPane->m_hWnd,m_pTabBar->m_hWnd,TRUE);
+	split.SetSplitterPanes(m_pTabBar->m_hWnd,leftPane->m_hWnd,TRUE);
 
 	//-----------------------------------------
 	m_hWndClient=split.m_hWnd;

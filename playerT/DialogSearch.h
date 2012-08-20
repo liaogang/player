@@ -31,7 +31,7 @@ public:
 		DlgResize_Init(FALSE,FALSE);
 		CenterWindow(GetParent());
 		m_list.SubclassWindow(::GetDlgItem(m_hWnd,IDC_LIST));
-		m_list.OnCreate(0);
+		m_list.Init();
 		m_list.SetMain(pM);
 
 		m_edit.SubclassWindow(::GetDlgItem(m_hWnd,IDC_EDIT));
