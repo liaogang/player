@@ -170,11 +170,11 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	leftPane=new CHorSplitterWindow;
 	leftPane->Create(split.m_hWnd,rcDefault,0,dwSplitStyle);
 	albumView1=new CAlbumCoverView;
-	albumView1->Create(leftPane->m_hWnd);
+	albumView1->Create(leftPane->m_hWnd,0,0,dwSplitStyle);
 	leftPane->SetSplitterPane(0,albumView1->m_hWnd);
 	
 	//set left and right
-	split.SetSplitterPanes(m_pTabBar->m_hWnd,leftPane->m_hWnd,TRUE);
+	split.SetSplitterPanes(m_pTabBar->m_hWnd,leftPane->m_hWnd);
 
 	//-----------------------------------------
 	m_hWndClient=split.m_hWnd;

@@ -110,7 +110,7 @@ public:
 public:
 	BOOL AddFolderByThread(LPCTSTR pszFolder);
 	void scanAllId3Info();
-	BOOL AddFolder(LPCTSTR pszFolder);
+	BOOL AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir=FALSE);
 public:
 	PlayListItem* GetNextTrackByOrder(BOOL bMoveCur=TRUE);
 };

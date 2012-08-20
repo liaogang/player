@@ -15,7 +15,7 @@ struct PLANDPATH
 static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 {
 	PLANDPATH* p=(PLANDPATH*)lpParameter;
-	BOOL result=p->pPlaylist->AddFolder(p->pszFolder);
+	BOOL result=p->pPlaylist->AddFolder(p->pszFolder,TRUE);
 	
 	::PostMessage(MyLib::GetMain(),WM_ADDFOLDERED,NULL,NULL);
 	
@@ -58,12 +58,29 @@ BOOL PlayList::AddFolderByThread(LPCTSTR pszFolder)
 	return 0;
 }
 
-BOOL PlayList::AddFolder(LPCTSTR pszFolder)
+//ignore case
+BOOL StrIsEndedWith(TCHAR *_str,TCHAR *_end)
+{
+	int strLen=_tcslen(_str);
+	int endLen=_tcslen(_end);
+
+	if (strLen<endLen)
+		return FALSE;
+	
+	
+	for (int i=1;i<=endLen;i++)
+		if (tolower((int)_end[endLen-i] ) !=  tolower((int)_str[strLen-i] ))
+			return FALSE;
+	
+	return TRUE;
+}
+
+BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 {
 	//todo
 	//忽略了子目录下的mp3文件
-	TCHAR* curPath=new TCHAR[256];
-	_tgetcwd(curPath,256);
+	TCHAR* oldPath=new TCHAR[MAX_PATH];
+	_tgetcwd(oldPath,MAX_PATH);
 
 	//改变当前目录
 	_tchdir(pszFolder);
@@ -72,32 +89,66 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder)
 	WIN32_FIND_DATA findFileData;
 	HANDLE hFind;
 
-	hFind=::FindFirstFile(_T("*.mp3"),&findFileData);
-	if(hFind!=INVALID_HANDLE_VALUE){
+	hFind=::FindFirstFile(_T("*"),&findFileData);
+	if(hFind!=INVALID_HANDLE_VALUE)
+	{
 		findResult=TRUE;
 		while(findResult)
 		{
-			TCHAR *_findName=new TCHAR[MAX_PATH];
-			_tcscpy(_findName,findFileData.cFileName);
-			TCHAR *pathName=new TCHAR[MAX_PATH+1];
-			_tcscpy(pathName,pszFolder);
-			_tcscat(pathName,_T("\\"));
-			_tcscat(pathName,_findName);
-			std::tstring str(pathName);
+			int Len=_tcslen(findFileData.cFileName);
+			if (Len==1 && findFileData.cFileName[0]=='.')
+			{
+				;
+			}
+			else  if (Len==2 && findFileData.cFileName[0]=='.'||
+				findFileData.cFileName[1]=='.')
+			{
+				;
+			}
+			//目录
+			else if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				if(bIncludeDir)
+					AddFolder(findFileData.cFileName,bIncludeDir);
+			}
+			else//文件
+			{
+				TCHAR *mp3File=_T(".mp3");
+				TCHAR *wavFile=_T(".wav");
+				if (StrIsEndedWith(findFileData.cFileName,mp3File) ||
+					StrIsEndedWith(findFileData.cFileName,wavFile))
+				{
+					TCHAR *_findName=new TCHAR[MAX_PATH];
+					memset(_findName,0,(MAX_PATH)*sizeof(TCHAR));
+					_tcscpy(_findName,findFileData.cFileName);
 
-			PlayListItem *pItem=new PlayListItem(this,&str);
-			pItem->ScanId3Info();
-			m_songList.push_back(*pItem);
-			//msonglist的析构会删除*pItem;
+					TCHAR* pathName=new TCHAR[MAX_PATH];
+					memset(pathName,0,(MAX_PATH)*sizeof(TCHAR));
+					_tgetcwd(pathName,MAX_PATH);
+					
+
+					_tcscat(pathName,_T("\\"));
+					_tcscat(pathName,_findName);
+					std::tstring str(pathName);
+					delete[] _findName;
+					delete[] pathName;
+
+					PlayListItem *pItem=new PlayListItem(this,&str);
+					pItem->ScanId3Info();
+					m_songList.push_back(*pItem);
+					//msonglist的析构会删除*pItem;
+				}
+			}
 
 			findResult=FindNextFile(hFind,&findFileData);
-		}
+		}//while(findResult)
 
 		FindClose(hFind);
 	}
 	
 
-	_tchdir(curPath);
+	_tchdir(oldPath);
+	delete[] oldPath;
 
 	return TRUE;
 }
