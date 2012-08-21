@@ -1,3 +1,6 @@
+
+inline HRGN CreateRectRgn(RECT &rc){return ::CreateRectRgn(rc.left,rc.top,rc.right,rc.bottom);}
+
 class CMyTabBar:public CWTLTabViewCtrl
 {
 	DECLARE_WND_SUPERCLASS(NULL, CWTLTabViewCtrl::GetWndClassName())
@@ -9,28 +12,52 @@ class CMyTabBar:public CWTLTabViewCtrl
 	}
 
 	BEGIN_MSG_MAP_EX(CMyTabBar)
-		//MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
+		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
 		CHAIN_MSG_MAP(CWTLTabViewCtrl)
 	END_MSG_MAP()
 	
 public:
-	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-// 		HDC hdc=(HDC)wParam;
-// 		RECT rc;
-// 		HBRUSH newBrush,oldBrush;
-// 
-// 		newBrush=::CreateSolidBrush(RGB(242,244,243));
-// 		//newBrush=GetSysColorBrush(COLOR_WINDOWFRAME);
-// 		::GetClientRect(m_hWnd,&rc);
-// 		oldBrush=(HBRUSH)::SelectObject(hdc,newBrush);
-// 		::Rectangle(hdc,rc.left,rc.top,rc.right,rc.bottom);
-// 		::SelectObject(hdc,oldBrush);
+		HDC hdc=(HDC)wParam;
+		RECT rcClient,rcLastItem,rcErase;
+		HPEN  newPen,oldPen; 
+		int count=GetItemCount();
 
-		// handled, no background painting needed
-		SetMsgHandled(FALSE);
+
+		GetClientRect(&rcClient);
+		GetItemRect(count-1,&rcLastItem);
+
+		rcErase=rcClient;
+		//rcErase.right=;
+		rcErase.bottom=rcLastItem.bottom;
+
+		HRGN rgnAll=CreateRectRgn(rcErase);
+		
+		for (int i=0;i<count;i++)
+		{
+			if(GetItemRect(i,&rcErase) )
+			{
+				HRGN tmp=CreateRectRgn(rcErase);
+				CombineRgn(rgnAll,rgnAll,tmp,RGN_DIFF); 
+			}
+		}
+		
+		HBRUSH brush;
+		brush=::GetSysColorBrush(COLOR_WINDOW);
+		//brush=::CreateSolidBrush(RGB(255,122,255));
+ 		newPen=(HPEN)::CreatePen(PS_SOLID,0,RGB(255,255,255));
+
+ 		oldPen=(HPEN )::SelectObject(hdc,newPen);
+		FillRgn(hdc,rgnAll,brush);
+ 		::SelectObject(hdc,oldPen);
+		
+		DeleteObject(brush);
+		DeleteObject(newPen);
+		
 		return 1;
 	}
+
 	class CMainFrame* pMain;
 	BOOL AddPlaylistTab(PlayList* ppl,BOOL inActiveFlag = TRUE, int inImage = -1);
 };

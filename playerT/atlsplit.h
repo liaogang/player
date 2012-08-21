@@ -79,7 +79,7 @@ public:
 // Constructor
 	CSplitterImpl() :
 			m_xySplitterPos(-1), m_nDefActivePane(SPLIT_PANE_NONE), 
-			m_cxySplitBar(0), m_cxyMin(0), m_cxyBarEdge(0), m_bFullDrag(true), 
+			m_cxySplitBar(0), m_cxyMin(0), m_cxyBarEdge(0), m_bFullDrag(false), 
 			m_cxyDragOffset(0), m_nProportionalPos(0), m_bUpdateProportionalPos(true),
 			m_dwExtendedStyle(SPLIT_PROPORTIONAL),
 			m_nSinglePane(SPLIT_PANE_NONE)
@@ -866,17 +866,17 @@ public:
 
 	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		// by lg
-		//HDC hdc=(HDC)wParam;
-		//HBRUSH newBrush,oldBrush;
-		//RECT rc;
-		////COLOR_WINDOW
-		//newBrush=GetSysColorBrush(COLOR_BTNFACE);
-		//GetClientRect(&rc);
-		//oldBrush=(HBRUSH)::SelectObject(hdc,newBrush);
-		//::Rectangle(hdc,rc.left,rc.top,rc.right,rc.bottom);
-		//::SelectObject(hdc,oldBrush);
-		bHandled=FALSE;
+// 		// by lg
+// 		HDC hdc=(HDC)wParam;
+// 		HBRUSH newBrush,oldBrush;
+// 		RECT rc;
+// 		//COLOR_WINDOW
+// 		newBrush=GetSysColorBrush(COLOR_BTNFACE);
+// 		GetClientRect(&rc);
+// 		oldBrush=(HBRUSH)::SelectObject(hdc,newBrush);
+// 		::Rectangle(hdc,rc.left,rc.top,rc.right,rc.bottom);
+// 		::SelectObject(hdc,oldBrush);
+		//bHandled=FALSE;
 		return 1;
 	}
 

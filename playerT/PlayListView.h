@@ -29,21 +29,21 @@ public:
 		MSG_WM_CHAR(OnChar)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
 	END_MSG_MAP()
-	
+
 	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 		
 		HDC hdc=(HDC)wParam;
-		RECT rcClient,rcSubItem,rcErase1,rcErase2;
+		RECT rcClient,rcSubItem,
+			rcErase1,//right
+			rcErase2,//bottom
+			rcErase3;//left
+
 		GetClientRect(&rcClient);
 
 		HWND hWndHeader=ListView_GetHeader(m_hWnd);
 		int columnNum=(int)::SendMessage(hWndHeader, HDM_GETITEMCOUNT, 0, 0L);
 		ListView_GetSubItemRect(m_hWnd,GetItemCount()-1,columnNum-1,LVIR_BOUNDS,&rcSubItem);
-
-// 		if (rcSubItem.bottom)
-// 		{
-// 		}
 
 		rcErase1=rcClient;
 		rcErase1.left=rcSubItem.right;
@@ -52,9 +52,15 @@ public:
 		rcErase2.top=rcSubItem.bottom;
 		rcErase2.right=rcSubItem.right;
 
+
+		ListView_GetSubItemRect(m_hWnd,0,0,LVIR_BOUNDS,&rcSubItem);
+		rcErase3=rcClient;
+		rcErase3.top=rcSubItem.top;
+		rcErase3.right=rcSubItem.left+2;
+		rcErase3.bottom=rcErase2.top;
+
+
 		HBRUSH newBrush,oldBrush;
-		//newBrush=::CreateSolidBrush(RGB(242,244,243));
-		//newBrush=GetSysColorBrush(COLOR_WINDOWFRAME);
 		newBrush=(HBRUSH)COLOR_WINDOW+1;
 		oldBrush=(HBRUSH)::SelectObject(hdc,newBrush);
 		
@@ -64,12 +70,14 @@ public:
 
 		::Rectangle(hdc,rcErase1.left,rcErase1.top,rcErase1.right,rcErase1.bottom);
 		::Rectangle(hdc,rcErase2.left,rcErase2.top,rcErase2.right,rcErase2.bottom);
-		
+		::Rectangle(hdc,rcErase3.left,rcErase3.top,rcErase3.right,rcErase3.bottom);
+
 		::SelectObject(hdc,oldPen);
 		::SelectObject(hdc,oldBrush);
 		
-		// handled, no background painting needed
-		//bHandled=FALSE;
+		DeleteObject(newBrush);
+		DeleteObject(newPen);
+
 		return 1;
 	}
 

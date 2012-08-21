@@ -14,6 +14,9 @@ void OnMyCtrlEraseBkgnd(HWND hWnd,HDC hdc)
 	oldBrush=(HBRUSH)::SelectObject(hdc,newBrush);
 	::Rectangle(hdc,rc.left,rc.top,rc.right,rc.bottom);
 	::SelectObject(hdc,oldBrush);
+
+	DeleteObject(newBrush);
+
 }
 
 

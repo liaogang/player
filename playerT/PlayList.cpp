@@ -98,12 +98,10 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 			int Len=_tcslen(findFileData.cFileName);
 			if (Len==1 && findFileData.cFileName[0]=='.')
 			{
-				;
 			}
 			else  if (Len==2 && findFileData.cFileName[0]=='.'||
 				findFileData.cFileName[1]=='.')
 			{
-				;
 			}
 			//Ŀ¼
 			else if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -144,7 +142,7 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 		}//while(findResult)
 
 		FindClose(hFind);
-	}
+	}//if(hFind!=INVALID_HANDLE_VALUE)
 	
 
 	_tchdir(oldPath);

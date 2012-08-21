@@ -150,7 +150,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	//-----------------------------------------
 	//split
-	DWORD dwSplitStyle = WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+	DWORD dwSplitStyle = WS_CHILD|WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 	DWORD dwSplitExStyle =0;
 
 	split.Create(m_hWnd, rcDefault, NULL, 
@@ -609,9 +609,8 @@ void CMainFrame::ShowSearchDialog()
 		m_pDlgSearch->pM=this;
 		m_pDlgSearch->Create(m_hWnd);
 	}
-	else
-		m_pDlgSearch->ShowSelf();
-
+	
+	m_pDlgSearch->ShowSelf();
 }
 
 void CMainFrame::DoSomethingBeforeShow()

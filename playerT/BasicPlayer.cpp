@@ -206,6 +206,8 @@ void CBasicPlayer::InitSlowDownVolBuffer()
 
 void CBasicPlayer::SlowDownVol()
 {
+	//todo
+	//有时indexpoint出现极大的数或负数
 	m_pPlayerThread->m_lpDSBuffer->SetVolume(volBuffer[indexPoint]);
 
 	indexPoint+=indexVec;
