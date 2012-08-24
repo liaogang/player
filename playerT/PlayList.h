@@ -42,7 +42,7 @@ public:
 		,playCount(0),starLvl(1),indexInListView(-1)
 		,pPicBuf(NULL),img(NULL),year(0)
 		,m_bLrcInner(FALSE),m_bLrcFromLrcFile(FALSE)
-		,bUnsynLyc(FALSE)
+		,bUnsynLyc(FALSE),m_bStatus(UNKNOWN)
 	{
 	}
 
@@ -70,7 +70,17 @@ public:
 
 	BOOL bUnsynLyc;
 public:
-	BOOL  ScanId3Info();
+	
+	enum ID3Status
+	{
+		UNKNOWN,
+		INVALIE,
+		ID3V2,
+		ID3V1
+	};
+	ID3Status m_bStatus;
+
+	BOOL  ScanId3Info(BOOL bRetainPic=FALSE);
 	const TCHAR* GetTitle(){return title.c_str();}
 	BOOL  GetLrcFileFromLib();
 	BOOL  HaveKeywords(TCHAR *keywords);
@@ -108,9 +118,11 @@ public:
 	~PlayList(void);
 	
 public:
+	HANDLE hAddDir;
 	BOOL AddFolderByThread(LPCTSTR pszFolder);
 	void scanAllId3Info();
 	BOOL AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir=FALSE);
+	void TerminateAddDirThread();
 public:
 	PlayListItem* GetNextTrackByOrder(BOOL bMoveCur=TRUE);
 };

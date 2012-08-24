@@ -32,10 +32,12 @@
 #define IDC_EDIT_SEARCH                 1013
 #define IDC_BUTTON2                     1014
 #define IDC_BTN_OPENDIR                 1014
-#define IDC_EDIT1                       1015
 #define IDC_EDIT                        1015
 #define IDC_LIST                        1016
 #define IDC_BUTTON                      1017
+#define IDC_STATIC1                     1019
+#define IDC_BUTTON_ABORT                1020
+#define IDC_PROGRESS                    1021
 #define IDD_DLG_CFG_1                   2055
 #define ID_FILE_PLAY                    32775
 #define ID_FILE_OPEN32776               32776
@@ -76,7 +78,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        211
 #define _APS_NEXT_COMMAND_VALUE         32812
-#define _APS_NEXT_CONTROL_VALUE         1018
+#define _APS_NEXT_CONTROL_VALUE         1022
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

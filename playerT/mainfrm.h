@@ -22,6 +22,7 @@ class CPlayListView;
 class CMyVolumeBar;
 class CMyStatusBar;
 class DialogSearch;
+class CProcessingDlg;
 //-----------------------------------------
 
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFrame>,
@@ -37,7 +38,8 @@ public:
 	CDialogConfig   m_dlgConfig;
 	CComboBox m_wndComboBox;
 	CDialogLyric *m_dlgLrc;
-	
+	CProcessingDlg *pDlgProcess;
+
 	CMyTabBar *m_pTabBar;
 	CPlayListView *m_pPlaylistView;
 	CSplitterWindow split;
@@ -48,7 +50,7 @@ public:
 public:
 	CMainFrame():m_dlgLrc(NULL),
 		m_pTrackBar(NULL),m_pVolumeBar(NULL),
-		m_pDlgSearch(NULL)
+		m_pDlgSearch(NULL),pDlgProcess(NULL)
 	{
 	}
 
@@ -78,6 +80,9 @@ public:
 		MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
 		MESSAGE_HANDLER(WM_PLAY_DIRECTLY,OnPlayDirectly)
+		MESSAGE_HANDLER(WM_FILE_FINDED,OnFileFinded)
+
+		
 
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_NEW, OnFileNew)
@@ -110,7 +115,7 @@ public:
 	LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnPlayDirectly(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnPaused(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
-
+	LRESULT OnFileFinded(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 	LRESULT OnExit(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 		
@@ -192,6 +197,7 @@ public:
 	LRESULT OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	
 	//新建播放列表
 	LRESULT OnFileNewPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	//加载选中的播放列表文件
@@ -211,6 +217,7 @@ public:
 	
 	void ShowSearchDialog();
 	void DoSomethingBeforeShow();
+	void ShowDlgProcessFile();
 };
 
 

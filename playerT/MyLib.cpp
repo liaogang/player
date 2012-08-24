@@ -11,9 +11,11 @@ PlayList*  MyLib::NewPlaylist(std::tstring playlistname)
 	return l;
 }
 
-void MyLib::AddFolderToCurrentPlayList(LPCTSTR pszFolder)
+PlayList* MyLib::AddFolderToCurrentPlayList(LPCTSTR pszFolder)
 {
-	MyLib::shared()->m_pSelPlaylist->AddFolderByThread(pszFolder);
+	PlayList *p=MyLib::shared()->m_pSelPlaylist;
+	p->AddFolderByThread(pszFolder);
+	return p;
 }
 
 MyLib* MyLib::shared()
@@ -67,7 +69,7 @@ void MyLib::playNext(BOOL scanID3)
 	PlayListItem *track=shared()->ActivePlaylist()->GetNextTrackByOrder();
 	if(!track) return;
 
-	track->ScanId3Info();
+	track->ScanId3Info(TRUE);
 
 	CBasicPlayer *sbp=CBasicPlayer::shared();
 	if ( track==shared()->ActivePlaylist()->lastTrack())

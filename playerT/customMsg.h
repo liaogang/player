@@ -4,6 +4,10 @@
 //#define  WM_PAUSED            (WM_USER+38)//开始音轨播放
 #define  WM_PLAY_DIRECTLY     (WM_USER+39)
 
+//正在添加文件内容  
+//wParam TCHAR *filename;
+//lParam BOOL , 2 -->file ,1-->started : 0 -->ended
+#define  WM_FILE_FINDED            (WM_USER+40) 
 #define  WM_DRAWSPECTRUM (WM_PAINT+913)
 #define  WM_ADDFOLDERED  (WM_USER+35)     //playlistView will reload playlists
 

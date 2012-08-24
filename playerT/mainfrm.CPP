@@ -303,18 +303,16 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 	UINT uFlags=BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE;
 	uFlags&=~BIF_NONEWFOLDERBUTTON ;
 	CFolderDialog dlg(m_hWnd,_T("请选择要添加的文件夹"),uFlags);
-	if (dlg.DoModal()==IDOK){
-		CProcessingDlg *pDlgProcess=NULL;
-		pDlgProcess=new CProcessingDlg;
-		pDlgProcess->Create(m_hWnd);
-		pDlgProcess->ShowWindow(SW_SHOW);
-
+	if (dlg.DoModal()==IDOK)
+	{
+		ShowDlgProcessFile();
 
 		LPCTSTR path=dlg.GetFolderPath();
 		TCHAR *tmp=new TCHAR[MAX_PATH];
 		_tcscpy(tmp,path);
 		MyLib::SetMain(m_hWnd);
-		MyLib::AddFolderToCurrentPlayList(tmp);
+		PlayList* pList=MyLib::AddFolderToCurrentPlayList(tmp);
+		pDlgProcess->pList=pList;
 	}
 	return 0;
 }
@@ -630,4 +628,29 @@ void CMainFrame::DoSomethingBeforeShow()
 
 
 	s->InitLrcLib();
+}
+
+
+void CMainFrame::ShowDlgProcessFile()
+{
+	if (!pDlgProcess)
+	{
+		pDlgProcess=new CProcessingDlg;
+		pDlgProcess->Create(m_hWnd);
+	}
+
+	pDlgProcess->ShowWindow(SW_SHOW);
+}
+
+
+LRESULT CMainFrame::OnFileFinded(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	pDlgProcess->ShowFileName((TCHAR*)wParam,(BOOL)lParam);
+	return 0;
+}
+
+LRESULT  CProcessingDlg::OnAbort(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	pList->TerminateAddDirThread();
+	return 0;
 }

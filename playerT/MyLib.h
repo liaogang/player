@@ -51,7 +51,7 @@ public:
 	PlayList* ActivePlaylist(){return m_pActivePlaylist;}
 	PlayList* NewPlaylist(std::tstring playlistname=_T("新建播放列表"));
 
-	static void AddFolderToCurrentPlayList(LPCTSTR pszFolder);
+	static PlayList* AddFolderToCurrentPlayList(LPCTSTR pszFolder);
 	static void playAfterSlowDown();
 	static void play();//set active track, play 
 	static void pause();

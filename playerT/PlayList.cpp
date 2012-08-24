@@ -15,8 +15,10 @@ struct PLANDPATH
 static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 {
 	PLANDPATH* p=(PLANDPATH*)lpParameter;
+	::SendMessage(MyLib::GetMain(),WM_FILE_FINDED,NULL,(LPARAM)1);
 	BOOL result=p->pPlaylist->AddFolder(p->pszFolder,TRUE);
-	
+	::SendMessage(MyLib::GetMain(),WM_FILE_FINDED,NULL,(LPARAM)0);
+
 	::PostMessage(MyLib::GetMain(),WM_ADDFOLDERED,NULL,NULL);
 	
 	delete p;
@@ -53,9 +55,16 @@ BOOL PlayList::AddFolderByThread(LPCTSTR pszFolder)
 	p->pPlaylist=this;
 	p->pszFolder=pszFolder;
 
-	HANDLE handle=::CreateThread(NULL,NULL,AddFolderThreadProc,(LPVOID)p,
+	hAddDir=::CreateThread(NULL,NULL,AddFolderThreadProc,(LPVOID)p,
 		NULL,NULL);
 	return 0;
+}
+
+void PlayList::TerminateAddDirThread()
+{
+	::TerminateThread(hAddDir,-1);
+	::SendMessage(MyLib::GetMain(),WM_FILE_FINDED,NULL,(LPARAM)0);
+	::PostMessage(MyLib::GetMain(),WM_ADDFOLDERED,NULL,NULL);
 }
 
 //ignore case
@@ -89,12 +98,16 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 	WIN32_FIND_DATA findFileData;
 	HANDLE hFind;
 
+	TCHAR test[]=L"sadfsdf";
+	AtlTrace(L"%s\n",test);
+
 	hFind=::FindFirstFile(_T("*"),&findFileData);
 	if(hFind!=INVALID_HANDLE_VALUE)
 	{
 		findResult=TRUE;
 		while(findResult)
 		{
+			AtlTrace(L"%s\n",findFileData.cFileName);
 			int Len=_tcslen(findFileData.cFileName);
 			if (Len==1 && findFileData.cFileName[0]=='.')
 			{
@@ -111,6 +124,8 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 			}
 			else//文件
 			{
+				
+
 				TCHAR *mp3File=_T(".mp3");
 				TCHAR *wavFile=_T(".wav");
 				if (StrIsEndedWith(findFileData.cFileName,mp3File) ||
@@ -120,16 +135,17 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 					memset(_findName,0,(MAX_PATH)*sizeof(TCHAR));
 					_tcscpy(_findName,findFileData.cFileName);
 
-					TCHAR* pathName=new TCHAR[MAX_PATH];
-					memset(pathName,0,(MAX_PATH)*sizeof(TCHAR));
-					_tgetcwd(pathName,MAX_PATH);
+					TCHAR* pathName=new TCHAR[MAX_PATH*2];
+					memset(pathName,0,(MAX_PATH*2)*sizeof(TCHAR));
+					_tgetcwd(pathName,MAX_PATH*2);
 					
-
 					_tcscat(pathName,_T("\\"));
 					_tcscat(pathName,_findName);
 					std::tstring str(pathName);
-					delete[] _findName;
+					
+					::SendMessage(MyLib::GetMain(),WM_FILE_FINDED,(WPARAM)pathName,(LPARAM)2);
 					delete[] pathName;
+					delete[] _findName;
 
 					PlayListItem *pItem=new PlayListItem(this,&str);
 					pItem->ScanId3Info();
@@ -162,7 +178,7 @@ PlayListItem* PlayList::nextTrack()
 void PlayList::SetCurPlaying(PlayListItem* item,BOOL scanID3)
 {
 	curPlayingItem=item;
-	if (scanID3) curPlayingItem->ScanId3Info();
+	if (scanID3) curPlayingItem->ScanId3Info(TRUE);
 }
 
 PlayListItem* PlayList::GetNextTrackByOrder(BOOL bMoveCur)
@@ -200,63 +216,94 @@ PlayListItem::~PlayListItem()
 	}
 }
 
-BOOL PlayListItem::ScanId3Info()
+
+void TrimRightByNull(std::wstring &_str)
 {
-	BOOL bInvalidID3V2=FALSE;
+	char c='\0';
+	int index=_str.find_first_of(c);
+	if (index!=_str.npos)
+		_str=_str.substr(0,index);	
+}
+
+
+BOOL PlayListItem::ScanId3Info(BOOL bRetainPic)
+{
+	if(m_bStatus!=UNKNOWN && bRetainPic==FALSE)
+		return TRUE;
 
 	MPEG::File f(url.c_str());
-
 	ID3v2::Tag *id3v2tag = f.ID3v2Tag();
-	if(id3v2tag) {
-		title=id3v2tag->title().toWString();
-		artist=id3v2tag->artist().toWString();
-		album=id3v2tag->album().toWString();
-		genre=id3v2tag->genre().toWString();
-		year=id3v2tag->year();
-		lyricInner=id3v2tag->lyric().toWString();
-		if (!lyricInner.empty())
-			m_bLrcInner=TRUE;
-
-		// we will use bytevector to retain to memory in frame
-		pPicBuf=new ByteVector;
-		id3v2tag->retainPicBuf(pPicBuf);
-
-		//-----------------------------------------
-		//idev3 album picture info
-		img=new CImage;
-		// load resource into memory
-		DWORD len =pPicBuf->size();
-		BYTE* lpRsrc=(BYTE*)pPicBuf->data();
-
-		// Allocate global memory on which to create stream
-		HGLOBAL m_hMem = GlobalAlloc(GMEM_FIXED, len);
-		BYTE* pmem = (BYTE*)GlobalLock(m_hMem);
-		memcpy(pmem,lpRsrc,len);
-		IStream* pstm;
-		CreateStreamOnHGlobal(m_hMem,FALSE,&pstm);
-		if (S_OK != img->Load(pstm)){
-			delete img;
-			img=NULL;
-		}
+	BOOL bInvalidID3V2=FALSE;
+	if(id3v2tag) 
+	{
+		if(m_bStatus==UNKNOWN)
+		{
+			title=id3v2tag->title().toWString();
+			artist=id3v2tag->artist().toWString();
+			album=id3v2tag->album().toWString();
+			genre=id3v2tag->genre().toWString();
+			year=id3v2tag->year();
+			lyricInner=id3v2tag->lyric().toWString();
 		
-		//-----------------------------------------
+			if (!lyricInner.empty())
+				m_bLrcInner=TRUE;
 
-		if ( title.empty() && artist.empty() && album.empty())
-			bInvalidID3V2=TRUE;
+			//-----------------------------------------
+
+			if ( title.empty() && artist.empty() && album.empty())
+				bInvalidID3V2=TRUE;
+			else
+				m_bStatus=ID3V2;
+		}
+
+		if(bRetainPic)
+		{
+			// we will use bytevector to retain to memory in frame
+			pPicBuf=new ByteVector;
+			id3v2tag->retainPicBuf(pPicBuf);
+			//-----------------------------------------
+			//idev3 album picture info
+			img=new CImage;
+			// load resource into memory
+			DWORD len =pPicBuf->size();
+			BYTE* lpRsrc=(BYTE*)pPicBuf->data();
+			// Allocate global memory on which to create stream
+			HGLOBAL m_hMem = GlobalAlloc(GMEM_FIXED, len);
+			BYTE* pmem = (BYTE*)GlobalLock(m_hMem);
+			memcpy(pmem,lpRsrc,len);
+			IStream* pstm;
+			CreateStreamOnHGlobal(m_hMem,FALSE,&pstm);
+			if (S_OK != img->Load(pstm))
+			{
+				delete img;
+				img=NULL;
+			}
+		}//if(bRetainPic)
 	}
 	else
+	{
 		bInvalidID3V2=TRUE;
+	}
 	
 
-	if(bInvalidID3V2){
+	if(bInvalidID3V2 && m_bStatus==UNKNOWN)
+	{
 		ID3v1::Tag *id3v1tag = f.ID3v1Tag();
-		if(id3v1tag) {
+		if(id3v1tag) 
+		{
+			//the id3v1tag string may be wrongly
+			//like 我很好0000fsadfsdf...
 			title=id3v1tag->title().toWString();
 			artist=id3v1tag->artist().toWString();
 			album=id3v1tag->album().toWString();
 			genre=id3v1tag->genre().toWString();
-
 			year=id3v1tag->year();
+
+
+			TrimRightByNull(title);
+			TrimRightByNull(artist);
+			TrimRightByNull(album);
+			TrimRightByNull(genre);
 		}
 	}
 
@@ -266,19 +313,29 @@ BOOL PlayListItem::ScanId3Info()
 
 
 
-BOOL PlayListItem::LrcFileMacth(std::tstring &filename)
+
+//通过歌词文件名判断,是否与当前歌曲匹配
+BOOL PlayListItem::LrcFileMacth(std::tstring &lrcFile)
 {
-	if( search(filename.begin(),filename.end(),title.begin(),title.end())!=filename.end() )
+	if( search(lrcFile.begin(),lrcFile.end(),title.begin(),title.end())!=lrcFile.end() )
 		return TRUE;
 
 // 	if( search(filename.begin(),filename.end(),artist.begin(),artist.end()) !=filename.end())
 // 		return TRUE;
 
-	int index=url.find_last_of('\\');
-	if(index!=url.length()){
-		std::tstring filename=url.substr(index);
-		if( search(filename.begin(),filename.end(),artist.begin(),artist.end()) !=filename.end())
-			return TRUE;	
+	int indexA=url.find_last_of('\\');
+	int indexB=url.find_last_of('.');
+	if(indexA==url.npos || 
+		indexB==url.npos ||
+		indexA>indexB) return FALSE;
+	else
+	{
+		if(indexB!=url.length())
+		{
+			std::tstring filename=url.substr(indexA+1,indexB-indexA);
+			if( search(lrcFile.begin(),lrcFile.end(),filename.begin(),filename.end()) !=lrcFile.end())
+				return TRUE;	
+		}
 	}
 
 	return FALSE;
@@ -290,8 +347,8 @@ BOOL PlayListItem::GetLrcFileFromLib()
 	for (i=MyLib::shared()->dataPaths.begin();i!=MyLib::shared()->dataPaths.end();i++)
 	{
 		int index=(*i).find_last_of('\\');
-		if(index!=(*i).length()){
-			std::tstring filename=(*i).substr(index);
+		if(index!=(*i).npos){
+			std::tstring filename=(*i).substr(index+1);
 			if (LrcFileMacth(filename)){
 				lycPath=*i;
 				return TRUE;
