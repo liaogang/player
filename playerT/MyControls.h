@@ -1,23 +1,23 @@
-#include "PlayListView.h"
+//#include "PlayListView.h"
 #include "WTLTabViewCtrl.h"
-#include "mainfrm.h"
 
 
-void OnMyCtrlEraseBkgnd(HWND hWnd,HDC hdc)
-{
-	RECT rc;
-	HBRUSH newBrush,oldBrush;
-
-	newBrush=::CreateSolidBrush(RGB(242,244,243));
-	//newBrush=GetSysColorBrush(COLOR_WINDOWFRAME);
-	GetClientRect(hWnd,&rc);
-	oldBrush=(HBRUSH)::SelectObject(hdc,newBrush);
-	::Rectangle(hdc,rc.left,rc.top,rc.right,rc.bottom);
-	::SelectObject(hdc,oldBrush);
-
-	DeleteObject(newBrush);
-
-}
+// 
+// void OnMyCtrlEraseBkgnd(HWND hWnd,HDC hdc)
+// {
+// 	RECT rc;
+// 	HBRUSH newBrush,oldBrush;
+// 
+// 	newBrush=::CreateSolidBrush(RGB(242,244,243));
+// 	//newBrush=GetSysColorBrush(COLOR_WINDOWFRAME);
+// 	GetClientRect(hWnd,&rc);
+// 	oldBrush=(HBRUSH)::SelectObject(hdc,newBrush);
+// 	::Rectangle(hdc,rc.left,rc.top,rc.right,rc.bottom);
+// 	::SelectObject(hdc,oldBrush);
+// 
+// 	DeleteObject(newBrush);
+// 
+// }
 
 
 //-----------------------------------------
@@ -429,12 +429,8 @@ public:
 		return 1;
 	}
 
-	void OnPos(int pos)
-	{
-		CBasicPlayer::shared()->SetVolumeByEar(pos);
-	}
 
-
+	void OnPos(int pos);
 
 	LRESULT OnGetItemRect(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{

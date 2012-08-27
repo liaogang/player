@@ -23,6 +23,7 @@ class CMyVolumeBar;
 class CMyStatusBar;
 class DialogSearch;
 class CProcessingDlg;
+class CWndLyric;
 //-----------------------------------------
 
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFrame>,
@@ -41,6 +42,7 @@ public:
 	CProcessingDlg *pDlgProcess;
 
 	CMyTabBar *m_pTabBar;
+	CWndLyric *lyricView;
 	CPlayListView *m_pPlaylistView;
 	CSplitterWindow split;
 	CHorSplitterWindow *leftPane;
@@ -50,7 +52,8 @@ public:
 public:
 	CMainFrame():m_dlgLrc(NULL),
 		m_pTrackBar(NULL),m_pVolumeBar(NULL),
-		m_pDlgSearch(NULL),pDlgProcess(NULL)
+		m_pDlgSearch(NULL),pDlgProcess(NULL),
+		lyricView(NULL)
 	{
 	}
 

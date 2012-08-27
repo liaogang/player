@@ -32,6 +32,7 @@ MyLib* MyLib::shared()
 MyLib::~MyLib()
 {
 	SaveCoreCfg();
+	CBasicPlayer::shared()->stop();
 }
 
 void MyLib::playAfterSlowDown()

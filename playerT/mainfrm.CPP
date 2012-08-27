@@ -1,14 +1,16 @@
 #include "StdAfx.h"
 #include "MainFrm.h"
+#include "MyControls.h"
 #include "PlayList.h"
-#include "DialogFFT.h"
-#include "DialogLyric.h"
 #include "BasicPlayer.h"
 #include "CAlbumCoverView.h"
-#include "MyControls.h"
 #include "CMyTabBar.h"
 #include "DlgProcessing.h"
+#include "PlayListView.h"
 #include "DialogSearch.h"
+#include "DialogFFT.h"
+#include "DialogLyric.h"
+
 
 #include <mpg123.h>
 #include <string>
@@ -169,9 +171,15 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//left pane
 	leftPane=new CHorSplitterWindow;
 	leftPane->Create(split.m_hWnd,rcDefault,0,dwSplitStyle);
+
+
 	albumView1=new CAlbumCoverView;
 	albumView1->Create(leftPane->m_hWnd,0,0,dwSplitStyle);
-	leftPane->SetSplitterPane(0,albumView1->m_hWnd);
+	lyricView=new CWndLyric;
+	lyricView->Create(leftPane->m_hWnd);
+	lyricView->Init();
+
+	leftPane->SetSplitterPanes(albumView1->m_hWnd,lyricView->m_hWnd);
 	
 	//set left and right
 	split.SetSplitterPanes(m_pTabBar->m_hWnd,leftPane->m_hWnd);
@@ -351,6 +359,9 @@ LRESULT CMainFrame::OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	if (m_dlgLrc)
 		m_dlgLrc->TrackChanged();
 
+	//::PostMessage(m_hWnd,WM_LYRIC_RELOAD,0,0);
+	if(lyricView)
+		lyricView->TrackChanged();
 	return 0;
 }
 
@@ -374,6 +385,9 @@ LRESULT CMainFrame::OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHa
 
 	if (m_dlgLrc && ::IsWindow(m_dlgLrc->m_hWnd))
 		::PostMessage(m_dlgLrc->m_hWnd,WM_TRACKPOS,wParam,lParam);
+	if (lyricView)
+		::PostMessage(lyricView->m_hWnd,WM_TRACKPOS,wParam,lParam);
+
 
 	return 1;
 }
@@ -654,3 +668,11 @@ LRESULT  CProcessingDlg::OnAbort(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*
 	pList->TerminateAddDirThread();
 	return 0;
 }
+
+
+
+void CMyVolumeBar::OnPos(int pos)
+{
+	CBasicPlayer::shared()->SetVolumeByEar(pos);
+}
+

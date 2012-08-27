@@ -98,16 +98,12 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 	WIN32_FIND_DATA findFileData;
 	HANDLE hFind;
 
-	TCHAR test[]=L"sadfsdf";
-	AtlTrace(L"%s\n",test);
-
 	hFind=::FindFirstFile(_T("*"),&findFileData);
 	if(hFind!=INVALID_HANDLE_VALUE)
 	{
 		findResult=TRUE;
 		while(findResult)
 		{
-			AtlTrace(L"%s\n",findFileData.cFileName);
 			int Len=_tcslen(findFileData.cFileName);
 			if (Len==1 && findFileData.cFileName[0]=='.')
 			{
@@ -124,8 +120,6 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 			}
 			else//нд╪Ч
 			{
-				
-
 				TCHAR *mp3File=_T(".mp3");
 				TCHAR *wavFile=_T(".wav");
 				if (StrIsEndedWith(findFileData.cFileName,mp3File) ||
@@ -228,8 +222,7 @@ void TrimRightByNull(std::wstring &_str)
 
 BOOL PlayListItem::ScanId3Info(BOOL bRetainPic)
 {
-	if(m_bStatus!=UNKNOWN && bRetainPic==FALSE)
-		return TRUE;
+	if(m_bStatus!=UNKNOWN && bRetainPic==FALSE)return TRUE;
 
 	MPEG::File f(url.c_str());
 	ID3v2::Tag *id3v2tag = f.ID3v2Tag();
@@ -248,8 +241,6 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic)
 			if (!lyricInner.empty())
 				m_bLrcInner=TRUE;
 
-			//-----------------------------------------
-
 			if ( title.empty() && artist.empty() && album.empty())
 				bInvalidID3V2=TRUE;
 			else
@@ -263,7 +254,7 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic)
 			id3v2tag->retainPicBuf(pPicBuf);
 			//-----------------------------------------
 			//idev3 album picture info
-			img=new CImage;
+			img=new CImage;                                                                          
 			// load resource into memory
 			DWORD len =pPicBuf->size();
 			BYTE* lpRsrc=(BYTE*)pPicBuf->data();
@@ -298,7 +289,6 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic)
 			album=id3v1tag->album().toWString();
 			genre=id3v1tag->genre().toWString();
 			year=id3v1tag->year();
-
 
 			TrimRightByNull(title);
 			TrimRightByNull(artist);
@@ -389,12 +379,10 @@ BOOL PlayListItem::HaveKeywords(TCHAR *keywords)
 }
 
 
-
-
-
 BOOL LrcMng::OpenTrackPath(PlayListItem* track)
 {
 	Open((LPTSTR)track->lycPath.c_str());
+
 
 	if (lib.size()>0)
 	{
