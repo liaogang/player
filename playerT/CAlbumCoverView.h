@@ -8,6 +8,18 @@ class CAlbumCoverView :
 {
 public:
 	CMainFrame *pMainFrame;
+	HPEN  newPen,oldPen; 
+	
+	CAlbumCoverView()
+	{
+		newPen=(HPEN)::CreatePen(PS_SOLID,0,RGB(255,255,255));
+	}
+
+	~CAlbumCoverView()
+	{
+		DeleteObject(newPen);
+	}
+
 public:
 	DECLARE_WND_CLASS(NULL)
 
@@ -24,11 +36,7 @@ public:
 
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		PAINTSTRUCT ps;
-		::BeginPaint(m_hWnd,&ps);
-
 		BOOL bHasPic=FALSE;
-		CPaintDC dc(m_hWnd);
 		RECT rc;
 		GetClientRect(&rc);
 		PlayList* ppl=MyLib::shared()->ActivePlaylist();
@@ -40,22 +48,20 @@ public:
 				bHasPic=TRUE;
 		}
 
+		PAINTSTRUCT ps;
+		::BeginPaint(m_hWnd,&ps);
 
 		if (bHasPic)
 		{
-			i->img->Draw(this->GetDC(),rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top,0,0,i->img->GetWidth(),i->img->GetHeight());
+			i->img->Draw(ps.hdc,rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top,0,0,i->img->GetWidth(),i->img->GetHeight());
 		}
 		else
 		{
-			HPEN  newPen,oldPen; 
-			newPen=(HPEN)::CreatePen(PS_SOLID,0,RGB(255,255,255));
 			oldPen=(HPEN )::SelectObject(ps.hdc,newPen);
 			::Rectangle(ps.hdc,rc.left,rc.top,rc.right,rc.bottom);
 			::SelectObject(ps.hdc,oldPen);
-
-			DeleteObject(newPen);
 		}
-				
+
 		::EndPaint(m_hWnd,&ps);	
 
 		return 0;

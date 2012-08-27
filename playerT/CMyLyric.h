@@ -26,7 +26,8 @@ public:
 		double used,lefted;
 		vector<LrcLine>::iterator preLine,lastLine;
 		RECT tRc;
-
+		BOOL bNoChange;
+		
 		std::wstring title;
 		LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
@@ -51,15 +52,12 @@ public:
 			if(!track || !track->m_bLrcFromLrcFile)
 				return 0;
 
-
 			used=wParam;
 			lefted=lParam;
 
 			if (lefted=0)
-			{
 				ResetTitle();
-			}
-
+			
 			//used= used%sz            //以行高为基数，取整。
 			double lrcContent=used+lefted;
 			lrcRect=rc;
@@ -71,8 +69,10 @@ public:
 				i!=track->lyricFromLrcFile.end();
 				preLine=i,++i,++lrcLines)
 			{
-				if (used < (*i).time.GetTotalSec() &&used > (*preLine).time.GetTotalSec() ){
-					if (lastLine!=preLine){
+				if (used < (*i).time.GetTotalSec() &&used > (*preLine).time.GetTotalSec() )
+				{
+					if (lastLine!=preLine)
+					{
 						RECT eraseRC={};
 						eraseRC.left=tRc.left;
 						eraseRC.top=tRc.top;
@@ -81,32 +81,42 @@ public:
 						InvalidateRect(&eraseRC);
 						::DrawText(GetDC(),(*preLine).text.c_str(),(*preLine).text.length(),&tRc,DT_CENTER);
 						lastLine=preLine;
+						bNoChange=FALSE;
 					}
+					else
+						bNoChange=TRUE;
+
 					break;
 				}
 				//lrcText+=(*i).text+_T("\n");
 			}
 			//-----------------------------------------
+
+
 			return 0;
 		}
 
 
-
 		void OnPaint(CDCHandle dc)
 		{
-			if(!bLrcReady) return;
-
 			PAINTSTRUCT ps;
 			::BeginPaint(m_hWnd,&ps);
 
-			if(track->m_bLrcInner)
+			if(!bLrcReady)
+			{
+			}
+			else if(track->m_bLrcInner)
+			{
 				::DrawText(ps.hdc,track->lyricInner.c_str(),track->lyricInner.length(),&rc,DT_CENTER);
+			}
 			else if(track->m_bLrcFromLrcFile)
 			{
-				LrcLine l=*preLine;
-				if (!l.text.empty() )
-					//::DrawText(ps.hdc,(*preLine).text.c_str(),(*preLine).text.length(),&tRc,DT_CENTER);
-					::DrawText(ps.hdc,(*preLine).text.c_str(),(*preLine).text.length(),&rc,DT_CENTER);
+				if(!bNoChange)
+				{
+					LrcLine l=*preLine;
+					if (!l.text.empty() )
+						::DrawText(ps.hdc,(*preLine).text.c_str(),(*preLine).text.length(),&rc,DT_CENTER);	
+				}
 			}
 
 			::EndPaint(m_hWnd,&ps);	
@@ -166,6 +176,7 @@ public:
 
 			track=NULL;
 			bLrcReady=FALSE;
+			bNoChange=FALSE;
 		}
 
 		LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)

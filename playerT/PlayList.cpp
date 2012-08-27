@@ -84,9 +84,21 @@ BOOL StrIsEndedWith(TCHAR *_str,TCHAR *_end)
 	return TRUE;
 }
 
+// return TRUE if the file name is "." or ".." 
+BOOL IsDots(TCHAR* fn)
+{
+	BOOL bResult=FALSE;
+	if (fn[0]=='.')
+		if (fn[1]=='\0' ||
+		   (fn[1]=='.'&& fn[2]=='\0'))
+				bResult=TRUE;
+	return bResult;
+}
+
 BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 {
 	//todo
+	//CFileFind a;a.IsDots()
 	//忽略了子目录下的mp3文件
 	TCHAR* oldPath=new TCHAR[MAX_PATH];
 	_tgetcwd(oldPath,MAX_PATH);
@@ -104,12 +116,7 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 		findResult=TRUE;
 		while(findResult)
 		{
-			int Len=_tcslen(findFileData.cFileName);
-			if (Len==1 && findFileData.cFileName[0]=='.')
-			{
-			}
-			else  if (Len==2 && findFileData.cFileName[0]=='.'||
-				findFileData.cFileName[1]=='.')
+			if( IsDots(findFileData.cFileName) )
 			{
 			}
 			//目录

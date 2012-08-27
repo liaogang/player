@@ -182,6 +182,7 @@ String::String(const ByteVector &v, Type t)
 	  wstring tmp(targetW,targetW+dwNum);
 	  d->data=tmp;
 	  delete[] targetW;
+	  return;
   }
   if(t == Latin1 )
   {

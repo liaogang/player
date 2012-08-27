@@ -3,6 +3,25 @@ inline HRGN CreateRectRgn(RECT &rc){return ::CreateRectRgn(rc.left,rc.top,rc.rig
 
 class CMyTabBar:public CWTLTabViewCtrl
 {
+public:
+	HPEN  newPen,oldPen; 
+	HBRUSH brush;
+	CMyTabBar()
+	{
+		brush=::GetSysColorBrush(COLOR_WINDOW);
+		//brush=::CreateSolidBrush(RGB(255,122,255));
+		newPen=(HPEN)::CreatePen(PS_SOLID,0,RGB(255,255,255));
+	}
+
+	~CMyTabBar()
+	{
+		DeleteObject(brush);
+		DeleteObject(newPen);
+	}
+
+public:
+
+
 	DECLARE_WND_SUPERCLASS(NULL, CWTLTabViewCtrl::GetWndClassName())
 
 	BOOL PreTranslateMessage(MSG* pMsg)
@@ -21,7 +40,7 @@ public:
 	{
 		HDC hdc=(HDC)wParam;
 		RECT rcClient,rcLastItem,rcErase;
-		HPEN  newPen,oldPen; 
+
 		int count=GetItemCount();
 
 
@@ -43,18 +62,11 @@ public:
 			}
 		}
 		
-		HBRUSH brush;
-		brush=::GetSysColorBrush(COLOR_WINDOW);
-		//brush=::CreateSolidBrush(RGB(255,122,255));
- 		newPen=(HPEN)::CreatePen(PS_SOLID,0,RGB(255,255,255));
 
  		oldPen=(HPEN )::SelectObject(hdc,newPen);
 		FillRgn(hdc,rgnAll,brush);
  		::SelectObject(hdc,oldPen);
-		
-		DeleteObject(brush);
-		DeleteObject(newPen);
-		
+	
 		return 1;
 	}
 

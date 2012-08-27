@@ -20,6 +20,21 @@ public:
 	class CMainFrame *pMain;
 	void SetMain(class CMainFrame *pMain);
 	PlayListItem *m_pPlayTrack;
+
+
+	HBRUSH newBrush,oldBrush;
+	HPEN  newPen,oldPen; 
+	CPlayListView()
+	{
+		newPen=(HPEN)::CreatePen(PS_SOLID,0,RGB(255,255,255));
+		newBrush=(HBRUSH)COLOR_WINDOW+1;
+	}
+
+	~CPlayListView()
+	{
+		DeleteObject(newBrush);
+		DeleteObject(newPen);
+	}
 public:
 	DECLARE_WND_SUPERCLASS(NULL,CListViewCtrl::GetWndClassName())
 
@@ -59,13 +74,7 @@ public:
 		rcErase3.right=rcSubItem.left+2;
 		rcErase3.bottom=rcErase2.top;
 
-
-		HBRUSH newBrush,oldBrush;
-		newBrush=(HBRUSH)COLOR_WINDOW+1;
 		oldBrush=(HBRUSH)::SelectObject(hdc,newBrush);
-		
-		HPEN  newPen,oldPen; 
-		newPen=(HPEN)::CreatePen(PS_SOLID,0,RGB(255,255,255));
 		oldPen=(HPEN )::SelectObject(hdc,newPen);
 
 		::Rectangle(hdc,rcErase1.left,rcErase1.top,rcErase1.right,rcErase1.bottom);
@@ -75,8 +84,7 @@ public:
 		::SelectObject(hdc,oldPen);
 		::SelectObject(hdc,oldBrush);
 		
-		DeleteObject(newBrush);
-		DeleteObject(newPen);
+
 
 		return 1;
 	}

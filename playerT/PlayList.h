@@ -33,7 +33,7 @@ public:
 		,playCount(0),starLvl(1),indexInListView(-1)
 		,pPicBuf(NULL),img(NULL),year(0)
 		,m_bLrcInner(FALSE),m_bLrcFromLrcFile(FALSE)
-		,bUnsynLyc(FALSE)
+		,bUnsynLyc(FALSE),m_bStatus(UNKNOWN)
 	{
 	}
 
