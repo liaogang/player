@@ -257,25 +257,27 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic)
 		if(bRetainPic)
 		{
 			// we will use bytevector to retain to memory in frame
-			pPicBuf=new ByteVector;
+			pPicBuf=NULL;
 			id3v2tag->retainPicBuf(pPicBuf);
-			//-----------------------------------------
-			//idev3 album picture info
-			img=new CImage;                                                                          
-			// load resource into memory
-			DWORD len =pPicBuf->size();
-			BYTE* lpRsrc=(BYTE*)pPicBuf->data();
-			// Allocate global memory on which to create stream
-			HGLOBAL m_hMem = GlobalAlloc(GMEM_FIXED, len);
-			BYTE* pmem = (BYTE*)GlobalLock(m_hMem);
-			memcpy(pmem,lpRsrc,len);
-			IStream* pstm;
-			CreateStreamOnHGlobal(m_hMem,FALSE,&pstm);
-			if (S_OK != img->Load(pstm))
+			if (pPicBuf)
 			{
-				delete img;
-				img=NULL;
+				//-----------------------------------------
+				//idev3 album picture info
+				img=new CImage;                                                                          
+				// load resource into memory
+				DWORD len =pPicBuf->size();
+				BYTE* lpRsrc=(BYTE*)pPicBuf->data();
+				// Allocate global memory on which to create stream
+				HGLOBAL m_hMem = GlobalAlloc(GMEM_FIXED, len);
+				BYTE* pmem = (BYTE*)GlobalLock(m_hMem);
+				memcpy(pmem,lpRsrc,len);
+				IStream* pstm;
+				CreateStreamOnHGlobal(m_hMem,FALSE,&pstm);
+				if (S_OK != img->Load(pstm)){
+					delete img;
+					img=NULL;}
 			}
+			
 		}//if(bRetainPic)
 	}
 	else

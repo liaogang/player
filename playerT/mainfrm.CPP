@@ -180,10 +180,10 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	lyricView->Init();
 
 	leftPane->SetSplitterPanes(albumView1->m_hWnd,lyricView->m_hWnd);
-	
+	leftPane->SetScrollPos(300,FALSE);
 	//set left and right
 	split.SetSplitterPanes(m_pTabBar->m_hWnd,leftPane->m_hWnd);
-
+	split.SetSplitterPos(482,FALSE);
 	//-----------------------------------------
 	m_hWndClient=split.m_hWnd;
 	UpdateLayout();

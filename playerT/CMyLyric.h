@@ -2,10 +2,25 @@
 
 #include "LrcMng.h"
 #include "PlayList.h"
+
+#define  ID_MENU_FOLDER_OPEN (0XF000-202)
 class PlayListItem;
 template <typename T>
 class CMyLyric:public T
 {
+public:
+	HMENU menu;
+	CMyLyric()
+	{
+		menu=::CreatePopupMenu();
+		::InsertMenu(menu,0,MF_BYCOMMAND|MF_BYPOSITION,ID_MENU_FOLDER_OPEN,_T("打开所在文件夹"));
+	}
+
+	~CMyLyric()
+	{
+		
+	}
+
 public:
 	BEGIN_MSG_MAP_EX(CDialogLyric)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
@@ -13,8 +28,10 @@ public:
 		MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
 		MESSAGE_HANDLER(WM_SIZE,OnSize)
 		MESSAGE_HANDLER(WM_LYRIC_RELOAD,OnLyricReload)
+		MSG_WM_RBUTTONUP(OnRButtonUp)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
+		COMMAND_ID_HANDLER(ID_MENU_FOLDER_OPEN, OnMenuFolderOpen)
 		END_MSG_MAP()
 
 		RECT rc ,lrcRect;
@@ -41,6 +58,12 @@ public:
 		{
 			TrackChanged();
 			return 0;
+		}
+
+		void OnRButtonUp(UINT nFlags, CPoint point)
+		{
+			::ClientToScreen(m_hWnd,&point);
+			::TrackPopupMenu(menu,TPM_LEFTALIGN,point.x,point.y,0,m_hWnd,0);
 		}
 
 		LRESULT OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -199,6 +222,24 @@ public:
 
 		//track change , to get current song lyric
 
+
+		
+		LRESULT OnMenuFolderOpen(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+		{
+			if(track->m_bLrcFromLrcFile)
+			{
+				std::tstring tmp=L"/select,";
+				tmp+=track->lycPath.c_str();
+
+				ShellExecute(NULL,L"open",
+				L"explorer",
+				tmp.c_str(),
+				L"",
+				SW_SHOW);
+			}
+
+			return 0;
+		}
 
 		LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 		{

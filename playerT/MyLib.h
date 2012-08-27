@@ -11,6 +11,11 @@ public:
 	vector<std::tstring> lrcDirs;//¸è´ÊËÑË÷Â·¾¶±í
 	vector<std::tstring> dataPaths;
 
+	void ClearLrcSearchLib()
+	{
+		lrcDirs.clear();
+	}
+
 	void AddFolder2LrcSearchLib(LPCTSTR pszFolder)
 	{
 		lrcDirs.push_back(pszFolder);

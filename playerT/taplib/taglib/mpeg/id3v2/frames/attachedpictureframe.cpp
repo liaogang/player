@@ -117,7 +117,7 @@ ByteVector AttachedPictureFrame::picture() const
 
 void   AttachedPictureFrame::retainPicBuf(ByteVector *buf) 
 {
-	*buf=d->data;
+	buf=&(d->data);
 }
 
 void AttachedPictureFrame::setPicture(const ByteVector &p)

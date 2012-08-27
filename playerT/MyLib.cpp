@@ -93,9 +93,9 @@ LRESULT CPropertyDlgMediaLib::OnBtnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 	UINT uFlags=BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE;
 	uFlags&=~BIF_NONEWFOLDERBUTTON ;
 	CFolderDialog dlg(m_hWnd,_T("请选择要添加的文件夹"),uFlags);
-	if (dlg.DoModal()==IDOK){
+	if (dlg.DoModal()==IDOK)
+	{
 		LPCTSTR path=dlg.GetFolderPath();
-		//MyLib::shared()->AddFolder2LrcSearchLib(path);
 		m_list.InsertItem(0,path);
 	}
 
@@ -104,47 +104,86 @@ LRESULT CPropertyDlgMediaLib::OnBtnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 
 LRESULT CPropertyDlgMediaLib::OnBtnDel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	m_list.DeleteItem(m_list.GetSelectedIndex());
+
 	return 0;
 }
 
 BOOL CPropertyDlgLyricsLib::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 {
-	//DoDataExchange();
-	std::tstring searchPath;
-	
-	vector<std::tstring>::iterator i;
-	if (MyLib::shared()->lrcDirs.size()>0)
+	DoDataExchange();
+
+	UINT style;
+
+	style=::GetWindowLong(list.m_hWnd,GWL_STYLE);
+	style|=LVS_SINGLESEL;
+	::SetWindowLong(list.m_hWnd,GWL_STYLE,style);
+
+	style=list.GetExtendedListViewStyle();
+	style|= LVS_EX_FULLROWSELECT;
+	list.SetExtendedListViewStyle(style);
+
+	list.InsertColumn(0,_T("路径"),LVCFMT_LEFT,220);
+
+
+	vector<std::tstring>::iterator i;int index;
+	for (i=MyLib::shared()->lrcDirs.begin(),index=0;i!=MyLib::shared()->lrcDirs.end();i++,index++)
 	{
-		i=MyLib::shared()->lrcDirs.begin();
-		searchPath=*i;
+		std::tstring str=*i;
+		int nItem=list.InsertItem(index,str.c_str());
+
+		int len=_tcslen(str.c_str());
+		LPTSTR pathCopy=new TCHAR[len+1];
+		memset(pathCopy,0,(len+1)*sizeof(TCHAR));
+		_tcsncpy(pathCopy,str.c_str(),len);
+		list.SetItemData(nItem,(DWORD_PTR)pathCopy);
 	}
-
-	::SetWindowText(GetDlgItem(IDC_EDIT_SEARCH),searchPath.c_str());
-
-
+	
 	return TRUE;
 }
 
-LRESULT CPropertyDlgLyricsLib::OnBtnOpenDir(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+
+LRESULT CPropertyDlgLyricsLib::OnBtnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	UINT uFlags=BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE;
 	uFlags&=~BIF_NONEWFOLDERBUTTON ;
 	CFolderDialog dlg(m_hWnd,_T("请选择要添加的文件夹"),uFlags);
-	if (dlg.DoModal()==IDOK){
+	if (dlg.DoModal()==IDOK)
+	{
 		LPCTSTR path=dlg.GetFolderPath();
-		::SetWindowText(GetDlgItem(IDC_EDIT_SEARCH),path);
+		int index=list.GetItemCount();
+		index=list.InsertItem(index,path);
+		
+		int len=_tcslen(path);
+		LPTSTR pathCopy=new TCHAR[len+1];
+		memset(pathCopy,0,(len+1)*sizeof(TCHAR));
+		_tcsncpy(pathCopy,path,len);
+		list.SetItemData(index,(DWORD_PTR)pathCopy);
 	}
 
+	return 0;
+}
 
+LRESULT CPropertyDlgLyricsLib::OnBtnDel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	int i=list.GetSelectedIndex();
+	LPCTSTR path=(LPCTSTR)list.GetItemData(i);
+	list.DeleteItem(i);
+	delete[] path;
 	return 0;
 }
 
 
 LRESULT CPropertyDlgLyricsLib::OnCfgToSave(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{
-	TCHAR lpszPath[MAX_PATH]={};
-	::GetWindowText(GetDlgItem(IDC_EDIT_SEARCH),lpszPath,MAX_PATH);
-	MyLib::shared()->AddFolder2LrcSearchLib(lpszPath);
+{	
+	MyLib::shared()->ClearLrcSearchLib();
+
+	int count=list.GetItemCount();
+	for (int i=0;i<count;i++)
+	{
+		LPCTSTR path=(LPCTSTR)list.GetItemData(i);
+		MyLib::shared()->AddFolder2LrcSearchLib(path);
+	}
 
 	MyLib::shared()->InitLrcLib();
 	return 0;

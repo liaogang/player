@@ -114,25 +114,34 @@ public:
 
 class CPropertyDlgLyricsLib:
 	public CDlgConfig,
-	public CDialogImpl<CPropertyDlgLyricsLib>
-	//,public CWinDataExchange<CPropertyDlgLyricsLib>
+	public CDialogImpl<CPropertyDlgLyricsLib>,
+	public CWinDataExchange<CPropertyDlgLyricsLib>
 {
 public:
 	enum { IDD = IDD_DIALOG_LYRICS };
 
+	CMyListViewCtrl list;
+
 	BEGIN_MSG_MAP(CPropertyDlgLyricsLib)
 		MSG_WM_INITDIALOG(OnInitDialog)
-		COMMAND_ID_HANDLER(IDC_BTN_OPENDIR,OnBtnOpenDir)
-		//COMMAND_ID_HANDLER(IDC_edi,OnBtnDel)
+		COMMAND_ID_HANDLER(IDC_BTN_ADD,OnBtnAdd)
+		COMMAND_ID_HANDLER(IDC_BTN_DEL,OnBtnDel)
+		NOTIFY_HANDLER_EX(IDC_MEDIA_LIST,LVN_ITEMCHANGED,OnItemChanged)
 		MESSAGE_HANDLER(WM_CONFIGTOSAVE,OnCfgToSave)
 	END_MSG_MAP()
 
-	LRESULT OnBtnOpenDir(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-	LRESULT OnBtnDel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	BEGIN_DDX_MAP(CPropertyDlgMediaLib)
+		DDX_CONTROL(IDC_MEDIA_LIST,list)
+	END_DDX_MAP()
 
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
-
+	LRESULT OnBtnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnBtnDel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnCfgToSave(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-
-
+	LRESULT OnItemChanged(LPNMHDR pnmh)
+	{
+		int index=list.GetSelectedIndex();
+		::EnableWindow(GetDlgItem(IDC_BTN_DEL),index==-1?FALSE:TRUE);
+		return 1;
+	}
 };
