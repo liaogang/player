@@ -248,7 +248,7 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic)
 			if (!lyricInner.empty())
 				m_bLrcInner=TRUE;
 
-			if ( title.empty() && artist.empty() && album.empty())
+			if ( title.empty() || artist.empty() )
 				bInvalidID3V2=TRUE;
 			else
 				m_bStatus=ID3V2;
@@ -304,8 +304,20 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic)
 		}
 	}
 
+	//if the title is empty ,we will use the filename
+	//without suffix
+	if (title.empty())
+	{
+		int a=url.find_last_of('\\');
+		int b=url.find_last_of('.');
+		if (a<b && b!=url.npos)
+			title=url.substr(a+1,b-(a+1));
+	}
+
+
 	return TRUE;
 }
+
 
 
 

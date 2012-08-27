@@ -431,18 +431,15 @@ LRESULT CMainFrame::OnFileNewPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /
 LRESULT CMainFrame::OnOpenPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	const TCHAR szFilter[]=_T("playlist files(*.pl)\0*.pl\0");
-
-	CFileDialog dlg(TRUE,NULL,NULL,OFN_FILEMUSTEXIST|OFN_DONTADDTORECENT,szFilter,m_hWnd);
+	const TCHAR szDefaultExt[]=_T("pl");
+	CFileDialog dlg(TRUE,szDefaultExt,NULL,OFN_FILEMUSTEXIST|OFN_DONTADDTORECENT,szFilter,m_hWnd);
 	if(dlg.DoModal()!=IDOK)return 0;
 
-	LPTSTR filepath=dlg.m_ofn.lpstrFile;
 
 	MyLib *s=MyLib::shared();
-	
-	PlayList* playlist =MyLib::shared()->LoadPlaylist(filepath);
+	PlayList* playlist =MyLib::shared()->LoadPlaylist(dlg.m_ofn.lpstrFile);
 	if (playlist)
 		s->SetSelPlaylist(playlist);
-	
 	//tell the play list view to add this
 	::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
 	
@@ -453,32 +450,10 @@ LRESULT CMainFrame::OnOpenPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 LRESULT CMainFrame::OnSavePlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	const TCHAR szFilter[]=_T("playlist files(*.pl)\0*.pl\0");
-
-	CFileDialog dlg(FALSE,NULL,NULL,OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
+	const TCHAR szDefaultExt[]=_T("pl");
+	CFileDialog dlg(FALSE,szDefaultExt,NULL,OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
 	if(dlg.DoModal()!=IDOK)return 0;
-
-	LPTSTR filepath=dlg.m_ofn.lpstrFile;
-	
-	//if isn't end with .pl , add it
-	int len=_tcslen(filepath);
-	int len1=len;
-	TCHAR* p=(TCHAR*)filepath+len;
-	while (p--)
-	{
-		if ((TCHAR)(*p)=='.'){
-			break;
-		}
-		if (--len==0)
-			break;
-	}
-
-	if (_tcscmp(p,_T(".pl"))!=0){
-		TCHAR *pStr=new TCHAR[len1+4];
-		_tcsncpy(pStr,filepath,len1);
-		_tcsncpy(pStr+len1,_T(".pl\0"),4);
-
-		MyLib::shared()->SaveCurPlaylist(pStr);
-	}
+	MyLib::shared()->SaveCurPlaylist(dlg.m_ofn.lpstrFile);
 
 	return 0;
 }
