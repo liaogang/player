@@ -8,14 +8,13 @@ public:
 	HBRUSH brush;
 	CMyTabBar()
 	{
-		brush=::GetSysColorBrush(COLOR_WINDOW);
-		//brush=::CreateSolidBrush(RGB(255,122,255));
+		brush=::GetSysColorBrush(COLOR_3DFACE);
 		newPen=(HPEN)::CreatePen(PS_SOLID,0,RGB(255,255,255));
 	}
 
 	~CMyTabBar()
 	{
-		//DeleteObject(brush);//can not delete sys brush
+		//can not delete sys brush
 		DeleteObject(newPen);
 	}
 

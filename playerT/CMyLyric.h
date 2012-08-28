@@ -10,8 +10,13 @@ class CMyLyric:public T
 {
 public:
 	HMENU menu;
+	HBRUSH brush,oldBrush;
+	HPEN  newPen,oldPen; 
 	CMyLyric()
 	{
+		brush=::GetSysColorBrush(COLOR_3DFACE);
+		newPen=(HPEN)::CreatePen(PS_SOLID,0,RGB(255,255,255));
+
 		menu=::CreatePopupMenu();
 		::InsertMenu(menu,0,MF_BYCOMMAND|MF_BYPOSITION,ID_MENU_FOLDER_OPEN,_T("打开所在文件夹"));
 	}
@@ -19,6 +24,7 @@ public:
 	~CMyLyric()
 	{
 		::DestroyMenu(menu);
+		DeleteObject(newPen);
 	}
 
 public:
@@ -28,12 +34,17 @@ public:
 		MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
 		MESSAGE_HANDLER(WM_SIZE,OnSize)
 		MESSAGE_HANDLER(WM_LYRIC_RELOAD,OnLyricReload)
+		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
 		MSG_WM_RBUTTONUP(OnRButtonUp)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 		COMMAND_ID_HANDLER(ID_MENU_FOLDER_OPEN, OnMenuFolderOpen)
 		END_MSG_MAP()
-
+		LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+		{
+			// handled, no background painting needed
+			return 1;
+		}
 		RECT rc ,lrcRect;
 		SIZE sz;
 		std::tstring lrcText;
@@ -126,6 +137,13 @@ public:
 			PAINTSTRUCT ps;
 			::BeginPaint(m_hWnd,&ps);
 
+			oldBrush=(HBRUSH)::SelectObject(ps.hdc,brush);			
+			oldPen=(HPEN)::SelectObject(ps.hdc,newPen);
+
+			RECT rc;
+			GetClientRect(&rc);
+			::Rectangle(ps.hdc,rc.left,rc.top,rc.right,rc.bottom);
+
 			if(!bLrcReady)
 			{
 			}
@@ -142,6 +160,10 @@ public:
 						::DrawText(ps.hdc,(*preLine).text.c_str(),(*preLine).text.length(),&rc,DT_CENTER);	
 				}
 			}
+
+
+			::SelectObject(ps.hdc,oldBrush);
+			::SelectObject(ps.hdc,oldPen);
 
 			::EndPaint(m_hWnd,&ps);	
 		}

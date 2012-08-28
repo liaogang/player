@@ -9,10 +9,13 @@ class CAlbumCoverView :
 public:
 	CMainFrame *pMainFrame;
 	HPEN  newPen,oldPen; 
+	HBRUSH brush,oldBrush;
 	HMENU menu;
 
 	CAlbumCoverView():bHasPic(FALSE)
 	{
+		brush=::GetSysColorBrush(COLOR_3DFACE);
+
 		menu=::CreatePopupMenu();
 		::InsertMenu(menu,0,MF_DISABLED|MF_GRAYED|MF_BYCOMMAND|MF_BYPOSITION,ID_MENU_PIC_SAVE,_T("ͼ�񱣴浽"));
 
@@ -89,6 +92,8 @@ public:
 	{
 		PAINTSTRUCT ps;
 		::BeginPaint(m_hWnd,&ps);
+		oldBrush=(HBRUSH)::SelectObject(ps.hdc,brush);
+		oldPen=(HPEN )::SelectObject(ps.hdc,newPen);
 
 		if (bHasPic)
 		{
@@ -108,6 +113,8 @@ public:
 			::SelectObject(ps.hdc,oldPen);
 		}
 
+		::SelectObject(ps.hdc,oldBrush);
+			::SelectObject(ps.hdc,oldPen);
 		::EndPaint(m_hWnd,&ps);	
 
 		return 0;

@@ -1,14 +1,6 @@
-// aboutdlg.h : interface of the CAboutDlg class
-//
-/////////////////////////////////////////////////////////////////////////////
-// #include <vector>
-// #include "LrcMng.h"
-// #include "MyLib.h"
-// #include "PlayList.h"
-
-//#include "MyControls.h"
-#pragma once
 #include "CMyLyric.h"
+#pragma once
+
 
 class CDialogLyric : 
 	public CMyLyric<CDialogImpl<CDialogLyric>>,
