@@ -20,6 +20,15 @@ playerT/*.vcxproj
 playerT/Debug
 playerT/Debug1
 playerT/Release
+playerT/Release/*
+playerT/Release/*.dep
+playerT/Release/*.htm
+playerT/Release/*.lastbuildstate
+playerT/Release/*.log
+playerT/Release/*.manifest
+playerT/Release/*.obj
+playerT/Release/*.res
+playerT/Release/*.tlog
 playerT/playerT.ncb
 playerT/playerT.suo
 playerT/res/*.manifest
