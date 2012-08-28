@@ -866,17 +866,6 @@ public:
 
 	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-// 		// by lg
-// 		HDC hdc=(HDC)wParam;
-// 		HBRUSH newBrush,oldBrush;
-// 		RECT rc;
-// 		//COLOR_WINDOW
-// 		newBrush=GetSysColorBrush(COLOR_BTNFACE);
-// 		GetClientRect(&rc);
-// 		oldBrush=(HBRUSH)::SelectObject(hdc,newBrush);
-// 		::Rectangle(hdc,rc.left,rc.top,rc.right,rc.bottom);
-// 		::SelectObject(hdc,oldBrush);
-		//bHandled=FALSE;
 		return 1;
 	}
 
