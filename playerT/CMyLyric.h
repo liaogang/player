@@ -40,11 +40,7 @@ public:
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 		COMMAND_ID_HANDLER(ID_MENU_FOLDER_OPEN, OnMenuFolderOpen)
 		END_MSG_MAP()
-		LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-		{
-			// handled, no background painting needed
-			return 1;
-		}
+
 		RECT rc ,lrcRect;
 		SIZE sz;
 		std::tstring lrcText;
@@ -54,7 +50,6 @@ public:
 		double used,lefted;
 		vector<LrcLine>::iterator preLine,lastLine;
 		RECT tRc;
-		BOOL bNoChange;
 		
 		std::wstring title;
 		LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -113,13 +108,9 @@ public:
 						eraseRC.top=tRc.top;
 						eraseRC.right=rc.right;
 						eraseRC.bottom=sz.cy+eraseRC.top;
-						//InvalidateRect(&eraseRC);
-						//::DrawText(GetDC(),(*preLine).text.c_str(),(*preLine).text.length(),&tRc,DT_CENTER);
+						InvalidateRect(&eraseRC);
 						lastLine=preLine;
-						bNoChange=FALSE;
 					}
-					else
-						bNoChange=TRUE;
 
 					break;
 				}
@@ -132,38 +123,44 @@ public:
 		}
 
 
+		LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM  wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+		{
+			HDC dc=(HDC)wParam;
+
+			RECT rc;
+			GetClientRect(&rc);
+
+			oldBrush=(HBRUSH)::SelectObject(dc,brush);			
+			oldPen=(HPEN)::SelectObject(dc,newPen);
+
+			::Rectangle(dc,rc.left,rc.top,rc.right,rc.bottom);
+
+			::SelectObject(dc,oldBrush);
+			::SelectObject(dc,oldPen);
+
+			return 1;
+		}
+
 		void OnPaint(CDCHandle dc)
 		{
 			PAINTSTRUCT ps;
 			::BeginPaint(m_hWnd,&ps);
+			int oldBgkMode=::SetBkMode(ps.hdc,TRANSPARENT);
 
-			oldBrush=(HBRUSH)::SelectObject(ps.hdc,brush);			
-			oldPen=(HPEN)::SelectObject(ps.hdc,newPen);
-
-			RECT rc;
-			GetClientRect(&rc);
-			::Rectangle(ps.hdc,rc.left,rc.top,rc.right,rc.bottom);
-
-			if(!bLrcReady)
+			if(!bLrcReady);
+			else if(track->m_bLrcFromLrcFile)
 			{
+				LrcLine l=*preLine;
+				if (!l.text.empty() )
+					::DrawText(ps.hdc,(*preLine).text.c_str(),(*preLine).text.length(),&rc,DT_CENTER);	
 			}
 			else if(track->m_bLrcInner)
 			{
 				::DrawText(ps.hdc,track->lyricInner.c_str(),track->lyricInner.length(),&rc,DT_CENTER);
 			}
-			else if(track->m_bLrcFromLrcFile)
-			{
-				if(!bNoChange)
-				{
-					LrcLine l=*preLine;
-					if (!l.text.empty() )
-						::DrawText(ps.hdc,(*preLine).text.c_str(),(*preLine).text.length(),&rc,DT_CENTER);	
-				}
-			}
 
 
-			::SelectObject(ps.hdc,oldBrush);
-			::SelectObject(ps.hdc,oldPen);
+			 ::SetBkMode(ps.hdc,oldBgkMode);
 
 			::EndPaint(m_hWnd,&ps);	
 		}
@@ -223,7 +220,6 @@ public:
 
 			track=NULL;
 			bLrcReady=FALSE;
-			bNoChange=FALSE;
 		}
 
 		LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
