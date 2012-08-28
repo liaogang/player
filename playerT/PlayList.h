@@ -59,7 +59,8 @@ public:
 	UINT year;
 	TagLib::ByteVector *pPicBuf;
 	CImage *img;
-
+	//cimg_library_suffixed::CImg   *img;
+		
 	//lrc
 	BOOL m_bLrcInner;
 	std::tstring  lyricInner;

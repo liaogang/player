@@ -15,7 +15,7 @@ public:
 
 	~CMyTabBar()
 	{
-		DeleteObject(brush);
+		//DeleteObject(brush);//can not delete sys brush
 		DeleteObject(newPen);
 	}
 

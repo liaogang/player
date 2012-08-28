@@ -167,10 +167,14 @@ int MyGetLine(TCHAR *pBuf,int bufLen,std::wstring &str)
 	int i=0;
 	for (;i<bufLen;i++)
 	{
-		if(pBuf[i]==0x000d)
+		if(pBuf[i]==0x000d)//\r\n  CR LF
 		{
 			if(i+1 <=bufLen && pBuf[i+1]==0x000a)
 				return i+2 ;
+		}
+		else if (pBuf[i]==0x000a) //\n  LF
+		{
+			return i+1;
 		}
 		else
 		{

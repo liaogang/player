@@ -96,7 +96,7 @@ ID3v2::Tag::~Tag()
   delete d;
 }
 
-void ID3v2::Tag::retainPicBuf(ByteVector* buf) const
+void ID3v2::Tag::retainPicBuf(ByteVector** buf) const
 {
 	if (!d->frameListMap["APIC"].isEmpty())
 	{

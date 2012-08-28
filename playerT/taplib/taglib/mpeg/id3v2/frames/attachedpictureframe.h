@@ -202,7 +202,7 @@ namespace TagLib {
        */
       void setPicture(const ByteVector &p);
 public:
-	void   retainPicBuf(ByteVector *buf);
+	void   retainPicBuf(ByteVector ** buf);
     protected:
       virtual void parseFields(const ByteVector &data);
       virtual ByteVector renderFields() const;

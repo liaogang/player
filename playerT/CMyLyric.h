@@ -18,7 +18,7 @@ public:
 
 	~CMyLyric()
 	{
-		
+		::DestroyMenu(menu);
 	}
 
 public:
@@ -81,6 +81,7 @@ public:
 			if (lefted=0)
 				ResetTitle();
 			
+			
 			//used= used%sz            //以行高为基数，取整。
 			double lrcContent=used+lefted;
 			lrcRect=rc;
@@ -101,8 +102,8 @@ public:
 						eraseRC.top=tRc.top;
 						eraseRC.right=rc.right;
 						eraseRC.bottom=sz.cy+eraseRC.top;
-						InvalidateRect(&eraseRC);
-						::DrawText(GetDC(),(*preLine).text.c_str(),(*preLine).text.length(),&tRc,DT_CENTER);
+						//InvalidateRect(&eraseRC);
+						//::DrawText(GetDC(),(*preLine).text.c_str(),(*preLine).text.length(),&tRc,DT_CENTER);
 						lastLine=preLine;
 						bNoChange=FALSE;
 					}
@@ -164,7 +165,8 @@ public:
 
 
 			//无内嵌歌词,搜索*.LRCY文件
-			if (!track->m_bLrcInner){
+			if (!track->m_bLrcInner)
+			{
 				LrcMng *sLM=LrcMng::Get();
 				if( track->GetLrcFileFromLib() )
 				{

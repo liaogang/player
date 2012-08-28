@@ -5,7 +5,7 @@
 #include "customMsg.h"
 #include "StringConvertions.h"
 #include "DialogLyric.h"
-
+#include "CImg.h"
 struct PLANDPATH
 {
 	PlayList* pPlaylist;
@@ -210,11 +210,12 @@ PlayListItem::~PlayListItem()
 		delete img;
 		img=NULL;
 	}
-	if (pPicBuf)
-	{	
-		delete pPicBuf;
-		pPicBuf=NULL;
-	}
+
+// 	if (pPicBuf)
+// 	{	
+// 		delete pPicBuf;
+// 		pPicBuf=NULL;
+// 	}
 }
 
 
@@ -258,12 +259,12 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic)
 		{
 			// we will use bytevector to retain to memory in frame
 			pPicBuf=NULL;
-			id3v2tag->retainPicBuf(pPicBuf);
+			id3v2tag->retainPicBuf(&pPicBuf);
 			if (pPicBuf)
 			{
 				//-----------------------------------------
 				//idev3 album picture info
-				img=new CImage;                                                                          
+				img=new CImage;   
 				// load resource into memory
 				DWORD len =pPicBuf->size();
 				BYTE* lpRsrc=(BYTE*)pPicBuf->data();

@@ -160,13 +160,18 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	//right pane
 	//------------------------------------------------
+
+	m_pPlaylistView=new CPlayListView;
+	//m_pPlaylistView->Create(m_pTabBar->m_hWnd, rcDefault, NULL,  WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN | WS_CLIPSIBLINGS| LVS_REPORT | LVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
+	m_pPlaylistView->Create(split, rcDefault, NULL,  WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN | WS_CLIPSIBLINGS| LVS_REPORT | LVS_SHOWSELALWAYS , WS_EX_CLIENTEDGE);
+	m_pPlaylistView->Init();	
+
+
 	//tab bar
 	m_pTabBar=new CMyTabBar;
 	m_pTabBar->Create(split.m_hWnd,rcDefault,NULL,WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN | WS_CLIPSIBLINGS,0/*WS_EX_STATICEDGE*/);
 
-	m_pPlaylistView=new CPlayListView;
-	m_pPlaylistView->Create(m_pTabBar->m_hWnd, rcDefault, NULL, LVS_SINGLESEL | WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN | WS_CLIPSIBLINGS| LVS_REPORT | LVS_SHOWSELALWAYS, /*WS_EX_CLIENTEDGE*/NULL);
-	m_pPlaylistView->Init();	
+
 
 	//left pane
 	leftPane=new CHorSplitterWindow;
@@ -180,16 +185,16 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	lyricView->Init();
 
 	leftPane->SetSplitterPanes(albumView1->m_hWnd,lyricView->m_hWnd);
-	leftPane->SetScrollPos(300,FALSE);
+	
 	//set left and right
 	split.SetSplitterPanes(m_pTabBar->m_hWnd,leftPane->m_hWnd);
-	split.SetSplitterPos(482,FALSE);
 	//-----------------------------------------
 	m_hWndClient=split.m_hWnd;
-	UpdateLayout();
 
-	split.SetSplitterPos(250,TRUE);
-	leftPane->SetSplitterPos(500,TRUE);
+	UpdateLayout();
+	leftPane->SetSplitterPos(130);
+	split.SetSplitterPos(482);
+	
 
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
@@ -362,6 +367,8 @@ LRESULT CMainFrame::OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	//::PostMessage(m_hWnd,WM_LYRIC_RELOAD,0,0);
 	if(lyricView)
 		lyricView->TrackChanged();
+
+	albumView1->TrackChanged();
 	return 0;
 }
 

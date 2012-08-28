@@ -24,7 +24,7 @@
 //progress pos track bar
 class CMyTrackBar
 	:public CWindowImpl<CMyTrackBar,CTrackBarCtrl>
-	,public CCustomDraw<CMyTrackBar>
+	//,public CCustomDraw<CMyTrackBar>
 {
 public:
 	BOOL m_bPressing;
@@ -39,7 +39,7 @@ public:
 		MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLBtnDown)
 		MESSAGE_HANDLER(TB_BUTTONCOUNT,TBB)
 		MESSAGE_HANDLER(TB_GETITEMRECT,OnGetItemRect)
-		MSG_WM_ERASEBKGND(OnEraseBkgnd)
+		//MSG_WM_ERASEBKGND(OnEraseBkgnd)
 		//CHAIN_MSG_MAP(CCustomDraw<CMyTrackBar>)
 		
 		//NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW, OnReflectedCustomDraw)

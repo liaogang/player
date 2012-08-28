@@ -19,8 +19,8 @@ public:
 
 	BEGIN_MSG_MAP_EX(CDialogLyric)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-		CHAIN_MSG_MAP(CDialogResize<CDialogLyric>)
 		CHAIN_MSG_MAP(CMyLyric<CDialogImpl<CDialogLyric>>)
+		CHAIN_MSG_MAP(CDialogResize<CDialogLyric>)
 	END_MSG_MAP()
 
 	BEGIN_DLGRESIZE_MAP(CDialogResize<CDialogLyric>)
