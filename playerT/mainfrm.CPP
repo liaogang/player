@@ -166,12 +166,9 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_pPlaylistView->Create(split, rcDefault, NULL,  WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN | WS_CLIPSIBLINGS| LVS_REPORT | LVS_SHOWSELALWAYS , WS_EX_CLIENTEDGE);
 	m_pPlaylistView->Init();	
 
-
 	//tab bar
 	m_pTabBar=new CMyTabBar;
 	m_pTabBar->Create(split.m_hWnd,rcDefault,NULL,WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN | WS_CLIPSIBLINGS,0/*WS_EX_STATICEDGE*/);
-
-
 
 	//left pane
 	leftPane=new CHorSplitterWindow;
@@ -187,7 +184,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	leftPane->SetSplitterPanes(albumView1->m_hWnd,lyricView->m_hWnd);
 	
 	//set left and right
-	split.SetSplitterPanes(m_pTabBar->m_hWnd,leftPane->m_hWnd);
+	split.SetSplitterPanes( m_pTabBar->m_hWnd,leftPane->m_hWnd);
 	//-----------------------------------------
 	m_hWndClient=split.m_hWnd;
 

@@ -43,30 +43,28 @@ public:
 
 		int count=GetItemCount();
 
-
 		GetClientRect(&rcClient);
 		GetItemRect(count-1,&rcLastItem);
 
 		rcErase=rcClient;
-		//rcErase.right=;
 		rcErase.bottom=rcLastItem.bottom;
 
 		HRGN rgnAll=CreateRectRgn(rcErase);
 		
 		for (int i=0;i<count;i++)
 		{
-			if(GetItemRect(i,&rcErase) )
+			if( GetItemRect(i,&rcErase) )
 			{
 				HRGN tmp=CreateRectRgn(rcErase);
 				CombineRgn(rgnAll,rgnAll,tmp,RGN_DIFF); 
+				DeleteObject(tmp);
 			}
 		}
 		
-
  		oldPen=(HPEN )::SelectObject(hdc,newPen);
 		FillRgn(hdc,rgnAll,brush);
  		::SelectObject(hdc,oldPen);
-	
+		DeleteObject(rgnAll);
 		return 1;
 	}
 
