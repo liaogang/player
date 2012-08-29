@@ -24,6 +24,7 @@ class CMyStatusBar;
 class DialogSearch;
 class CProcessingDlg;
 class CWndLyric;
+class CMySimpleRebar;
 //-----------------------------------------
 
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFrame>,
@@ -34,7 +35,8 @@ public:
 public:
 	CMyTrackBar *m_pTrackBar;
 	CMyVolumeBar *m_pVolumeBar;
-	
+	CMySimpleRebar *m_pRebar;
+
 	CCommandBarCtrl m_CmdBar;
 	CDialogConfig   m_dlgConfig;
 	CComboBox m_wndComboBox;

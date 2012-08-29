@@ -14,8 +14,8 @@ public:
 	HPEN  newPen,oldPen; 
 	CMyLyric()
 	{
-		brush=::GetSysColorBrush(COLOR_3DFACE);
-		newPen=(HPEN)::CreatePen(PS_SOLID,0,RGB(255,255,255));
+		brush=::GetSysColorBrush(/*COLOR_3DFACE*/COLOR_BTNSHADOW);
+		newPen=(HPEN)::CreatePen(PS_NULL,0,RGB(255,255,255));
 
 		menu=::CreatePopupMenu();
 		::InsertMenu(menu,0,MF_BYCOMMAND|MF_BYPOSITION,ID_MENU_FOLDER_OPEN,_T("打开所在文件夹"));
@@ -126,14 +126,14 @@ public:
 		LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM  wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 		{
 			HDC dc=(HDC)wParam;
-
 			RECT rc;
+
 			GetClientRect(&rc);
 
 			oldBrush=(HBRUSH)::SelectObject(dc,brush);			
 			oldPen=(HPEN)::SelectObject(dc,newPen);
 
-			::Rectangle(dc,rc.left,rc.top,rc.right,rc.bottom);
+			::Rectangle(dc,rc.left-1,rc.top,rc.right+1,rc.bottom+1);
 
 			::SelectObject(dc,oldBrush);
 			::SelectObject(dc,oldPen);
@@ -176,8 +176,7 @@ public:
 
 			if(track->lycPath.empty())
 				ResetTitle();
-			else
-			{
+			else{
 				title=track->lycPath;
 				ChangedTitle();
 			}
@@ -189,11 +188,9 @@ public:
 				LrcMng *sLM=LrcMng::Get();
 				if( track->GetLrcFileFromLib() )
 				{
-					if(sLM->OpenTrackPath(track))
-					{
+					if(sLM->OpenTrackPath(track)){
 						preLine=track->lyricFromLrcFile.begin();
-						bLrcReady=TRUE;
-					}
+						bLrcReady=TRUE;}
 				}
 			}
 		}
@@ -206,18 +203,8 @@ public:
 			lrcHeight=lrcTextHeight+lrcSpare;
 
 			GetClientRect(&tRc);
-
-
-			lrcRect.bottom=0;
-			lrcRect.left=0;
-			lrcRect.top=0;
-			lrcRect.right=0;
-
-			rc.bottom=0;
-			rc.left=0;
-			rc.top=0;
-			rc.right=0;
-
+			lrcRect.bottom=0;lrcRect.left=0;lrcRect.top=0;lrcRect.right=0;
+			rc.bottom=0;rc.left=0;rc.top=0;rc.right=0;
 			track=NULL;
 			bLrcReady=FALSE;
 		}
@@ -239,15 +226,9 @@ public:
 			SetWindowText(_T("歌词"));
 		}
 
-
-		//track change , to get current song lyric
-
-
-		
 		LRESULT OnMenuFolderOpen(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 		{
-			if(track->m_bLrcFromLrcFile)
-			{
+			if(track->m_bLrcFromLrcFile){
 				std::tstring tmp=L"/select,";
 				tmp+=track->lycPath.c_str();
 

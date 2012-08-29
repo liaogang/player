@@ -16,6 +16,8 @@
 #include <string>
 using namespace std;
 
+#pragma comment(lib,"UxTheme.lib")
+#include "Uxtheme.h"
 
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
@@ -88,25 +90,36 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd,IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
 
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
+	m_pRebar=new CMySimpleRebar;
+	m_pRebar->SubclassWindow(m_hWndToolBar);
+
+
 	AddSimpleReBarBand(hWndCmdBar);
 	AddSimpleReBarBand(hWndToolBar, NULL,TRUE,0,TRUE);
-
+	
 	
 	//------------------------------------------------
 	//progress track bar
 	m_pTrackBar=new CMyTrackBar;
-	UINT style=WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
-	style|=TBS_TOOLTIPS  |TBS_NOTICKS |TBS_AUTOTICKS  | TBS_BOTH |0x1000; //TBS_TRANSPARENTBKGND
+	UINT style=WS_CHILD | WS_VISIBLE /*| WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/;
+	style|=TBS_TOOLTIPS  |TBS_NOTICKS |TBS_AUTOTICKS  | TBS_BOTH ; 
 	UINT styleEx=0; 
 	HWND hWndProgressBar=m_pTrackBar->Create( m_hWndToolBar,NULL,NULL,style,styleEx);
 	m_pTrackBar->SetPageSize(1);
 	m_pTrackBar->SetLineSize(1);
 	m_pTrackBar->SetThumbLength(30);
+	m_pRebar->pTrack=m_pTrackBar;
+
+
+	//HRESULT result=EnableThemeDialogTexture(hWndProgressBar,ETDT_ENABLE);
+
+	//result=EnableThemeDialogTexture(hWndToolBar,ETDT_ENABLE);
+
 	AddSimpleReBarBand(hWndProgressBar,NULL,FALSE,150,TRUE);
 
 	//-------------------------------------------------
 	//combo box
-	HWND comboBar=m_wndComboBox.Create(m_hWnd,NULL,NULL,WS_CHILD|WS_VISIBLE|WS_VSCROLL|CBS_DROPDOWNLIST);
+	HWND comboBar=m_wndComboBox.Create(m_hWndToolBar,NULL,NULL,WS_CHILD|WS_VISIBLE|WS_VSCROLL|CBS_DROPDOWNLIST);
 
 	for (int i=0;i<sizeof(gPlayOrderStr)/sizeof(int);++i)
 		m_wndComboBox.AddString(gPlayOrderStr[i]);
@@ -129,12 +142,13 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//-----------------------------------------
 	//volume track bar
 	m_pVolumeBar=new CMyVolumeBar;
-	HWND hWndVolumeBar=m_pVolumeBar->Create(m_hWnd,NULL,NULL,style,styleEx);
+	HWND hWndVolumeBar=m_pVolumeBar->Create(m_hWndToolBar,NULL,NULL,style,styleEx);
 	m_pVolumeBar->SetPageSize(1);
 	m_pVolumeBar->SetLineSize(1);
 	m_pVolumeBar->SetThumbLength(2);
 	m_pVolumeBar->SetRange(0,100);
 	m_pVolumeBar->SetPos(100);
+	m_pRebar->pVolume=m_pVolumeBar;
 	AddSimpleReBarBand(hWndVolumeBar,NULL,FALSE,50,TRUE);
 
 
@@ -186,6 +200,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//set left and right
 	split.SetSplitterPanes( m_pTabBar->m_hWnd,leftPane->m_hWnd);
 	//-----------------------------------------
+	//EnableThemeDialogTexture(m_pTabBar->m_hWnd,ETDT_ENABLE);
+	//EnableThemeDialogTexture(m_hWnd,ETDT_ENABLE);
 	m_hWndClient=split.m_hWnd;
 
 	UpdateLayout();

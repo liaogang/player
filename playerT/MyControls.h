@@ -39,21 +39,23 @@ public:
 		MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLBtnDown)
 		MESSAGE_HANDLER(TB_BUTTONCOUNT,TBB)
 		MESSAGE_HANDLER(TB_GETITEMRECT,OnGetItemRect)
-		//MSG_WM_ERASEBKGND(OnEraseBkgnd)
-		//CHAIN_MSG_MAP(CCustomDraw<CMyTrackBar>)
+		MESSAGE_HANDLER(WM_ERASEBKGND,OnEraseBkgnd)
+
 		
+		//CHAIN_MSG_MAP(CCustomDraw<CMyTrackBar>)
 		//NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW, OnReflectedCustomDraw)
 		//ALT_MSG_MAP(1)
 		//REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW, OnReflectedCustomDraw)
 	END_MSG_MAP()
 
+
 	DWORD OnPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW lpNMCustomDraw)
 	{
 		NMCUSTOMDRAW nmcd = *(LPNMCUSTOMDRAW)lpNMCustomDraw;
-		
+
 
 		HBRUSH newBrush,oldBrush;
-		
+
 		RECT clientRC;
 		GetClientRect(&clientRC);
 		newBrush=::CreateSolidBrush(RGB(242,244,243));
@@ -68,7 +70,7 @@ public:
 	DWORD OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW lpNMCustomDraw)
 	{
 		NMCUSTOMDRAW nmcd = *(LPNMCUSTOMDRAW)lpNMCustomDraw;
-	
+
 
 		HBRUSH newBrush,oldBrush;
 		//newBrush=::CreateSolidBrush(RGB(242,244,243));
@@ -79,7 +81,7 @@ public:
 	}
 
 
-	
+
 	LRESULT OnReflectedCustomDraw(int idCtrl,NMHDR* pNMHDR, BOOL) 
 	{
 		LRESULT result;
@@ -152,51 +154,51 @@ public:
 				// I return another CDRF_SKIPDEFAULT.  I don't understand why.  
 				// Anyway, it works fine if I draw everthing here, return CDRF_SKIPDEFAULT, and do not ask for
 				// a post-paint item notification
-// 				
-// 				{
-// 					CDC* pDC = CDC::FromHandle( nmcd.hdc );
-// 					int iSaveDC = pDC->SaveDC();
-// 
-// 					CBrush* pB = &m_normalBrush;
-// 					CPen pen( PS_SOLID, 1, m_crShadow );
-// 
-// 					// if thumb is selected/focussed, switch brushes
-// 
-// 					if ( nmcd.uItemState && CDIS_FOCUS )
-// 					{
-// 						pB = &m_focusBrush;
-// 
-// 						pDC->SetBrushOrg( nmcd.rc.right%8, nmcd.rc.top%8 );
-// 						pDC->SetBkColor( m_crPrimary );
-// 						pDC->SetTextColor( m_crHilite );				
-// 					}
-// 
-// 					pDC->SelectObject( pB );
-// 					pDC->SelectObject( &pen );
-// 
-// #if 1	// draw an ellipse
-// 
-// 					pDC->Ellipse( &(nmcd.rc) );
-// 
-// #else	// draw a diamond
-// 
-// 					int xx, yy, dx, dy, cx, cy;
-// 					xx = nmcd.rc.left;
-// 					yy = nmcd.rc.top;
-// 					dx = 2;
-// 					dy = 2;
-// 					cx = nmcd.rc.right - xx - 1;
-// 					cy = nmcd.rc.bottom - yy - 1;
-// 					POINT pts[8] = { {xx+dx, yy}, {xx, yy+dy}, {xx, yy+cy-dy}, {xx+dx, yy+cy},
-// 					{xx+cx-dx, yy+cy}, {xx+cx, yy+cy-dy}, {xx+cx, yy+dy}, {xx+cx-dx, yy} };
-// 
-// 					pDC->Polygon( pts, 8 );
-// 
-// #endif	// which shape to draw
-// 
-// 					pDC->RestoreDC( iSaveDC );
-// 					pDC->Detach();
-// 				}
+				// 				
+				// 				{
+				// 					CDC* pDC = CDC::FromHandle( nmcd.hdc );
+				// 					int iSaveDC = pDC->SaveDC();
+				// 
+				// 					CBrush* pB = &m_normalBrush;
+				// 					CPen pen( PS_SOLID, 1, m_crShadow );
+				// 
+				// 					// if thumb is selected/focussed, switch brushes
+				// 
+				// 					if ( nmcd.uItemState && CDIS_FOCUS )
+				// 					{
+				// 						pB = &m_focusBrush;
+				// 
+				// 						pDC->SetBrushOrg( nmcd.rc.right%8, nmcd.rc.top%8 );
+				// 						pDC->SetBkColor( m_crPrimary );
+				// 						pDC->SetTextColor( m_crHilite );				
+				// 					}
+				// 
+				// 					pDC->SelectObject( pB );
+				// 					pDC->SelectObject( &pen );
+				// 
+				// #if 1	// draw an ellipse
+				// 
+				// 					pDC->Ellipse( &(nmcd.rc) );
+				// 
+				// #else	// draw a diamond
+				// 
+				// 					int xx, yy, dx, dy, cx, cy;
+				// 					xx = nmcd.rc.left;
+				// 					yy = nmcd.rc.top;
+				// 					dx = 2;
+				// 					dy = 2;
+				// 					cx = nmcd.rc.right - xx - 1;
+				// 					cy = nmcd.rc.bottom - yy - 1;
+				// 					POINT pts[8] = { {xx+dx, yy}, {xx, yy+dy}, {xx, yy+cy-dy}, {xx+dx, yy+cy},
+				// 					{xx+cx-dx, yy+cy}, {xx+cx, yy+cy-dy}, {xx+cx, yy+dy}, {xx+cx-dx, yy} };
+				// 
+				// 					pDC->Polygon( pts, 8 );
+				// 
+				// #endif	// which shape to draw
+				// 
+				// 					pDC->RestoreDC( iSaveDC );
+				// 					pDC->Detach();
+				// 				}
 				*pResult = CDRF_SKIPDEFAULT;	// don't let control draw itself, or it will un-do our work
 				break;
 
@@ -217,13 +219,13 @@ public:
 				// However, to emphasize the control's color, we will replace the middle two lines
 				// (i.e., the mid-gray and black lines) with hilite and shadow colors of the control
 				// using CDC::Draw3DRect.
-// 				{
-// 					CDC* pDC = CDC::FromHandle( nmcd.hdc );
-// 
-// 					RECT rrc = {nmcd.rc.left+1, nmcd.rc.top+1, nmcd.rc.right-1, nmcd.rc.bottom-1};
-// 					pDC->Draw3dRect( &rrc, m_crMidShadow, m_crHilite );
-// 					pDC->Detach();
-// 				}
+				// 				{
+				// 					CDC* pDC = CDC::FromHandle( nmcd.hdc );
+				// 
+				// 					RECT rrc = {nmcd.rc.left+1, nmcd.rc.top+1, nmcd.rc.right-1, nmcd.rc.bottom-1};
+				// 					pDC->Draw3dRect( &rrc, m_crMidShadow, m_crHilite );
+				// 					pDC->Detach();
+				// 				}
 				*pResult = CDRF_SKIPDEFAULT;
 				break;
 
@@ -250,61 +252,61 @@ public:
 			// now visible on the control
 			// To emphasize the directivity of the control, we simply draw in two colored dots at the 
 			// extreme edges of the control
-// 			{
-// 				CDC* pDC = CDC::FromHandle( nmcd.hdc );
-// 
-// 				CBrush bWhite( RGB(255, 255, 255) );	// white brush
-// 				CBrush bDark( m_crDarkerShadow );		// dark but still colored brush
-// 				CPen p(PS_SOLID, 1, m_crPrimary);
-// 
-// 				CRect rClient;
-// 				GetClientRect( &rClient );
-// 				DWORD dwStyle = GetStyle();
-// 
-// 
-// 				int cx = 8;
-// 				CRect rrcFirst;( 1, 1, cx, cx );
-// 				CRect rrcLast;
-// 
-// 				// TBS_RIGHT, TBS_BOTTOM and TBS_HORZ are all defined as 0x0000, so avoid testing on them
-// 
-// 				if ( dwStyle & TBS_VERT )
-// 				{
-// 					if ( dwStyle & TBS_LEFT )
-// 					{
-// 						rrcFirst = CRect( rClient.right-cx, 1, rClient.right-1, cx ); 
-// 						rrcLast = CRect( rClient.right-cx, rClient.bottom-cx, rClient.right-1, rClient.bottom-1 );
-// 					}
-// 					else
-// 					{
-// 						rrcFirst = CRect( 1, 1, cx, cx ); 
-// 						rrcLast = CRect( 1, rClient.bottom-cx, cx, rClient.bottom-1 );
-// 					}
-// 				}
-// 				else
-// 				{
-// 					if ( dwStyle & TBS_TOP )
-// 					{
-// 						rrcFirst = CRect( 1, rClient.bottom-cx, cx, rClient.bottom-1 ); 
-// 						rrcLast = CRect( rClient.right-cx, rClient.bottom-cx, rClient.right-1, rClient.bottom-1 );
-// 					}
-// 					else
-// 					{
-// 						rrcFirst = CRect( 1, 1, cx, cx ); 
-// 						rrcLast = CRect( rClient.right-cx, 1, rClient.right-1, cx );
-// 					}
-// 				}
-// 
-// 				int iSave = pDC->SaveDC();
-// 				pDC->SelectObject( &bWhite );
-// 				pDC->SelectObject( &p );
-// 				pDC->Ellipse( &rrcFirst );
-// 				pDC->SelectObject( &bDark );
-// 				pDC->Ellipse( &rrcLast );
-// 				pDC->RestoreDC( iSave );
-// 
-// 				pDC->Detach();
-// 			}
+			// 			{
+			// 				CDC* pDC = CDC::FromHandle( nmcd.hdc );
+			// 
+			// 				CBrush bWhite( RGB(255, 255, 255) );	// white brush
+			// 				CBrush bDark( m_crDarkerShadow );		// dark but still colored brush
+			// 				CPen p(PS_SOLID, 1, m_crPrimary);
+			// 
+			// 				CRect rClient;
+			// 				GetClientRect( &rClient );
+			// 				DWORD dwStyle = GetStyle();
+			// 
+			// 
+			// 				int cx = 8;
+			// 				CRect rrcFirst;( 1, 1, cx, cx );
+			// 				CRect rrcLast;
+			// 
+			// 				// TBS_RIGHT, TBS_BOTTOM and TBS_HORZ are all defined as 0x0000, so avoid testing on them
+			// 
+			// 				if ( dwStyle & TBS_VERT )
+			// 				{
+			// 					if ( dwStyle & TBS_LEFT )
+			// 					{
+			// 						rrcFirst = CRect( rClient.right-cx, 1, rClient.right-1, cx ); 
+			// 						rrcLast = CRect( rClient.right-cx, rClient.bottom-cx, rClient.right-1, rClient.bottom-1 );
+			// 					}
+			// 					else
+			// 					{
+			// 						rrcFirst = CRect( 1, 1, cx, cx ); 
+			// 						rrcLast = CRect( 1, rClient.bottom-cx, cx, rClient.bottom-1 );
+			// 					}
+			// 				}
+			// 				else
+			// 				{
+			// 					if ( dwStyle & TBS_TOP )
+			// 					{
+			// 						rrcFirst = CRect( 1, rClient.bottom-cx, cx, rClient.bottom-1 ); 
+			// 						rrcLast = CRect( rClient.right-cx, rClient.bottom-cx, rClient.right-1, rClient.bottom-1 );
+			// 					}
+			// 					else
+			// 					{
+			// 						rrcFirst = CRect( 1, 1, cx, cx ); 
+			// 						rrcLast = CRect( rClient.right-cx, 1, rClient.right-1, cx );
+			// 					}
+			// 				}
+			// 
+			// 				int iSave = pDC->SaveDC();
+			// 				pDC->SelectObject( &bWhite );
+			// 				pDC->SelectObject( &p );
+			// 				pDC->Ellipse( &rrcFirst );
+			// 				pDC->SelectObject( &bDark );
+			// 				pDC->Ellipse( &rrcLast );
+			// 				pDC->RestoreDC( iSave );
+			// 
+			// 				pDC->Detach();
+			// 			}
 
 			*pResult = CDRF_SKIPDEFAULT;
 			break;
@@ -327,11 +329,8 @@ public:
 #endif // (_WIN32_IE >= 0x0400)
 
 
-
-	BOOL OnEraseBkgnd(CDCHandle dc)
+	LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
-		//OnMyCtrlEraseBkgnd(m_hWnd,dc.m_hDC);
-		SetMsgHandled(TRUE);
 		return 1;
 	}
 
@@ -454,7 +453,6 @@ public:
 };
 
 
-
 class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 {
 	DECLARE_WND_SUPERCLASS(NULL,CStatusBarCtrl::GetWndClassName())
@@ -470,56 +468,48 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 };
 
 
-// 
-// class CMySimpleRebar:public CWindowImpl<CMySimpleRebar,CReBarCtrl>
-// {   
-// // 
-// // 	static ATL::CWndClassInfo& GetWndClassInfo1() 
-// // 	{ 
-// // 	/*
-// // 	typedef struct tagWNDCLASSEXA {
-// // 		UINT        cbSize;
-// // 		UINT        style;
-// // 		WNDPROC     lpfnWndProc;
-// // 		int         cbClsExtra;
-// // 		int         cbWndExtra;
-// // 		HINSTANCE   hInstance;
-// // 		HICON       hIcon;
-// // 		HCURSOR     hCursor;
-// // 		HBRUSH      hbrBackground;
-// // 		LPCSTR      lpszMenuName;
-// // 		LPCSTR      lpszClassName;
-// // 		HICON       hIconSm;
-// // 	} WNDCLASSEXA
-// // 	*/
-// // 
-// // 		HBRUSH brush;
-// // 		brush=GetSysColorBrush(COLOR_BTNFACE);
-// // 		static ATL::CWndClassInfo wc = 
-// // 		{ 
-// // 			{ sizeof(WNDCLASSEX), 0, StartWindowProc, 
-// // 			0, 0, NULL, NULL, NULL, brush, NULL, NULL, NULL }, \
-// // 			NULL, NULL, NULL, TRUE, 0, _T("") 
-// // 		}; 
-// // 		return wc; 
-// // 	}
-// 
-// 	DECLARE_WND_SUPERCLASS(NULL,CReBarCtrl::GetWndClassName())
-// 
-// 	BEGIN_MSG_MAP_EX(CMySimpleRebar)
-// 		//NOTIFY_CODE_HANDLER_EX(RBN_LAYOUTCHANGED,LayOutChanged)
-// 		//NOTIFY_CODE_HANDLER(RBN_ENDDRAG ,LayOutChanged)
-// 		
-// 		ALT_MSG_MAP(1)
-// 		REFLECTED_NOTIFY_CODE_HANDLER(RBN_ENDDRAG, LayOutChanged)
-// 	END_MSG_MAP()
-// 
-// 	LRESULT LayOutChanged(int idCtrl,NMHDR* pNMHDR, BOOL) 
-//     //LRESULT LayOutChanged(LPNMHDR pnmh)
-// 	{
-// 		return 0;
-// 	}
-// };	
+
+class CMySimpleRebar:public CWindowImpl<CMySimpleRebar,CReBarCtrl>
+{   
+public:
+	DECLARE_WND_SUPERCLASS(NULL,CReBarCtrl::GetWndClassName())
+
+	BEGIN_MSG_MAP_EX(CMySimpleRebar)
+		MESSAGE_HANDLER(WM_CTLCOLORSTATIC,OnCtrlColorStatic)
+	END_MSG_MAP()
+
+
+	CMyTrackBar *pTrack;
+	CMyVolumeBar *pVolume;
+	LRESULT OnCtrlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		LRESULT lResult=FALSE;
+		HDC dc=(HDC)wParam;
+		HWND wnd=(HWND)lParam;
+		HBRUSH brush=NULL;
+
+		if (wnd==pVolume->m_hWnd 
+			||wnd==pTrack->m_hWnd 
+			)
+		{
+			//HDC mdc= ::GetDC(m_hWnd);
+			//COLORREF c= ::GetBkColor(mdc);
+			//brush=::CreateSolidBrush(c);
+			//brush=::GetSysColorBrush(COLOR_3DLIGHT);
+
+			//背景色 渐变  从灰色  到 COLOR_BTNFACE
+// 			static int i=1;
+// 			brush=::GetSysColorBrush(i++);
+// 			if (i==28)i=1;			//brush=::GetStockObject(NULL_BRUSH);
+			brush=::GetSysColorBrush(COLOR_BTNFACE);
+			::SetBkMode(dc,TRANSPARENT);
+			lResult=(LRESULT)brush;
+		}
+
+		return lResult;
+	}
+
+};	
 
 
 
@@ -633,7 +623,4 @@ class CMyEdit:public CWindowImpl<CMyEdit,CEdit>
 	DialogSearch *m_pDlgSearch;
 	//void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
-	
-
-	
 };

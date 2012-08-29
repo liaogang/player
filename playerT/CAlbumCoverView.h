@@ -14,12 +14,12 @@ public:
 
 	CAlbumCoverView():bHasPic(FALSE)
 	{
-		brush=::GetSysColorBrush(COLOR_3DFACE);
+		brush=::GetSysColorBrush(/*COLOR_3DFACE*/COLOR_3DSHADOW);
 
 		menu=::CreatePopupMenu();
 		::InsertMenu(menu,0,MF_DISABLED|MF_GRAYED|MF_BYCOMMAND|MF_BYPOSITION,ID_MENU_PIC_SAVE,_T("图像保存到"));
 
-		newPen=(HPEN)::CreatePen(PS_SOLID,0,RGB(255,255,255));
+		newPen=(HPEN)::CreatePen(PS_NULL,0,RGB(255,255,255));
 	}
 
 	~CAlbumCoverView()
@@ -49,10 +49,12 @@ public:
 	{
 		const TCHAR szFilter[]=_T("BMP图像文件(*.bmp)\0*.bmp\0");
 		const TCHAR szDefaultExt[]=_T("bmp");
+		
 		CFileDialog dlg(FALSE,szDefaultExt,NULL,OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
-		if(dlg.DoModal()!=IDOK)return 0;
-
-		i->img->Save(dlg.m_ofn.lpstrFile);
+		if(dlg.DoModal()==IDOK)
+		{
+			i->img->Save(dlg.m_ofn.lpstrFile);
+		}
 
 		return 0;
 	}
@@ -102,19 +104,19 @@ public:
 
 			i->img->Draw(ps.hdc,rc.left,rc.top,iw,ih,0,0,iw,ih);
 			oldPen=(HPEN )::SelectObject(ps.hdc,newPen);
-			::Rectangle(ps.hdc,iw,rc.top,rc.right,rc.bottom);
-			::Rectangle(ps.hdc,rc.left,ih,iw,rc.bottom);
+			::Rectangle(ps.hdc,iw,rc.top,rc.right+1,rc.bottom+1);
+			::Rectangle(ps.hdc,rc.left-1,ih,iw+1,rc.bottom+1);
 			::SelectObject(ps.hdc,oldPen);
 		}
 		else
 		{
 			oldPen=(HPEN )::SelectObject(ps.hdc,newPen);
-			::Rectangle(ps.hdc,rc.left,rc.top,rc.right,rc.bottom);
+			::Rectangle(ps.hdc,rc.left-1,rc.top,rc.right+1,rc.bottom+1);
 			::SelectObject(ps.hdc,oldPen);
 		}
 
 		::SelectObject(ps.hdc,oldBrush);
-			::SelectObject(ps.hdc,oldPen);
+		::SelectObject(ps.hdc,oldPen);
 		::EndPaint(m_hWnd,&ps);	
 
 		return 0;
