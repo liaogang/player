@@ -21,7 +21,8 @@ public:
 	void SetMain(class CMainFrame *pMain);
 	PlayListItem *m_pPlayTrack;
 
-	CPlayListView()
+	BOOL bAuto,bDeletable;
+	CPlayListView():bAuto(FALSE),bDeletable(!bAuto)
 	{
 	}
 
@@ -33,10 +34,36 @@ public:
 public:
 	DECLARE_WND_SUPERCLASS(NULL,CListViewCtrl::GetWndClassName())
 
+
+	virtual BOOL PreTranslateMessage(MSG* pMsg)
+	{
+		if (pMsg->hwnd!=m_hWnd)
+			return FALSE;
+
+		
+		if (pMsg->message==WM_KEYDOWN)
+		{	
+			UINT nChar=(TCHAR)pMsg->wParam;
+
+			if (nChar=='A' || nChar=='a')
+			{
+				if (GetKeyState(VK_CONTROL) &0x80)
+					SelectAll();
+			}
+			else if (nChar==VK_DELETE)
+			{
+				DelSelectedItem(GetKeyState(VK_SHIFT) & 0x80);
+			}
+
+		}//if (pMsg->message!=WM_KEYDOWN)
+
+		return FALSE;
+	}
+
 	BEGIN_MSG_MAP_EX(CPlayListView)
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
 		NOTIFY_HANDLER_EX(GetDlgCtrlID(),LVN_ITEMCHANGED,OnItemChanged)
-		MSG_WM_CHAR(OnChar)
+		//MSG_WM_CHAR(OnChar)
 	END_MSG_MAP()
 
     LRESULT OnItemChanged(LPNMHDR pnmh)
@@ -44,6 +71,23 @@ public:
 		return 1;
 	}
 	
+	inline void SelectAll(){SetItemState(-1, LVIS_SELECTED , LVIS_SELECTED );}
+
+	void DelSelectedItem(BOOL bDelFile=FALSE)
+	{
+		if (bDeletable)
+		{
+			int i=GetNextItem(-1,LVIS_FOCUSED|LVIS_SELECTED);
+			if(i!=-1)
+				DeleteItem(i);
+		}
+
+		if (bDelFile)
+		{
+			//todo
+		}
+	}
+
 	void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 	{
 		if (nChar==VK_RETURN)
@@ -82,22 +126,22 @@ public:
 	{	
 		SetExtendedListViewStyle(GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT);
 
-		std::tstring columnName[]={_T("     title              "),_T(" artist      "),_T(" album       "),_T(" year "),_T(" comment "),_T(" genre      ")};
-		for (int i=0;i<6;i++)
-		{ 
-			std::tstring str=columnName[i];
-			AddColumn(str.c_str(),i,-1, LVCF_FMT| LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM ,LVCFMT_CENTER);
-		}
-
+		TCHAR * columnName[]={_T("     title              "),_T(" artist      "),_T(" album       "),_T(" year "),_T(" comment "),_T(" genre      ")};
+		for (int i=0;i<sizeof(columnName)/sizeof(int);i++)
+			AddColumn(columnName[i],i,-1, LVCF_FMT| LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM ,LVCFMT_CENTER);
+		
 	}
 	
+	void ClearAllSel()
+	{
+		int i=-1;
+		while ( (i=GetNextItem(i,LVIS_SELECTED)) != -1)
+			SetItemState(i,0,LVNI_SELECTED );
+	}
 
 
 	void InsertTrackItem(PlayListItem &track,int item,BOOL SetIndex=TRUE);
-	void InsertTrackItem(PlayListItem *track,int item,BOOL SetIndex=TRUE)
-	{
-		InsertTrackItem(*track,item,SetIndex);
-	}
+	inline void InsertTrackItem(PlayListItem *track,int item,BOOL SetIndex=TRUE){InsertTrackItem(*track,item,SetIndex);}
 
 	template<class _InIt> inline
 		void Reload(_InIt _First, _InIt _Last,BOOL SetIndex=TRUE)

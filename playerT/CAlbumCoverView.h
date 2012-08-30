@@ -86,6 +86,7 @@ public:
 				bHasPic=TRUE;
 		}
 
+		Invalidate();
 		ResetMenu();
 	}
 

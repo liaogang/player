@@ -3,11 +3,55 @@ using namespace std;
 
 class DialogSearch :
 	public CDialogImpl<DialogSearch>,
-	public CDialogResize<DialogSearch>
+	public CDialogResize<DialogSearch>,
+	public CMessageFilter
 {
 public:
-	CMainFrame *pM;
 	enum { IDD = IDD_DIALOG_SEARCH };
+	
+	virtual BOOL PreTranslateMessage(MSG* pMsg)
+	{
+		if (pMsg->message==WM_KEYDOWN)
+		{
+			UINT nChar=(TCHAR)pMsg->wParam;
+			if( pMsg->hwnd==m_list.m_hWnd)
+			{
+				if(nChar==VK_ESCAPE)
+					HideSelf();
+			}
+			else if (pMsg->hwnd==m_edit.m_hWnd)
+			{
+				if (GetKeyState(VK_CONTROL) &0x80)
+				{
+					if (nChar=='x'||nChar=='X')
+					{
+						SendMessage(m_edit.m_hWnd,WM_CUT,0,0);
+					}
+					else if (nChar=='c'||nChar=='C')
+					{
+						SendMessage(m_edit.m_hWnd,WM_COPY,0,0);
+					}
+					else if (nChar=='v'||nChar=='V')
+					{
+						SendMessage(m_edit.m_hWnd,WM_PASTE,0,0);
+					}
+				}
+			}
+			 
+			if (nChar==VK_TAB )
+			{
+				//TAB 顺序
+				if (pMsg->hwnd==m_edit)
+					::SetFocus(m_list);
+				else if(pMsg->hwnd==m_list)
+					::SetFocus(m_edit);
+			}
+
+		}//if (pMsg->message!=WM_KEYDOWN)
+
+
+		return m_list.PreTranslateMessage(pMsg);
+	}
 
 	BEGIN_MSG_MAP(DialogFFT)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
@@ -24,6 +68,7 @@ public:
 		DLGRESIZE_CONTROL(IDC_LIST,DLSZ_SIZE_Y)
 	END_DLGRESIZE_MAP()
 
+	CMainFrame *pM;
 	CPlayListView m_list;
 	CMyEdit       m_edit;
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -37,11 +82,15 @@ public:
 		m_edit.SubclassWindow(::GetDlgItem(m_hWnd,IDC_EDIT));
 		m_edit.m_pDlgSearch=this;
 
-		//UINT style= m_edit.GetExStyle();
-		//m_edit.setwindowsl
+		// register object for message filtering and idle updates
+		CMessageLoop* pLoop = _Module.GetMessageLoop();
+		ATLASSERT(pLoop != NULL);
+		pLoop->AddMessageFilter(this);
+
 
 		return TRUE;
 	}
+
 
 
 	vector<PlayListItem*> m_Searchlist;
@@ -118,15 +167,11 @@ public:
 
 void CMyEdit::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
-	AtlTrace(L"%u",nChar);
+	//AtlTrace(L"%u",nChar);
 
 	if(nChar==VK_ESCAPE)
 	{
 		m_pDlgSearch->HideSelf();
-	}
-	else if (nChar==VK_TAB )
-	{
-		::SetFocus(m_pDlgSearch->m_list.m_hWnd);
 	}
 	else if (nChar==VK_RETURN )//播放列表选中项
 	{

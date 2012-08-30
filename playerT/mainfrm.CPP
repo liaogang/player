@@ -22,38 +22,18 @@ using namespace std;
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
-	UINT nChar=(TCHAR)pMsg->wParam;
-
 	if (pMsg->message==WM_KEYDOWN)
 	{
+		UINT nChar=(TCHAR)pMsg->wParam;
 		if(nChar==VK_F3)
 			ShowSearchDialog();
 		if(nChar=='f' ||nChar=='F')
 			if (GetKeyState(VK_CONTROL) &0x80)
 				ShowSearchDialog();
-		if (m_pDlgSearch && pMsg->hwnd==m_pDlgSearch->m_edit.m_hWnd)
-		{
-			AtlTrace(L"%u",nChar);
-
-			if (GetKeyState(VK_CONTROL) &0x80)
-			{
-				if (nChar=='x'||nChar=='X')
-				{
-					SendMessage(m_pDlgSearch->m_edit.m_hWnd,WM_CUT,0,0);
-				}
-				else if (nChar=='c'||nChar=='C')
-				{
-					SendMessage(m_pDlgSearch->m_edit.m_hWnd,WM_COPY,0,0);
-				}
-				else if (nChar=='v'||nChar=='V')
-				{
-					SendMessage(m_pDlgSearch->m_edit.m_hWnd,WM_PASTE,0,0);
-				}
-			}
-		}
-
 	}
 
+	if (m_pPlaylistView->PreTranslateMessage(pMsg))
+		return TRUE;
 
 	return CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg);
 }
@@ -490,10 +470,12 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 		return;
 
 	int i=track->indexInListView;
+	pMain->m_pPlaylistView->ClearAllSel();
+
 	if (i!=-1){
 		pMain->m_pPlaylistView->SetFocus();
 		pMain->m_pPlaylistView->SetItemState(i,LVIS_FOCUSED|
-		LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);	
+			LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);	
 		pMain->m_pPlaylistView->EnsureVisible(i,FALSE);
 	}
 }
