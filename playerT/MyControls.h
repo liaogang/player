@@ -486,24 +486,38 @@ public:
 		LRESULT lResult=FALSE;
 		HDC dc=(HDC)wParam;
 		HWND wnd=(HWND)lParam;
-		HBRUSH brush=NULL;
 
 		if (wnd==pVolume->m_hWnd 
 			||wnd==pTrack->m_hWnd 
 			)
 		{
-			//HDC mdc= ::GetDC(m_hWnd);
-			//COLORREF c= ::GetBkColor(mdc);
-			//brush=::CreateSolidBrush(c);
-			//brush=::GetSysColorBrush(COLOR_3DLIGHT);
+			//!m_hWnd ,父控件,Rebar
+			//!wnd    ,子控件,trackBar
 
-			//背景色 渐变  从灰色  到 COLOR_BTNFACE
-// 			static int i=1;
-// 			brush=::GetSysColorBrush(i++);
-// 			if (i==28)i=1;			//brush=::GetStockObject(NULL_BRUSH);
-			brush=::GetSysColorBrush(COLOR_BTNFACE);
-			::SetBkMode(dc,TRANSPARENT);
-			lResult=(LRESULT)brush;
+			RECT rc;
+			::GetWindowRect(m_hWnd,&rc);
+
+			HDC dcMem;
+			dcMem= ::CreateCompatibleDC(dc);
+			HBITMAP bmp,oldBmp;
+			bmp=::CreateCompatibleBitmap(dc,rc.right-rc.left,rc.bottom-rc.top);
+			oldBmp=(HBITMAP)::SelectObject(dcMem,bmp);
+
+			POINT pt={0,0};
+			::MapWindowPoints(wnd,m_hWnd,&pt,1);
+			::OffsetWindowOrgEx(dcMem,pt.x,pt.y,&pt);
+			::SendMessage(m_hWnd,WM_ERASEBKGND, (WPARAM)dcMem, 0L);
+			::SetWindowOrgEx(dcMem,pt.x,pt.y,NULL);
+			::DeleteDC(dcMem);
+
+			static HBRUSH hBrush=0;
+			if (hBrush)
+				::DeleteObject((HGDIOBJ)hBrush);
+
+			hBrush = ::CreatePatternBrush(bmp);
+			::DeleteObject(bmp);
+
+			lResult=(LRESULT)hBrush;
 		}
 
 		return lResult;
