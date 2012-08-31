@@ -30,11 +30,20 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 
 //-----------------------------------------
 //PlayList
- PlayList::PlayList(void):curPlayingItem(NULL),curSelectedItem(NULL)
+ PlayList::PlayList(void):
+	curSelectedItem(NULL),
+	lastPlayingItem(NULL),
+	curPlayingItem(NULL),
+	nextPlayingItem(NULL)
 {
+
 }
 
- PlayList::PlayList(std::tstring &name):curPlayingItem(NULL),curSelectedItem(NULL)
+ PlayList::PlayList(std::tstring &name):
+	curSelectedItem(NULL),
+	lastPlayingItem(NULL),
+	curPlayingItem(NULL),
+	nextPlayingItem(NULL)
  {
 	m_playlistName=name;
 	m_saveLocation=m_playlistName+_T(".pl");
@@ -48,6 +57,10 @@ PlayList::~PlayList(void)
 	m_songList.clear();
 }
 
+void PlayList::DeleteTrack(PlayListItem* track)
+{
+	m_songList.remove(*track);
+}
 
 BOOL PlayList::AddFolderByThread(LPCTSTR pszFolder)
 {
@@ -227,12 +240,50 @@ void TrimRightByNull(std::wstring &_str)
 		_str=_str.substr(0,index);	
 }
 
+void PlayListItem::Buf2Img(BYTE* lpRsrc,DWORD len)
+{
+// 	TCHAR *picName=_T("runningArtWork.jpeg");
+// 	FILE *file=_tfopen(picName,L"wb");
+// 	if(file)
+// 	{
+// 	 	::fwrite(pPicBuf->data(),1,pPicBuf->size(),file);
+// 	 	fclose(file);
+// 	}
+	
+// 	CImg img1;
+// 	img1.load_jpeg(picName);
+// 	img1.draw_image()
+	
+	//idev3 album picture info
+	img=new CImage;  
+// 	if (S_OK != img->Load(picName) ){
+// 	 	delete img;
+// 	 	img=NULL;}
+
+	// Allocate global memory on which to create stream
+	HGLOBAL m_hMem = GlobalAlloc(GMEM_FIXED, len);
+	BYTE* pmem = (BYTE*)GlobalLock(m_hMem);
+	memcpy(pmem,lpRsrc,len);
+	IStream* pstm;
+	CreateStreamOnHGlobal(m_hMem,FALSE,&pstm);
+	if (S_OK != img->Load(pstm)){
+		delete img;
+		img=NULL;}
+};
 
 BOOL PlayListItem::ScanId3Info(BOOL bRetainPic)
 {
 	if(m_bStatus!=UNKNOWN && bRetainPic==FALSE)return TRUE;
 
 	MPEG::File f(url.c_str());
+
+	APE::Tag *apeTag=f.APETag();
+	if (apeTag)
+		if(m_bStatus==UNKNOWN)
+			title=apeTag->title().toWString();
+		
+
+
 	ID3v2::Tag *id3v2tag = f.ID3v2Tag();
 	BOOL bInvalidID3V2=FALSE;
 	if(id3v2tag) 
@@ -261,25 +312,9 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic)
 			pPicBuf=NULL;
 			id3v2tag->retainPicBuf(&pPicBuf);
 			if (pPicBuf)
-			{
-				//-----------------------------------------
-				//idev3 album picture info
-				img=new CImage;   
-				// load resource into memory
-				DWORD len =pPicBuf->size();
-				BYTE* lpRsrc=(BYTE*)pPicBuf->data();
-				// Allocate global memory on which to create stream
-				HGLOBAL m_hMem = GlobalAlloc(GMEM_FIXED, len);
-				BYTE* pmem = (BYTE*)GlobalLock(m_hMem);
-				memcpy(pmem,lpRsrc,len);
-				IStream* pstm;
-				CreateStreamOnHGlobal(m_hMem,FALSE,&pstm);
-				if (S_OK != img->Load(pstm)){
-					delete img;
-					img=NULL;}
-			}
-			
-		}//if(bRetainPic)
+				Buf2Img((BYTE*)pPicBuf->data(),pPicBuf->size());
+		}
+
 	}
 	else
 	{

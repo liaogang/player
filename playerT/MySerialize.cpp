@@ -213,7 +213,7 @@ PlayList* MyLib::LoadPlaylist(LPTSTR filepath)
 		playlist=new PlayList;
 		playlist->m_saveLocation=filepath;
 		result=playlist->ReSerialize(pFile);
-		m_playLists.push_back(*playlist);
+		m_playLists.push_back(playlist);
 		fclose (pFile);
 	}
 
@@ -230,11 +230,10 @@ BOOL MyLib::SaveCoreCfg()
 		int len=m_playLists.size();
 		::Serialize(pFile,len);
 		
-		list<PlayList>::iterator i;
+		MyLib::PLList::iterator i;
 		for (i=m_playLists.begin();i!=m_playLists.end();++i)
-			::Serialize(pFile,(*i).m_saveLocation);
+			::Serialize(pFile,(*i)->m_saveLocation);
 		
-
 		//lrc section
 		len=lrcDirs.size();
 		::Serialize(pFile,len);

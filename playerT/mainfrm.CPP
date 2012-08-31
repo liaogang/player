@@ -16,8 +16,8 @@
 #include <string>
 using namespace std;
 
-#pragma comment(lib,"UxTheme.lib")
-#include "Uxtheme.h"
+// #pragma comment(lib,"UxTheme.lib")
+// #include "Uxtheme.h"
 
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
@@ -328,7 +328,7 @@ LRESULT CMainFrame::OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 	PlayList *playlist=MyLib::shared()->SelPlaylist();
 
 	if (playlist){
-		m_pTabBar->AddPlaylistTab(playlist,TRUE,-1);
+		//m_pTabBar->AddPlaylistTab(playlist,TRUE,-1);
 		m_pPlaylistView->Reload(playlist);
 	}
 	return 0;
@@ -536,7 +536,7 @@ void CPlayListView::PlaySelectedItem()
 	MyLib* s=MyLib::shared();
 
 	s->SetActivePlaylist(s->SelPlaylist());
-	s->ActivePlaylist()->SetCurPlaying(m_pPlayTrack);
+	s->ActivePlaylist()->SetCurPlaying(m_pPlayTrack,FALSE);
 
 	MyLib::stop();
 	MyLib::playAfterSlowDown();
@@ -610,13 +610,13 @@ void CMainFrame::DoSomethingBeforeShow()
 
 	if (s->m_playLists.size()>0)
 	{
-		list<PlayList>::iterator i;
+		MyLib::PLList::iterator i;
 		for (i=s->m_playLists.begin();i!=s->m_playLists.end();++i)
-			m_pTabBar->AddPlaylistTab(&(*i),TRUE,-1);
+			m_pTabBar->AddPlaylistTab(*i,TRUE,-1);
 
-		m_pPlaylistView->Reload(&(*--i));
+		i--;
+		m_pPlaylistView->Reload(*i);
 	}
-
 
 	s->InitLrcLib();
 }

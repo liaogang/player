@@ -20,13 +20,21 @@
 #include <fileref.h>
 #include <tbytevector.h>
 using namespace TagLib;
+
 class PlayList;
-class PlayListItem:
-	public SerializeObj
+
+class PlayListItem: public SerializeObj
 {
 public:
 	virtual int SerializeB(FILE* pFile);
 	virtual int ReSerialize(FILE* pFile);
+
+	bool operator==(const PlayListItem &other)
+	{
+		if(&other == this )
+			return true;
+		return false;
+	}
 public:
 	PlayListItem(PlayList *playlist):
 		m_pPL(playlist)
@@ -86,6 +94,7 @@ public:
 	BOOL  GetLrcFileFromLib();
 	BOOL  HaveKeywords(TCHAR *keywords);
 private:
+	void Buf2Img(BYTE* lpRsrc,DWORD len);
 	BOOL  IsInalid();//abondaned
 	BOOL LrcFileMacth(std::tstring &filename);
 };
@@ -118,6 +127,10 @@ public:
 	PlayList(std::tstring &name);
 	~PlayList(void);
 	
+public:
+	//operation
+	void DeleteTrack(PlayListItem* track);
+
 public:
 	HANDLE hAddDir;
 	BOOL AddFolderByThread(LPCTSTR pszFolder);

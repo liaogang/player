@@ -44,7 +44,8 @@ public:
 
 public:
 	//data member
-	list<PlayList> m_playLists;
+	typedef list<PlayList*> PLList;
+	PLList m_playLists;
 private:
 	//pointers
 	PlayList*      m_pActivePlaylist;  //playing

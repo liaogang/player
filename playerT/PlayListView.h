@@ -63,7 +63,7 @@ public:
 	BEGIN_MSG_MAP_EX(CPlayListView)
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
 		NOTIFY_HANDLER_EX(GetDlgCtrlID(),LVN_ITEMCHANGED,OnItemChanged)
-		//MSG_WM_CHAR(OnChar)
+		MSG_WM_CHAR(OnChar)
 	END_MSG_MAP()
 
     LRESULT OnItemChanged(LPNMHDR pnmh)
@@ -73,19 +73,33 @@ public:
 	
 	inline void SelectAll(){SetItemState(-1, LVIS_SELECTED , LVIS_SELECTED );}
 
+	
+
 	void DelSelectedItem(BOOL bDelFile=FALSE)
 	{
 		if (bDeletable)
 		{
-			int i=GetNextItem(-1,LVIS_FOCUSED|LVIS_SELECTED);
-			if(i!=-1)
-				DeleteItem(i);
+			int i=-1;
+			i=GetNextItem(i,LVIS_FOCUSED|LVIS_SELECTED);
+			while(i!=-1)
+			{
+				PlayListItem *track=(PlayListItem*)GetItemData(i);
+				
+				if(track )
+				{
+					if(bDelFile && IDYES==::MessageBox(m_hWnd,_T("这将会删除 1 文件 \n要继续吗?"),_T("确认删除文件"),MB_YESNO))
+					{
+						::DeleteFile(track->url.c_str());
+					}
+
+					track->m_pPL->DeleteTrack(track);
+				}
+
+				if(DeleteItem(i)) i--;
+				i=GetNextItem(i,LVIS_FOCUSED|LVIS_SELECTED);
+			}
 		}
 
-		if (bDelFile)
-		{
-			//todo
-		}
 	}
 
 	void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)

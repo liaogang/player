@@ -44,7 +44,10 @@ public:
 				if (pMsg->hwnd==m_edit)
 					::SetFocus(m_list);
 				else if(pMsg->hwnd==m_list)
+				{
 					::SetFocus(m_edit);
+					m_edit.SetSel(0,-1);
+				}
 			}
 
 		}//if (pMsg->message!=WM_KEYDOWN)

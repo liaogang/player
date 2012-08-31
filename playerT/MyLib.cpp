@@ -7,7 +7,7 @@
 PlayList*  MyLib::NewPlaylist(std::tstring playlistname)
 {
 	PlayList *l=new PlayList(playlistname);
-	m_playLists.push_back(*l);
+	m_playLists.push_back(l);
 	return l;
 }
 
@@ -33,6 +33,13 @@ MyLib::~MyLib()
 {
 	SaveCoreCfg();
 	CBasicPlayer::shared()->stop();
+
+
+	PLList::iterator i;
+	for (i=m_playLists.begin();i!=m_playLists.end();i++)
+	{
+		delete *i;
+	}
 }
 
 void MyLib::playAfterSlowDown()

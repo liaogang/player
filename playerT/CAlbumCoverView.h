@@ -17,7 +17,7 @@ public:
 		brush=::GetSysColorBrush(/*COLOR_3DFACE*/COLOR_3DSHADOW);
 
 		menu=::CreatePopupMenu();
-		::InsertMenu(menu,0,MF_DISABLED|MF_GRAYED|MF_BYCOMMAND|MF_BYPOSITION,ID_MENU_PIC_SAVE,_T("图像保存到"));
+		//::InsertMenu(menu,0,MF_DISABLED|MF_GRAYED|MF_BYCOMMAND|MF_BYPOSITION,ID_MENU_PIC_SAVE,_T("图像保存到"));
 
 		newPen=(HPEN)::CreatePen(PS_NULL,0,RGB(255,255,255));
 	}
@@ -47,14 +47,14 @@ public:
 
 	LRESULT OnPicSave(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		const TCHAR szFilter[]=_T("BMP图像文件(*.bmp)\0*.bmp\0");
-		const TCHAR szDefaultExt[]=_T("bmp");
-		
-		CFileDialog dlg(FALSE,szDefaultExt,NULL,OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
-		if(dlg.DoModal()==IDOK)
-		{
-			i->img->Save(dlg.m_ofn.lpstrFile);
-		}
+// 		const TCHAR szFilter[]=_T("BMP图像文件(*.bmp)\0*.bmp\0");
+// 		const TCHAR szDefaultExt[]=_T("bmp");
+// 		
+// 		CFileDialog dlg(FALSE,szDefaultExt,NULL,OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
+// 		if(dlg.DoModal()==IDOK)
+// 		{
+// 			i->img->Save(dlg.m_ofn.lpstrFile);
+// 		}
 
 		return 0;
 	}
@@ -125,9 +125,10 @@ public:
 
 	void ResetMenu()
 	{
-		static BOOL bDisabledLast=FALSE;
+		static INT bDisabledLast=-1;
 
 		BOOL bDisable=!bHasPic;
+
 		if (bDisable!=bDisabledLast)
 		{
 			::DeleteMenu(menu,0,MF_BYPOSITION);
