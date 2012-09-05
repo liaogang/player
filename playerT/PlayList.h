@@ -112,6 +112,7 @@ public:
 public:
 	list<PlayListItem> m_songList;
 	std::tstring       m_playlistName;
+	void Rename(TCHAR *newName){m_playlistName=newName;}
 	std::tstring       m_saveLocation;
 private:
 	PlayListItem *lastPlayingItem,*curPlayingItem,

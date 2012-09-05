@@ -189,14 +189,14 @@ int PlayListItem::ReSerialize(FILE *pFile)
 }
 
 
-BOOL MyLib::SaveCurPlaylist(LPTSTR filepath)
+BOOL MyLib::SavePlaylist(PlayList *pl,LPTSTR filepath)
 {
 	BOOL result=FALSE;
 	FILE * pFile;
 	pFile = _tfopen((LPCTSTR)filepath , _T("wb") );
 	if (pFile!=NULL){
-		result=m_pSelPlaylist->Serialize(pFile);
-		m_pSelPlaylist->m_saveLocation=filepath;
+		result=pl->Serialize(pFile);
+		pl->m_saveLocation=filepath;
 		fclose (pFile);
 	}
 

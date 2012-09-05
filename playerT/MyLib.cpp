@@ -37,9 +37,8 @@ MyLib::~MyLib()
 
 	PLList::iterator i;
 	for (i=m_playLists.begin();i!=m_playLists.end();i++)
-	{
 		delete *i;
-	}
+	
 }
 
 void MyLib::playAfterSlowDown()
@@ -240,4 +239,12 @@ void MyLib::ImportLycByPath(std::tstring path)
 
 	//回复当前目录
 	_tchdir(curPath);
+}
+
+
+
+void MyLib::DeletePlayList(PlayList *pl)
+{
+	m_playLists.remove(pl);
+	delete pl;
 }

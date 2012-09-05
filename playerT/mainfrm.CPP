@@ -449,11 +449,16 @@ LRESULT CMainFrame::OnOpenPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 LRESULT CMainFrame::OnSavePlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	const TCHAR szFilter[]=_T("playlist files(*.pl)\0*.pl\0");
-	const TCHAR szDefaultExt[]=_T("pl");
-	CFileDialog dlg(FALSE,szDefaultExt,NULL,OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
-	if(dlg.DoModal()!=IDOK)return 0;
-	MyLib::shared()->SaveCurPlaylist(dlg.m_ofn.lpstrFile);
+	PlayList* pl=MyLib::shared()->SelPlaylist();
+	if(pl)
+	{
+		const TCHAR szFilter[]=_T("playlist files(*.pl)\0*.pl\0");
+		const TCHAR szDefaultExt[]=_T("pl");
+		CFileDialog dlg(FALSE,szDefaultExt,NULL,OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
+		if(dlg.DoModal()==IDOK)
+			MyLib::SavePlaylist(pl,dlg.m_ofn.lpstrFile);
+	}
+	
 
 	return 0;
 }
@@ -552,8 +557,45 @@ HWND MyLib::GetMain(){return shared()->hMain;};
 
 BOOL CMyTabBar::AddPlaylistTab(PlayList* ppl,BOOL inActiveFlag , int inImage )
 {
-	AddTab(ppl->m_playlistName.c_str(),pMain->m_pPlaylistView->m_hWnd,inActiveFlag,inImage,(LPARAM)ppl);
+	int nNewTab=AddTab(ppl->m_playlistName.c_str(),pMain->m_pPlaylistView->m_hWnd,inActiveFlag,inImage,(LPARAM)ppl);
+	pplOnTag.push_back(ppl);
+	
+	
 	MyLib::shared()->SetSelPlaylist(ppl);
+	return 0;
+}
+
+LRESULT CMyTabBar::OnPlDel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	PlayList* pl= GetTabPlayList(RtBtnTab);
+	MyLib::shared()->DeletePlayList(pl);
+	RemoveTab(RtBtnTab);
+
+	return 0;
+}
+LRESULT CMyTabBar::OnPlRename(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	PlayList* pl= GetTabPlayList(RtBtnTab);
+
+// 	CFileDialog 
+// 	{
+// 		pl->Rename();
+// 	}
+	
+	return 0;
+}
+LRESULT CMyTabBar::OnPlSave(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	PlayList* pl= GetTabPlayList(RtBtnTab);
+	if(pl)
+	{
+		const TCHAR szFilter[]=_T("playlist files(*.pl)\0*.pl\0");
+		const TCHAR szDefaultExt[]=_T("pl");
+		CFileDialog dlg(FALSE,szDefaultExt,NULL,OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
+		if(dlg.DoModal()==IDOK)
+			MyLib::SavePlaylist(pl,dlg.m_ofn.lpstrFile);
+	}
+
 	return 0;
 }
 

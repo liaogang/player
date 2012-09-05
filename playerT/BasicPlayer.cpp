@@ -127,6 +127,9 @@ void CBasicPlayer::play()
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
 	m_bStopped=FALSE;
 	m_bPaused=FALSE;
+
+	if(::WaitForSingleObject(m_eventSlowDown,0)!=WAIT_OBJECT_0)
+		return;
 	InitSlowDown(FALSE);
 
 	::PostMessage(m_pMainFrame->m_hWnd,WM_NEW_TRACK_STARTED,NULL,NULL);
