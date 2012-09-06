@@ -15,10 +15,10 @@ unsigned int BKDRHash(char *str)
 class CPlayListView:
 	public CWindowImpl<CPlayListView,CListViewCtrl>
 {
-
 public:
 	class CMainFrame *pMain;
 	void SetMain(class CMainFrame *pMain);
+	PlayList     *m_ppl;
 	PlayListItem *m_pPlayTrack;
 
 	BOOL bAuto,bDeletable;
@@ -62,12 +62,22 @@ public:
 
 	BEGIN_MSG_MAP_EX(CPlayListView)
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
-		NOTIFY_HANDLER_EX(GetDlgCtrlID(),LVN_ITEMCHANGED,OnItemChanged)
+		//NOTIFY_CODE_HANDLER(OCM__BASE +LVN_GETDISPINFO ,OnGetdispInfo)
+		//NOTIFY_HANDLER_EX(GetDlgCtrlID(),LVN_ITEMCHANGED,OnItemChanged)
 		MSG_WM_CHAR(OnChar)
+		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED,OnItemChanged)
+		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO,OnGetdispInfo)
 	END_MSG_MAP()
 
-    LRESULT OnItemChanged(LPNMHDR pnmh)
+	LRESULT OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled);
+
+	
+	LRESULT OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled)
 	{
+		NMLISTVIEW * pnml=(NMLISTVIEW *)pnmh;
+		m_ppl->topVisibleIndex=pnml->iItem;
+		m_ppl->selectedIndex=pnml->iItem;
+
 		return 1;
 	}
 	
@@ -106,30 +116,27 @@ public:
 	{
 		if (nChar==VK_RETURN)
 		{
-			if(GetSelTrack())
-				PlaySelectedItem();
+			PlayItem(GetFirstSelItem());
 		}
 	}
 
-	BOOL GetSelTrack()
+	BOOL GetFirstSelItem()
 	{
+		
 		int nItem=-1;
 		if (GetItemCount()>0)
 		{
 			nItem=GetNextItem(nItem,LVNI_SELECTED);
-			m_pPlayTrack=(PlayListItem*)GetItemData(nItem);
-			return TRUE;
+			//if(nItem!=-1)break;
 		}
-		return FALSE;
+		return nItem;
 	}
 
-
-	void PlaySelectedItem();
+	void PlayItem(int nItem);
 
 	LRESULT OnDbClicked(UINT i,CPoint pt)
 	{
-		if(GetSelTrack())
-			PlaySelectedItem();
+		PlayItem(GetFirstSelItem());
 
 		SetMsgHandled(FALSE);
 		return 0;
@@ -160,16 +167,33 @@ public:
 	template<class _InIt> inline
 		void Reload(_InIt _First, _InIt _Last,BOOL SetIndex=TRUE)
 	{
-		DeleteAllItems();
-
-		int j;_InIt i;
-		for (i=_First,j=0;i!=_Last;i++,j++)
-			InsertTrackItem(*i ,j,SetIndex);
+// 		DeleteAllItems();
+// 
+// 		int j;_InIt i;
+// 		for (i=_First,j=0;i!=_Last;i++,j++)
+// 			InsertTrackItem(*i ,j,SetIndex);
 	}
 
 	void Reload(PlayList* pPl,BOOL SetIndex=TRUE)
 	{
-		Reload(pPl->m_songList.begin(),pPl->m_songList.end(),SetIndex);
+		m_ppl=pPl;
+		int songCount=m_ppl->m_songList.size();
+		SetItemCount(songCount);
+		ClearAllSel();
+
+		if(m_ppl->selectedIndex!=-1)
+		{
+			int selItem=0;
+			int countPerPage=GetCountPerPage();
+			if (m_ppl->selectedIndex >countPerPage &&m_ppl->selectedIndex <songCount-countPerPage/2)
+			{
+				selItem=m_ppl->selectedIndex+countPerPage/2;
+			}
+
+			SetItemState(m_ppl->selectedIndex,LVIS_FOCUSED|
+				LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
+			EnsureVisible(selItem,FALSE);
+		}
 	}
 
 };

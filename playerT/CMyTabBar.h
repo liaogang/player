@@ -53,6 +53,7 @@ public:
 		COMMAND_ID_HANDLER(ID_MENU_DELPL, OnPlDel)
 		COMMAND_ID_HANDLER(ID_MENU_PL_RENAME, OnPlRename)
 		COMMAND_ID_HANDLER(ID_MENU_PL_SAVE, OnPlSave)
+		REFLECTED_NOTIFY_CODE_HANDLER_EX(TCN_SELCHANGE, OnSelectionChanged)
 		CHAIN_MSG_MAP(CWTLTabViewCtrl)
 	END_MSG_MAP()
 	
@@ -112,10 +113,9 @@ public:
 		return 1;
 	}
 
-	PlayList* GetTabPlayList(int tabIndex)
-	{
-		return pplOnTag[tabIndex];
-	}
+	LRESULT OnSelectionChanged( LPNMHDR );
+	
+	PlayList* GetTabPlayList(int tabIndex){	return  (PlayList*)GetTabParam(tabIndex);}
 
 	void *RemoveTabPlayList(int tabIndex)
 	{
@@ -127,12 +127,26 @@ public:
 				pplOnTag.erase(i);
 			}
 		}
-
-		
 	}
 	
+	void SetCurSel(PlayList* ppl)
+	{
+		int nItem=-1;
 
-	vector<PlayList*> pplOnTag;
+		vector<PlayList*>::iterator i;
+		for (i=pplOnTag.begin(),nItem=0;i!=pplOnTag.end();i++,nItem++)
+		{
+			if (*i == ppl)
+			{
+				SetActiveTab(nItem);
+				break;
+			}
+		}
+	}
+
+
+	typedef vector<PlayList*> _containType;
+	_containType pplOnTag;
 	class CMainFrame* pMain;
 	BOOL AddPlaylistTab(PlayList* ppl,BOOL inActiveFlag = TRUE, int inImage = -1);
 };

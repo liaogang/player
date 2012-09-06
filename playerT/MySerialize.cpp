@@ -120,9 +120,9 @@ int PlayList::SerializeB(FILE *pFile)
 	size+=::Serialize(pFile,m_playlistName);
 
 	//m_songList Serialize
-	list<PlayListItem>::iterator i;
+	_songContainer::iterator i;
 	for (i=m_songList.begin();i!=m_songList.end();++i){
-		size+=(*i).Serialize(pFile);
+		size+=(*i)->Serialize(pFile);
 	}
 
 	return size;
@@ -141,7 +141,7 @@ int PlayList::ReSerialize(FILE *pFile)
 	while(size<totalSize-playlistnameSize){
 		PlayListItem *track=new PlayListItem(this);
 		size+=track->ReSerialize(pFile);
-		m_songList.push_back(*track);
+		m_songList.push_back(track);
 	}
 
 

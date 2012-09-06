@@ -339,3 +339,18 @@ class CMyEdit:public CWindowImpl<CMyEdit,CEdit>
 	//void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 };
+
+
+
+ 
+class CMySplitterWindow:
+	public CSplitterWindowImpl<CSplitterWindowT<true>, true>
+{
+public:
+	typedef CSplitterWindowImpl<CSplitterWindowT<true>, true> _baseClass1;
+	DECLARE_WND_CLASS_EX(_T("WTL_SplitterWindow"), CS_DBLCLKS, COLOR_WINDOW)
+	BEGIN_MSG_MAP(CMySplitterWindow)
+		REFLECT_NOTIFICATIONS()
+		CHAIN_MSG_MAP(_baseClass1)
+	END_MSG_MAP()
+};

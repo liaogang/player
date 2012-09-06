@@ -149,7 +149,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	DWORD dwSplitStyle = WS_CHILD|WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 	DWORD dwSplitExStyle =0;
 
-	split.Create(m_hWnd, rcDefault, NULL, 
+	m_pSplit=new CMySplitterWindow;
+	m_pSplit->Create(m_hWnd, rcDefault, NULL, 
 		dwSplitStyle, dwSplitExStyle );
 
 	//right pane
@@ -157,16 +158,16 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	m_pPlaylistView=new CPlayListView;
 	//m_pPlaylistView->Create(m_pTabBar->m_hWnd, rcDefault, NULL,  WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN | WS_CLIPSIBLINGS| LVS_REPORT | LVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
-	m_pPlaylistView->Create(split, rcDefault, NULL,  WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN | WS_CLIPSIBLINGS| LVS_REPORT | LVS_SHOWSELALWAYS , WS_EX_CLIENTEDGE);
+	m_pPlaylistView->Create(m_pSplit->m_hWnd, rcDefault, NULL,  WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN | WS_CLIPSIBLINGS| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA, WS_EX_CLIENTEDGE);
 	m_pPlaylistView->Init();	
 
 	//tab bar
 	m_pTabBar=new CMyTabBar;
-	m_pTabBar->Create(split.m_hWnd,rcDefault,NULL,WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN | WS_CLIPSIBLINGS,0/*WS_EX_STATICEDGE*/);
+	m_pTabBar->Create(m_pSplit->m_hWnd,rcDefault,NULL,WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN | WS_CLIPSIBLINGS,0/*WS_EX_STATICEDGE*/);
 
 	//left pane
 	leftPane=new CHorSplitterWindow;
-	leftPane->Create(split.m_hWnd,rcDefault,0,dwSplitStyle);
+	leftPane->Create(m_pSplit->m_hWnd,rcDefault,0,dwSplitStyle);
 
 
 	albumView1=new CAlbumCoverView;
@@ -178,15 +179,15 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	leftPane->SetSplitterPanes(albumView1->m_hWnd,lyricView->m_hWnd);
 	
 	//set left and right
-	split.SetSplitterPanes( m_pTabBar->m_hWnd,leftPane->m_hWnd);
+	m_pSplit->SetSplitterPanes( m_pTabBar->m_hWnd,leftPane->m_hWnd);
 	//-----------------------------------------
 	//EnableThemeDialogTexture(m_pTabBar->m_hWnd,ETDT_ENABLE);
 	//EnableThemeDialogTexture(m_hWnd,ETDT_ENABLE);
-	m_hWndClient=split.m_hWnd;
+	m_hWndClient=m_pSplit->m_hWnd;
 
 	UpdateLayout();
 	leftPane->SetSplitterPos(130);
-	split.SetSplitterPos(482);
+	m_pSplit->SetSplitterPos(482);
 	
 
 	// register object for message filtering and idle updates
@@ -217,9 +218,9 @@ LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 // 			OnTabChanged(sel);
 		}
 
-		if (pnmh->hwndFrom==m_pTabBar->m_hWnd){
-			OnSelectionChanged();
-		}
+// 		if (pnmh->hwndFrom==m_pTabBar->m_hWnd){
+// 			OnSelectionChanged();
+// 		}
 	}
 	
 	//track bar  mouse released
@@ -268,13 +269,16 @@ LRESULT CMainFrame::OnOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 {
 	const TCHAR szFilter[]=_T("wave files(*.wav)\0*.wav\0mp3 files(*.mp3)\0*.mp3\0");
 	CFileDialog dlg(TRUE,NULL,NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,szFilter,this->m_hWnd);
-	if(dlg.DoModal()!=IDOK)return 0;
-
-	LPTSTR filepath=dlg.m_ofn.lpstrFile;
-
-	//g_pSharedPlayer->open(filepath);
-
-	//g_pSharedPlayer->play();
+	if(dlg.DoModal()==IDOK)
+	{
+		PlayList* selPl=MyLib::shared()->SelPlaylist();
+		if(selPl)
+			selPl->AddFile(dlg.m_ofn.lpstrFile);
+		
+		m_pPlaylistView->Reload(selPl);
+	}
+	
+	
 	return 0;
 }
 
@@ -418,11 +422,7 @@ LRESULT CMainFrame::OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 LRESULT CMainFrame::OnFileNewPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	PlayList *pPl=MyLib::shared()->NewPlaylist();
-	MyLib::shared()->SetSelPlaylist(pPl);
-
 	m_pTabBar->AddPlaylistTab(pPl,TRUE,-1);
-	//tell the play list view to add this
-	m_pPlaylistView->Reload(pPl);
 
 	return 0;
 }
@@ -433,16 +433,15 @@ LRESULT CMainFrame::OnOpenPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 	const TCHAR szFilter[]=_T("playlist files(*.pl)\0*.pl\0");
 	const TCHAR szDefaultExt[]=_T("pl");
 	CFileDialog dlg(TRUE,szDefaultExt,NULL,OFN_FILEMUSTEXIST|OFN_DONTADDTORECENT,szFilter,m_hWnd);
-	if(dlg.DoModal()!=IDOK)return 0;
+	if(dlg.DoModal()==IDOK)
+	{
+		PlayList* playlist =MyLib::shared()->LoadPlaylist(dlg.m_ofn.lpstrFile);
+		m_pTabBar->AddPlaylistTab(playlist ,TRUE,-1);
 
+		////tell the play list view to add this
+		//::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
+	}
 
-	MyLib *s=MyLib::shared();
-	PlayList* playlist =MyLib::shared()->LoadPlaylist(dlg.m_ofn.lpstrFile);
-	if (playlist)
-		s->SetSelPlaylist(playlist);
-	//tell the play list view to add this
-	::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
-	
 	return 0;
 }
 
@@ -474,6 +473,8 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 	if (!track)
 		return;
 
+	pMain->m_pTabBar->SetCurSel(curPl);
+
 	int i=track->indexInListView;
 	pMain->m_pPlaylistView->ClearAllSel();
 
@@ -485,8 +486,12 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 	}
 }
 
+
+//no used
 void CMainFrame::OnSelectionChanged()
 {
+	ATLASSERT(FALSE);
+
 	int curSel=m_pTabBar->GetCurSel( );
 	m_pTabBar->SetActiveTab(curSel);
 	PlayList* pPl=(PlayList*)m_pTabBar->GetTabParam(curSel);
@@ -503,20 +508,23 @@ void CPlayListView::SetMain(class CMainFrame *pMain){this->pMain=pMain;}
 
 void CPlayListView::InsertTrackItem(PlayListItem &track,int item,BOOL SetIndex)
 {
-	int k=0;
-	InsertItem(item,track.url.c_str());
-	SetItemText(item,k++,track.title.c_str());
-	SetItemText(item,k++,track.artist.c_str());
-	SetItemText(item,k++,track.album.c_str());
+	//for visual list
+	//InsertItem(item,NULL);
 
-	TCHAR year[256]={};
-	wsprintf(year,_T("%u"),track.year);
-
-	SetItemText(item,k++,(const TCHAR*)year);
-	SetItemText(item,k++,track.comment.c_str());
-	SetItemText(item,k++,track.genre.c_str());
-
-	SetItemData(item,(DWORD_PTR)&track);
+// 	int k=0;
+// 	InsertItem(item,track.url.c_str());
+// 	SetItemText(item,k++,track.title.c_str());
+// 	SetItemText(item,k++,track.artist.c_str());
+// 	SetItemText(item,k++,track.album.c_str());
+// 
+// 	TCHAR year[256]={};
+// 	wsprintf(year,_T("%u"),track.year);
+// 
+// 	SetItemText(item,k++,(const TCHAR*)year);
+// 	SetItemText(item,k++,track.comment.c_str());
+// 	SetItemText(item,k++,track.genre.c_str());
+// 
+// 	SetItemData(item,(DWORD_PTR)&track);
 
 	if(SetIndex)
 		track.indexInListView=item;
@@ -530,7 +538,7 @@ void PlayListViewItem(int index)
 
 }
 
-void CPlayListView::PlaySelectedItem()
+void CPlayListView::PlayItem(int nItem)
 {
 	//todo
 	if (!m_pPlayTrack)
@@ -558,18 +566,21 @@ HWND MyLib::GetMain(){return shared()->hMain;};
 BOOL CMyTabBar::AddPlaylistTab(PlayList* ppl,BOOL inActiveFlag , int inImage )
 {
 	int nNewTab=AddTab(ppl->m_playlistName.c_str(),pMain->m_pPlaylistView->m_hWnd,inActiveFlag,inImage,(LPARAM)ppl);
-	pplOnTag.push_back(ppl);
 	
-	
+	pMain->m_pPlaylistView->Reload(ppl);
 	MyLib::shared()->SetSelPlaylist(ppl);
+
 	return 0;
 }
 
 LRESULT CMyTabBar::OnPlDel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	PlayList* pl= GetTabPlayList(RtBtnTab);
-	MyLib::shared()->DeletePlayList(pl);
+	
 	RemoveTab(RtBtnTab);
+	pMain->m_pPlaylistView->Reload(GetTabPlayList(GetCurSel()));
+
+	MyLib::shared()->DeletePlayList(pl);
 
 	return 0;
 }
@@ -611,7 +622,11 @@ LRESULT CMainFrame::OnExit(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 void CMainFrame::ChangeTitle()
 {
-	const TCHAR *trackName=MyLib::shared()->ActivePlaylist()->curTrack()->GetTitle();
+	PlayList *ppl=MyLib::shared()->ActivePlaylist();
+	if(!ppl)return;
+	PlayListItem* track=ppl->curTrack();
+	if(!track)return;
+	const TCHAR *trackName=track->GetTitle();
 	
 	std::tstring title;
 	if(CBasicPlayer::shared()->m_bStopped)
@@ -695,3 +710,50 @@ void CMyVolumeBar::OnPos(int pos)
 	CBasicPlayer::shared()->SetVolumeByEar(pos);
 }
 
+
+
+
+LRESULT CPlayListView::OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled)
+{
+	LV_DISPINFO* pDispInfo = (LV_DISPINFO*)pNMHDR;
+	LV_ITEM* pItem= &(pDispInfo)->item;
+	int iItemIndx= pItem->iItem;
+
+	PlayListItem *track=m_ppl->m_songList[iItemIndx];
+	if(!track) return 0;
+
+	if (pItem->mask & LVIF_TEXT) //valid text buffer?
+	{
+		switch(pItem->iSubItem){
+		case 0: //fill in main text
+			lstrcpy(pItem->pszText, 
+				track->title.c_str());
+			break;
+		case 1: //fill in sub item 1 text
+			lstrcpy(pItem->pszText,
+				track->artist.c_str());
+			break;
+		case 2: //fill in sub item 2 text
+			lstrcpy(pItem->pszText,
+				track->artist.c_str());
+			break;
+		}
+	}
+
+	return 1;
+}
+
+
+LRESULT CMyTabBar::OnSelectionChanged( LPNMHDR )
+{
+	int curSel=GetCurSel( );
+
+	SetActiveTab( curSel);
+
+	PlayList* pPl=GetTabPlayList(curSel);
+	MyLib::shared()->SetSelPlaylist(pPl);
+
+	pMain->m_pPlaylistView->Reload(pPl);
+	
+	return 0;
+}

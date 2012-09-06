@@ -27,9 +27,9 @@ public:
 
 	virtual bool  Open(LPCTSTR pszPath)
 	{
-		m_wavefile.Open((LPTSTR)pszPath,m_pwfx,WAVEFILE_READ);
+		HRESULT r= m_wavefile.Open((LPTSTR)pszPath,m_pwfx,WAVEFILE_READ);
 		m_pwfx=m_wavefile.GetFormat();
-		return 0;
+		return r==S_OK;
 	}
 
 	void Close()
@@ -39,8 +39,7 @@ public:
 	
 	virtual bool Read(void* pBuf,DWORD dwSizeToRead, DWORD* pdwSizeRead)
 	{
-		m_wavefile.Read((BYTE*)pBuf,dwSizeToRead,pdwSizeRead);
-		return 0;
+		return S_OK==m_wavefile.Read((BYTE*)pBuf,dwSizeToRead,pdwSizeRead);
 	}
 
 	virtual VOID  SetOutVolume(double vol)

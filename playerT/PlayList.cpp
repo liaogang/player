@@ -34,7 +34,9 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 	curSelectedItem(NULL),
 	lastPlayingItem(NULL),
 	curPlayingItem(NULL),
-	nextPlayingItem(NULL)
+	nextPlayingItem(NULL),
+	topVisibleIndex(0),
+	selectedIndex(-1)
 {
 
 }
@@ -43,7 +45,9 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 	curSelectedItem(NULL),
 	lastPlayingItem(NULL),
 	curPlayingItem(NULL),
-	nextPlayingItem(NULL)
+	nextPlayingItem(NULL),
+	topVisibleIndex(0),
+	selectedIndex(-1)
  {
 	m_playlistName=name;
 	m_saveLocation=m_playlistName+_T(".pl");
@@ -54,12 +58,21 @@ PlayList::~PlayList(void)
 {	
 	curPlayingItem=NULL;
 	curSelectedItem=NULL;
+
+	_songContainer::iterator i;
+	for (i=m_songList.begin();i!=m_songList.end();i++)
+	{
+		_songContainerItem item=*i;
+		delete item;
+	}
+
 	m_songList.clear();
 }
 
 void PlayList::DeleteTrack(PlayListItem* track)
 {
-	m_songList.remove(*track);
+	if(track)
+		m_songList.erase(m_songList.begin()+track->indexInListView);
 }
 
 BOOL PlayList::AddFolderByThread(LPCTSTR pszFolder)
@@ -106,6 +119,17 @@ BOOL IsDots(TCHAR* fn)
 		   (fn[1]=='.'&& fn[2]=='\0'))
 				bResult=TRUE;
 	return bResult;
+}
+
+void PlayList::AddFile(TCHAR *filepath)
+{
+	std::tstring str(filepath);
+	PlayListItem *pItem=new PlayListItem(this,&str);
+	pItem->ScanId3Info();
+	m_songList.push_back(pItem);
+	//msonglist的析构会删除*pItem;
+
+	::SendMessage(MyLib::GetMain(),WM_FILE_FINDED,(WPARAM)filepath,(LPARAM)2);
 }
 
 BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
@@ -155,16 +179,11 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 					
 					_tcscat(pathName,_T("\\"));
 					_tcscat(pathName,_findName);
-					std::tstring str(pathName);
 					
-					::SendMessage(MyLib::GetMain(),WM_FILE_FINDED,(WPARAM)pathName,(LPARAM)2);
-					delete[] pathName;
-					delete[] _findName;
+					AddFile(pathName);
 
-					PlayListItem *pItem=new PlayListItem(this,&str);
-					pItem->ScanId3Info();
-					m_songList.push_back(*pItem);
-					//msonglist的析构会删除*pItem;
+					delete[] _findName;
+					delete[] pathName;
 				}
 			}
 
@@ -197,11 +216,11 @@ void PlayList::SetCurPlaying(PlayListItem* item,BOOL scanID3)
 
 PlayListItem* PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 {
-	list<PlayListItem>::iterator cur,next;
+	_songContainer::iterator cur,next;
 
 	for (cur=m_songList.begin();cur!=m_songList.end();++cur)
 	{
-		if (&(*cur)==curPlayingItem)break;
+		if (*cur==curPlayingItem)break;
 	}
 
 	lastPlayingItem=curPlayingItem;
@@ -211,8 +230,8 @@ PlayListItem* PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 
 	next=MyLib::shared()->GetNextByOrder(--cur);
 
-	if(bMoveCur)curPlayingItem=&(*next);
-	return &(*next);
+	if(bMoveCur)curPlayingItem=*next;
+	return *next;
 }
 
 

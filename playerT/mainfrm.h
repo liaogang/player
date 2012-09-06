@@ -25,6 +25,7 @@ class DialogSearch;
 class CProcessingDlg;
 class CWndLyric;
 class CMySimpleRebar;
+class CMySplitterWindow;
 //-----------------------------------------
 
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFrame>,
@@ -46,7 +47,7 @@ public:
 	CMyTabBar *m_pTabBar;
 	CWndLyric *lyricView;
 	CPlayListView *m_pPlaylistView;
-	CSplitterWindow split;
+	CMySplitterWindow *m_pSplit;
 	CHorSplitterWindow *leftPane;
 	CAlbumCoverView    *albumView1;
 	CMyStatusBar *m_pStatus;
@@ -55,7 +56,7 @@ public:
 	CMainFrame():m_dlgLrc(NULL),
 		m_pTrackBar(NULL),m_pVolumeBar(NULL),
 		m_pDlgSearch(NULL),pDlgProcess(NULL),
-		lyricView(NULL)
+		lyricView(NULL),m_pSplit(NULL)
 	{
 	}
 

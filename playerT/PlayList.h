@@ -107,10 +107,16 @@ class PlayList:
 	public SerializeObj
 {
 public:
+	int topVisibleIndex;//in list view
+	int selectedIndex;
+public:
 	virtual int SerializeB(FILE* pFile);
 	virtual int ReSerialize(FILE* pFile);
 public:
-	list<PlayListItem> m_songList;
+	typedef PlayListItem*  _songContainerItem;
+	typedef vector<_songContainerItem> _songContainer;
+	_songContainer m_songList;
+
 	std::tstring       m_playlistName;
 	void Rename(TCHAR *newName){m_playlistName=newName;}
 	std::tstring       m_saveLocation;
@@ -119,7 +125,11 @@ private:
 		*nextPlayingItem,*curSelectedItem;
 	
 public:
+	void SetSelectedItem(PlayListItem* _item){curSelectedItem=_item;}
+	PlayListItem* SelectedItem(){return curSelectedItem;}
+
 	void SetCurPlaying(PlayListItem* item,BOOL scanID3=TRUE);
+
 	PlayListItem* lastTrack(){return lastPlayingItem;}
 	PlayListItem* curTrack(){return curPlayingItem;};
 	PlayListItem* nextTrack();
@@ -138,6 +148,8 @@ public:
 	void scanAllId3Info();
 	BOOL AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir=FALSE);
 	void TerminateAddDirThread();
+public:
+	void AddFile(TCHAR *filepath);
 public:
 	PlayListItem* GetNextTrackByOrder(BOOL bMoveCur=TRUE);
 };
