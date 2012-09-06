@@ -624,7 +624,7 @@ void CMainFrame::ChangeTitle()
 {
 	PlayList *ppl=MyLib::shared()->ActivePlaylist();
 	if(!ppl)return;
-	PlayListItem* track=ppl->curTrack();
+	PlayListItem* track=ppl->SelectedItem();
 	if(!track)return;
 	const TCHAR *trackName=track->GetTitle();
 	

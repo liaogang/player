@@ -52,7 +52,9 @@ void MyLib::play()
 	if (!playlist)
 		return;
 
-	PlayListItem* curTrack=playlist->curTrack();
+	PlayListItem* curTrack=playlist->SelectedItem();
+	playlist->SetCurPlaying(curTrack);
+
 	curTrack->ScanId3Info(TRUE);
 
 	CBasicPlayer* s=CBasicPlayer::shared();

@@ -77,7 +77,7 @@ public:
 		NMLISTVIEW * pnml=(NMLISTVIEW *)pnmh;
 		m_ppl->topVisibleIndex=pnml->iItem;
 		m_ppl->selectedIndex=pnml->iItem;
-
+		m_ppl->SetSelectedItem(pnml->iItem);
 		return 1;
 	}
 	

@@ -125,6 +125,7 @@ private:
 		*nextPlayingItem,*curSelectedItem;
 	
 public:
+	void SetSelectedItem(int index){curSelectedItem=m_songList[index];}
 	void SetSelectedItem(PlayListItem* _item){curSelectedItem=_item;}
 	PlayListItem* SelectedItem(){return curSelectedItem;}
 
@@ -132,6 +133,7 @@ public:
 
 	PlayListItem* lastTrack(){return lastPlayingItem;}
 	PlayListItem* curTrack(){return curPlayingItem;};
+	void          setCurTrack(PlayListItem* _item){curPlayingItem=_item;}
 	PlayListItem* nextTrack();
 public:
 	PlayList(void);
