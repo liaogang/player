@@ -22,7 +22,13 @@ public:
 	PlayListItem *m_pPlayTrack;
 
 	BOOL bAuto,bDeletable;
-	CPlayListView():bAuto(FALSE),bDeletable(!bAuto)
+
+	BOOL m_bSearch;                  //是否为搜索列表
+	CPlayListView(BOOL bSearch=FALSE):
+		m_bSearch(bSearch),
+		bAuto(FALSE),
+		bDeletable(!bAuto),
+		m_pPlayTrack(NULL)
 	{
 	}
 
@@ -62,8 +68,6 @@ public:
 
 	BEGIN_MSG_MAP_EX(CPlayListView)
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
-		//NOTIFY_CODE_HANDLER(OCM__BASE +LVN_GETDISPINFO ,OnGetdispInfo)
-		//NOTIFY_HANDLER_EX(GetDlgCtrlID(),LVN_ITEMCHANGED,OnItemChanged)
 		MSG_WM_CHAR(OnChar)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED,OnItemChanged)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO,OnGetdispInfo)
@@ -71,19 +75,20 @@ public:
 
 	LRESULT OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled);
 
-	
 	LRESULT OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled)
 	{
 		NMLISTVIEW * pnml=(NMLISTVIEW *)pnmh;
 		m_ppl->topVisibleIndex=pnml->iItem;
 		m_ppl->selectedIndex=pnml->iItem;
-		m_ppl->SetSelectedItem(pnml->iItem);
+		if (pnml->iItem!=-1)
+		{
+			m_ppl->SetSelectedItem(pnml->iItem);
+		}
+		
 		return 1;
 	}
 	
 	inline void SelectAll(){SetItemState(-1, LVIS_SELECTED , LVIS_SELECTED );}
-
-	
 
 	void DelSelectedItem(BOOL bDelFile=FALSE)
 	{
@@ -122,13 +127,10 @@ public:
 
 	BOOL GetFirstSelItem()
 	{
-		
 		int nItem=-1;
 		if (GetItemCount()>0)
-		{
 			nItem=GetNextItem(nItem,LVNI_SELECTED);
-			//if(nItem!=-1)break;
-		}
+		
 		return nItem;
 	}
 
@@ -147,10 +149,16 @@ public:
 	{	
 		SetExtendedListViewStyle(GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT);
 
-		TCHAR * columnName[]={_T("     title              "),_T(" artist      "),_T(" album       "),_T(" year "),_T(" comment "),_T(" genre      ")};
+		TCHAR * columnName[]={
+			    _T("     title              "),
+				_T(" artist      "),
+				_T(" album       "),
+				_T(" year "),
+				_T(" comment "),
+				_T(" genre      ")};
+
 		for (int i=0;i<sizeof(columnName)/sizeof(int);i++)
 			AddColumn(columnName[i],i,-1, LVCF_FMT| LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM ,LVCFMT_CENTER);
-		
 	}
 	
 	void ClearAllSel()
@@ -160,19 +168,8 @@ public:
 			SetItemState(i,0,LVNI_SELECTED );
 	}
 
-
 	void InsertTrackItem(PlayListItem &track,int item,BOOL SetIndex=TRUE);
 	inline void InsertTrackItem(PlayListItem *track,int item,BOOL SetIndex=TRUE){InsertTrackItem(*track,item,SetIndex);}
-
-	template<class _InIt> inline
-		void Reload(_InIt _First, _InIt _Last,BOOL SetIndex=TRUE)
-	{
-// 		DeleteAllItems();
-// 
-// 		int j;_InIt i;
-// 		for (i=_First,j=0;i!=_Last;i++,j++)
-// 			InsertTrackItem(*i ,j,SetIndex);
-	}
 
 	void Reload(PlayList* pPl,BOOL SetIndex=TRUE)
 	{

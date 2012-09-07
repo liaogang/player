@@ -119,34 +119,10 @@ public:
 
 	void *RemoveTabPlayList(int tabIndex)
 	{
-		vector<PlayList*>::iterator i;
-		for (i=pplOnTag.begin();i!=pplOnTag.end();i++)
-		{
-			if (*i == pplOnTag[tabIndex])
-			{
-				pplOnTag.erase(i);
-			}
-		}
+		ATLASSERT(FALSE);
 	}
 	
-	void SetCurSel(PlayList* ppl)
-	{
-		int nItem=-1;
-
-		vector<PlayList*>::iterator i;
-		for (i=pplOnTag.begin(),nItem=0;i!=pplOnTag.end();i++,nItem++)
-		{
-			if (*i == ppl)
-			{
-				SetActiveTab(nItem);
-				break;
-			}
-		}
-	}
-
-
-	typedef vector<PlayList*> _containType;
-	_containType pplOnTag;
+	void SetCurSel(PlayList* ppl);
 	class CMainFrame* pMain;
 	BOOL AddPlaylistTab(PlayList* ppl,BOOL inActiveFlag = TRUE, int inImage = -1);
 };

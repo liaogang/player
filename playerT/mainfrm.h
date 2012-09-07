@@ -26,6 +26,7 @@ class CProcessingDlg;
 class CWndLyric;
 class CMySimpleRebar;
 class CMySplitterWindow;
+class DialogFFT;
 //-----------------------------------------
 
 class CMainFrame : public CFrameWindowImpl<CMainFrame>, public CUpdateUI<CMainFrame>,
@@ -52,11 +53,13 @@ public:
 	CAlbumCoverView    *albumView1;
 	CMyStatusBar *m_pStatus;
 	DialogSearch *m_pDlgSearch;
+	DialogFFT *m_pDlgFFT;
 public:
 	CMainFrame():m_dlgLrc(NULL),
 		m_pTrackBar(NULL),m_pVolumeBar(NULL),
 		m_pDlgSearch(NULL),pDlgProcess(NULL),
-		lyricView(NULL),m_pSplit(NULL)
+		lyricView(NULL),m_pSplit(NULL),
+		m_pDlgFFT(NULL)
 	{
 	}
 

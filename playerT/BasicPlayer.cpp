@@ -38,7 +38,7 @@ static DWORD CALLBACK WaitPlayThread(LPVOID lpParameter)
 
 	InitSlowDownVolBuffer();
 	m_pPlayerThread=new CPlayerThread(this);
-	m_pSpectrumAnalyser=new CSpectrumAnalyser;
+	m_pSpectrumAnalyser=new CSpectrumAnalyser(this);
 }
 
 CBasicPlayer :: ~CBasicPlayer(void)

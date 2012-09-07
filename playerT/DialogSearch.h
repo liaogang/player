@@ -62,6 +62,7 @@ public:
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 		COMMAND_CODE_HANDLER(EN_CHANGE, OnSearch )
 		CHAIN_MSG_MAP(CDialogResize<DialogSearch>)
+		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 
 	BEGIN_DLGRESIZE_MAP(DialogSearch)
@@ -85,6 +86,8 @@ public:
 		m_edit.SubclassWindow(::GetDlgItem(m_hWnd,IDC_EDIT));
 		m_edit.m_pDlgSearch=this;
 
+		searchPl=NULL;
+
 		// register object for message filtering and idle updates
 		CMessageLoop* pLoop = _Module.GetMessageLoop();
 		ATLASSERT(pLoop != NULL);
@@ -95,13 +98,16 @@ public:
 	}
 
 
+	PlayList *searchPl;
 
-	vector<PlayListItem*> m_Searchlist;
 	LRESULT OnSearch(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		m_Searchlist.clear();
+		if (!searchPl)
+			searchPl=new PlayList;
+		else
+			searchPl->m_songList.clear();
 
-		//m_SearchPl.m_songList.clear();
+		
 
 		TCHAR buf[MAX_PATH];
 		::GetWindowText(::GetDlgItem(m_hWnd,IDC_EDIT),buf,MAX_PATH);
@@ -129,13 +135,13 @@ public:
 		int count=pM->m_pPlaylistView->GetItemCount();
 		for (int i=0;i<count;++i)
 		{
-			PlayListItem *track=(PlayListItem*)pM->m_pPlaylistView->GetItemData(i);
+			PlayListItem *track=(PlayListItem*)pM->m_pPlaylistView->m_ppl->m_songList[i];
 			if (track->HaveKeywords(const_cast<TCHAR*>( strBuf.c_str()) ))
-				m_Searchlist.push_back(track);
+				searchPl->m_songList.push_back(track);
 		}
 
 		
-		m_list.Reload(m_Searchlist.begin(),m_Searchlist.end(),FALSE);
+		m_list.Reload(searchPl,FALSE);
 		
 		m_list.SetItemState(0,LVIS_FOCUSED|
 			LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);	

@@ -1,6 +1,6 @@
 #pragma once
 using namespace std;
-
+#include "SpectrumAnalyser.h"
 class DialogFFT : public CDialogImpl<DialogFFT>
 {
 public:
@@ -11,6 +11,7 @@ public:
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 		MESSAGE_HANDLER(WM_SIZE,OnSize)
+		MESSAGE_HANDLER(WM_PAINT,OnPaint)
 	END_MSG_MAP()
 
 	// Handler prototypes (uncomment arguments if needed):
@@ -24,25 +25,52 @@ public:
 
 		//dscrl->SetSpectrumRect(CRect(0,0,500,400));
 		//dscrl->SetFftEnvironment(this->m_hWnd);
+		CBasicPlayer::shared()->m_pSpectrumAnalyser->DCRECTInit(GetDC(),rc);
+		CBasicPlayer::shared()->m_pSpectrumAnalyser->Init(FALSE);
 		return TRUE;
 	}
 
+	
+	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+	{
+		
+		PAINTSTRUCT ps;
+		::BeginPaint(m_hWnd,&ps);
+		CBasicPlayer::shared()->m_pSpectrumAnalyser->DrawSpectrum();
+
+		::EndPaint(m_hWnd,&ps);
+		return 0;
+	}
+
+	RECT rc;
 	LRESULT OnSize(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
 		int _width=LOWORD(lParam);
 		int _height=HIWORD(lParam);
-		//dscrl->SetSpectrumRect(CRect(0,0,_width,_height));
 
+		rc.left=0;
+		rc.right=0;
+		rc.right=_width;
+		rc.bottom=_height;
+
+		CBasicPlayer::shared()->m_pSpectrumAnalyser->m_rc=rc;
+		
 		bHandled=FALSE;
 		return 0;
 	}
 
 	LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		//EndDialog(wID);
-		ShowWindow(SW_HIDE);
+		CBasicPlayer::shared()->m_pSpectrumAnalyser->Suspend();
+		ShowWindow(SW_HIDE);	
 		return 0;
 	}
 
-	
+	void Show()
+	{
+		ShowWindow(SW_SHOW);
+		GetClientRect(&rc);
+		CBasicPlayer::shared()->m_pSpectrumAnalyser->m_rc=rc;
+		CBasicPlayer::shared()->m_pSpectrumAnalyser->Resume();
+	}
 };

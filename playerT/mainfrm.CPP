@@ -244,17 +244,14 @@ LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 
  LRESULT CMainFrame::OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
  {
-//  	static DialogFFT *dlg=0;
-//  	if (!dlg)
-//  	{
-//  		dlg=new DialogFFT;
-//  		dlg->dscrl=m_pDsoundControl;
-//  		dlg->Create(this->m_hWnd);
-//  		m_pDsoundControl->SetShowWindow(&(dlg->m_hWnd));
-//  	}
-//  
-//  
-//  	dlg->ShowWindow(SW_SHOW);
+ 	if (!m_pDlgFFT)
+ 	{
+ 		m_pDlgFFT=new DialogFFT;
+ 		m_pDlgFFT->Create(this->m_hWnd);
+ 	}
+ 
+ 
+ 	m_pDlgFFT->Show();
  	return 0;
  }
 
@@ -475,15 +472,16 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 
 	pMain->m_pTabBar->SetCurSel(curPl);
 
-	int i=track->indexInListView;
-	pMain->m_pPlaylistView->ClearAllSel();
 
-	if (i!=-1){
-		pMain->m_pPlaylistView->SetFocus();
-		pMain->m_pPlaylistView->SetItemState(i,LVIS_FOCUSED|
-			LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);	
-		pMain->m_pPlaylistView->EnsureVisible(i,FALSE);
-	}
+// 	int i=track->indexInListView;
+// 	pMain->m_pPlaylistView->ClearAllSel();
+// 
+// 	if (i!=-1){
+// 		pMain->m_pPlaylistView->SetFocus();
+// 		pMain->m_pPlaylistView->SetItemState(i,LVIS_FOCUSED|
+// 			LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);	
+// 		pMain->m_pPlaylistView->EnsureVisible(i,FALSE);
+// 	}
 }
 
 
@@ -540,16 +538,13 @@ void PlayListViewItem(int index)
 
 void CPlayListView::PlayItem(int nItem)
 {
-	//todo
-	if (!m_pPlayTrack)
-	{
-		return;
-	}
-
 	MyLib* s=MyLib::shared();
+	//搜索列表,实际上是用的tab某个列表的数据
+	PlayList *curSelPl=s->SelPlaylist();
+	PlayListItem *track=curSelPl->GetItem(nItem);
 
-	s->SetActivePlaylist(s->SelPlaylist());
-	s->ActivePlaylist()->SetCurPlaying(m_pPlayTrack,FALSE);
+	s->SetActivePlaylist(curSelPl);
+	s->ActivePlaylist()->SetCurPlaying(track,FALSE);
 
 	MyLib::stop();
 	MyLib::playAfterSlowDown();
@@ -756,4 +751,20 @@ LRESULT CMyTabBar::OnSelectionChanged( LPNMHDR )
 	pMain->m_pPlaylistView->Reload(pPl);
 	
 	return 0;
+}
+
+void CMyTabBar::SetCurSel(PlayList* ppl)
+{
+	int nItem;
+
+	for (nItem=0;GetItemCount();nItem++)
+	{
+		PlayList* pplOnTab=(PlayList*)GetTabParam(nItem);
+		if(pplOnTab==ppl)
+		{
+			pMain->m_pPlaylistView->Reload(ppl);
+			SetActiveTab(nItem);
+			break;
+		}
+	}
 }
