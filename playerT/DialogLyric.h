@@ -20,7 +20,7 @@ public:
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		DlgResize_Init(TRUE,FALSE);
+		DlgResize_Init(FALSE,FALSE);
 		bHandled=FALSE;
 		return 0;
 	}

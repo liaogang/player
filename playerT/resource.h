@@ -18,6 +18,7 @@
 #define IDD_DIALOG_LYRICS               209
 #define IDD_DIALOG_SEARCH               210
 #define IDD_DIALOG4                     211
+#define IDR_MENU1                       212
 #define IDC_TREE                        1000
 #define IDC_RESET_ALL                   1001
 #define IDC_RESET_THIS                  1002
@@ -72,13 +73,27 @@
 #define ID_OPENPLAYLIST                 32804
 #define ID_ADDFILE                      32805
 #define ID_BUTTON32811                  32811
+#define ID_MENUINFFT_32812              32812
+#define ID_MENUINFFT_32813              32813
+#define ID_32814                        32814
+#define ID_32815                        32815
+#define ID_32816                        32816
+#define ID_32817                        32817
+#define ID_32818                        32818
+#define ID_MENU_SPE_FULLSCREEN          32819
+#define ID_BANDS_10                     32820
+#define ID_BANDS_20                     32821
+#define ID_BANDS_40                     32822
+#define ID_BANDS_80                     32823
+#define ID_BANDS_160                    32824
+#define ID_CONFIG_LYRIC                 32825
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        212
-#define _APS_NEXT_COMMAND_VALUE         32812
+#define _APS_NEXT_RESOURCE_VALUE        214
+#define _APS_NEXT_COMMAND_VALUE         32826
 #define _APS_NEXT_CONTROL_VALUE         1023
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

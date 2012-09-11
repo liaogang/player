@@ -11,7 +11,7 @@
 #define PI   3.1415925F
 
 #define    HATHEIGHT    2
-#define  BARHEIGHT   2
+#define  BARHEIGHT   1
 
 #define  DEFAULT_SAMPLE_SIZE  16000  //one time read from file
 #define FFT_SAMPLE_SIZE 2048
@@ -94,12 +94,15 @@ private:
 	int m_iSpectrum_Delay;
 	INT   intPeaks[90];
 	INT	  intPeaksDelay[90];
-	INT   intLastBarHeight[90];
-	INT   intLastPeaks[90];
 
 public:
 	HDC m_hDCgrids;//Íø¸ñ±³¾°
 
 	void Prepare();
 
+
+private:
+	int   bands;
+public:
+	inline void SetBands(int b){bands=b;}
 };

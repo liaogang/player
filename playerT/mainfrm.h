@@ -97,6 +97,8 @@ public:
 		COMMAND_ID_HANDLER(ID_VIEW_TOOLBAR, OnViewToolBar)
 		COMMAND_ID_HANDLER(ID_VIEW_STATUS_BAR, OnViewStatusBar)
 		COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
+		COMMAND_ID_HANDLER(ID_CONFIG_LYRIC,OnConfigLyric)
+		COMMAND_ID_HANDLER(ID_MEDIALIBRARY_CONFIG,OnConfigMediaLib)
 		COMMAND_ID_HANDLER(ID_SHOWLYRIC,OnShowLyric)
 		COMMAND_ID_HANDLER(ID_MENU_FFTTEST,OnFftDialog)
 		COMMAND_ID_HANDLER(ID_PLAY, OnPlay)
@@ -205,6 +207,8 @@ public:
 	LRESULT OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnConfigLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnConfigMediaLib(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	
 	//新建播放列表
 	LRESULT OnFileNewPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

@@ -7,6 +7,41 @@
 #include "MusicFile.h"
 
 
+class CTimer
+{
+private:
+	static LONGLONG frequency;
+	static int ready;
+	static LONGLONG last;
+
+	static void init()
+	{
+		LARGE_INTEGER liFrequency = {0};
+		QueryPerformanceFrequency(&liFrequency);
+		frequency = LONGLONG(liFrequency.QuadPart);
+		ready = 1;
+	}
+public:
+	static LARGE_INTEGER liCounter;
+	static LONGLONG nanoTime()
+	{
+		if(ready != 1)
+			init();
+
+		QueryPerformanceCounter(&liCounter);
+		return liCounter.QuadPart;
+	}
+
+
+	static DWORD TimeLasted()
+	{
+		LONGLONG cur=nanoTime();
+		last=cur;
+		return cur-last/frequency;
+	}
+};
+
+
 
 CSpectrumAnalyser::CSpectrumAnalyser(CBasicPlayer *pB_)
 {
@@ -22,16 +57,13 @@ CSpectrumAnalyser::CSpectrumAnalyser(CBasicPlayer *pB_)
 	m_hbrush = CreateSolidBrush(RGB(0, 0, 0));
 	m_hbrush1 = CreateSolidBrush(RGB(58, 110, 165));
 	m_hbrush2=CreateSolidBrush(RGB(153,153,153));
-
-	m_iSpectrum_Delay=15;
+	bands=30;
+	m_iSpectrum_Delay=10;
 
 	for(int i=0;i<90;i++)
 	{
 		intPeaks[i]=0;
-		intPeaks[i]=0;
 		intPeaksDelay[i]=0;
-		intLastBarHeight[i]=0;
-		intLastPeaks[i]=0;
 	}
 
 }
@@ -59,7 +91,7 @@ void CSpectrumAnalyser::Excute()
 	{
 		ProcessSamples();
 		::InvalidateRect(m_hWnd,&m_rc,TRUE);
-		::Sleep(15);
+		::Sleep(35);
 	}          
 }
 
@@ -70,6 +102,9 @@ void CSpectrumAnalyser::ProcessSamples()
 	
 	int pos;
 	pB->m_pPlayerThread->m_lpDSBuffer->GetCurrentPosition((LPDWORD)&pos,NULL);
+	pos+=200;          
+
+
 	signed char *pbuf=pB->m_pPlayerThread->pBufFft;
 	int Len=pB->m_pPlayerThread->fftBufLen;
 
@@ -123,15 +158,13 @@ void CSpectrumAnalyser::DrawSpectrum()
 	int cx=WIDTH(rect);
 	int cy=HEIGHT(rect);
 
-	static HBRUSH Brush3dface=::CreateSolidBrush(RGB(0,0,35));
+	static HBRUSH Brush3dface=::CreateSolidBrush(RGB(255,255,255));
 	FillRect(m_memDC,&rect,Brush3dface);
-	//Rectangle(m_memDC, rect.left, rect.top, rect.right, rect.bottom);
 
 	float c = 0;
 	float floatFrrh = 1.0;
 	float floatDecay = (float)0.05f;
 	float floatSadFrr = (floatFrrh*floatDecay);
-	int   bands=60;
 	float floatBandWidth = ((float)(cx)/(float)bands);  //band宽度=总宽 / 数量
 	float floatMultiplier = 2.0;
 
@@ -199,9 +232,10 @@ void CSpectrumAnalyser::drawSpectrumAnalyserBar(RECT *pRect,int x,int cy,int wid
 	//小帽子滑块
 	if(height > intPeaks[band])             //上涨
 	{
-		//intLastBarHeight[band] = height;
 		intPeaks[band] = height;                 //peak 另一半长度
 		intPeaksDelay[band] = m_iSpectrum_Delay;       //delay  一次下降高度
+		if (height>(pRect->bottom-pRect->top)/2)
+			intPeaksDelay[band]+=3;
 	}
 	else                                               //滑块下降
 	{
@@ -213,25 +247,11 @@ void CSpectrumAnalyser::drawSpectrumAnalyserBar(RECT *pRect,int x,int cy,int wid
 			intPeaks[band] = 0;
 	}
 
+
 	RECT peakRect(barRect);
 	peakRect.top=pRect->bottom-intPeaks[band];
 	peakRect.bottom=peakRect.top+BARHEIGHT;
 	FillRect(m_memDC,&peakRect,m_hbrush2);
-
-
-// 	RECT r(peakRect);
-// 
-// 	r.top -= intPeaks[band];
-// 
-// 	if(r.top < peakRect.top)
-// 		r.top = peakRect.top + 2;
-// 
-// 	if(r.top >= peakRect.bottom)
-// 		r.top = peakRect.bottom - 2;
-// 
-// 	r.bottom = r.top + HATHEIGHT;
-// 	FillRect(m_memDC, &r, m_hbrush2);
-
 }
 
 
@@ -327,3 +347,7 @@ BOOL DrawGradient(HDC hdc, CONST RECT* pRect, CONST DWORD* cl, int Num, DWORD dw
 
 	return bRet;
 }
+
+
+
+

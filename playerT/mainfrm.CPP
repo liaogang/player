@@ -336,6 +336,30 @@ LRESULT CMainFrame::OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 }
 
 
+LRESULT CMainFrame::OnConfigLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	if (!::IsWindow(m_dlgConfig.m_hWnd))
+		m_dlgConfig.Create(m_hWnd);
+
+	m_dlgConfig.ShowWindow(SW_SHOW);
+	std::wstring strLyricDlg(L"¸è´Ê");
+	m_dlgConfig.ShowDlgByName(strLyricDlg);
+	return 0;
+}
+
+
+LRESULT CMainFrame::OnConfigMediaLib(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	if (!::IsWindow(m_dlgConfig.m_hWnd))
+		m_dlgConfig.Create(m_hWnd);
+
+	m_dlgConfig.ShowWindow(SW_SHOW);
+	std::wstring strLyricDlg(L"Ã½Ìå¿â");
+	m_dlgConfig.ShowDlgByName(strLyricDlg);
+	
+	return 0;
+}
+
 LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	CDialogLyric *dlg=NULL;
@@ -501,9 +525,6 @@ void CMainFrame::OnSelectionChanged()
 
 void CPlayListView::SetMain(class CMainFrame *pMain){this->pMain=pMain;}
 
-
-
-
 void CPlayListView::InsertTrackItem(PlayListItem &track,int item,BOOL SetIndex)
 {
 	//for visual list
@@ -619,7 +640,7 @@ void CMainFrame::ChangeTitle()
 {
 	PlayList *ppl=MyLib::shared()->ActivePlaylist();
 	if(!ppl)return;
-	PlayListItem* track=ppl->SelectedItem();
+	PlayListItem* track=ppl->curTrack();
 	if(!track)return;
 	const TCHAR *trackName=track->GetTitle();
 	

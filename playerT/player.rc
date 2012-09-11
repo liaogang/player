@@ -56,7 +56,7 @@ BEGIN
     CONTROL         "",IDC_SLIDER1,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,57,19,173,19
 END
 
-IDD_DIALO_FFT DIALOGEX 0, 0, 360, 122
+IDD_DIALO_FFT DIALOGEX 0, 0, 233, 64
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "频谱"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -136,6 +136,16 @@ BEGIN
     EDITTEXT        IDC_EDIT1,5,4,153,12,ES_AUTOHSCROLL
 END
 
+IDD_ABOUTBOX DIALOGEX 0, 0, 242, 98
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,177,56,50,22
+    CTEXT           "simple player by lg v0.1\n\n(c) Copyright 2011",IDC_STATIC,50,36,123,25
+    ICON            IDR_MAINFRAME,IDC_STATIC,19,35,20,20
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -171,9 +181,9 @@ BEGIN
     IDD_DIALO_FFT, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 353
+        RIGHTMARGIN, 226
         TOPMARGIN, 7
-        BOTTOMMARGIN, 115
+        BOTTOMMARGIN, 57
     END
 
     IDD_PROCESSING, DIALOG
@@ -224,50 +234,84 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
-#endif    // 中文(简体，中国) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// 英语(美国) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page(1252)
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Dialog
+// Menu
 //
 
-IDD_ABOUTBOX DIALOGEX 0, 0, 242, 98
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "About"
-FONT 8, "MS Sans Serif", 0, 0, 0x0
+IDR_MENU1 MENU
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,177,56,50,22
-    CTEXT           "simple player by lg v0.1\n\n(c) Copyright 2011",IDC_STATIC,50,36,123,25
-    ICON            IDR_MAINFRAME,IDC_STATIC,19,35,20,20
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
-BEGIN
-    IDD_ABOUTBOX, DIALOG
+    POPUP "SPECTRUM"
     BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 235
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 91
+        MENUITEM "切换全屏模式",                      ID_MENU_SPE_FULLSCREEN
+        MENUITEM SEPARATOR
+        POPUP "波段"
+        BEGIN
+            MENUITEM "10",                          ID_BANDS_10
+            MENUITEM "20",                          ID_BANDS_20
+            MENUITEM "40",                          ID_BANDS_40
+            MENUITEM "80",                          ID_BANDS_80
+        END
     END
 END
-#endif    // APSTUDIO_INVOKED
+
+IDR_MAINFRAME MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "Open\tO",                     ID_OPEN
+        MENUITEM SEPARATOR
+        MENUITEM "Add File",                    ID_FILE_OPEN
+        MENUITEM "Add Directory",               ID_FILE_OPENDIRECTORY
+        MENUITEM SEPARATOR
+        MENUITEM "New Playlist",                ID_FILE_NEWPLAYLIST
+        MENUITEM "Open playlist",               ID_OPENPLAYLIST
+        MENUITEM "Save playlist",               ID_FILE_SAVEPLAYLIST
+        MENUITEM SEPARATOR
+        MENUITEM "Property",                    ID_CONFIG
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "Edit"
+    BEGIN
+        MENUITEM "Undo",                        ID_EDIT_UNDO32791
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+    END
+    POPUP "Play"
+    BEGIN
+        MENUITEM "Play",                        ID_PLAY
+        MENUITEM "Pause",                       ID_PAUSE
+        MENUITEM "Stop",                        ID_STOP
+        MENUITEM "Previous",                    ID_PLAY_PREVIOS
+        MENUITEM "Next",                        ID_PLAY_NEXT
+        MENUITEM "Random",                      ID_PLAY_RANDOM
+        MENUITEM SEPARATOR
+    END
+    POPUP "Media Library"
+    BEGIN
+        MENUITEM "Config",                      ID_MEDIALIBRARY_CONFIG
+    END
+    POPUP "Lyric"
+    BEGIN
+        MENUITEM "Set Seach Path",              ID_CONFIG_LYRIC
+        MENUITEM "Show Lyric",                  ID_SHOWLYRIC
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "Title format help",           ID_HELP_TITLEFORMATHELP
+        MENUITEM SEPARATOR
+        MENUITEM "&About player...",            ID_APP_ABOUT
+    END
+    POPUP "可视化"
+    BEGIN
+        MENUITEM "频谱显示",                        ID_MENU_FFTTEST
+    END
+END
 
 
 #ifdef APSTUDIO_INVOKED
@@ -317,70 +361,6 @@ END
 //
 
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Menu
-//
-
-IDR_MAINFRAME MENU
-BEGIN
-    POPUP "&File"
-    BEGIN
-        MENUITEM "Open\tO",                     ID_OPEN
-        MENUITEM SEPARATOR
-        MENUITEM "Add File",                    ID_FILE_OPEN
-        MENUITEM "Add Directory",               ID_FILE_OPENDIRECTORY
-        MENUITEM SEPARATOR
-        MENUITEM "New Playlist",                ID_FILE_NEWPLAYLIST
-        MENUITEM "Open playlist",               ID_OPENPLAYLIST
-        MENUITEM "Save playlist",               ID_FILE_SAVEPLAYLIST
-        MENUITEM SEPARATOR
-        MENUITEM "Pre",                         ID_CONFIG
-        MENUITEM SEPARATOR
-        MENUITEM "E&xit",                       ID_APP_EXIT
-    END
-    POPUP "Edit"
-    BEGIN
-        MENUITEM "Undo",                        ID_EDIT_UNDO32791
-    END
-    POPUP "&View"
-    BEGIN
-        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
-        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
-    END
-    POPUP "Play"
-    BEGIN
-        MENUITEM "Play",                        ID_PLAY
-        MENUITEM "Pause",                       ID_PAUSE
-        MENUITEM "Stop",                        ID_STOP
-        MENUITEM "Previous",                    ID_PLAY_PREVIOS
-        MENUITEM "Next",                        ID_PLAY_NEXT
-        MENUITEM "Random",                      ID_PLAY_RANDOM
-        MENUITEM SEPARATOR
-    END
-    POPUP "Media Library"
-    BEGIN
-        MENUITEM "",                            ID_Menu
-        MENUITEM "Config",                      ID_MEDIALIBRARY_CONFIG
-    END
-    POPUP "Lyric"
-    BEGIN
-        MENUITEM "Set Seach Path",              ID_LYRIC_32792
-        MENUITEM "Show Lyric",                  ID_SHOWLYRIC
-    END
-    POPUP "&Help"
-    BEGIN
-        MENUITEM "Title format help",           ID_HELP_TITLEFORMATHELP
-        MENUITEM SEPARATOR
-        MENUITEM "&About player...",            ID_APP_ABOUT
-    END
-    POPUP "Test"
-    BEGIN
-        MENUITEM "FFT Dialog Test",             ID_MENU_FFTTEST
-    END
-END
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -547,7 +527,7 @@ BEGIN
     ATL_IDS_MRU_FILE        "Open this document"
 END
 
-#endif    // 英语(美国) resources
+#endif    // 中文(简体，中国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

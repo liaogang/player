@@ -6,6 +6,12 @@ class CDlgConfig
 {
 public:
 	std::tstring title;
+	HWND hWndCp;
+	void Init(TCHAR *pTitle,HWND _hWndcp)
+	{
+		title=pTitle;
+		hWndCp=_hWndcp;
+	}
 };
 
 class CPropertyDlg:
@@ -18,8 +24,6 @@ public:
 
 	BEGIN_MSG_MAP(CPropertyDlg)
 	END_MSG_MAP()
-
-
 };
 
 class CPropertyDlg1:

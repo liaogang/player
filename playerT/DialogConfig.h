@@ -10,7 +10,7 @@ using namespace std;
 	if (title==pDlg->title)\
 {\
 	if (!pDlg->IsWindow())\
-	pDlg->Create(m_hWnd);\
+		pDlg->Create(m_hWnd);\
 	return pDlg->m_hWnd;\
 }
 
@@ -65,34 +65,37 @@ public:
 
 	void InitDlgTree()
 	{
-		HTREEITEM item;
+		HTREEITEM firstItem;
 
-		std::tstring tmp(_T("summers"));
+
 		pDlg=new CPropertyDlg;
-		pDlg->title=tmp;
+		pDlg->Init(_T("参数选项"),pDlg->m_hWnd);
 
-		std::tstring tmp1(_T("The Master"));
 		pDlg1=new CPropertyDlg1;
-		pDlg1->title=tmp1;
+		pDlg1->Init(_T("The Master"),pDlg1->m_hWnd);
 
-		std::tstring tmp2(_T("媒体库"));
 		pDlgMedia=new CPropertyDlgMediaLib;
-		pDlgMedia->title=tmp2;
+		pDlgMedia->Init(_T("媒体库"),pDlgMedia->m_hWnd);
 		
-		std::tstring tmp3(_T("歌词"));
 		pDlgLyrics=new CPropertyDlgLyricsLib;
-		pDlgLyrics->title=tmp3;
+		pDlgLyrics->Init(_T("歌词"),pDlgLyrics->m_hWnd);
 
-		item=m_tree.InsertItem(tmp.c_str(),TVI_ROOT,TVI_LAST);
-			m_tree.InsertItem (tmp1.c_str(), item, TVI_LAST );
-			m_tree.InsertItem (tmp2.c_str(), item, TVI_LAST );
-			m_tree.InsertItem (tmp3.c_str(), item, TVI_LAST );
+
+		firstItem=AddDlg(pDlg,TVI_ROOT);
+		AddDlg(pDlg1,firstItem);
+		AddDlg(pDlgMedia,firstItem);
+		AddDlg(pDlgLyrics,firstItem);
 		
-		item=m_tree.GetRootItem();
-		m_tree.Expand(item);
+		m_tree.Expand(firstItem);
 	}
 
 
+	HTREEITEM AddDlg(CDlgConfig *pdlg,HTREEITEM item)
+	{
+		return  m_tree.InsertItem (pdlg->title.c_str(), item, TVI_LAST );
+	}
+
+	//Make sure the windows is created
 	HWND GetPropertyDlgHwnd(std::tstring &title)
 	{
 		GETDLGWND(pDlg)
@@ -114,12 +117,9 @@ public:
 		hWndNew=(HWND)m_tree.GetItemData(itemNew);
 		hWndOld=(HWND)m_tree.GetItemData(itemOld);
 
-		if(hWndOld &&::IsWindow(hWndOld))
-			::ShowWindow(hWndOld,SW_HIDE);
-
 		if(!(hWndNew &&::IsWindow(hWndNew)))
 		{
-			LPTSTR str=new TCHAR[256];
+			TCHAR str[256];
 			m_tree.GetItemText(pNMTreeView->itemNew.hItem,str,256);
 			std::tstring str1(str);
 			hWndNew=GetPropertyDlgHwnd(str1);
@@ -127,15 +127,70 @@ public:
 				m_tree.SetItemData(itemNew,(WORD)hWndNew);
 		}
 
+		
+		SwitchPropertyDlg(hWndNew,hWndOld);
+		
+		return 0;
+	}
+
+
+	void ShowDlgByName(wstring &treeName)
+	{
+		HWND hWndNew=GetPropertyDlgHwnd(treeName);
+		HWND hWndOld=(HWND)m_tree.GetItemData(m_tree.GetSelectedItem());
+
+		SwitchPropertyDlg(hWndNew,hWndOld);
+
+
+		//set focus in tree item to newItem
+		m_treeName=treeName;
+		GetAllChildItem(TVI_ROOT);
+	}
+
+	wstring m_treeName;
+
+	HTREEITEM GetAllChildItem(HTREEITEM parent)
+	{
+		if(parent==NULL)return NULL;
+
+		HTREEITEM item=NULL;
+		item=m_tree.GetChildItem(parent);
+		while(item!=NULL)
+		{
+			//-----------------------------------------//
+			//do something
+			TCHAR str[256];
+			memset(str,0,sizeof(str));
+			m_tree.GetItemText(item,str,256);
+			if (_tcscmp(const_cast<const TCHAR*>(str),m_treeName.c_str())==0)
+			{
+				m_tree.SelectItem(item);
+				return NULL;//break;
+			}
+			//-----------------------------------------//
+
+			GetAllChildItem(item);
+			item=m_tree.GetNextSiblingItem(item);
+		}
+
+		return item;
+	}
+
+
+
+
+
+	void SwitchPropertyDlg(HWND hWndNew,HWND hWndOld)
+	{
+		if(hWndOld &&::IsWindow(hWndOld))
+			::ShowWindow(hWndOld,SW_HIDE);
+
 		if(hWndNew &&::IsWindow(hWndNew))
 		{
 			::ShowWindow(hWndNew,SW_SHOW);
 			::SetWindowPos(hWndNew,NULL,156,1,NULL,NULL,SWP_NOSIZE|SWP_NOZORDER);
 		}
-		
-		return 0;
 	}
-
 
 	LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{	

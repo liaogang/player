@@ -129,7 +129,7 @@ public:
 	void SetSelectedItem(PlayListItem* _item){curSelectedItem=_item;}
 	PlayListItem* SelectedItem(){return curSelectedItem;}
 
-	void SetCurPlaying(PlayListItem* item,BOOL scanID3=TRUE);
+	void SetCurPlaying(PlayListItem* item,BOOL scanID3=FALSE);
 
 	PlayListItem* lastTrack(){return lastPlayingItem;}
 	PlayListItem* curTrack(){return curPlayingItem;};

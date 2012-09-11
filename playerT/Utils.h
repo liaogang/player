@@ -70,3 +70,6 @@ DWORD DS_GetAvailable(int maxDSBufferLen , int playCursor, int curWritePos)
 		return maxDSBufferLen+playCursor-curWritePos;
 }
 
+
+
+
