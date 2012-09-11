@@ -122,7 +122,7 @@ public:
 		ATLASSERT(FALSE);
 	}
 	
-	void SetCurSel(PlayList* ppl);
+	void SetCurSel(PlayList* ppl,int index=-1);
 	class CMainFrame* pMain;
 	BOOL AddPlaylistTab(PlayList* ppl,BOOL inActiveFlag = TRUE, int inImage = -1);
 };

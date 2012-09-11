@@ -158,7 +158,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	m_pPlaylistView=new CPlayListView;
 	//m_pPlaylistView->Create(m_pTabBar->m_hWnd, rcDefault, NULL,  WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN | WS_CLIPSIBLINGS| LVS_REPORT | LVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
-	m_pPlaylistView->Create(m_pSplit->m_hWnd, rcDefault, NULL,  WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN | WS_CLIPSIBLINGS| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA, WS_EX_CLIENTEDGE);
+	m_pPlaylistView->Create(m_pSplit->m_hWnd, rcDefault, NULL,  WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN | WS_CLIPSIBLINGS| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA, 0);
 	m_pPlaylistView->Init();	
 
 	//tab bar
@@ -494,8 +494,13 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 	if (!track)
 		return;
 
-	pMain->m_pTabBar->SetCurSel(curPl);
+	int k=0;
+	PlayList::_songContainer::iterator i=curPl->m_songList.begin();
+	for (i=curPl->m_songList.begin();((*i)!=track) && i!=curPl->m_songList.end();i++,k++);
 
+	pMain->m_pTabBar->SetCurSel(curPl,k);
+
+	pMain->m_pPlaylistView->SetFocus();
 
 // 	int i=track->indexInListView;
 // 	pMain->m_pPlaylistView->ClearAllSel();
@@ -561,10 +566,12 @@ void CPlayListView::PlayItem(int nItem)
 {
 	MyLib* s=MyLib::shared();
 	//搜索列表,实际上是用的tab某个列表的数据
-	PlayList *curSelPl=s->SelPlaylist();
-	PlayListItem *track=curSelPl->GetItem(nItem);
+	PlayListItem *track;
+	if(nItem==-1)return;
 
-	s->SetActivePlaylist(curSelPl);
+	track=m_ppl->m_songList[nItem];	
+
+	s->SetActivePlaylist(track->m_pPL);
 	s->ActivePlaylist()->SetCurPlaying(track,FALSE);
 
 	MyLib::stop();
@@ -578,54 +585,6 @@ void CPlayListView::PlayItem(int nItem)
 
 void MyLib::SetMain(HWND hMain){shared()->hMain=hMain;};
 HWND MyLib::GetMain(){return shared()->hMain;};
-
-BOOL CMyTabBar::AddPlaylistTab(PlayList* ppl,BOOL inActiveFlag , int inImage )
-{
-	int nNewTab=AddTab(ppl->m_playlistName.c_str(),pMain->m_pPlaylistView->m_hWnd,inActiveFlag,inImage,(LPARAM)ppl);
-	
-	pMain->m_pPlaylistView->Reload(ppl);
-	MyLib::shared()->SetSelPlaylist(ppl);
-
-	return 0;
-}
-
-LRESULT CMyTabBar::OnPlDel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-	PlayList* pl= GetTabPlayList(RtBtnTab);
-	
-	RemoveTab(RtBtnTab);
-	pMain->m_pPlaylistView->Reload(GetTabPlayList(GetCurSel()));
-
-	MyLib::shared()->DeletePlayList(pl);
-
-	return 0;
-}
-LRESULT CMyTabBar::OnPlRename(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-	PlayList* pl= GetTabPlayList(RtBtnTab);
-
-// 	CFileDialog 
-// 	{
-// 		pl->Rename();
-// 	}
-	
-	return 0;
-}
-LRESULT CMyTabBar::OnPlSave(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-	PlayList* pl= GetTabPlayList(RtBtnTab);
-	if(pl)
-	{
-		const TCHAR szFilter[]=_T("playlist files(*.pl)\0*.pl\0");
-		const TCHAR szDefaultExt[]=_T("pl");
-		CFileDialog dlg(FALSE,szDefaultExt,NULL,OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
-		if(dlg.DoModal()==IDOK)
-			MyLib::SavePlaylist(pl,dlg.m_ofn.lpstrFile);
-	}
-
-	return 0;
-}
-
 
 LRESULT CMainFrame::OnExit(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
@@ -764,17 +723,16 @@ LRESULT CMyTabBar::OnSelectionChanged( LPNMHDR )
 {
 	int curSel=GetCurSel( );
 
-	SetActiveTab( curSel);
-
 	PlayList* pPl=GetTabPlayList(curSel);
 	MyLib::shared()->SetSelPlaylist(pPl);
 
+	SetActiveTab( curSel);
 	pMain->m_pPlaylistView->Reload(pPl);
-	
+	pMain->m_pPlaylistView->SetFocus();
 	return 0;
 }
 
-void CMyTabBar::SetCurSel(PlayList* ppl)
+void CMyTabBar::SetCurSel(PlayList* ppl,int index)
 {
 	int nItem;
 
@@ -783,9 +741,59 @@ void CMyTabBar::SetCurSel(PlayList* ppl)
 		PlayList* pplOnTab=(PlayList*)GetTabParam(nItem);
 		if(pplOnTab==ppl)
 		{
-			pMain->m_pPlaylistView->Reload(ppl);
 			SetActiveTab(nItem);
+			pMain->m_pPlaylistView->Reload(ppl,index);
 			break;
 		}
 	}
 }
+
+
+
+BOOL CMyTabBar::AddPlaylistTab(PlayList* ppl,BOOL inActiveFlag , int inImage )
+{
+	int nNewTab=AddTab(ppl->m_playlistName.c_str(),pMain->m_pPlaylistView->m_hWnd,inActiveFlag,inImage,(LPARAM)ppl);
+
+	pMain->m_pPlaylistView->Reload(ppl);
+	MyLib::shared()->SetSelPlaylist(ppl);
+
+	return 0;
+}
+
+LRESULT CMyTabBar::OnPlDel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	PlayList* pl= GetTabPlayList(RtBtnTab);
+
+	RemoveTab(RtBtnTab);
+	pMain->m_pPlaylistView->Reload(GetTabPlayList(GetCurSel()));
+
+	MyLib::shared()->DeletePlayList(pl);
+
+	return 0;
+}
+LRESULT CMyTabBar::OnPlRename(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	PlayList* pl= GetTabPlayList(RtBtnTab);
+
+	// 	CFileDialog 
+	// 	{
+	// 		pl->Rename();
+	// 	}
+
+	return 0;
+}
+LRESULT CMyTabBar::OnPlSave(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	PlayList* pl= GetTabPlayList(RtBtnTab);
+	if(pl)
+	{
+		const TCHAR szFilter[]=_T("playlist files(*.pl)\0*.pl\0");
+		const TCHAR szDefaultExt[]=_T("pl");
+		CFileDialog dlg(FALSE,szDefaultExt,NULL,OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
+		if(dlg.DoModal()==IDOK)
+			MyLib::SavePlaylist(pl,dlg.m_ofn.lpstrFile);
+	}
+
+	return 0;
+}
+

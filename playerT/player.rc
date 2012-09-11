@@ -281,6 +281,11 @@ BEGIN
     BEGIN
         MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM SEPARATOR
+        POPUP "Visualizations"
+        BEGIN
+            MENUITEM "Spectrum",                    ID_MENU_FFTTEST
+        END
     END
     POPUP "Play"
     BEGIN
@@ -292,7 +297,7 @@ BEGIN
         MENUITEM "Random",                      ID_PLAY_RANDOM
         MENUITEM SEPARATOR
     END
-    POPUP "Media Library"
+    POPUP "Library"
     BEGIN
         MENUITEM "Config",                      ID_MEDIALIBRARY_CONFIG
     END
@@ -306,10 +311,6 @@ BEGIN
         MENUITEM "Title format help",           ID_HELP_TITLEFORMATHELP
         MENUITEM SEPARATOR
         MENUITEM "&About player...",            ID_APP_ABOUT
-    END
-    POPUP "可视化"
-    BEGIN
-        MENUITEM "频谱显示",                        ID_MENU_FFTTEST
     END
 END
 

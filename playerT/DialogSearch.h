@@ -141,8 +141,7 @@ public:
 		}
 
 		
-		m_list.Reload(searchPl,FALSE);
-		
+		m_list.Reload(searchPl,-1);
 		m_list.SetItemState(0,LVIS_FOCUSED|
 			LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);	
 

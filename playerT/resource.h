@@ -87,13 +87,15 @@
 #define ID_BANDS_80                     32823
 #define ID_BANDS_160                    32824
 #define ID_CONFIG_LYRIC                 32825
+#define ID_VIEW_VISUALIZATIONS          32826
+#define ID_VISUALIZATIONS_SPECTRUM      32827
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        214
-#define _APS_NEXT_COMMAND_VALUE         32826
+#define _APS_NEXT_COMMAND_VALUE         32828
 #define _APS_NEXT_CONTROL_VALUE         1023
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
