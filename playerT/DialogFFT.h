@@ -2,6 +2,7 @@
 using namespace std;
 #include "SpectrumAnalyser.h"
 class DialogFFT : public CDialogImpl<DialogFFT>
+	,public CDialogResize<DialogFFT>
 {
 public:
 	enum { IDD = IDD_DIALO_FFT };
@@ -12,20 +13,31 @@ public:
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 		MESSAGE_HANDLER(WM_SIZE,OnSize)
 		MESSAGE_HANDLER(WM_PAINT,OnPaint)
+		MESSAGE_HANDLER(WM_ERASEBKGND,OnErase)
 	END_MSG_MAP()
+
+	BEGIN_DLGRESIZE_MAP(DialogFFT)
+	END_DLGRESIZE_MAP()
 
 	// Handler prototypes (uncomment arguments if needed):
 	//	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	//	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
+	
+	LRESULT OnErase(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		return 0;
+	}
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
+		DlgResize_Init(false,false);
 		CenterWindow(GetParent());
+		GetClientRect(&rc);
 
 		//dscrl->SetSpectrumRect(CRect(0,0,500,400));
 		//dscrl->SetFftEnvironment(this->m_hWnd);
-		CBasicPlayer::shared()->m_pSpectrumAnalyser->DCRECTInit(GetDC(),rc);
+		CBasicPlayer::shared()->m_pSpectrumAnalyser->DCRECTInit(m_hWnd,GetDC(),rc);
 		CBasicPlayer::shared()->m_pSpectrumAnalyser->Init(FALSE);
 		return TRUE;
 	}

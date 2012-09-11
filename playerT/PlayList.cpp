@@ -407,6 +407,8 @@ BOOL PlayListItem::LrcFileMacth(std::tstring &lrcFile)
 	return FALSE;
 }
 
+
+
 BOOL PlayListItem::GetLrcFileFromLib()
 {
 	vector<std::tstring>::iterator i;
@@ -415,9 +417,14 @@ BOOL PlayListItem::GetLrcFileFromLib()
 		int index=(*i).find_last_of('\\');
 		if(index!=(*i).npos){
 			std::tstring filename=(*i).substr(index+1);
-			if (LrcFileMacth(filename)){
-				lycPath=*i;
-				return TRUE;
+			if (LrcFileMacth(filename))//filename match
+			{
+				LrcMng *m=LrcMng::Get();
+				if(m->OpenTrackPath(this,*i,TRUE))//lrc tag match
+				{
+					lycPath=*i;
+					return TRUE;
+				}
 			}
 		}
 	}
@@ -455,17 +462,29 @@ BOOL PlayListItem::HaveKeywords(TCHAR *keywords)
 }
 
 
-BOOL LrcMng::OpenTrackPath(PlayListItem* track)
+BOOL LrcMng::OpenTrackPath(PlayListItem* track,std::tstring &path,BOOL bMatchIdentityTag)
 {
-	Open((LPTSTR)track->lycPath.c_str());
-
+	Open((LPTSTR)path.c_str());
 
 	if (lib.size()>0)
 	{
-		track->lyricFromLrcFile=lib;
-		track->m_bLrcFromLrcFile=TRUE;
-		return TRUE;
+		if(!bMatchIdentityTag)
+		{
+			track->lyricFromLrcFile=lib;
+			track->m_bLrcFromLrcFile=TRUE;
+			return TRUE;
+		}
+		else
+		{
+			if (track->title .compare(ti) ==0  &&
+				track->artist.compare(ar)==0)
+			{
+				track->lyricFromLrcFile=lib;
+				track->m_bLrcFromLrcFile=TRUE;
+				return TRUE;
+			}
+		}
 	}
-	
+
 	return FALSE;
 }

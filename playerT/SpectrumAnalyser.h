@@ -1,24 +1,53 @@
 #pragma once
 
 
+//-----------------------------------------
+
+#define WIDTH(rc) ((rc).right-(rc.left))
+#define HEIGHT(rc) ((rc).bottom-(rc.top))
+
+
+#define PI_2 6.283185F
+#define PI   3.1415925F
+
+#define    HATHEIGHT    2
+#define  BARHEIGHT   2
+
 #define  DEFAULT_SAMPLE_SIZE  16000  //one time read from file
 #define FFT_SAMPLE_SIZE 2048
+//-----------------------------------------
+
+BOOL DrawGradient(HDC hdc, CONST RECT* pRect, CONST DWORD* cl, int Num, DWORD dwMode);
+
 class CBasicPlayer;
 class FFT;
 #include "Thread.h"
 class CSpectrumAnalyser:public CThread
 {
+	enum CHANNELMODE{
+		MONO=1,              //单声道
+		STEREO               //立体声,即双声道
+	};
+	enum SAMPLETYPE
+	{
+		//高字节为实际数据,低字节为0-padding
+		//PCM采样位数.2^8次方 , 1次2字节,可存入UINT
+		EIGHT_BIT=8,         
+		SIXTEEN_BIT=16          //2^16次方 ,  1次4字节 ,可存入int
+	};
+
 private:
 	/* digital signal process */
 
 	INT m_SampleSize;
 	LONG m_FpsAsNS;
 	LONG m_DesiredFpsAsNS;
-	FLOAT * m_floatSamples;
+	FLOAT m_floatSamples[FFT_SAMPLE_SIZE];
 	INT m_position;
 	INT m_offset;
-	INT m_sampleType;
-	INT m_channelMode;
+	SAMPLETYPE m_sampleType;
+	CHANNELMODE m_channelMode;
+
 public:
 	CBasicPlayer *pB;
 	FFT* fft;
@@ -37,61 +66,40 @@ public:
 
 	HDC m_hdc;
 	RECT m_rc;
-	void DCRECTInit(HDC dc,RECT &rc)
+	HBITMAP m_hBmp;
+	HWND    m_hWnd;
+	void DCRECTInit( HWND _hwnd,HDC dc,RECT &rc)
 	{
+		m_hWnd=_hwnd;
 		m_hdc=dc;
 		m_rc=rc;
 		m_memDC=::CreateCompatibleDC(m_hdc);
+		m_hBmp=::CreateCompatibleBitmap(m_hdc,WIDTH(m_rc),HEIGHT(m_rc));
+		::SelectObject(m_memDC,m_hBmp);
+
+		m_hDCgrids=CreateCompatibleDC(m_hdc);
+		HBITMAP tmp=::CreateCompatibleBitmap(m_hdc,WIDTH(m_rc),HEIGHT(m_rc));
+		::SelectObject(m_hDCgrids,tmp);
+		Prepare();
 	}
 
-	void drawSpectrumAnalyserBar(RECT *pRect,int x,int y,int width,int height,int band)
-	{
-		static HBRUSH brush= CreateSolidBrush(RGB(58, 110, 165));
-		RECT barRect;
-		barRect.left=x;
-		barRect.right=x+width;
-		barRect.top=pRect->top+height;
-		barRect.bottom=pRect->bottom;
-
-		FillRect(m_memDC, &barRect, brush);
+	void drawSpectrumAnalyserBar(RECT *pRect,int x,int cy,int width,int height,int band);
 
 
+private:
+	HPEN m_hpen,m_hpenOld;
+	HBRUSH m_hbrush,m_hbrush1,m_hbrush2;
+	HBRUSH m_hbrushOld,m_hbrushOld1,m_hbrushOld2;
+private:
+	int m_iSpectrum_Delay;
+	INT   intPeaks[90];
+	INT	  intPeaksDelay[90];
+	INT   intLastBarHeight[90];
+	INT   intLastPeaks[90];
 
-		// 	//上面的小帽子滑块
-		// 	if(height > intPeaks[band])             //上涨
-		// 	{
-		// 		//intLastBarHeight[band] = height;
-		// 		intPeaks[band] = height;                 //peak 另一半长度
-		// 		intPeaksDelay[band] = m_iSpectrum_Delay;       //delay  一次下降高度
-		// 	}
-		// 	else                                               //滑块下降
-		// 	{
-		// 		intPeaksDelay[band]--;
-		// 		if (intPeaksDelay[band] < 0) 
-		// 			intPeaks[band]-=3;;
-		// 
-		// 		if (intPeaks[band] < 0) 
-		// 			intPeaks[band] = 0;
-		// 	}
-		// 
-		// 	RECT peakRect;
-		// 	peakRect.left=x;
-		// 	peakRect.right=peakRect.left+width;
-		// 	peakRect.top=y-intPeaks[band];
-		// 	peakRect.bottom=peakRect.top+BARHEIGHT;
-		// 	FillRect(m_memDC,&peakRect,m_hbrush2);
+public:
+	HDC m_hDCgrids;//网格背景
 
-		// 	r.top -= intPeaks[band];
-		// 
-		// 	if(r.top < rect.top)
-		// 		r.top = rect.top + 2;
-		// 
-		// 	if(r.top >= rect.bottom)
-		// 		r.top = rect.bottom - 2;
-		// 
-		// 	r.bottom = r.top + HATHEIGHT;
-		// 	FillRect(m_memDC, &r, m_hbrush2);
-
-	}
+	void Prepare();
 
 };

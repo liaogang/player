@@ -52,11 +52,11 @@ public:
 	void SetPos(int cur,int max);
 	void WaitPlay();
 	void OpenAfterSlowDown();
+		BOOL stoped(){return m_bStopped;}
 protected:
 	void play();
 	void pause();//pause or resume play
 	void stop();
-	BOOL stoped(){return m_bStopped;}
 	BOOL open( LPCTSTR filepath );
 
 private:

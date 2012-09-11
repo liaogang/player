@@ -44,7 +44,8 @@ struct TagTypeInfo
 
 	UINT minute;
 	UINT second;                                                                                                                                                                                                                                                                                                                                                                                                                                 
-	std::tstring identity;
+	std::tstring identity1;
+	std::tstring identity2;
 };
 
 
@@ -77,6 +78,8 @@ typedef vector<LrcLine> LrcLines;
 class LrcMng
 {
 public:
+	wstring ti,ar,al,by,id;
+public:
 	vector<LrcLine> lib;
 	void SortLrcLib();
 	void InsertIntoLib(UINT minute,UINT second,std::tstring& pLine)
@@ -89,13 +92,21 @@ public:
 	static LrcMng* Get();
 
 public:
-	BOOL OpenTrackPath(PlayListItem* track);
-	
+	BOOL OpenTrackPath(PlayListItem* track,std::tstring &path,BOOL bMatchIdentityTag=FALSE);
+	void Clear()
+	{
+		lib.clear();
+		ti.clear();
+		ar.clear();
+		al.clear();
+		by.clear();
+		id.clear();
+	}
+
 	void Open(LPTSTR pstrPath)
 	{ 
-		lib.clear();
+		Clear();
 		
-
 		ENCODETYPE filetype=UNKNOW;
 		BYTE * pBuf;
 		FILE * pFile;
@@ -116,7 +127,6 @@ public:
 			filetype=TellEncodeType(pBuf,filesize);
 			fclose (pFile);
 		}
-
 
 
 		TCHAR *pBufU;
@@ -156,8 +166,10 @@ private:
 				miniteList.push_back(tagInfo.minute);
 				secondList.push_back(tagInfo.second);
 			}
-			else
+			else if(tagInfo.tag==IdentifyTag)
+			{
 				break;
+			}
 		}
 
 		if (tagInfo.tag==TimeTag){
@@ -206,15 +218,69 @@ public:
 		else  if( IsNaturalNumber(v1,i)           //time tag?
 			&& IsNaturalNumber(++i,v2) )
 		{
+			tagInfo.tag=TimeTag;		
 			std::tstring tmp(v1,v2);
 			LPCTSTR pbuf=tmp.c_str();
 			_stscanf(pbuf,_T("%2d:%2d"),&tagInfo.minute,&tagInfo.second);
-			tagInfo.tag=TimeTag;		
 		}
 		else 
+		{
+			std::tstring tmp1(v1,i);
+			std::tstring tmp2(++i,v2);
 			tagInfo.tag=IdentifyTag;
+			tagInfo.identity1=tmp1;
+			tagInfo.identity2=tmp2;
+			CollectIdentifyTag(tagInfo);
+		}
 
 		return tagInfo;
+	}
+
+
+
+
+	void CollectIdentifyTag(TagTypeInfo &tagInfo)
+	{
+		static const WCHAR *strIdendity[]={
+			L"ti",L"ar",L"al",L"by",L"id"
+		};
+		enum{
+			IDD_TI=0,
+			IDD_AR,
+			IDD_AL,
+			IDD_BY,
+			IDD_ID
+		};
+
+
+		
+
+
+		int len= tagInfo.identity1.length();
+		//int len1=sizeof(strIdendity)/sizeof(int);
+		
+		const TCHAR *p2=tagInfo.identity1.c_str();
+		if(0==_tcsncmp(p2,strIdendity[IDD_TI],len))
+		{
+			ti=tagInfo.identity2;
+		}
+		else if(0==_tcsncmp(p2,strIdendity[IDD_AR],len))
+		{
+			ar=tagInfo.identity2;
+		}	
+		else if(0==_tcsncmp(p2,strIdendity[IDD_AL],len))
+		{
+			al=tagInfo.identity2;
+		}		
+		else if(0==_tcsncmp(p2,strIdendity[IDD_BY],len))
+		{
+			by=tagInfo.identity2;
+		}		
+		else if(0==_tcsncmp(p2,strIdendity[IDD_ID],len))
+		{
+			id=tagInfo.identity2;
+		}
+
 	}
 };
 

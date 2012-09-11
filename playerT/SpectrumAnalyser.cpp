@@ -4,10 +4,9 @@
 #include "FFT.h"
 #include "BasicPlayer.h"
 #include "PlayerThread.h"
+#include "MusicFile.h"
 
 
-#define WIDTH(rc) ((rc).right-(rc.left))
-#define HEIGHT(rc) ((rc).bottom-(rc.top))
 
 CSpectrumAnalyser::CSpectrumAnalyser(CBasicPlayer *pB_)
 {
@@ -16,8 +15,25 @@ CSpectrumAnalyser::CSpectrumAnalyser(CBasicPlayer *pB_)
 	//m_Left=new FLOAT[DEFAULT_SAMPLE_SIZE];
 	//m_Right=new FLOAT[DEFAULT_SAMPLE_SIZE];
 
-	m_floatSamples=new FLOAT[FFT_SAMPLE_SIZE];
 	fft = new FFT(FFT_SAMPLE_SIZE);
+
+	m_hpen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
+	// Create a red brush.
+	m_hbrush = CreateSolidBrush(RGB(0, 0, 0));
+	m_hbrush1 = CreateSolidBrush(RGB(58, 110, 165));
+	m_hbrush2=CreateSolidBrush(RGB(153,153,153));
+
+	m_iSpectrum_Delay=15;
+
+	for(int i=0;i<90;i++)
+	{
+		intPeaks[i]=0;
+		intPeaks[i]=0;
+		intPeaksDelay[i]=0;
+		intLastBarHeight[i]=0;
+		intLastPeaks[i]=0;
+	}
+
 }
 
 CSpectrumAnalyser::CSpectrumAnalyser(void)
@@ -26,7 +42,7 @@ CSpectrumAnalyser::CSpectrumAnalyser(void)
 	//m_Left=new FLOAT[DEFAULT_SAMPLE_SIZE];
 	//m_Right=new FLOAT[DEFAULT_SAMPLE_SIZE];
 	
-	m_floatSamples=new FLOAT[FFT_SAMPLE_SIZE];
+	
 	fft = new FFT(FFT_SAMPLE_SIZE);
 
 }
@@ -36,21 +52,68 @@ CSpectrumAnalyser::~CSpectrumAnalyser(void)
 }
 
 
+
+void CSpectrumAnalyser::Excute()
+{
+	while(1)
+	{
+		ProcessSamples();
+		::InvalidateRect(m_hWnd,&m_rc,TRUE);
+		::Sleep(15);
+	}          
+}
+
 void CSpectrumAnalyser::ProcessSamples()
 {
-	int pos=pB->m_pPlayerThread->playPosInFFt;
-	BYTE *pbuf=pB->m_pPlayerThread->pBufFFT1;
+	if (pB->stoped())
+		return;
+	
+	int pos;
+	pB->m_pPlayerThread->m_lpDSBuffer->GetCurrentPosition((LPDWORD)&pos,NULL);
+	signed char *pbuf=pB->m_pPlayerThread->pBufFft;
+	int Len=pB->m_pPlayerThread->fftBufLen;
 
-	for (int i=0;i<FFT_SAMPLE_SIZE;i++,pos+=4)
+	m_channelMode=static_cast<CHANNELMODE>(pB->m_pFile->GetFormat()->nChannels);
+	m_sampleType=static_cast<SAMPLETYPE>(pB->m_pFile->GetFormat()->wBitsPerSample);
+	INT sampleSize=FFT_SAMPLE_SIZE;
+
+	if (m_channelMode==MONO && m_sampleType==EIGHT_BIT)
 	{
-		float left=(pbuf[pos+1] << 8) + pbuf[pos+0]/32767.0F;
-		float right=(pbuf[pos+3] << 8) + pbuf[pos+2]/32767.0F;
-		m_floatSamples[i] = (left+right)/2.0F;
+		for (int i=0;i<sampleSize;i++,pos++)
+		{
+			if (pos>=Len)  pos-=Len;
+			
+			m_floatSamples[i] =(float) (pbuf[pos] << 7);
+		}
+	}
+	else if (m_channelMode==STEREO && m_sampleType==EIGHT_BIT)
+	{
+		for (int i=0;i<sampleSize;i++,pos+=2)
+		{	
+			if (pos>=Len)  pos-=Len;
+			m_floatSamples[i]=( (pbuf[pos] << 7)+ (pbuf[pos+1] << 7) )/2.0f;
+		}
+	}
+	else if (m_channelMode==MONO && m_sampleType==SIXTEEN_BIT)
+	{
+		for (int i=0;i<sampleSize;i++,pos+=2)
+		{
+			if (pos>=Len)  pos-=Len;
+			m_floatSamples[i]= (pbuf[pos+1] << 8) + pbuf[pos+1]/32767.0f;
+		}
+	}
+	else if (m_channelMode==STEREO && m_sampleType==SIXTEEN_BIT)
+	{
+		for (int i=0;i<sampleSize;i++,pos+=4)
+		{
+			if (pos>=Len)  pos-=Len;
+			//wave pcm 采用little_endian字节顺序
+			float left=(float)((pbuf[pos+1] << 8) + pbuf[pos+0]) /32767.0F;
+			float right=(float)((pbuf[pos+3] << 8) + pbuf[pos+2]) /32767.0F;
+			m_floatSamples[i] = (left+right)/2.0F;
+		}
 	}
 
-
-	float* lpFloatFFTData = fft->calculate(m_floatSamples, FFT_SAMPLE_SIZE);
-	memcpy(m_floatMag, lpFloatFFTData, FFT_SAMPLE_SIZE/2);
 }
 
 
@@ -60,11 +123,9 @@ void CSpectrumAnalyser::DrawSpectrum()
 	int cx=WIDTH(rect);
 	int cy=HEIGHT(rect);
 
-#define PI_2 6.283185F
-#define PI   3.1415925F
-
-	Rectangle(m_memDC, rect.left, rect.top, rect.right, rect.bottom);
-
+	static HBRUSH Brush3dface=::CreateSolidBrush(RGB(0,0,35));
+	FillRect(m_memDC,&rect,Brush3dface);
+	//Rectangle(m_memDC, rect.left, rect.top, rect.right, rect.bottom);
 
 	float c = 0;
 	float floatFrrh = 1.0;
@@ -74,8 +135,12 @@ void CSpectrumAnalyser::DrawSpectrum()
 	float floatBandWidth = ((float)(cx)/(float)bands);  //band宽度=总宽 / 数量
 	float floatMultiplier = 2.0;
 
+	float* lpFloatFFTData = fft ->calculate(m_floatSamples, FFT_SAMPLE_SIZE);
+	memcpy(m_floatMag, lpFloatFFTData, FFT_SAMPLE_SIZE/2);
 
-	RECT r;//下面长条块
+
+
+	//下面长条块
 	for(int a=0, band=0; band < bands; a+=(int)floatMultiplier, band++)
 	{
 		float wFs = 0;
@@ -85,17 +150,16 @@ void CSpectrumAnalyser::DrawSpectrum()
 			wFs += m_floatMag[a + b];
 
 		// -- Log filter.
-		wFs = (wFs * (float) log((float)(band + 2)));
+		wFs = (wFs * (float) log((float)(band + 2.0f)));
 
-		if (wFs>0.005f && wFs <0.1f)
+		if (wFs>0.005f && wFs <0.009f)
 			wFs*=0.9f * PI;
 		else if (wFs >0.01f && wFs <0.1f)
 			wFs*=3.0f * PI;
 		else if ( wFs > 0.1f && wFs < 0.5f)
 			wFs*=PI;
 
-		if (wFs > 1.0f) 
-			wFs = 0.9f;
+		if (wFs > 1.0f)  wFs = 0.9f;
 
 		// -- Compute SA decay...
 		if (wFs >= (m_floatMag[a] - floatSadFrr)) 
@@ -119,12 +183,147 @@ void CSpectrumAnalyser::DrawSpectrum()
 
 
 
-void CSpectrumAnalyser::Excute()
+
+void CSpectrumAnalyser::drawSpectrumAnalyserBar(RECT *pRect,int x,int cy,int width,int height,int band)
 {
-	while(1)
+	static HBRUSH brush= CreateSolidBrush(RGB(58, 110, 165));
+	RECT barRect;
+	barRect.left=x;
+	barRect.right=x+width;
+	barRect.top=pRect->bottom-height;
+	barRect.bottom=pRect->bottom;
+
+	//基部长条
+	BitBlt(m_memDC, barRect.left,barRect.top , WIDTH(barRect), HEIGHT(barRect), m_hDCgrids, barRect.left, barRect.top, SRCCOPY);
+
+	//小帽子滑块
+	if(height > intPeaks[band])             //上涨
 	{
-		ProcessSamples();
-		::Sleep(200);
+		//intLastBarHeight[band] = height;
+		intPeaks[band] = height;                 //peak 另一半长度
+		intPeaksDelay[band] = m_iSpectrum_Delay;       //delay  一次下降高度
 	}
-	
+	else                                               //滑块下降
+	{
+		intPeaksDelay[band]--;
+		if (intPeaksDelay[band] < 0) 
+			intPeaks[band]-=3;
+
+		if (intPeaks[band] < 0) 
+			intPeaks[band] = 0;
+	}
+
+	RECT peakRect(barRect);
+	peakRect.top=pRect->bottom-intPeaks[band];
+	peakRect.bottom=peakRect.top+BARHEIGHT;
+	FillRect(m_memDC,&peakRect,m_hbrush2);
+
+
+// 	RECT r(peakRect);
+// 
+// 	r.top -= intPeaks[band];
+// 
+// 	if(r.top < peakRect.top)
+// 		r.top = peakRect.top + 2;
+// 
+// 	if(r.top >= peakRect.bottom)
+// 		r.top = peakRect.bottom - 2;
+// 
+// 	r.bottom = r.top + HATHEIGHT;
+// 	FillRect(m_memDC, &r, m_hbrush2);
+
+}
+
+
+
+void CSpectrumAnalyser::Prepare()
+{
+	/* draw gradient */
+	RECT rect (m_rc);
+	DWORD colors[] = {RGB(255,0,0), RGB(0,255,0), RGB(10,10,10), RGB(0,0,255)};
+	DrawGradient(m_hDCgrids, &rect, colors, 4, GRADIENT_FILL_RECT_V);
+
+
+	/* draw grid */
+	for(int i=HEIGHT(m_rc);i>=0;i--)
+	{
+		if(i % 2 == 0)
+			continue;
+
+		MoveToEx(m_hDCgrids, 0, i, NULL);
+		LineTo(m_hDCgrids,WIDTH(m_rc), i);
+	}
+}
+
+
+
+
+
+
+BOOL DrawGradient(HDC hdc, CONST RECT* pRect, CONST DWORD* cl, int Num, DWORD dwMode)
+{
+	int Width;
+	int Height;
+	TRIVERTEX *pvert;
+	GRADIENT_RECT    *pgRect;
+
+	if (cl == NULL || Num < 1 || pRect == NULL || dwMode == GRADIENT_FILL_TRIANGLE)
+	{
+		::SetLastError(ERROR_INVALID_PARAMETER);
+		return TRUE;
+	}
+
+	if (Num == 1)
+	{
+		HBRUSH hBrush = CreateSolidBrush(cl[0]);
+		SelectObject(hdc, hBrush);
+		FillRect(hdc, pRect, hBrush);
+		DeleteObject(hBrush);
+		return TRUE;
+	}
+
+	pvert = new TRIVERTEX[Num * 2 - 2];
+	pgRect = new GRADIENT_RECT[Num];
+
+	Width = pRect->right - pRect->left;
+	Height = pRect->bottom - pRect->top;
+	for (int i = 0; i < Num - 1; i++)
+	{
+		if (dwMode == GRADIENT_FILL_RECT_V)
+		{
+			pvert[i * 2].x = pRect->left;
+			pvert[i * 2].y = pRect->top + Height / (Num - 1) * i;
+
+			pvert[i * 2 + 1].x = pRect->right;
+			pvert[i * 2 + 1].y = pRect->top + Height / (Num - 1) * (i + 1);
+		}
+		else if (dwMode == GRADIENT_FILL_RECT_H)
+		{
+			pvert[i * 2].x = pRect->left + Width / (Num - 1) * i;
+			pvert[i * 2].y = pRect->top;
+
+			pvert[i * 2 + 1].x = pRect->left + Width / (Num - 1) * (i + 1);
+			pvert[i * 2 + 1].y = pRect->bottom;
+		}
+
+		pvert[i * 2] .Red    = (WORD)GetRValue((cl[i])) << 8;
+		pvert[i * 2] .Green  = (WORD)GetGValue((cl[i])) << 8;
+		pvert[i * 2] .Blue   = (WORD)GetBValue((cl[i])) << 8;
+		pvert[i * 2] .Alpha  = 0x0000;
+
+		pvert[i * 2 + 1] .Red    = (WORD)GetRValue((cl[i + 1])) << 8;
+		pvert[i * 2 + 1] .Green  = (WORD)GetGValue((cl[i + 1])) << 8;
+		pvert[i * 2 + 1] .Blue   = (WORD)GetBValue((cl[i + 1])) << 8;
+		pvert[i * 2 + 1] .Alpha  = 0x0000;
+
+		pgRect[i].UpperLeft  = i * 2;
+		pgRect[i].LowerRight = i * 2 + 1;
+	}
+
+	BOOL bRet = ::GradientFill(hdc, pvert, Num * 2, pgRect, Num - 1, dwMode);
+
+	delete []pvert;
+	delete []pgRect;
+
+	return bRet;
 }

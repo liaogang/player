@@ -138,7 +138,9 @@ public:
 
 	LRESULT OnDbClicked(UINT i,CPoint pt)
 	{
-		PlayItem(GetFirstSelItem());
+		int k=GetFirstSelItem();
+		if(k!=-1)
+			PlayItem(k);
 
 		SetMsgHandled(FALSE);
 		return 0;

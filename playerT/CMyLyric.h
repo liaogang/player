@@ -182,17 +182,19 @@ public:
 			}
 
 
-			//无内嵌歌词,搜索*.LRCY文件
-			if (!track->m_bLrcInner)
+			
+			if (1)
 			{
 				LrcMng *sLM=LrcMng::Get();
 				if( track->GetLrcFileFromLib() )
 				{
-					if(sLM->OpenTrackPath(track)){
-						preLine=track->lyricFromLrcFile.begin();
-						bLrcReady=TRUE;}
+					preLine=track->lyricFromLrcFile.begin();
+					bLrcReady=TRUE;
 				}
 			}
+
+			//无内嵌歌词,搜索*.LRCY文件
+			//track->m_bLrcInner
 		}
 
 		void Init()

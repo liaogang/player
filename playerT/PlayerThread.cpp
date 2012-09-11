@@ -11,18 +11,13 @@ m_lpDSBuffer(NULL),m_lpDsound(NULL),m_dwCurWritePos(-1),m_bKeepPlaying(TRUE)
 	m_pPlayer=pPlayer;
 	m_lpDsound=DSoundDeviceCreate();
 
-	pBufFFT1=new BYTE[DEFAULTBUFFERSIZE*2];
-	memset(pBufFFT1,0,DEFAULTBUFFERSIZE*2);
-	pBufFFT2=pBufFFT1+DEFAULTBUFFERSIZE;
-
-	bFirst=TRUE;
-	bFileEnd2=FALSE;
-}
+	pBufFFT1=new signed char[gDefaultBufferSize];
+	memset(pBufFFT1,0,gDefaultBufferSize);
+} 
 
 CPlayerThread::~CPlayerThread(void)
 {
 	delete[] pBufFFT1;
-	delete[] pBufFFT2;
 }
 
 void CPlayerThread::Reset()
@@ -33,6 +28,13 @@ void CPlayerThread::Reset()
 	if (pwfx && pwfx->nAvgBytesPerSec!=lastAvgBytesPerSec){
 		m_lpDSBuffer=DSoundBufferCreate(m_lpDsound,pwfx);
 		lastAvgBytesPerSec=pwfx->nAvgBytesPerSec;
+
+
+		//anayser
+		//-----------------------------------------
+		fftBufLen=g_dwMaxDSBufferLen;
+		pBufFft=new signed char[fftBufLen];
+		playPosInFFt=0;
 	}
 	
 	m_bNewTrack=TRUE;
@@ -71,29 +73,8 @@ void CPlayerThread::Excute()
 void CPlayerThread::WriteDataToDSBuf()
 {
 	char *pFileBuffer=(char*)pBufFFT1;
-
-	m_cs.Enter();
-	BOOL bFileEnd=FALSE;
-	if(bFirst)
+	if(!m_pPlayer->m_pFile->Read(pBufFFT1,gDefaultBufferSize,&m_dwSizeRead))
 	{
-		if(!m_pPlayer->m_pFile->Read(pBufFFT1,DEFAULTBUFFERSIZE,&m_dwSizeRead))
-			bFileEnd=TRUE;
-	}
-	else
-	{
-		memcpy(pBufFFT1,pBufFFT2,DEFAULTBUFFERSIZE);
-		m_dwSizeRead=m_dwSizeRead2;
-		bFileEnd=bFileEnd2;
-	}
-
-	if(!m_pPlayer->m_pFile->Read(pBufFFT2,DEFAULTBUFFERSIZE,&m_dwSizeRead2))
-		bFileEnd2=TRUE;
-	m_cs.Leave();
-
-	bFirst=FALSE;
-	if (bFileEnd)
-	{
-		bFirst=TRUE;
 		if(m_pPlayer->m_bStopped)
 		{
 			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,0,100);
@@ -119,12 +100,25 @@ void CPlayerThread::WriteDataToDSBuf()
 	if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return;
 	DWORD available=DS_GetAvailable(g_dwMaxDSBufferLen,playCursor,m_dwCurWritePos);
 
-	if (available<DEFAULTBUFFERSIZE*2)
+	if (available<gDefaultBufferSize*2)
 		::Sleep(g_dwSleepTime);
 	
+	//send data to spectrum analyser buffer
+	if (fftBufLen-playPosInFFt<m_dwSizeRead)
+	{
+		memcpy(pBufFft+playPosInFFt,pBufFFT1,fftBufLen-playPosInFFt);
+		memcpy(pBufFft,pBufFFT1+fftBufLen-playPosInFFt,m_dwSizeRead-(fftBufLen-playPosInFFt) );
+		playPosInFFt+=m_dwSizeRead-fftBufLen;
+	}
+	else
+	{
+		memcpy(pBufFft+playPosInFFt,pBufFFT1,m_dwSizeRead);
+		playPosInFFt+=m_dwSizeRead;
+	}
+
+	//send data to direct sound sys buffer
 	DWORD written;
 	m_dwSizeToWrite=m_dwSizeRead;
-	playPosInFFt=0;
 	while(m_dwSizeToWrite > 0)
 	{
 		written= DSoundBufferWrite(pFileBuffer, m_dwSizeToWrite);
@@ -133,7 +127,6 @@ void CPlayerThread::WriteDataToDSBuf()
 			break;
 		}
 
-		playPosInFFt+=written;;
 		m_dwSizeToWrite-=written;
 		pFileBuffer=pFileBuffer+written;
 	}
