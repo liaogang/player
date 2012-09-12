@@ -36,7 +36,7 @@ public:
 	BOOL m_bStopped;
 	BOOL m_bPaused;
 	BOOL m_bFileEnd;
-
+	BOOL m_bStartPlay;
 	MusicFile *m_pFile;
 	CCriticalSection m_cs;
 	CMainFrame *m_pMainFrame;

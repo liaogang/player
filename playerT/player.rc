@@ -275,7 +275,13 @@ BEGIN
     END
     POPUP "Edit"
     BEGIN
-        MENUITEM "Undo",                        ID_EDIT_UNDO32791
+        MENUITEM "Undo",                        ID_EDIT_UNDO32791, GRAYED
+        MENUITEM "Search\tCtrl+F",              ID_EDIT_SEARCH
+        POPUP "Sort"
+        BEGIN
+            MENUITEM "Random",                      ID_SORT_RANDOM, GRAYED
+            MENUITEM "Album",                       ID_SORT_ALBUM, GRAYED
+        END
     END
     POPUP "&View"
     BEGIN
@@ -292,9 +298,9 @@ BEGIN
         MENUITEM "Play",                        ID_PLAY
         MENUITEM "Pause",                       ID_PAUSE
         MENUITEM "Stop",                        ID_STOP
-        MENUITEM "Previous",                    ID_PLAY_PREVIOS
+        MENUITEM "Previous",                    ID_PLAY_PREVIOS, GRAYED
         MENUITEM "Next",                        ID_PLAY_NEXT
-        MENUITEM "Random",                      ID_PLAY_RANDOM
+        MENUITEM "Random",                      ID_PLAY_RANDOM, GRAYED
         MENUITEM SEPARATOR
     END
     POPUP "Library"
@@ -308,7 +314,7 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "Title format help",           ID_HELP_TITLEFORMATHELP
+        MENUITEM "Title format help",           ID_HELP_TITLEFORMATHELP, GRAYED
         MENUITEM SEPARATOR
         MENUITEM "&About player...",            ID_APP_ABOUT
     END

@@ -20,7 +20,7 @@ public:
 	HMENU  menu;
 	CMyTabBar()
 	{
-		brush=::GetSysColorBrush(COLOR_3DFACE);
+		brush=::CreateSolidBrush(RGB(236,233,216));
 		newPen=(HPEN)::CreatePen(PS_SOLID,0,RGB(255,255,255));
 
 		menu=::CreatePopupMenu();
@@ -32,6 +32,7 @@ public:
 	~CMyTabBar()
 	{
 		//can not delete sys brush
+		DeleteObject(brush);
 		DeleteObject(newPen);
 		::DestroyMenu(menu);
 	}

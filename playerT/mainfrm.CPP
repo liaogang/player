@@ -690,7 +690,7 @@ LRESULT CPlayListView::OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled)
 
 	PlayListItem *track=m_ppl->m_songList[iItemIndx];
 	if(!track) return 0;
-
+	TCHAR year[25]={0};
 	if (pItem->mask & LVIF_TEXT) //valid text buffer?
 	{
 		switch(pItem->iSubItem){
@@ -705,6 +705,16 @@ LRESULT CPlayListView::OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled)
 		case 2: //fill in sub item 2 text
 			lstrcpy(pItem->pszText,
 				track->artist.c_str());
+			break;
+		case 3:
+			wsprintf(year,_T("%u"),track->year);
+			lstrcpy(pItem->pszText,year);
+			break;
+		case 4:
+			lstrcpy(pItem->pszText,track->comment.c_str());
+			break;
+		case 5:
+			lstrcpy(pItem->pszText,track->genre.c_str());
 			break;
 		}
 	}

@@ -1,5 +1,5 @@
 #include "StringConvertions.h"
-
+#include <algorithm>
 
 LPSTR Unicode2Ansi(LPCWSTR s)
 {
@@ -183,4 +183,27 @@ int MyGetLine(TCHAR *pBuf,int bufLen,std::wstring &str)
 	}
 
 	return i;
+}
+
+
+int StringCmpNoCase(std::tstring a,std::tstring b)
+{
+	_tcsupr(const_cast<TCHAR*>(a.c_str()) );
+	_tcsupr(const_cast<TCHAR*>(b.c_str()));
+
+	return _tcscmp(a.c_str(),b.c_str());
+}
+
+
+int hex2dec(char c)
+{
+	int ret=-1;
+	if (c >= 'a' && c<='z')	
+		ret= c - 'a'+ 10;
+	else if (c >= 'A' && c<='Z')				
+		ret=c - 'A'+ 10;
+	else if (c >= '0' && c<='9')
+		ret= c - '0' ;
+
+	return ret;
 }

@@ -102,7 +102,7 @@ void CSpectrumAnalyser::ProcessSamples()
 	
 	int pos;
 	pB->m_pPlayerThread->m_lpDSBuffer->GetCurrentPosition((LPDWORD)&pos,NULL);
-	pos+=200;          
+	pos+=1500;          
 
 
 	signed char *pbuf=pB->m_pPlayerThread->pBufFft;

@@ -105,6 +105,9 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
 
 void CBasicPlayer::play()
 {
+	if(::WaitForSingleObject(m_eventSlowDown,0)!=WAIT_OBJECT_0)
+		return;
+
 	if (m_bFileEnd)	return;
 	
 	if (!m_bStopped)
@@ -115,6 +118,9 @@ void CBasicPlayer::play()
 		else               //正在播放
 			stop();        //先停止
 
+	m_bStopped=FALSE;
+	m_bPaused=FALSE;
+
 	m_pFile->ResetFile();
 	m_pPlayerThread->Reset();
 
@@ -123,13 +129,8 @@ void CBasicPlayer::play()
 	if(!m_pPlayerThread->CleanDSBuffer())return;
 	m_pPlayerThread->WriteDataToDSBuf();
 	m_pPlayerThread->Init(FALSE);
-
-	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
-	m_bStopped=FALSE;
-	m_bPaused=FALSE;
-
-	if(::WaitForSingleObject(m_eventSlowDown,0)!=WAIT_OBJECT_0)
-		return;
+	
+	m_bStartPlay=TRUE;
 	InitSlowDown(FALSE);
 
 	::PostMessage(m_pMainFrame->m_hWnd,WM_NEW_TRACK_STARTED,NULL,NULL);
@@ -213,7 +214,15 @@ void CBasicPlayer::SlowDownVol()
 	//有时indexpoint出现极大的数或负数
 	m_pPlayerThread->m_lpDSBuffer->SetVolume(volBuffer[indexPoint]);
 
+	if (m_bStartPlay && indexPoint==0)
+	{
+		m_bStartPlay=FALSE;
+		m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
+	}
+
 	indexPoint+=indexVec;
+
+	
 
 	if ( indexPoint == indexB)
 	{

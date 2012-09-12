@@ -58,7 +58,7 @@ BOOL CPlayerThread::CleanDSBuffer()
 		}else bRet=FALSE;
 	}
 
-	m_lpDSBuffer->SetCurrentPosition(0);
+	//m_lpDSBuffer->SetCurrentPosition(0);
 	return bRet;
 }
 
@@ -67,7 +67,6 @@ void CPlayerThread::Excute()
 	while(m_bKeepPlaying)
 		WriteDataToDSBuf();
 	m_bKeepPlaying=TRUE;
-	bFirst=TRUE;
 }
 
 void CPlayerThread::WriteDataToDSBuf()

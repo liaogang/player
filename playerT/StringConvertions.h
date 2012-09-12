@@ -25,3 +25,6 @@ void CleanAfterFileCovert(BYTE* pBufOld,BYTE *pBufNew);
 void CovertFileBuf2UTF16littleEndian(BYTE* pBuf,int bufLen,ENCODETYPE filetype,OUT TCHAR **pBufU,OUT int &filesizeAfterCovert);
 int MyGetLine(TCHAR *pBuf,int bufLen,std::wstring &str);
 
+int StringCmpNoCase(std::tstring a,std::tstring b);
+
+int hex2dec(char c);

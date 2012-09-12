@@ -6,6 +6,7 @@
 #include "StringConvertions.h"
 #include "DialogLyric.h"
 #include "CImg.h"
+#include "StringConvertions.h"
 struct PLANDPATH
 {
 	PlayList* pPlaylist;
@@ -476,8 +477,17 @@ BOOL LrcMng::OpenTrackPath(PlayListItem* track,std::tstring &path,BOOL bMatchIde
 		}
 		else
 		{
-			if (track->title .compare(ti) ==0  &&
-				track->artist.compare(ar)==0)
+			
+			if (!ti.empty() && StringCmpNoCase(track->title,ti)!=0)
+			{
+				 return FALSE;
+			}
+
+			if (!ar.empty() && StringCmpNoCase(track->artist,ar) !=0 )
+			{
+				return FALSE;
+			}
+
 			{
 				track->lyricFromLrcFile=lib;
 				track->m_bLrcFromLrcFile=TRUE;

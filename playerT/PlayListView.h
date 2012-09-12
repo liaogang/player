@@ -101,14 +101,12 @@ public:
 		{
 			POINT pt;
 			GetCursorPos(&pt);
+
 			int i=-1;
 			i=GetNextItem(i,LVIS_FOCUSED|LVIS_SELECTED);
 			if(i!=-1)
-			{
 				::TrackPopupMenu(menu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
-			}
-
-
+			
 
 			return 1;
 		}
@@ -224,7 +222,7 @@ public:
 		{
 			int i=-1;
 			while ( (i=GetNextItem(i,LVIS_SELECTED)) != -1)
-				SetItemState(i,0,LVNI_SELECTED );
+				SetItemState(i,0,LVNI_SELECTED|LVNI_FOCUSED );
 		}
 
 		void InsertTrackItem(PlayListItem &track,int item,BOOL SetIndex=TRUE);
@@ -249,30 +247,36 @@ public:
 				{
 					SetItemState(m_ppl->selectedIndex,LVIS_FOCUSED|
 						LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
-
 					selItem=m_ppl->selectedIndex;
-					// 					int countPerPage=GetCountPerPage();
-					// 					if (m_ppl->selectedIndex >countPerPage &&m_ppl->selectedIndex <songCount-countPerPage/2)
-					// 					{
-					// 						selItem=m_ppl->selectedIndex+countPerPage/4;
-					// 					}
 				}
 
-				EnsureVisible(selItem,FALSE);
-
-
+				EnsureVisibleAndCentrePos(selItem);
 			}
 			else
 			{
-				EnsureVisible(SetIndex,TRUE);
-
+				EnsureVisibleAndCentrePos(SetIndex);
 				SetItemState(SetIndex,LVIS_FOCUSED|
 					LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
-
 			}//if(!SetIndex)
 
 
 			m_bC=TRUE;
 		}
 
+
+		void EnsureVisibleAndCentrePos(int index)
+		{
+			EnsureVisible(index,FALSE);
+
+			int top=GetTopIndex();
+			int countPerPage=GetCountPerPage();
+
+			RECT rc;
+			GetItemRect(top,&rc,LVIR_BOUNDS);
+
+			SIZE sz;
+			sz.cx=0;
+			sz.cy=(index-top-countPerPage/2)*(rc.bottom-rc.top);
+			Scroll(sz);
+		}
 };
