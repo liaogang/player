@@ -12,8 +12,33 @@ unsigned int BKDRHash(char *str)
 	return (hash & 0x7FFFFFFF);
 }
 
+HMENU LoadPlaylistMenu(BOOL bDestroy=FALSE)
+{
+	static HMENU menu=NULL;
+	static HMENU subMenu=NULL;
+	if (!bDestroy)
+	{
+		if (!menu)
+		{	
+			menu=::LoadMenu(NULL,MAKEINTRESOURCE(IDR_MENU2));
+			subMenu=::GetSubMenu(menu,0);
+		}
+	}
+	else
+	{
+		if(menu)
+		{
+			::DestroyMenu(menu);
+			menu=NULL;
+		}
+	}
+
+	return subMenu;
+}
+
 class CPlayListView:
-	public CWindowImpl<CPlayListView,CListViewCtrl>
+	public CWindowImpl<CPlayListView,CListViewCtrl>,
+	public CMessageFilter
 {
 public:
 	class CMainFrame *pMain;
@@ -22,19 +47,20 @@ public:
 	PlayListItem *m_pPlayTrack;
 
 	BOOL bAuto,bDeletable;
-
+	HMENU menu;
 	BOOL m_bSearch;                  //是否为搜索列表
 	CPlayListView(BOOL bSearch=FALSE):
 	m_bSearch(bSearch),
 		bAuto(FALSE),
 		bDeletable(!bAuto),
-		m_pPlayTrack(NULL)
+		m_pPlayTrack(NULL),m_bC(TRUE)
 	{
+		menu=LoadPlaylistMenu();
 	}
 
 	~CPlayListView()
 	{
-
+		LoadPlaylistMenu(TRUE);
 	}
 
 public:
@@ -43,10 +69,6 @@ public:
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg)
 	{
-		if (pMsg->hwnd!=m_hWnd)
-			return FALSE;
-
-
 		if (pMsg->message==WM_KEYDOWN)
 		{	
 			UINT nChar=(TCHAR)pMsg->wParam;
@@ -67,24 +89,55 @@ public:
 	}
 
 	BEGIN_MSG_MAP_EX(CPlayListView)
+		MSG_WM_CREATE(OnCreate);
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
 		MSG_WM_CHAR(OnChar)
+		REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_RCLICK ,OnNotifyCodeHandlerEX)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED,OnItemChanged)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO,OnGetdispInfo)
 		END_MSG_MAP()
 
+		LRESULT OnNotifyCodeHandlerEX(LPNMHDR pnmh)
+		{
+			POINT pt;
+			GetCursorPos(&pt);
+			int i=-1;
+			i=GetNextItem(i,LVIS_FOCUSED|LVIS_SELECTED);
+			if(i!=-1)
+			{
+				::TrackPopupMenu(menu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
+			}
+
+
+
+			return 1;
+		}
+
+		int OnCreate(LPCREATESTRUCT lpCreateStruct)
+		{
+			CMessageLoop* pLoop = _Module.GetMessageLoop();
+			ATLASSERT(pLoop != NULL);
+			pLoop->AddMessageFilter(this);
+			SetMsgHandled(FALSE);
+			return 0;
+		}
+
+
 		LRESULT OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled);
 
+		BOOL m_bC;
 		LRESULT OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled)
 		{
 			NMLISTVIEW * pnml=(NMLISTVIEW *)pnmh;
-			m_ppl->topVisibleIndex=pnml->iItem;
-			m_ppl->selectedIndex=pnml->iItem;
-			if (pnml->iItem!=-1)
+			if(m_bC)
 			{
-				m_ppl->SetSelectedItem(pnml->iItem);
+				m_ppl->topVisibleIndex=pnml->iItem;
+				m_ppl->selectedIndex=pnml->iItem;
+				if (pnml->iItem!=-1)
+				{
+					m_ppl->SetSelectedItem(pnml->iItem);
+				}
 			}
-
 			return 1;
 		}
 
@@ -179,11 +232,11 @@ public:
 
 		void Reload(PlayList* pPl,BOOL SetIndex=-1)
 		{
+			m_bC=FALSE;
 			int songCount=pPl->m_songList.size();
-			ClearAllSel();
-
 			m_ppl=pPl;
 			SetItemCount(songCount);
+			ClearAllSel();
 
 			if(SetIndex==-1)
 			{
@@ -198,21 +251,28 @@ public:
 						LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
 
 					selItem=m_ppl->selectedIndex;
-					int countPerPage=GetCountPerPage();
-					if (m_ppl->selectedIndex >countPerPage &&m_ppl->selectedIndex <songCount-countPerPage/2)
-					{
-						selItem=m_ppl->selectedIndex+countPerPage/2;
-					}
+					// 					int countPerPage=GetCountPerPage();
+					// 					if (m_ppl->selectedIndex >countPerPage &&m_ppl->selectedIndex <songCount-countPerPage/2)
+					// 					{
+					// 						selItem=m_ppl->selectedIndex+countPerPage/4;
+					// 					}
 				}
 
 				EnsureVisible(selItem,FALSE);
+
+
 			}
 			else
 			{
+				EnsureVisible(SetIndex,TRUE);
+
 				SetItemState(SetIndex,LVIS_FOCUSED|
 					LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
-				EnsureVisible(SetIndex,TRUE);
+
 			}//if(!SetIndex)
+
+
+			m_bC=TRUE;
 		}
 
 };

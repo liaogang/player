@@ -19,6 +19,7 @@
 #define IDD_DIALOG_SEARCH               210
 #define IDD_DIALOG4                     211
 #define IDR_MENU1                       212
+#define IDR_MENU2                       214
 #define IDC_TREE                        1000
 #define IDC_RESET_ALL                   1001
 #define IDC_RESET_THIS                  1002
@@ -89,13 +90,25 @@
 #define ID_CONFIG_LYRIC                 32825
 #define ID_VIEW_VISUALIZATIONS          32826
 #define ID_VISUALIZATIONS_SPECTRUM      32827
+#define ID_32828                        32828
+#define ID_32829                        32829
+#define ID_32830                        32830
+#define ID_32831                        32831
+#define ID_32832                        32832
+#define ID_32833                        32833
+#define ID_32834                        32834
+#define ID_32835                        32835
+#define ID_32836                        32836
+#define ID_32837                        32837
+#define ID_32838                        32838
+#define ID_32839                        32839
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        214
-#define _APS_NEXT_COMMAND_VALUE         32828
+#define _APS_NEXT_RESOURCE_VALUE        215
+#define _APS_NEXT_COMMAND_VALUE         32840
 #define _APS_NEXT_CONTROL_VALUE         1023
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

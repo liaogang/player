@@ -185,14 +185,16 @@ void CSpectrumAnalyser::DrawSpectrum()
 		// -- Log filter.
 		wFs = (wFs * (float) log((float)(band + 2.0f)));
 
-		if (wFs>0.005f && wFs <0.009f)
-			wFs*=0.9f * PI;
-		else if (wFs >0.01f && wFs <0.1f)
-			wFs*=3.0f * PI;
-		else if ( wFs > 0.1f && wFs < 0.5f)
-			wFs*=PI;
+// 		if (wFs>0.005f && wFs <0.009f)
+// 			wFs*=0.9f * PI;
+// 		else if (wFs >0.01f && wFs <0.1f)
+// 			wFs*=3.0f * PI;
+// 		else if ( wFs > 0.1f && wFs < 0.5f)
+// 			wFs*=PI;
 
-		if (wFs > 1.0f)  wFs = 0.9f;
+//		if (wFs > 1.0f)  wFs = 0.9f;
+
+        if (wFs > 1.0f)  wFs = 1.0f;
 
 		// -- Compute SA decay...
 		if (wFs >= (m_floatMag[a] - floatSadFrr)) 

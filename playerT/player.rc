@@ -314,6 +314,30 @@ BEGIN
     END
 END
 
+IDR_MENU2 MENU
+BEGIN
+    POPUP "列表右键"
+    BEGIN
+        MENUITEM "播放",                          ID_32830
+        MENUITEM "加入播放列队",                      ID_32831
+        MENUITEM SEPARATOR
+        MENUITEM "剪切",                          ID_32838
+        MENUITEM "复制",                          ID_32837
+        MENUITEM "粘贴",                          ID_32839
+        MENUITEM SEPARATOR
+        MENUITEM "打开所在文件夹",                     ID_32828
+        POPUP "文件操作"
+        BEGIN
+            MENUITEM "删除",                          ID_32833
+            MENUITEM "复制至",                         ID_32834
+            MENUITEM "移动至",                         ID_32835
+            MENUITEM "重命名",                         ID_32836
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "属性",                          ID_32829
+    END
+END
+
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////

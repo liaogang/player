@@ -16,9 +16,6 @@
 #include <string>
 using namespace std;
 
-// #pragma comment(lib,"UxTheme.lib")
-// #include "Uxtheme.h"
-
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
@@ -31,9 +28,6 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 			if (GetKeyState(VK_CONTROL) &0x80)
 				ShowSearchDialog();
 	}
-
-	if (m_pPlaylistView->PreTranslateMessage(pMsg))
-		return TRUE;
 
 	return CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg);
 }
