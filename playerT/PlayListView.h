@@ -90,12 +90,43 @@ public:
 
 	BEGIN_MSG_MAP_EX(CPlayListView)
 		MSG_WM_CREATE(OnCreate);
-		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
+	MSG_WM_LBUTTONDBLCLK(OnDbClicked)
 		MSG_WM_CHAR(OnChar)
 		REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_RCLICK ,OnNotifyCodeHandlerEX)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED,OnItemChanged)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO,OnGetdispInfo)
+		REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
 		END_MSG_MAP()
+
+		LRESULT OnCustomDraw(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
+		{
+			LPNMCUSTOMDRAW lpNMCustomDraw = (LPNMCUSTOMDRAW)pnmh;
+			NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>( lpNMCustomDraw );  
+
+			DWORD dwRet = CDRF_DODEFAULT;
+			switch(lpNMCustomDraw->dwDrawStage)
+			{
+			case CDDS_PREPAINT:
+				dwRet=CDRF_NOTIFYITEMDRAW;
+				break;
+			case CDDS_ITEMPREPAINT:
+				COLORREF crText;
+				if ( (pLVCD->nmcd.dwItemSpec % 2) == 0 )
+					crText = RGB(249,249,249);
+				else 
+					crText = RGB(255,255,255);        
+
+				// Store the color back in the NMLVCUSTOMDRAW struct.
+				pLVCD->clrTextBk = crText;
+
+				// Tell Windows to paint the control itself.
+				dwRet= CDRF_DODEFAULT;
+				break;
+			}
+
+
+			return dwRet;
+		}
 
 		LRESULT OnNotifyCodeHandlerEX(LPNMHDR pnmh)
 		{
@@ -106,7 +137,7 @@ public:
 			i=GetNextItem(i,LVIS_FOCUSED|LVIS_SELECTED);
 			if(i!=-1)
 				::TrackPopupMenu(menu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
-			
+
 
 			return 1;
 		}

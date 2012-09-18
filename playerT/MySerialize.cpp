@@ -1,4 +1,5 @@
 #include "MySerialize.h"
+#include "Util1.h"
 #include "MyLib.h"
 
 
@@ -208,6 +209,7 @@ PlayList* MyLib::LoadPlaylist(LPTSTR filepath)
 	PlayList *playlist=NULL;
 	BOOL result=FALSE;
 	FILE * pFile;
+
 	pFile = _tfopen ((LPCTSTR)filepath, _T("rb") );
 	if (pFile!=NULL){
 		playlist=new PlayList;
@@ -223,6 +225,7 @@ PlayList* MyLib::LoadPlaylist(LPTSTR filepath)
 BOOL MyLib::SaveCoreCfg()
 {
 	FILE * pFile;
+	ChangeCurDir2ModulePath();
 	pFile = _tfopen( CFGFILENAME , _T("wb") );
 	if (pFile!=NULL)
 	{	
@@ -255,6 +258,7 @@ BOOL MyLib::SaveCoreCfg()
 BOOL MyLib::LoadCoreCfg()
 {
 	FILE * pFile;
+	ChangeCurDir2ModulePath();
 	pFile = _tfopen( CFGFILENAME, _T("rb") );
 	if (pFile!=NULL)
 	{
@@ -262,11 +266,13 @@ BOOL MyLib::LoadCoreCfg()
 		int size=0;
 
 		::ReSerialize(pFile,&size);
-		while (size--) 
+		while (size) 
 		{
 			std::tstring playlistLocation;
 			::ReSerialize(pFile,&playlistLocation);
 			MyLib::shared()->LoadPlaylist(const_cast<LPTSTR>(playlistLocation.c_str()));
+			
+			size--;
 		} 
 
 

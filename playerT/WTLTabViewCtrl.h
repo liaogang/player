@@ -322,22 +322,25 @@ class CWTLTabViewCtrl : public CWindowImpl< CWTLTabViewCtrl, CTabCtrl >
 			if ( inNewTab >= 0 && inNewTab < GetTabCount( ) &&	// Validate the tab index range
 				 inNewTab != m_ActiveTabIndex )					// Don't select if already selected
 			{
+				//don't use it by lg
 				// Disable the old tab
-				if ( m_ActiveTabWindow.IsWindow( ) ) 
-				{
-					m_ActiveTabWindow.EnableWindow( FALSE );
-					m_ActiveTabWindow.ShowWindow( SW_HIDE );
-				}
+// 				if ( m_ActiveTabWindow.IsWindow( ) ) 
+// 				{
+// 					m_ActiveTabWindow.EnableWindow( FALSE );
+// 					m_ActiveTabWindow.ShowWindow( SW_HIDE );
+// 				}
 
 				// Enable the new tab
 				m_ActiveTabWindow = m_Views[ inNewTab ];
 
 				m_ActiveTabWindow.EnableWindow( TRUE );
-				m_ActiveTabWindow.ShowWindow( SW_SHOW );
-				m_ActiveTabWindow.SetFocus( );
-
-				m_ActiveTabWindow.Invalidate( TRUE );
+ 				m_ActiveTabWindow.ShowWindow( SW_SHOW );
+// 				m_ActiveTabWindow.SetFocus( );
+// 
+// 				m_ActiveTabWindow.Invalidate( TRUE );
 				
+				//
+
 				m_ActiveTabIndex = inNewTab;
 
 				// Select the tab (if tab programmatically changed)

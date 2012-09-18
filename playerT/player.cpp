@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "aboutdlg.h"
+#include "Util1.h"
 #include "LrcMng.h"
 #include "MainFrm.h"
 
@@ -31,6 +32,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	return nRet;
 }
 
+
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {
 	HRESULT hRes = ::CoInitialize(NULL);
@@ -46,6 +48,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 
 	hRes = _Module.Init(NULL, hInstance);
 	ATLASSERT(SUCCEEDED(hRes));
+
+	ChangeCurDir2ModulePath(hInstance);
 
 	int nRet = Run(lpstrCmdLine, nCmdShow);
 

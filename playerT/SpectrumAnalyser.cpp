@@ -102,8 +102,7 @@ void CSpectrumAnalyser::ProcessSamples()
 	
 	int pos;
 	pB->m_pPlayerThread->m_lpDSBuffer->GetCurrentPosition((LPDWORD)&pos,NULL);
-	pos+=1500;          
-
+	pos+=350;          
 
 	signed char *pbuf=pB->m_pPlayerThread->pBufFft;
 	int Len=pB->m_pPlayerThread->fftBufLen;
@@ -171,8 +170,6 @@ void CSpectrumAnalyser::DrawSpectrum()
 	float* lpFloatFFTData = fft ->calculate(m_floatSamples, FFT_SAMPLE_SIZE);
 	memcpy(m_floatMag, lpFloatFFTData, FFT_SAMPLE_SIZE/2);
 
-
-
 	//下面长条块
 	for(int a=0, band=0; band < bands; a+=(int)floatMultiplier, band++)
 	{
@@ -185,18 +182,25 @@ void CSpectrumAnalyser::DrawSpectrum()
 		// -- Log filter.
 		wFs = (wFs * (float) log((float)(band + 2.0f)));
 
-// 		if (wFs>0.005f && wFs <0.009f)
-// 			wFs*=0.9f * PI;
-// 		else if (wFs >0.01f && wFs <0.1f)
-// 			wFs*=3.0f * PI;
+ 		if (wFs>0.005f && wFs <0.009f)
+ 			wFs*=1.2f;
+ 		else if (wFs >0.01f && wFs <0.1f)
+ 			wFs*=1.4f;
 // 		else if ( wFs > 0.1f && wFs < 0.5f)
-// 			wFs*=PI;
+// 			wFs*=0.8f;
 
 //		if (wFs > 1.0f)  wFs = 0.9f;
-
         if (wFs > 1.0f)  wFs = 1.0f;
 
 		// -- Compute SA decay...
+		if(abs(wFs - m_floatMag[a] )>  floatSadFrr*2)
+		//if (wFs >= (m_floatMag[a] - floatSadFrr)) 
+		{
+			wFs= wFs +(wFs - m_floatMag[a] )/16.0f;
+			m_floatMag[a] = wFs;
+			m_floatMagDecay[a]=20;
+		} 
+				// -- Compute SA decay...
 		if (wFs >= (m_floatMag[a] - floatSadFrr)) 
 		{
 			m_floatMag[a] = wFs;
@@ -208,6 +212,7 @@ void CSpectrumAnalyser::DrawSpectrum()
 				m_floatMag[a] = 0;
 			wFs = m_floatMag[a];
 		}
+
 
 		drawSpectrumAnalyserBar(&rect,c,cy,floatBandWidth-1,wFs*cy,band);
 		c += floatBandWidth;
@@ -221,15 +226,41 @@ void CSpectrumAnalyser::DrawSpectrum()
 
 void CSpectrumAnalyser::drawSpectrumAnalyserBar(RECT *pRect,int x,int cy,int width,int height,int band)
 {
+
+	CONST INT hChange=20;    //pisex像素
+	if (height-m_fOldwFs[band]< hChange && m_fOldwFs[band]-height< hChange)
+	{
+		height=m_fOldwFs[band];
+		m_fOldwFs[band]=-1000;
+	}
+	else if(height-m_fOldwFs[band]  <0  &&  height-m_fOldwFs[band]  < -hChange )
+	{
+		//		int c=m_fOldwFs[band]-height;
+		m_fOldwFs[band]=height;
+
+		height=height-1;
+
+		// 		if (abs(c) > cy/3)
+		// 		{
+		// 			height=m_fOldwFs[band] + c*0.6;
+		// 		}
+		// 		else
+		// 		{
+		// 			height=m_fOldwFs[band] + c*3;
+		// 		}
+	}
+
+
+
 	static HBRUSH brush= CreateSolidBrush(RGB(58, 110, 165));
 	RECT barRect;
 	barRect.left=x;
 	barRect.right=x+width;
 	barRect.top=pRect->bottom-height;
 	barRect.bottom=pRect->bottom;
-
 	//基部长条
 	BitBlt(m_memDC, barRect.left,barRect.top , WIDTH(barRect), HEIGHT(barRect), m_hDCgrids, barRect.left, barRect.top, SRCCOPY);
+
 
 	//小帽子滑块
 	if(height > intPeaks[band])             //上涨

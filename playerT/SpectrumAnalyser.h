@@ -52,6 +52,7 @@ public:
 	CBasicPlayer *pB;
 	FFT* fft;
 	float m_floatMag[DEFAULT_SAMPLE_SIZE/2];
+	INT   m_floatMagDecay[DEFAULT_SAMPLE_SIZE/2];
 	HDC m_memDC;
 
 public:
@@ -94,7 +95,7 @@ private:
 	int m_iSpectrum_Delay;
 	INT   intPeaks[90];
 	INT	  intPeaksDelay[90];
-
+	INT   m_fOldwFs[90];
 public:
 	HDC m_hDCgrids;//Íø¸ñ±³¾°
 
