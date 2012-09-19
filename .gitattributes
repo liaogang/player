@@ -113,7 +113,6 @@ playerT/PlayerThread.cpp -text
 playerT/PlayerThread.h -text
 playerT/ProgertyDlg.h -text
 playerT/Release/libmpg123.dll -text
-playerT/Release/player.exe -text
 playerT/SpectrumAnalyser.cpp -text
 playerT/SpectrumAnalyser.h -text
 playerT/SpectrumAnalyserThread.cpp -text
