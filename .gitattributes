@@ -123,6 +123,8 @@ playerT/StringConvertions.h -text
 playerT/Thread.cpp -text
 playerT/Thread.h -text
 playerT/UpgradeLog.XML -text
+playerT/Util1.cpp -text
+playerT/Util1.h -text
 playerT/Utils.h -text
 playerT/WTLTabViewCtrl.h -text
 playerT/WaveFile.cpp -text
