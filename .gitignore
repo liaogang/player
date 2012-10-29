@@ -29,6 +29,7 @@ playerT/Release/*.manifest
 playerT/Release/*.obj
 playerT/Release/*.res
 playerT/Release/*.tlog
+playerT/Release/player.exe
 playerT/playerT.ncb
 playerT/playerT.suo
 playerT/res/*.manifest
