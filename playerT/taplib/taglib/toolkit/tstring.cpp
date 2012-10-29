@@ -176,8 +176,10 @@ String::String(const ByteVector &v, Type t)
 	  const char *s=(const char*)v.data();
 	  int sLen=v.size();
 	  DWORD dwNum= MultiByteToWideChar (CP_UTF8, 0,s, sLen, NULL, 0);
+	  ++dwNum;
 	  LPWSTR targetW=new WCHAR[dwNum];
-	  MultiByteToWideChar(CP_UTF8,0,s,-1,targetW,dwNum);
+	  memset(targetW,0,dwNum*sizeof(WCHAR));
+	  MultiByteToWideChar(CP_UTF8,0,s,sLen,targetW,dwNum);
 
 	  wstring tmp(targetW,targetW+dwNum);
 	  d->data=tmp;
@@ -189,8 +191,10 @@ String::String(const ByteVector &v, Type t)
 	  const char *s=(const char*)v.data();
 	  int sLen=v.size();
 	  DWORD dwNum= MultiByteToWideChar (CP_ACP, 0,s, sLen, NULL, 0);
+	  ++dwNum;
 	  LPWSTR targetW=new WCHAR[dwNum];
-	  MultiByteToWideChar(CP_ACP,0,s,-1,targetW,dwNum);
+	  memset(targetW,0,dwNum*sizeof(WCHAR));
+	  MultiByteToWideChar(CP_ACP,0,s,sLen,targetW,dwNum);
 	  
 	  wstring tmp(targetW,targetW+dwNum);
 	  d->data=tmp;
