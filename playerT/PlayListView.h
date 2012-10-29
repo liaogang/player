@@ -49,6 +49,30 @@ public:
 	BOOL bAuto,bDeletable;
 	HMENU menu;
 	BOOL m_bSearch;                  //是否为搜索列表
+
+	COLORREF clText1,clText2;
+
+	//奇,偶,颜色
+	void ChangeColor(COLORREF one,COLORREF another)
+	{
+		clText1=one;
+		clText2=another;
+		int top=GetTopIndex();
+		int countPerPage=GetCountPerPage();
+		RedrawItems(top,top+countPerPage);
+		::UpdateWindow(this->m_hWnd);
+	}
+
+	void ChangeColorDefault()
+	{
+		ChangeColor(RGB(249,249,249),RGB(255,255,255));
+	}
+
+	void ChangeColorBlue()
+	{
+		ChangeColor(RGB(230,244,255),RGB(145,200,255));
+	}
+
 	CPlayListView(BOOL bSearch=FALSE):
 	m_bSearch(bSearch),
 		bAuto(FALSE),
@@ -112,9 +136,9 @@ public:
 			case CDDS_ITEMPREPAINT:
 				COLORREF crText;
 				if ( (pLVCD->nmcd.dwItemSpec % 2) == 0 )
-					crText = RGB(249,249,249);
+					crText = clText2; 
 				else 
-					crText = RGB(255,255,255);        
+					crText = clText1; 
 
 				// Store the color back in the NMLVCUSTOMDRAW struct.
 				pLVCD->clrTextBk = crText;
@@ -235,6 +259,7 @@ public:
 
 		void Init()
 		{	
+			ChangeColorDefault();
 			SetExtendedListViewStyle(GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT);
 
 			TCHAR * columnName[]={

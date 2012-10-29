@@ -106,13 +106,16 @@
 #define ID_EDIT_SORT                    32841
 #define ID_SORT_RANDOM                  32842
 #define ID_SORT_ALBUM                   32843
+#define ID_VIEW_CHANGEPLAYLISTCOLOR     32844
+#define ID_CHANGEPLAYLISTCOLOR_DEFAULT  32845
+#define ID_CHANGEPLAYLISTCOLOR_BLUE     32846
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        215
-#define _APS_NEXT_COMMAND_VALUE         32844
+#define _APS_NEXT_COMMAND_VALUE         32847
 #define _APS_NEXT_CONTROL_VALUE         1023
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

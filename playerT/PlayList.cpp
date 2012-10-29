@@ -111,6 +111,41 @@ BOOL StrIsEndedWith(TCHAR *_str,TCHAR *_end)
 	return TRUE;
 }
 
+
+HRESULT GetFolderDescriptionId(LPCWSTR pszPath, SHDESCRIPTIONID *pdid)
+{
+	HRESULT hr;
+	LPITEMIDLIST pidl;
+	if (SUCCEEDED(hr = SHParseDisplayName(pszPath, NULL,
+		&pidl, 0, NULL))) 
+	{
+			IShellFolder *psf;
+			LPCITEMIDLIST pidlChild;
+			if (SUCCEEDED(hr = SHBindToParent(pidl, IID_IShellFolder,
+				(void**)&psf, &pidlChild))) 
+			{
+					hr = SHGetDataFromIDList(psf, pidlChild,
+						SHGDFIL_DESCRIPTIONID, pdid, sizeof(*pdid));
+					psf->Release();
+			}
+			CoTaskMemFree(pidl);
+	}
+	return hr;
+}
+
+BOOL IsRecycle(TCHAR *fn)
+{
+	BOOL bResult=FALSE;
+
+	SHDESCRIPTIONID did;
+	if (SUCCEEDED(GetFolderDescriptionId(fn, &did)) &&
+		did.clsid == CLSID_RecycleBin) 
+		bResult=TRUE;
+	
+
+	return bResult;
+}
+
 // return TRUE if the file name is "." or ".." 
 BOOL IsDots(TCHAR* fn)
 {
@@ -154,11 +189,13 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 		findResult=TRUE;
 		while(findResult)
 		{
-			if( IsDots(findFileData.cFileName) )
+			if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)
 			{
+				//system file, e.recycled, should ignore it
 			}
 			//Ŀ¼
-			else if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			else if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY &&
+				!IsDots(findFileData.cFileName))
 			{
 				if(bIncludeDir)
 					AddFolder(findFileData.cFileName,bIncludeDir);

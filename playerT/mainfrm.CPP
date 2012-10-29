@@ -25,7 +25,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 		if(nChar==VK_F3)
 			ShowSearchDialog();
 		if(nChar=='f' ||nChar=='F')
-			if (GetKeyState(VK_CONTROL) &0x80)
+			if (GetKeyState(VK_CAPITAL) &0x80)
 				ShowSearchDialog();
 	}
 
@@ -663,6 +663,18 @@ void CMainFrame::ShowDlgProcessFile()
 LRESULT CMainFrame::OnFileFinded(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	pDlgProcess->ShowFileName((TCHAR*)wParam,(BOOL)lParam);
+	return 0;
+}
+
+LRESULT CMainFrame::OnChangePLColorDefault(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	m_pPlaylistView->ChangeColorDefault();
+	return 0;
+}
+
+LRESULT CMainFrame::OnChangePLColorBlue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	m_pPlaylistView->ChangeColorBlue();
 	return 0;
 }
 

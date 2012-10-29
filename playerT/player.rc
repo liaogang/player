@@ -292,6 +292,11 @@ BEGIN
         BEGIN
             MENUITEM "Spectrum",                    ID_MENU_FFTTEST
         END
+        POPUP "ChangePlayListColor"
+        BEGIN
+            MENUITEM "Default",                     ID_CHANGEPLAYLISTCOLOR_DEFAULT
+            MENUITEM "Blue",                        ID_CHANGEPLAYLISTCOLOR_BLUE
+        END
     END
     POPUP "Play"
     BEGIN

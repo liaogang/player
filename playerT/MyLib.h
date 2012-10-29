@@ -57,7 +57,7 @@ public:
 
 	void SetActivePlaylist(PlayList* p){m_pActivePlaylist=p;}
 	PlayList* ActivePlaylist(){return m_pActivePlaylist;}
-	PlayList* NewPlaylist(std::tstring playlistname=_T("新建播放列表"));
+	PlayList* NewPlaylist(std::tstring playlistname=_T("新建播放列表1"));
 	void DeletePlayList(PlayList *pl);
 
 	static PlayList* AddFolderToCurrentPlayList(LPCTSTR pszFolder);
