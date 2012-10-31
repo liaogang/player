@@ -10,6 +10,7 @@
 #define IDD_DLG_LYRIC1                  202
 #define IDD_DIALOG1                     203
 #define IDD_DIALO_FFT                   204
+#define IDD_DIALG_FFT                   204
 #define IDD_DIALOG2                     205
 #define IDD_DIALOG3                     206
 #define IDD_PROCESSING                  206
@@ -20,6 +21,8 @@
 #define IDD_DIALOG4                     211
 #define IDR_MENU1                       212
 #define IDR_MENU2                       214
+#define IDD_DIALOG5                     215
+#define IDD_DLG_FFT_OUTLINE             215
 #define IDC_TREE                        1000
 #define IDC_RESET_ALL                   1001
 #define IDC_RESET_THIS                  1002
@@ -114,7 +117,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        215
+#define _APS_NEXT_RESOURCE_VALUE        216
 #define _APS_NEXT_COMMAND_VALUE         32847
 #define _APS_NEXT_CONTROL_VALUE         1023
 #define _APS_NEXT_SYMED_VALUE           101

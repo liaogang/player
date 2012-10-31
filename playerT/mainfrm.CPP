@@ -8,9 +8,8 @@
 #include "DlgProcessing.h"
 #include "PlayListView.h"
 #include "DialogSearch.h"
-#include "DialogFFT.h"
 #include "DialogLyric.h"
-
+#include "DialogFFTOutline.h"
 
 #include <mpg123.h>
 #include <string>
@@ -238,14 +237,15 @@ LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 
  LRESULT CMainFrame::OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
  {
- 	if (!m_pDlgFFT)
+ 	if (!m_pDlgFFTOutline)
  	{
- 		m_pDlgFFT=new DialogFFT;
- 		m_pDlgFFT->Create(this->m_hWnd);
+ 		m_pDlgFFTOutline=new DialogFFTOutline;
+ 		m_pDlgFFTOutline->Create(m_hWnd);
  	}
  
  
- 	m_pDlgFFT->Show();
+ 	m_pDlgFFTOutline->Show();
+
  	return 0;
  }
 
@@ -813,3 +813,51 @@ LRESULT CMyTabBar::OnPlSave(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BO
 	return 0;
 }
 
+
+
+
+
+LRESULT DialogFFT::OnFullScreen(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	parent->OnFullScreen();
+
+// 	if (!bFullScreen)
+// 	{
+// 		RECT windowRC;
+// 		RECT clientRC;
+// 
+// 		GetWindowPlacement(&oldWpm);
+// 
+// 		GetWindowRect(&windowRC);	
+// 		GetClientRect(&clientRC);
+// 		ClientToScreen(&clientRC);
+// 
+// 
+// 		int nFullWidth=GetSystemMetrics(SM_CXSCREEN);
+// 		int nFullHeight=GetSystemMetrics(SM_CYSCREEN);
+// 
+// 
+// 		fullScreecRC.left=windowRC.left-clientRC.left;
+// 		fullScreecRC.top=windowRC.top-clientRC.top;
+// 		fullScreecRC.right=nFullWidth+(windowRC.right-clientRC.right);
+// 		fullScreecRC.bottom=nFullHeight+(windowRC.bottom-clientRC.bottom);
+// 
+// 		WINDOWPLACEMENT wpm;
+// 		wpm.length=sizeof(WINDOWPLACEMENT);
+// 		wpm.flags=0;
+// 		wpm.showCmd=SW_SHOWNORMAL;
+// 		wpm.rcNormalPosition=fullScreecRC;
+// 
+// 		SetWindowPlacement(&wpm);
+// 		SetWindowPos(HWND_TOPMOST,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE);
+// 		bFullScreen=TRUE;
+// 	}
+// 	else
+// 	{
+// 		ShowWindow(SW_HIDE);
+// 		SetWindowPlacement(&oldWpm);
+// 		SetWindowPos(HWND_NOTOPMOST,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE);
+// 		bFullScreen=FALSE;
+// 	}
+	return 0;	
+}

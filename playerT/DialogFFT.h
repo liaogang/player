@@ -1,12 +1,14 @@
-#pragma once
+
+class DialogFFTOutline;
+
 using namespace std;
-#include "SpectrumAnalyser.h"
-class DialogFFT : public CDialogImpl<DialogFFT>
-	,public CDialogResize<DialogFFT>
+
+#pragma once
+class DialogFFT : public CWindowImpl<DialogFFT>
 {
 public:
 	HMENU menu,trackMenu;
-	DialogFFT()
+	DialogFFT():bFullScreen(FALSE)
 	{
 		menu=::LoadMenu(NULL,MAKEINTRESOURCE (IDR_MENU1) );
 		trackMenu=::GetSubMenu(menu,0);
@@ -18,10 +20,11 @@ public:
 	}
 
 public:
-	enum { IDD = IDD_DIALO_FFT };
+	enum { IDD = IDD_DIALG_FFT };
 
 	BEGIN_MSG_MAP_EX(DialogFFT)
-		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+		MESSAGE_HANDLER(WM_CREATE,OnCreate)
+		//MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 		MESSAGE_HANDLER(WM_SIZE,OnSize)
@@ -37,19 +40,19 @@ public:
 		//COMMAND_ID_HANDLER(ID_BANDS_160,OnBands160)
 	END_MSG_MAP()
 
-	BEGIN_DLGRESIZE_MAP(DialogFFT)
-	END_DLGRESIZE_MAP()
+
 
 	// Handler prototypes (uncomment arguments if needed):
 	//	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	//	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 	
-	
-	LRESULT OnFullScreen(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	{
-		return 0;	
-	}
+	BOOL bFullScreen;
+	WINDOWPLACEMENT oldWpm;
+	RECT fullScreecRC;
+	DialogFFTOutline *parent;
+	LRESULT OnFullScreen(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+
 
 	LRESULT OnBands10(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
@@ -91,17 +94,18 @@ public:
 		::TrackPopupMenu(trackMenu,TPM_LEFTALIGN,point.x,point.y,0,m_hWnd,0);
 	}
 
-	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		DlgResize_Init(false,false);
-		CenterWindow(GetParent());
+		//DlgResize_Init(false,false);
+		//CenterWindow(GetParent());
 		GetClientRect(&rc);
 
 		//dscrl->SetSpectrumRect(CRect(0,0,500,400));
 		//dscrl->SetFftEnvironment(this->m_hWnd);
 		CBasicPlayer::shared()->m_pSpectrumAnalyser->DCRECTInit(m_hWnd,GetDC(),rc);
 		CBasicPlayer::shared()->m_pSpectrumAnalyser->Init(FALSE);
-		return TRUE;
+		bHandled=FALSE;
+		return 0;
 	}
 
 	
@@ -127,8 +131,10 @@ public:
 		rc.right=_width;
 		rc.bottom=_height;
 
-		CBasicPlayer::shared()->m_pSpectrumAnalyser->m_rc=rc;
-		
+		//CBasicPlayer::shared()->m_pSpectrumAnalyser->m_rc=rc;
+		CBasicPlayer::shared()->m_pSpectrumAnalyser->DCRECTInit(m_hWnd,GetDC(),rc);
+		CBasicPlayer::shared()->m_pSpectrumAnalyser->Init(FALSE);
+
 		bHandled=FALSE;
 		return 0;
 	}
