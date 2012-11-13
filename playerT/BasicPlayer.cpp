@@ -234,7 +234,10 @@ void CBasicPlayer::SlowDownVol()
 			m_pPlayerThread->m_lpDSBuffer->Stop();
 			if(m_bCloseFileInSlowDown)
 			{
-				::PostMessage(m_pMainFrame->m_hWnd,WM_TRACKPOS,0,0);
+				trackPosInfo posInfo;
+				posInfo.used=0;
+				posInfo.left=0;
+				::PostMessage(m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)&posInfo,0);
 				m_pPlayerThread->Teminate();
 				m_pFile->Close();
 			}

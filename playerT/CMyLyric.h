@@ -45,19 +45,37 @@ public:
 	END_MSG_MAP()
 
 		RECT rc ,lrcRect;
+		RECT rcPre,rcCur,rcNext;
 		SIZE sz;
 		std::tstring lrcText;
 		int lrcLines,lrcTextHeight,lrcSpare,lrcHeight;
 		BOOL bLrcReady;
 		PlayListItem* track;
 		double used,lefted;
-		vector<LrcLine>::iterator preLine,lastLine;
+		vector<LrcLine>::iterator preLine,curLine,nextLine;
 		RECT tRc;
 		
 		std::wstring title;
 		LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			::GetClientRect(T::m_hWnd,&rc);
+			GetClientRect(&rc);
+
+			int stringHeight=sz.cy;
+			rcPre=rc;
+			rcPre.bottom=rcPre.top+stringHeight;
+
+			rcCur=rcPre;
+			rcCur.top+=stringHeight;
+			rcCur.bottom=rcCur.top+stringHeight;
+
+			rcNext=rcCur;
+			rcNext.top+=stringHeight;
+			rcNext.bottom=rcNext.top+stringHeight;
+
+			lrcRect=rcPre;
+			lrcRect.bottom=rcNext.bottom;
+
+
 			bHandled=FALSE;
 			return 0;
 		}
@@ -83,22 +101,44 @@ public:
 
 			if(!track || !track->m_bLrcFromLrcFile)
 				return 0;
+			if (!bLrcReady)
+				return 0;
 
-			used=wParam;
-			lefted=lParam;
+			trackPosInfo *posInfo=(trackPosInfo*)wParam;
+			used=posInfo->used;
+			lefted=posInfo->left;
+
 
 			if (lefted=0)
 				ResetTitle();
 			
 			
 			//used= used%sz            //以行高为基数，取整。
-			double lrcContent=used+lefted;
-			lrcRect=rc;
-			lrcRect.top=  (rc.bottom-rc.top)/2 - (used/lrcContent) * lrcLines*lrcHeight;
+			//double lrcContent=used+lefted;
+			//lrcRect=rc;
+			//lrcRect.top=  (rc.bottom-rc.top)/2 - (used/lrcContent) * lrcLines*lrcHeight;
+			
+			//-----------------------------------------
+			double totalsec=nextLine->time.GetTotalMillisecond()/100;
+			if (used > totalsec)
+			{
+				//change line
+				preLine=curLine;
+				curLine=nextLine;
+				nextLine++;
 
+				AtlTrace(_T("%s\n"),nextLine->text.c_str());
+
+				InvalidateRect(&lrcRect);
+
+				if (nextLine==track->lyricFromLrcFile.end())
+					bLrcReady=FALSE;
+			}
+			/*
+			//-----------------------------------------
 			//-----------------------------------------
 			vector<LrcLine>::iterator i;
-			for (i=track->lyricFromLrcFile.begin(),lastLine=i,preLine=i,lrcLines=0;
+			for (i=track->lyricFromLrcFile.begin(),lastLine=i,preLine=i,curLine=i,nextLine=i,lrcLines=0;
 				i!=track->lyricFromLrcFile.end();
 				preLine=i,++i,++lrcLines)
 			{
@@ -118,9 +158,9 @@ public:
 					break;
 				}
 				//lrcText+=(*i).text+_T("\n");
-			}
+			}//for
 			//-----------------------------------------
-
+			*/
 
 			return 0;
 		}
@@ -153,9 +193,14 @@ public:
 			if(!bLrcReady);
 			else if(track->m_bLrcFromLrcFile)
 			{
-				LrcLine l=*preLine;
-				if (!l.text.empty() )
-					::DrawText(ps.hdc,(*preLine).text.c_str(),(*preLine).text.length(),&rc,DT_CENTER);	
+				//LrcLine l=*preLine;
+				//if (!l.text.empty())
+				{
+					::DrawText(ps.hdc,preLine->text.c_str(),preLine->text.length(),&rcPre,DT_CENTER);
+					::DrawText(ps.hdc,curLine->text.c_str(),curLine->text.length(),&rcCur,DT_CENTER);	
+					::DrawText(ps.hdc,nextLine->text.c_str(),nextLine->text.length(),&rcNext,DT_CENTER);
+				}
+							
 			}
 			else if(track->m_bLrcInner)
 			{
@@ -177,15 +222,7 @@ public:
 			track=playlist->curTrack();
 			if(!track) return;
 
-			if(track->lycPath.empty())
-				ResetTitle();
-			else{
-				title=track->lycPath;
-				ChangedTitle();
-			}
 
-
-			
 			if (1)
 			{
 				LrcMng *sLM=LrcMng::Get();
@@ -196,6 +233,20 @@ public:
 				}
 			}
 
+			if(track->lycPath.empty())
+				ResetTitle();
+			else{
+				title=track->lycPath;
+				ChangedTitle();
+			}
+
+			if (bLrcReady)
+			{
+				*preLine=lineEmpty;
+				curLine=track->lyricFromLrcFile.begin();
+				nextLine=track->lyricFromLrcFile.begin();
+				nextLine++;
+			}
 			//无内嵌歌词,搜索*.LRCY文件
 			//track->m_bLrcInner
 		}
@@ -207,9 +258,8 @@ public:
 			lrcSpare=3;
 			lrcHeight=lrcTextHeight+lrcSpare;
 
-			GetClientRect(&tRc);
-			lrcRect.bottom=0;lrcRect.left=0;lrcRect.top=0;lrcRect.right=0;
-			rc.bottom=0;rc.left=0;rc.top=0;rc.right=0;
+		
+
 			track=NULL;
 			bLrcReady=FALSE;
 		}

@@ -16,6 +16,7 @@
 using namespace std;
 
 
+
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
 	if (pMsg->message==WM_KEYDOWN)
@@ -356,7 +357,7 @@ LRESULT CMainFrame::OnConfigMediaLib(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 
 LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	CDialogLyric *dlg=NULL;
+	static CDialogLyric *dlg=NULL;
 	if (!dlg){
 		dlg=new CDialogLyric;
 		dlg->Create(this->m_hWnd);
@@ -394,12 +395,10 @@ LRESULT CMainFrame::OnPlayDirectly(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 LRESULT CMainFrame::OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	if (!m_pTrackBar->m_bPressing){
-		double used,lefted;
-		used=wParam;
-		lefted=lParam;
+		trackPosInfo *posInfo=(trackPosInfo*)wParam;
 		bHandled=FALSE;
-		m_pTrackBar->SetRange(0,used+lefted);
-		m_pTrackBar->SetPos(used);
+		m_pTrackBar->SetRange(0,(int)(posInfo->used+posInfo->left));
+		m_pTrackBar->SetPos((int)posInfo->used);
 	}
 
 	if (m_dlgLrc && ::IsWindow(m_dlgLrc->m_hWnd))

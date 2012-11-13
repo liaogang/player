@@ -5,6 +5,8 @@
 #include "MusicFile.h"
 #include "mainfrm.h"
 
+
+
 CPlayerThread::CPlayerThread(CBasicPlayer *pPlayer):CThread(TRUE),
 m_lpDSBuffer(NULL),m_lpDsound(NULL),m_dwCurWritePos(-1),m_bKeepPlaying(TRUE)
 {
@@ -76,11 +78,17 @@ void CPlayerThread::WriteDataToDSBuf()
 	{
 		if(m_pPlayer->m_bStopped)
 		{
-			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,0,100);
+			trackPosInfo posInfo;
+			posInfo.used=0;
+			posInfo.left=100;
+			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)&posInfo,0);
 		}
 		else
 		{
-			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,0,0);
+			trackPosInfo posInfo1;
+			posInfo1.used=0;
+			posInfo1.left=0;
+			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)&posInfo1,0);
 			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKSTOPPED,0,0);
 		}
 
@@ -91,9 +99,9 @@ void CPlayerThread::WriteDataToDSBuf()
 		return;
 	}
 
-	DOUBLE used,lefted;
-	m_pPlayer->m_pFile->GetPos(&used,&lefted);
-	::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(int)used,(int)lefted);
+	trackPosInfo posInfo;
+	m_pPlayer->m_pFile->GetPos(&posInfo.used,&posInfo.left);
+	::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)&posInfo,0);
 	
 	DWORD playCursor;
 	if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return;

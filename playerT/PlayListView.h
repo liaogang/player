@@ -322,7 +322,7 @@ public:
 			lvc.mask = nMask;
 			lvc.fmt = nFmt;
 			lvc.pszText = (LPTSTR)strItem;
-			lvc.cx = stringWidth ;//GetStringWidth(lvc.pszText) + cxOffset;
+			lvc.cx = stringWidth ;
 			if(nMask & LVCF_SUBITEM)
 				lvc.iSubItem = (nSubItem != -1) ? nSubItem : nItem;
 			return InsertColumn(nItem, &lvc);

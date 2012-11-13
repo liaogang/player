@@ -1,4 +1,13 @@
+#pragma once 
+struct trackPosInfo
+{
+	double used;
+	double left;
+};
+
 #define  WM_TRACKPOS          (WM_USER+22)  
+
+
 #define  WM_TRACKSTOPPED      (WM_USER+34)//音轨播放完毕
 #define  WM_NEW_TRACK_STARTED (WM_USER+37)//开始音轨播放
 //#define  WM_PAUSED            (WM_USER+38)//开始音轨播放

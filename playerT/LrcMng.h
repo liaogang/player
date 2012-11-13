@@ -43,7 +43,9 @@ struct TagTypeInfo
 	TagType tag;
 
 	UINT minute;
-	UINT second;                                                                                                                                                                                                                                                                                                                                                                                                                                 
+	UINT second;
+	UINT msec;
+
 	std::tstring identity1;
 	std::tstring identity2;
 };
@@ -79,12 +81,14 @@ public:
 	LrcTime time;
 	std::tstring text;
 
-	LrcLine(UINT min,UINT sec,std::tstring text)
-		:time(min,sec),text(text){}
+	LrcLine(UINT min,UINT sec,UINT msec,std::tstring text)
+		:time(min,sec,msec),text(text){}
 	int operator - (LrcLine& r){return (time.minute-r.time.minute)*60+(time.second-r.time.second);}
 };
-
+const std::tstring strEmpty;
+const LrcLine lineEmpty(0,0,0,strEmpty);
 typedef vector<LrcLine> LrcLines;
+
 class LrcMng
 {
 public:
@@ -92,9 +96,9 @@ public:
 public:
 	vector<LrcLine> lib;
 	void SortLrcLib();
-	void InsertIntoLib(UINT minute,UINT second,std::tstring& pLine)
+	void InsertIntoLib(UINT minute,UINT second,UINT msec,std::tstring& pLine)
 	{
-		LrcLine temp(minute,second,pLine);
+		LrcLine temp(minute,second,msec,pLine);
 		lib.push_back(temp);
 	}
 public:
@@ -122,7 +126,7 @@ public:
 		FILE * pFile;
 		int filesize;
 		pFile = _tfopen( pstrPath, _T("rb") );
-		if (pFile!=NULL)
+		if (pFile)
 		{
 			//get the file size
 			fseek(pFile,0,SEEK_END);
@@ -160,7 +164,7 @@ private:
 		TagTypeInfo tagInfo;
 		tagInfo.tag=InvalidTag;
 
-		vector<UINT> miniteList,secondList;
+		vector<UINT> miniteList,secondList,msecList;
 
 		std::tstring::iterator first;
 		std::tstring::iterator last;
@@ -175,6 +179,7 @@ private:
 				//save ,add to lib later
 				miniteList.push_back(tagInfo.minute);
 				secondList.push_back(tagInfo.second);
+				msecList.push_back(tagInfo.msec);
 			}
 			else if(tagInfo.tag==IdentifyTag)
 			{
@@ -183,9 +188,11 @@ private:
 		}
 
 		if (tagInfo.tag==TimeTag){
-			vector<UINT>::iterator k,j;
-			for (k=miniteList.begin(),j=secondList.begin();k!=miniteList.end();k++,j++)
-				InsertIntoLib(*k,*j,s);
+			vector<UINT>::iterator k,j,q;
+			for (k=miniteList.begin(),j=secondList.begin(),q=msecList.begin();
+				k!=miniteList.end();
+				k++,j++,q++)
+				InsertIntoLib(*k,*j,*q,s);
 		}
 	}
 
@@ -231,7 +238,7 @@ public:
 			tagInfo.tag=TimeTag;		
 			std::tstring tmp(v1,v2);
 			LPCTSTR pbuf=tmp.c_str();
-			_stscanf(pbuf,_T("%2d:%2d"),&tagInfo.minute,&tagInfo.second);
+			_stscanf(pbuf,_T("%2d:%2d.%2d"),&tagInfo.minute,&tagInfo.second,&tagInfo.msec);
 		}
 		else 
 		{
