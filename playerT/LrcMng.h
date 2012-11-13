@@ -52,14 +52,24 @@ struct TagTypeInfo
 class LrcTime
 {
 public:
+
 	LrcTime(UINT min,UINT sec)
-		:minute(min),second(sec)
+		:minute(min),second(sec),msec(0)
 	{
 	}
+
+	LrcTime(UINT min,UINT sec,UINT ms)
+		:minute(min),second(sec),msec(ms)
+	{
+		
+	}
+
 	UINT minute;
 	UINT second;
+	UINT msec;   //∫¿√Î=0.01√Î
 
-	UINT GetTotalSec(){return minute*60+second;}
+	inline UINT GetTotalSec(){return minute*60+second;}
+	inline UINT GetTotalMillisecond(){return GetTotalSec()*100+msec;} 
 };
 
 

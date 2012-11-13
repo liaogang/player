@@ -92,7 +92,7 @@ public:
 		MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
-		
+		COMMAND_ID_HANDLER(ID_EDIT_SEARCH, OnEditSearch)
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_NEW, OnFileNew)
 		COMMAND_ID_HANDLER(ID_VIEW_TOOLBAR, OnViewToolBar)
@@ -145,6 +145,12 @@ public:
 		return 1;
 	}
 
+	
+	LRESULT OnEditSearch(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		ShowSearchDialog();
+		return 0;
+	}
 
 	LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
@@ -175,7 +181,6 @@ public:
 		rebar.ShowBand(nBandIndex, bVisible);
 
 		
-
 		UISetCheck(ID_VIEW_TOOLBAR, bVisible);
 		UpdateLayout();
 		return 0;
@@ -200,7 +205,6 @@ public:
 
 	LRESULT OnDrawSpectrum(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		//m_pDsoundControl->DrawSpectrum();
 		return 0;
 	}
 

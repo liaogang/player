@@ -56,12 +56,6 @@ BEGIN
     CONTROL         "",IDC_SLIDER1,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,57,19,173,19
 END
 
-IDD_DIALG_FFT DIALOGEX 0, 0, 234, 64
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_BORDER | WS_SYSMENU
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-END
-
 IDD_PROCESSING DIALOGEX 0, 0, 365, 54
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "processing..."
@@ -145,7 +139,7 @@ BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,19,35,20,20
 END
 
-IDD_DLG_FFT_OUTLINE DIALOGEX 0, 0, 316, 180
+IDD_DLG_FFT_OUTLINE DIALOGEX 0, 0, 231, 109
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "频谱"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -182,14 +176,6 @@ BEGIN
         RIGHTMARGIN, 279
         TOPMARGIN, 7
         BOTTOMMARGIN, 176
-    END
-
-    IDD_DIALG_FFT, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 227
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 57
     END
 
     IDD_PROCESSING, DIALOG
@@ -241,9 +227,9 @@ BEGIN
     IDD_DLG_FFT_OUTLINE, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 309
+        RIGHTMARGIN, 224
         TOPMARGIN, 7
-        BOTTOMMARGIN, 173
+        BOTTOMMARGIN, 102
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -254,7 +240,7 @@ END
 // Menu
 //
 
-IDR_MENU1 MENU
+IDR_MENU_SPECTRUM MENU
 BEGIN
     POPUP "SPECTRUM"
     BEGIN
@@ -339,7 +325,7 @@ BEGIN
     END
 END
 
-IDR_MENU2 MENU
+IDR_MENU_PLAYLIST MENU
 BEGIN
     POPUP "列表右键"
     BEGIN
@@ -350,7 +336,7 @@ BEGIN
         MENUITEM "复制",                          ID_32837
         MENUITEM "粘贴",                          ID_32839
         MENUITEM SEPARATOR
-        MENUITEM "打开所在文件夹",                     ID_32828
+        MENUITEM "打开所在文件夹",                     ID_OPEN_FILE_PATH
         POPUP "文件操作"
         BEGIN
             MENUITEM "删除",                          ID_32833
@@ -360,6 +346,41 @@ BEGIN
         END
         MENUITEM SEPARATOR
         MENUITEM "属性",                          ID_32829
+    END
+END
+
+IDR_MENU_LRC MENU
+BEGIN
+    POPUP "歌词面板"
+    BEGIN
+        MENUITEM "重载歌词",                        ID_32848
+        MENUITEM SEPARATOR
+        MENUITEM "参数选项",                        ID_32850
+        MENUITEM SEPARATOR
+        MENUITEM "歌词搜索",                        ID_32851
+        MENUITEM "关于当前歌词",                      ID_32852
+        MENUITEM SEPARATOR
+        MENUITEM "编辑歌词",                        ID_LRC_EDIT
+        MENUITEM "打开歌词文件",                      ID_OPEN_LRCFILE
+        MENUITEM "打开文件位置",                      ID_OPEN_LRC_PATH
+        MENUITEM SEPARATOR
+        POPUP "正在播放"
+        BEGIN
+            MENUITEM "属性",                          ID_32856
+        END
+    END
+END
+
+IDR_MENU_TABBAR MENU
+BEGIN
+    POPUP "选项卡右键"
+    BEGIN
+        MENUITEM "另存为",                         ID_TABBAR_SAVEAS
+        MENUITEM "打开所在文件夹",                     ID_TABBAR_OPEN_FILEFOLDER
+        MENUITEM SEPARATOR
+        MENUITEM "重命名",                         ID_TABBAR_RENAME
+        MENUITEM "删除",                          ID_TABBAR_DEL
+        MENUITEM SEPARATOR
     END
 END
 

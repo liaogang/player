@@ -58,14 +58,10 @@ CSpectrumAnalyser::CSpectrumAnalyser(CBasicPlayer *pB_)
 	m_hbrush1 = CreateSolidBrush(RGB(58, 110, 165));
 	m_hbrush2=CreateSolidBrush(RGB(153,153,153));
 	bands=30;
-	m_iSpectrum_Delay=10;
+	m_iSpectrum_Delay=20;
 
-	for(int i=0;i<90;i++)
-	{
-		intPeaks[i]=0;
-		intPeaksDelay[i]=0;
-	}
-
+	memset(intPeaks,0,sizeof(intPeaks));
+	memset(intPeaksDelay,0,sizeof(intPeaksDelay));
 }
 
 CSpectrumAnalyser::CSpectrumAnalyser(void)
@@ -89,17 +85,21 @@ void CSpectrumAnalyser::Excute()
 {
 	while(1)
 	{
-		ProcessSamples();
-		::InvalidateRect(m_hWnd,&m_rc,TRUE);
-		::Sleep(35);
+		if(!pB->stoped() && !pB->m_bPaused)
+		{
+			ProcessSamples();
+			::InvalidateRect(m_hWnd,&m_rc,TRUE);
+			::Sleep(35);
+		}
+		else
+		{
+			::Sleep(500);
+		}
 	}          
 }
 
 void CSpectrumAnalyser::ProcessSamples()
 {
-	if (pB->stoped())
-		return;
-	
 	int pos;
 	pB->m_pPlayerThread->m_lpDSBuffer->GetCurrentPosition((LPDWORD)&pos,NULL);
 	pos+=350;          
@@ -182,15 +182,15 @@ void CSpectrumAnalyser::DrawSpectrum()
 		// -- Log filter.
 		wFs = (wFs * (float) log((float)(band + 2.0f)));
 
- 		if (wFs>0.005f && wFs <0.009f)
- 			wFs*=1.2f;
- 		else if (wFs >0.01f && wFs <0.1f)
- 			wFs*=1.4f;
+//  		if (wFs>0.005f && wFs <0.009f)
+//  			wFs*=1.2f;
+//  		else if (wFs >0.01f && wFs <0.1f)
+//  			wFs*=1.4f;
 // 		else if ( wFs > 0.1f && wFs < 0.5f)
 // 			wFs*=0.8f;
 
-//		if (wFs > 1.0f)  wFs = 0.9f;
-        if (wFs > 1.0f)  wFs = 1.0f;
+		if (wFs > 1.0f)  wFs = 0.9f;
+//        if (wFs > 1.0f)  wFs = 1.0f;
 
 		// -- Compute SA decay...
 		if(abs(wFs - m_floatMag[a] )>  floatSadFrr*2)
@@ -226,8 +226,8 @@ void CSpectrumAnalyser::DrawSpectrum()
 
 void CSpectrumAnalyser::drawSpectrumAnalyserBar(RECT *pRect,int x,int cy,int width,int height,int band)
 {
-
-	CONST INT hChange=20;    //pisexÏñËØ
+	/*
+	CONST INT hChange=300;    //pisexÏñËØ
 	if (height-m_fOldwFs[band]< hChange && m_fOldwFs[band]-height< hChange)
 	{
 		height=m_fOldwFs[band];
@@ -249,7 +249,7 @@ void CSpectrumAnalyser::drawSpectrumAnalyserBar(RECT *pRect,int x,int cy,int wid
 		// 			height=m_fOldwFs[band] + c*3;
 		// 		}
 	}
-
+	*/
 
 
 	static HBRUSH brush= CreateSolidBrush(RGB(58, 110, 165));

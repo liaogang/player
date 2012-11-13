@@ -9,7 +9,7 @@ template <typename T>
 class CMyLyric:public T
 {
 public:
-	HMENU menu;
+	HMENU menu,trackMenu;
 	HBRUSH brush,oldBrush;
 	HPEN  newPen,oldPen; 
 	CMyLyric()
@@ -17,8 +17,10 @@ public:
 		brush=::GetSysColorBrush(/*COLOR_3DFACE*/COLOR_BTNSHADOW);
 		newPen=(HPEN)::CreatePen(PS_NULL,0,RGB(255,255,255));
 
-		menu=::CreatePopupMenu();
-		::InsertMenu(menu,0,MF_BYCOMMAND|MF_BYPOSITION,ID_MENU_FOLDER_OPEN,_T("打开所在文件夹"));
+		
+
+		menu=::LoadMenu(NULL,MAKEINTRESOURCE (IDR_MENU_LRC) );
+		trackMenu=::GetSubMenu(menu,0);
 	}
 
 	~CMyLyric()
@@ -28,7 +30,7 @@ public:
 	}
 
 public:
-	BEGIN_MSG_MAP_EX(CDialogLyric)
+	BEGIN_MSG_MAP_EX(CMyLyric)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		MSG_WM_PAINT(OnPaint)
 		MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
@@ -38,8 +40,9 @@ public:
 		MSG_WM_RBUTTONUP(OnRButtonUp)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
-		COMMAND_ID_HANDLER(ID_MENU_FOLDER_OPEN, OnMenuFolderOpen)
-		END_MSG_MAP()
+		COMMAND_ID_HANDLER(ID_OPEN_LRC_PATH, OnMenuFolderOpen)
+		COMMAND_ID_HANDLER(ID_OPEN_LRCFILE, OnOpenLrcFile)
+	END_MSG_MAP()
 
 		RECT rc ,lrcRect;
 		SIZE sz;
@@ -69,7 +72,7 @@ public:
 		void OnRButtonUp(UINT nFlags, CPoint point)
 		{
 			::ClientToScreen(m_hWnd,&point);
-			::TrackPopupMenu(menu,TPM_LEFTALIGN,point.x,point.y,0,m_hWnd,0);
+			::TrackPopupMenu(trackMenu,TPM_LEFTALIGN,point.x,point.y,0,m_hWnd,0);
 		}
 
 		LRESULT OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -226,6 +229,21 @@ public:
 		void ResetTitle()
 		{
 			SetWindowText(_T("歌词"));
+		}
+
+		
+		LRESULT OnOpenLrcFile(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+		{
+			if(track->m_bLrcFromLrcFile)
+			{
+				ShellExecute(NULL,L"open",
+					L"explorer",
+					track->lycPath.c_str(),
+					L"",
+					SW_SHOW);
+			}
+
+			return 0;
 		}
 
 		LRESULT OnMenuFolderOpen(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)

@@ -24,7 +24,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 		if(nChar==VK_F3)
 			ShowSearchDialog();
 		if(nChar=='f' ||nChar=='F')
-			if (GetKeyState(VK_CAPITAL) &0x80)
+			if (GetKeyState(VK_CONTROL) &0x80)
 				ShowSearchDialog();
 	}
 
@@ -258,7 +258,7 @@ LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 
 LRESULT CMainFrame::OnOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	const TCHAR szFilter[]=_T("wave files(*.wav)\0*.wav\0mp3 files(*.mp3)\0*.mp3\0");
+	const TCHAR szFilter[]=_T("mp3 files(*.mp3)\0*.mp3\0wave files(*.wav)\0*.wav\0");
 	CFileDialog dlg(TRUE,NULL,NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,szFilter,this->m_hWnd);
 	if(dlg.DoModal()==IDOK)
 	{
@@ -703,29 +703,34 @@ LRESULT CPlayListView::OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled)
 	PlayListItem *track=m_ppl->m_songList[iItemIndx];
 	if(!track) return 0;
 	TCHAR year[25]={0};
+	TCHAR strIndex[5]={0};
 	if (pItem->mask & LVIF_TEXT) //valid text buffer?
 	{
 		switch(pItem->iSubItem){
-		case 0: //fill in main text
+		case COLUMN_INDEX_INDEX:
+			wsprintf(strIndex,_T("%d"),track->itemIndex);
+			lstrcpy(pItem->pszText,strIndex);
+			break;
+		case COLUMN_INDEX_TITLE: //fill in main text
 			lstrcpy(pItem->pszText, 
 				track->title.c_str());
 			break;
-		case 1: //fill in sub item 1 text
+		case COLUMN_INDEX_ARTIST: //fill in sub item 1 text
 			lstrcpy(pItem->pszText,
 				track->artist.c_str());
 			break;
-		case 2: //fill in sub item 2 text
+		case COLUMN_INDEX_ALBUM: //fill in sub item 2 text
 			lstrcpy(pItem->pszText,
-				track->artist.c_str());
+				track->album.c_str());
 			break;
-		case 3:
+		case COLUMN_INDEX_YEAR:
 			wsprintf(year,_T("%u"),track->year);
 			lstrcpy(pItem->pszText,year);
 			break;
-		case 4:
+		case COLUMN_INDEX_COMMENT:
 			lstrcpy(pItem->pszText,track->comment.c_str());
 			break;
-		case 5:
+		case COLUMN_INDEX_GENRE:
 			lstrcpy(pItem->pszText,track->genre.c_str());
 			break;
 		}
@@ -813,6 +818,25 @@ LRESULT CMyTabBar::OnPlSave(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BO
 	return 0;
 }
 
+LRESULT CMyTabBar::OnPlOpenFolder(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	PlayList* pl= GetTabPlayList(RtBtnTab);
+	if(pl)
+	{
+		std::tstring parameters(_T("/select,"));
+		parameters+=pl->m_saveLocation;
+
+		ShellExecute(NULL,
+			_T("open"),
+			_T("explorer"),
+			parameters.c_str(),
+			0,
+			SW_SHOWNORMAL
+			);
+	}
+
+	return 0;
+}
 
 
 

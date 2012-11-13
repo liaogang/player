@@ -1,15 +1,5 @@
-
 inline HRGN CreateRectRgn(RECT &rc){return ::CreateRectRgn(rc.left,rc.top,rc.right,rc.bottom);}
 
-#define ID_MENU_DELPL (0XF000-210)
-#define STR_MENU_DELPL _T("É¾³ý")
-
-
-#define ID_MENU_PL_RENAME  (0XF000-211)
-#define STR_MENU_PL_RENAME  _T("ÖØÃüÃû")
-
-#define ID_MENU_PL_SAVE (0XF000-212)
-#define STR_MENU_PL_SAVE   _T("Áí´æÎª")
 #include <map>
 
 class CMyTabBar:public CWTLTabViewCtrl
@@ -17,16 +7,14 @@ class CMyTabBar:public CWTLTabViewCtrl
 public:
 	HPEN  newPen,oldPen; 
 	HBRUSH brush;
-	HMENU  menu;
+	HMENU  menu,subMenu;
 	CMyTabBar()
 	{
 		brush=::GetSysColorBrush(COLOR_3DFACE);
 		newPen=(HPEN)::CreatePen(PS_SOLID,0,RGB(255,255,255));
 
-		menu=::CreatePopupMenu();
-		::InsertMenu(menu,0,MF_BYCOMMAND|MF_BYPOSITION,ID_MENU_DELPL,STR_MENU_DELPL);
-		::InsertMenu(menu,0,MF_BYCOMMAND|MF_BYPOSITION,ID_MENU_PL_RENAME,STR_MENU_PL_RENAME);
-		::InsertMenu(menu,0,MF_BYCOMMAND|MF_BYPOSITION,ID_MENU_PL_SAVE,STR_MENU_PL_SAVE);
+		menu=::LoadMenu(NULL,MAKEINTRESOURCE(IDR_MENU_TABBAR));
+		subMenu=GetSubMenu(menu,0);
 	}
 
 	~CMyTabBar()
@@ -50,9 +38,10 @@ public:
 	BEGIN_MSG_MAP_EX(CMyTabBar)
 		MESSAGE_HANDLER(WM_RBUTTONUP,OnRButtonUp)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
-		COMMAND_ID_HANDLER(ID_MENU_DELPL, OnPlDel)
-		COMMAND_ID_HANDLER(ID_MENU_PL_RENAME, OnPlRename)
-		COMMAND_ID_HANDLER(ID_MENU_PL_SAVE, OnPlSave)
+		COMMAND_ID_HANDLER(ID_TABBAR_DEL, OnPlDel)
+		COMMAND_ID_HANDLER(ID_TABBAR_RENAME, OnPlRename)
+		COMMAND_ID_HANDLER(ID_TABBAR_SAVEAS, OnPlSave)
+		COMMAND_ID_HANDLER(ID_TABBAR_OPEN_FILEFOLDER, OnPlOpenFolder)
 		REFLECTED_NOTIFY_CODE_HANDLER_EX(TCN_SELCHANGE, OnSelectionChanged)
 		CHAIN_MSG_MAP(CWTLTabViewCtrl)
 	END_MSG_MAP()
@@ -70,7 +59,7 @@ public:
 		if (RtBtnTab!=-1)
 		{
 			::ClientToScreen(m_hWnd,&info.pt);
-			::TrackPopupMenu(menu,TPM_LEFTALIGN,info.pt.x,info.pt.y,0,m_hWnd,0);
+			::TrackPopupMenu(subMenu,TPM_LEFTALIGN,info.pt.x,info.pt.y,0,m_hWnd,0);
 		}
 
 		bHandled=FALSE;
@@ -80,6 +69,7 @@ public:
 	LRESULT OnPlDel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnPlRename(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnPlSave(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnPlOpenFolder(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{

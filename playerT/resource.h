@@ -10,7 +10,6 @@
 #define IDD_DLG_LYRIC1                  202
 #define IDD_DIALOG1                     203
 #define IDD_DIALO_FFT                   204
-#define IDD_DIALG_FFT                   204
 #define IDD_DIALOG2                     205
 #define IDD_DIALOG3                     206
 #define IDD_PROCESSING                  206
@@ -20,9 +19,11 @@
 #define IDD_DIALOG_SEARCH               210
 #define IDD_DIALOG4                     211
 #define IDR_MENU1                       212
-#define IDR_MENU2                       214
-#define IDD_DIALOG5                     215
+#define IDR_MENU_SPECTRUM               212
+#define IDR_MENU_PLAYLIST               214
 #define IDD_DLG_FFT_OUTLINE             215
+#define IDR_MENU_LRC                    216
+#define IDR_MENU_TABBAR                 217
 #define IDC_TREE                        1000
 #define IDC_RESET_ALL                   1001
 #define IDC_RESET_THIS                  1002
@@ -112,13 +113,38 @@
 #define ID_VIEW_CHANGEPLAYLISTCOLOR     32844
 #define ID_CHANGEPLAYLISTCOLOR_DEFAULT  32845
 #define ID_CHANGEPLAYLISTCOLOR_BLUE     32846
+#define ID_OPEN_FILE_PATH               32847
+#define ID_32848                        32848
+#define ID_32849                        32849
+#define ID_32850                        32850
+#define ID_32851                        32851
+#define ID_32852                        32852
+#define ID_32853                        32853
+#define ID_32854                        32854
+#define ID_32855                        32855
+#define ID_32856                        32856
+#define ID_OPEN_LRC_PATH                32857
+#define ID_LRC_EDIT                     32858
+#define ID_32859                        32859
+#define ID_OPEN_LRCFILE                 32860
+#define ID_32861                        32861
+#define ID_32862                        32862
+#define ID_32863                        32863
+#define ID_32864                        32864
+#define ID_OPEN_FILEFOLDER              32865
+#define ID_RENAME                       32866
+#define ID_TABBAR_DEL                   32867
+#define ID_TABBAR_                      32868
+#define ID_TABBAR_SAVEAS                32869
+#define ID_TABBAR_RENAME                32870
+#define ID_TABBAR_OPEN_FILEFOLDER       32871
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        216
-#define _APS_NEXT_COMMAND_VALUE         32847
+#define _APS_NEXT_RESOURCE_VALUE        218
+#define _APS_NEXT_COMMAND_VALUE         32872
 #define _APS_NEXT_CONTROL_VALUE         1023
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

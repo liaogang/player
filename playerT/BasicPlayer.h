@@ -52,7 +52,7 @@ public:
 	void SetPos(int cur,int max);
 	void WaitPlay();
 	void OpenAfterSlowDown();
-		BOOL stoped(){return m_bStopped;}
+	inline BOOL stoped(){return m_bStopped;}
 protected:
 	void play();
 	void pause();//pause or resume play

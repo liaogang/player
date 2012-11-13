@@ -20,7 +20,7 @@ HMENU LoadPlaylistMenu(BOOL bDestroy=FALSE)
 	{
 		if (!menu)
 		{	
-			menu=::LoadMenu(NULL,MAKEINTRESOURCE(IDR_MENU2));
+			menu=::LoadMenu(NULL,MAKEINTRESOURCE(IDR_MENU_PLAYLIST));
 			subMenu=::GetSubMenu(menu,0);
 		}
 	}
@@ -114,13 +114,15 @@ public:
 
 	BEGIN_MSG_MAP_EX(CPlayListView)
 		MSG_WM_CREATE(OnCreate);
-	MSG_WM_LBUTTONDBLCLK(OnDbClicked)
+		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
 		MSG_WM_CHAR(OnChar)
+		COMMAND_ID_HANDLER(ID_OPEN_FILE_PATH,OnOpenFilePath)
+
 		REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_RCLICK ,OnNotifyCodeHandlerEX)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED,OnItemChanged)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO,OnGetdispInfo)
 		REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
-		END_MSG_MAP()
+	END_MSG_MAP()
 
 		LRESULT OnCustomDraw(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 		{
@@ -157,9 +159,8 @@ public:
 			POINT pt;
 			GetCursorPos(&pt);
 
-			int i=-1;
-			i=GetNextItem(i,LVIS_FOCUSED|LVIS_SELECTED);
-			if(i!=-1)
+	
+			if(GetNextItem(-1,LVIS_FOCUSED|LVIS_SELECTED)!=-1)
 				::TrackPopupMenu(menu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
 
 
@@ -198,14 +199,20 @@ public:
 
 		void DelSelectedItem(BOOL bDelFile=FALSE)
 		{
-			if (bDeletable)
+// 			if (bDeletable)
+// 			{
+// 				for(int i = GetItemCount()-1; i>=0;--i)
+// 					if( LVIS_SELECTED==GetItemState(i, LVNI_ALL | LVNI_SELECTED) )
+// 						DeleteItem(i);
+// 			}
+			//CListCtrl ctrl;ctrl.GetNextSelectedItem()GetNextItem((UINT)nOldPos, LVIS_SELECTED)
+			if (!bDeletable)
+				return;
+			for(int i = GetItemCount()-1; i>=0;--i)
 			{
-				int i=-1;
-				i=GetNextItem(i,LVIS_FOCUSED|LVIS_SELECTED);
-				while(i!=-1)
+				if(LVIS_SELECTED == GetItemState(i, LVIS_SELECTED) )
 				{
 					PlayListItem *track=(PlayListItem*)GetItemData(i);
-
 					if(track )
 					{
 						if(bDelFile && IDYES==::MessageBox(m_hWnd,_T("这将会删除 1 文件 \n要继续吗?"),_T("确认删除文件"),MB_YESNO))
@@ -216,11 +223,10 @@ public:
 						track->m_pPL->DeleteTrack(track);
 					}
 
-					if(DeleteItem(i)) i--;
-					i=GetNextItem(i,LVIS_FOCUSED|LVIS_SELECTED);
+					DeleteItem(i);
 				}
-			}
-
+			}	
+			
 		}
 
 		void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
@@ -257,21 +263,69 @@ public:
 		} 
 
 
+
+		enum{
+			COLUMN_INDEX_INDEX,
+			COLUMN_INDEX_TITLE,
+			COLUMN_INDEX_ARTIST,
+			COLUMN_INDEX_ALBUM,
+			COLUMN_INDEX_YEAR,
+			COLUMN_INDEX_GENRE,
+			COLUMN_INDEX_COMMENT,
+		};
+
 		void Init()
 		{	
 			ChangeColorDefault();
-			SetExtendedListViewStyle(GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT);
+			SetExtendedListViewStyle(GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP);
 
-			TCHAR * columnName[]={
-				_T("     title              "),
-				_T(" artist      "),
-				_T(" album       "),
-				_T(" year "),
-				_T(" comment "),
-				_T(" genre      ")};
+			const TCHAR * columnName[]={
+				_T("Index"),
+				_T("Title"),
+				_T("Artist"),
+				_T("Album"),
+				_T("Year"),
+				_T("Genre"),
+				_T("Comment")};
+				
+			const UINT alignment[]={
+				LVCFMT_RIGHT,
+				LVCFMT_LEFT,
+				LVCFMT_LEFT,
+				LVCFMT_LEFT,
+				LVCFMT_RIGHT,
+				LVCFMT_RIGHT,
+				LVCFMT_RIGHT};
 
-				for (int i=0;i<sizeof(columnName)/sizeof(int);i++)
-					AddColumn(columnName[i],i,-1, LVCF_FMT| LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM ,LVCFMT_CENTER);
+			const TCHAR* columnNamePlaceHoder[]={
+				_T("Index"),
+				_T("Title                        "),
+				_T("Artist"),
+				_T("Album         "),
+				_T("Year"),
+				_T("Genre               "),
+				_T("Comment")};
+
+			const int cxOffset = 15;
+
+			for (int i=0;i<sizeof(columnName)/sizeof(int);++i)
+				AddColumn(columnName[i],i,-1, LVCF_FMT| LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM ,alignment[i],GetStringWidth(columnNamePlaceHoder[i])+cxOffset);
+		}
+
+		int AddColumn(LPCTSTR strItem, int nItem, int nSubItem = -1,
+			int nMask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM,
+			int nFmt = LVCFMT_LEFT,int stringWidth=20)
+		{
+			
+			ATLASSERT(::IsWindow(m_hWnd));
+			LVCOLUMN lvc = { 0 };
+			lvc.mask = nMask;
+			lvc.fmt = nFmt;
+			lvc.pszText = (LPTSTR)strItem;
+			lvc.cx = stringWidth ;//GetStringWidth(lvc.pszText) + cxOffset;
+			if(nMask & LVCF_SUBITEM)
+				lvc.iSubItem = (nSubItem != -1) ? nSubItem : nItem;
+			return InsertColumn(nItem, &lvc);
 		}
 
 		void ClearAllSel()
@@ -335,4 +389,31 @@ public:
 			sz.cy=(index-top-countPerPage/2)*(rc.bottom-rc.top);
 			Scroll(sz);
 		}
+
+
+		LRESULT OnOpenFilePath(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+		{
+			int nItem=GetNextItem(-1,LVIS_SELECTED);
+
+			if(nItem!=-1)
+			{
+				PlayListItem *track=m_ppl->m_songList[nItem];
+
+				std::tstring parameters=_T("/select,");
+				parameters+=track->url;
+
+				std::tstring dir;
+				int index= track->url.find_last_of(_T("\\"));
+				if (index!=track->url.npos)
+					dir+=track->url.substr(0,index);
+
+				/*   example
+				*   "/select,C:\a.txt"
+				*/
+				ShellExecute(NULL,_T("open"),_T("explorer"),
+					parameters.c_str(),dir.c_str(),SW_SHOW);
+			}
+			return 0;
+		}
+
 };

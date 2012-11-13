@@ -37,7 +37,8 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 	curPlayingItem(NULL),
 	nextPlayingItem(NULL),
 	topVisibleIndex(0),
-	selectedIndex(-1)
+	selectedIndex(-1),
+	nPos(0)
 {
 
 }
@@ -48,7 +49,8 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 	curPlayingItem(NULL),
 	nextPlayingItem(NULL),
 	topVisibleIndex(0),
-	selectedIndex(-1)
+	selectedIndex(-1),
+	nPos(0)
  {
 	m_playlistName=name;
 	m_saveLocation=m_playlistName+_T(".pl");
@@ -162,7 +164,9 @@ void PlayList::AddFile(TCHAR *filepath)
 	std::tstring str(filepath);
 	PlayListItem *pItem=new PlayListItem(this,&str);
 	pItem->ScanId3Info();
+	pItem->itemIndex=nPos;
 	m_songList.push_back(pItem);
+	++nPos;
 	//msonglistµÄÎö¹¹»áÉ¾³ý*pItem;
 
 	::SendMessage(MyLib::GetMain(),WM_FILE_FINDED,(WPARAM)filepath,(LPARAM)2);

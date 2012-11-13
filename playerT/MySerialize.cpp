@@ -164,7 +164,7 @@ int PlayListItem::SerializeB(FILE *pFile)
 	size+=::Serialize(pFile,genre);
 	size+=::Serialize(pFile,comment);
 	size+=::Serialize(pFile,year);
-	size+=::Serialize(pFile,indexInListView);
+	size+=::Serialize(pFile,itemIndex);
 	return size;
 }
 
@@ -185,7 +185,7 @@ int PlayListItem::ReSerialize(FILE *pFile)
 	size+=::ReSerialize(pFile,&genre);
 	size+=::ReSerialize(pFile,&comment);
 	size+=::ReSerialize(pFile,&year);
-	size+=::ReSerialize(pFile,&indexInListView);
+	size+=::ReSerialize(pFile,&itemIndex);
 	return size;
 }
 

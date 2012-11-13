@@ -10,7 +10,7 @@ public:
 	HMENU menu,trackMenu;
 	DialogFFT():bFullScreen(FALSE)
 	{
-		menu=::LoadMenu(NULL,MAKEINTRESOURCE (IDR_MENU1) );
+		menu=::LoadMenu(NULL,MAKEINTRESOURCE (IDR_MENU_SPECTRUM) );
 		trackMenu=::GetSubMenu(menu,0);
 	}
 
@@ -20,8 +20,6 @@ public:
 	}
 
 public:
-	enum { IDD = IDD_DIALG_FFT };
-
 	BEGIN_MSG_MAP_EX(DialogFFT)
 		MESSAGE_HANDLER(WM_CREATE,OnCreate)
 		//MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)

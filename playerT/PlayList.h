@@ -58,11 +58,12 @@ public:
 public:
 	PlayList *m_pPL;
 public:
-	int indexInListView;
+	int indexInListView;//replaced by itemIndex
 	std::tstring url;
 	UINT          playCount;
 	UINT		  starLvl;
 	//-----id3 info-------
+	int itemIndex;
 	std::tstring  title,artist,album,genre,comment;
 	UINT year;
 	TagLib::ByteVector *pPicBuf;
@@ -117,6 +118,7 @@ public:
 	typedef vector<_songContainerItem> _songContainer;
 	_songContainer m_songList;
 	_songContainerItem GetItem(int nItem){return m_songList[nItem];};
+	int nPos;
 	std::tstring       m_playlistName;
 	void Rename(TCHAR *newName){m_playlistName=newName;}
 	std::tstring       m_saveLocation;
