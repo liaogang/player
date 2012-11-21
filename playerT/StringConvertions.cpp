@@ -207,3 +207,4 @@ int hex2dec(char c)
 
 	return ret;
 }
+

@@ -83,7 +83,28 @@ public:
 
 	LrcLine(UINT min,UINT sec,UINT msec,std::tstring text)
 		:time(min,sec,msec),text(text){}
-	int operator - (LrcLine& r){return (time.minute-r.time.minute)*60+(time.second-r.time.second);}
+	int operator - (LrcLine& r)
+	{
+		return (time.minute-r.time.minute)*600+(time.second-r.time.second)*100+ (time.msec-r.time.msec);
+	}
+
+	int cmp(LrcLine &r)
+	{
+		int ret=0;
+		if (time.minute==r.time.minute){
+			if (time.second==r.time.second)
+			{
+				if (time.msec!=r.time.msec)
+					ret=time.msec-r.time.msec;
+			}
+			else
+				ret=time.second-r.time.second;
+		}
+		else
+			ret=time.minute-r.time.minute;
+		
+		return ret;
+	}
 };
 const std::tstring strEmpty;
 const LrcLine lineEmpty(0,0,0,strEmpty);
@@ -171,8 +192,7 @@ private:
 
 		for( first=s.begin(), last=s.end() ;
 			PrepareFindTag(first,last) ;	
-			s.erase(--first,++last),first=s.begin(),last=s.end()
-			)
+			s.erase(--first,++last),first=s.begin(),last=s.end())
 		{
 			tagInfo=FindTagType(++first,last);
 			if(tagInfo.tag==TimeTag){
@@ -227,9 +247,11 @@ public:
 	TagTypeInfo FindTagType(std::tstring::iterator v1,std::tstring::iterator &v2)
 	{
 		TagTypeInfo tagInfo;
-		std::tstring::iterator i;
+		std::tstring::iterator i,i2;
 
 		i=find(v1,v2,':');                      //invalid tag?
+		i2=find(v1,v2,'.');
+
 		if(i==v2)	
 			tagInfo.tag=InvalidTag;
 		else  if( IsNaturalNumber(v1,i)           //time tag?
@@ -238,7 +260,12 @@ public:
 			tagInfo.tag=TimeTag;		
 			std::tstring tmp(v1,v2);
 			LPCTSTR pbuf=tmp.c_str();
-			_stscanf(pbuf,_T("%2d:%2d.%2d"),&tagInfo.minute,&tagInfo.second,&tagInfo.msec);
+			_stscanf(pbuf,_T("%2d:%2d"),&tagInfo.minute,&tagInfo.second);
+
+			 if(i2!=v2)
+				tagInfo.msec= _wtoi(pbuf+(i2-v1));
+			 else
+				 tagInfo.msec=0;
 		}
 		else 
 		{

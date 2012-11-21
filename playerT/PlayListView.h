@@ -359,11 +359,12 @@ public:
 						LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
 					selItem=m_ppl->selectedIndex;
 				}
-
+				
 				EnsureVisibleAndCentrePos(selItem);
 			}
 			else
 			{
+				
 				EnsureVisibleAndCentrePos(SetIndex);
 				SetItemState(SetIndex,LVIS_FOCUSED|
 					LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
@@ -376,10 +377,19 @@ public:
 
 		void EnsureVisibleAndCentrePos(int index)
 		{
-			EnsureVisible(index,FALSE);
-
 			int top=GetTopIndex();
 			int countPerPage=GetCountPerPage();
+			
+// 			if ( (index> top && index-top < countPerPage) || 
+// 				 ( index<top && top-index > 0-countPerPage))
+// 			{
+// 				return;
+// 			}
+
+			EnsureVisible(index,FALSE);
+
+			top=GetTopIndex();
+			
 
 			RECT rc;
 			GetItemRect(top,&rc,LVIR_BOUNDS);

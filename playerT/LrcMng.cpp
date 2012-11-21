@@ -20,7 +20,7 @@ LrcMng* LrcMng::Get()
 
 bool pred(LrcLine fir,LrcLine sec)//litter true,else flase
 {
-	return fir-sec<0?true:false;
+	return fir.cmp(sec) <0?true:false;
 }
 
 void LrcMng::SortLrcLib()

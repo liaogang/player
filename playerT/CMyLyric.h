@@ -51,13 +51,13 @@ public:
 		int lrcLines,lrcTextHeight,lrcSpare,lrcHeight;
 		BOOL bLrcReady;
 		PlayListItem* track;
-		double used,lefted;
 		vector<LrcLine>::iterator preLine,curLine,nextLine;
 		RECT tRc;
 		
 		std::wstring title;
 		LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
+			const int linesSpace=5;
 			GetClientRect(&rc);
 
 			int stringHeight=sz.cy;
@@ -65,11 +65,11 @@ public:
 			rcPre.bottom=rcPre.top+stringHeight;
 
 			rcCur=rcPre;
-			rcCur.top+=stringHeight;
+			rcCur.top+=stringHeight+linesSpace;
 			rcCur.bottom=rcCur.top+stringHeight;
 
 			rcNext=rcCur;
-			rcNext.top+=stringHeight;
+			rcNext.top+=stringHeight+linesSpace;
 			rcNext.bottom=rcNext.top+stringHeight;
 
 			lrcRect=rcPre;
@@ -105,11 +105,8 @@ public:
 				return 0;
 
 			trackPosInfo *posInfo=(trackPosInfo*)wParam;
-			used=posInfo->used;
-			lefted=posInfo->left;
 
-
-			if (lefted=0)
+			if (posInfo->left==0)
 				ResetTitle();
 			
 			
@@ -119,15 +116,14 @@ public:
 			//lrcRect.top=  (rc.bottom-rc.top)/2 - (used/lrcContent) * lrcLines*lrcHeight;
 			
 			//-----------------------------------------
-			double totalsec=nextLine->time.GetTotalMillisecond()/100;
-			if (used > totalsec)
+			LrcLine nextLrcLine=*nextLine;
+			double totalsec=nextLrcLine.time.GetTotalMillisecond()/100;
+			if (posInfo->used > totalsec)
 			{
 				//change line
 				preLine=curLine;
 				curLine=nextLine;
 				nextLine++;
-
-				AtlTrace(_T("%s\n"),nextLine->text.c_str());
 
 				InvalidateRect(&lrcRect);
 
@@ -196,9 +192,25 @@ public:
 				//LrcLine l=*preLine;
 				//if (!l.text.empty())
 				{
-					::DrawText(ps.hdc,preLine->text.c_str(),preLine->text.length(),&rcPre,DT_CENTER);
-					::DrawText(ps.hdc,curLine->text.c_str(),curLine->text.length(),&rcCur,DT_CENTER);	
-					::DrawText(ps.hdc,nextLine->text.c_str(),nextLine->text.length(),&rcNext,DT_CENTER);
+					::DrawText(ps.hdc,preLine->text.c_str(),preLine->text.length(),&rcPre,DT_CENTER|DT_NOCLIP);
+					
+					
+					LOGFONT lf;
+					memset(&lf, 0, sizeof(LOGFONT));       // zero out structure
+					lf.lfHeight = 19;                      // request a 12-pixel-height font
+					_tcscpy(lf.lfFaceName, _T("Arial"));        // request a face name "Arial"
+					
+
+					HFONT newFont=::CreateFontIndirect(&lf);
+
+					COLORREF oldTextColor= GetTextColor(ps.hdc);
+					SetTextColor(ps.hdc,RGB(255,0,0));
+					HFONT oldFont=(HFONT) SelectObject(ps.hdc,newFont);
+					::DrawText(ps.hdc,curLine->text.c_str(),curLine->text.length(),&rcCur,DT_CENTER|DT_NOCLIP);	
+					SetTextColor(ps.hdc,oldTextColor);
+					::SelectObject(ps.hdc,oldFont);
+
+					::DrawText(ps.hdc,nextLine->text.c_str(),nextLine->text.length(),&rcNext,DT_CENTER|DT_NOCLIP);
 				}
 							
 			}
@@ -223,29 +235,25 @@ public:
 			if(!track) return;
 
 
-			if (1)
+
+			LrcMng *sLM=LrcMng::Get();
+			if( track->GetLrcFileFromLib() )
 			{
-				LrcMng *sLM=LrcMng::Get();
-				if( track->GetLrcFileFromLib() )
-				{
-					preLine=track->lyricFromLrcFile.begin();
-					bLrcReady=TRUE;
-				}
+				LrcLines *emptyVec=new LrcLines;
+				emptyVec->push_back(lineEmpty);
+				preLine=emptyVec->begin();
+				curLine=track->lyricFromLrcFile.begin();
+				nextLine=curLine;
+				nextLine++;
+				bLrcReady=TRUE;
 			}
+			
 
 			if(track->lycPath.empty())
 				ResetTitle();
 			else{
 				title=track->lycPath;
 				ChangedTitle();
-			}
-
-			if (bLrcReady)
-			{
-				*preLine=lineEmpty;
-				curLine=track->lyricFromLrcFile.begin();
-				nextLine=track->lyricFromLrcFile.begin();
-				nextLine++;
 			}
 			//无内嵌歌词,搜索*.LRCY文件
 			//track->m_bLrcInner
