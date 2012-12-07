@@ -10,7 +10,7 @@
 #include "DialogSearch.h"
 #include "DialogLyric.h"
 #include "DialogFFTOutline.h"
-
+#include "PlayListManager.h"
 #include <mpg123.h>
 #include <string>
 using namespace std;
@@ -75,7 +75,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//------------------------------------------------
 	//progress track bar
 	m_pTrackBar=new CMyTrackBar;
-	UINT style=WS_CHILD | WS_VISIBLE /*| WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/;
+	UINT style=WS_CHILD | WS_TABSTOP | WS_VISIBLE /*| WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/;
 	style|=TBS_TOOLTIPS  |TBS_NOTICKS |TBS_AUTOTICKS  | TBS_BOTH ; 
 	UINT styleEx=0; 
 	HWND hWndProgressBar=m_pTrackBar->Create( m_hWndToolBar,NULL,NULL,style,styleEx);
@@ -149,9 +149,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	//right pane
 	//------------------------------------------------
-
 	m_pPlaylistView=new CPlayListView;
-	//m_pPlaylistView->Create(m_pTabBar->m_hWnd, rcDefault, NULL,  WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN | WS_CLIPSIBLINGS| LVS_REPORT | LVS_SHOWSELALWAYS, WS_EX_CLIENTEDGE);
 	m_pPlaylistView->Create(m_pSplit->m_hWnd, rcDefault, NULL,  WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN | WS_CLIPSIBLINGS| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA, 0);
 	m_pPlaylistView->Init();	
 
@@ -173,7 +171,9 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	leftPane->SetSplitterPanes(albumView1->m_hWnd,lyricView->m_hWnd);
 	
 	//set left and right
-	m_pSplit->SetSplitterPanes( m_pTabBar->m_hWnd,leftPane->m_hWnd);
+	//m_pSplit->SetSplitterPanes( m_pTabBar->m_hWnd,leftPane->m_hWnd);
+	m_pSplit->SetSplitterPanes( m_pPlaylistView->m_hWnd,leftPane->m_hWnd);
+	
 	//-----------------------------------------
 	//EnableThemeDialogTexture(m_pTabBar->m_hWnd,ETDT_ENABLE);
 	//EnableThemeDialogTexture(m_hWnd,ETDT_ENABLE);
@@ -337,7 +337,7 @@ LRESULT CMainFrame::OnConfigLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 		m_dlgConfig.Create(m_hWnd);
 
 	m_dlgConfig.ShowWindow(SW_SHOW);
-	std::wstring strLyricDlg(L"¸è´Ê");
+	std::wstring strLyricDlg(L"¸è´ÊËÑË÷");
 	m_dlgConfig.ShowDlgByName(strLyricDlg);
 	return 0;
 }
@@ -394,8 +394,10 @@ LRESULT CMainFrame::OnPlayDirectly(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 
 LRESULT CMainFrame::OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	if (!m_pTrackBar->m_bPressing){
-		trackPosInfo *posInfo=(trackPosInfo*)wParam;
+	trackPosInfo *posInfo=(trackPosInfo*)wParam;
+
+	if (!m_pTrackBar->m_bPressing)
+	{
 		bHandled=FALSE;
 		m_pTrackBar->SetRange(0,(int)(posInfo->used+posInfo->left));
 		m_pTrackBar->SetPos((int)posInfo->used);
@@ -405,8 +407,10 @@ LRESULT CMainFrame::OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHa
 		::PostMessage(m_dlgLrc->m_hWnd,WM_TRACKPOS,wParam,lParam);
 	if (lyricView)
 		::PostMessage(lyricView->m_hWnd,WM_TRACKPOS,wParam,lParam);
+	
 
-
+	//AtlTrace("delete %p",posInfo);
+	//delete posInfo;
 	return 1;
 }
 
@@ -677,6 +681,44 @@ LRESULT CMainFrame::OnChangePLColorBlue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 	return 0;
 }
 
+LRESULT CMainFrame::OnViewPlaylistManager(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	static DialogPLManager *dlgPLMng=NULL;
+	if(!dlgPLMng){
+	dlgPLMng=new DialogPLManager;
+	dlgPLMng->m_list.pMain=this;
+	dlgPLMng->Create(m_hWnd);
+	}
+
+	dlgPLMng->ShowSelf();	
+	return 0;
+}
+
+void CPlayListManager::ReFillPlaylist()
+{
+	ClearAllSel();
+
+	MyLib *s=MyLib::shared();
+	int item=0;
+	if (s->m_playLists.size()>0)
+	{
+		MyLib::PLList::iterator i;
+		for (i=s->m_playLists.begin();i!=s->m_playLists.end();++i)
+		{
+			PlayList *l=*i;
+			TCHAR *strCount=new TCHAR[256];
+			_itow(l->m_songList.size(),strCount,10);
+
+			InsertItem(item,l->m_playlistName.c_str());
+			SetItemText(item,1,strCount);
+			SetItemData(item,(DWORD_PTR)l);
+			++item;
+
+			delete[] strCount;
+		}
+	}
+}
+
 LRESULT  CProcessingDlg::OnAbort(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	pList->TerminateAddDirThread();
@@ -769,6 +811,23 @@ void CMyTabBar::SetCurSel(PlayList* ppl,int index)
 }
 
 
+LRESULT  CPlayListManager::OnDbClicked(UINT i,CPoint pt)
+	{
+		int k=GetFirstSelItem();
+		if(k!=-1)
+		{
+			PlayList *l=(PlayList*)GetItemData(k);
+
+			MyLib::shared()->SetSelPlaylist(l);
+
+			
+			pMain->m_pPlaylistView->Reload(l);
+			pMain->m_pPlaylistView->SetFocus();
+		}
+
+		SetMsgHandled(FALSE);
+		return 0;
+	} 
 
 BOOL CMyTabBar::AddPlaylistTab(PlayList* ppl,BOOL inActiveFlag , int inImage )
 {
@@ -884,3 +943,7 @@ LRESULT DialogFFT::OnFullScreen(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/
 // 	}
 	return 0;	
 }
+
+
+
+

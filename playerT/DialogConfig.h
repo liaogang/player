@@ -67,7 +67,6 @@ public:
 	{
 		HTREEITEM firstItem;
 
-
 		pDlg=new CPropertyDlg;
 		pDlg->Init(_T("²ÎÊýÑ¡Ïî"),pDlg->m_hWnd);
 
@@ -78,15 +77,18 @@ public:
 		pDlgMedia->Init(_T("Ã½Ìå¿â"),pDlgMedia->m_hWnd);
 		
 		pDlgLyrics=new CPropertyDlgLyricsLib;
-		pDlgLyrics->Init(_T("¸è´Ê"),pDlgLyrics->m_hWnd);
+		pDlgLyrics->Init(_T("¸è´ÊËÑË÷"),pDlgLyrics->m_hWnd);
 
+		pDlgLrcPane=new CPropertyDlgLrcPane;
+		pDlgLrcPane->Init(_T("¸è´ÊÃæ°å"),pDlgLrcPane->m_hWnd);
 
 		firstItem=AddDlg(pDlg,TVI_ROOT);
-		AddDlg(pDlg1,firstItem);
-		AddDlg(pDlgMedia,firstItem);
-		AddDlg(pDlgLyrics,firstItem);
+		AddDlg(pDlg1,TVI_ROOT);
+		AddDlg(pDlgMedia,TVI_ROOT);
+		AddDlg(pDlgLyrics,TVI_ROOT);
+		AddDlg(pDlgLrcPane,TVI_ROOT);
 		
-		m_tree.Expand(firstItem);
+		m_tree.Expand(TVI_ROOT);
 	}
 
 
@@ -102,6 +104,7 @@ public:
 		GETDLGWND(pDlg1)
 		GETDLGWND(pDlgMedia)
 		GETDLGWND(pDlgLyrics)
+		GETDLGWND(pDlgLrcPane)
 		return NULL;
 	}
 
@@ -211,4 +214,5 @@ protected:
 	CPropertyDlg1* pDlg1;
 	CPropertyDlgMediaLib* pDlgMedia;
 	CPropertyDlgLyricsLib *pDlgLyrics;
+	CPropertyDlgLrcPane   *pDlgLrcPane;
 };

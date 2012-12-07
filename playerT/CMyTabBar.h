@@ -73,23 +73,67 @@ public:
 
 	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
+		//-----------------------------------------
+		//the tab paint only the TabItem and a line beneath 
+		//-----------------------------------------
+		CRect theTabRect;
+		GetItemRect( 0, &theTabRect );
+
+		LONG theRowCount = GetRowCount( );
+		//LONG theEdgeWidth = ( theTabRect.Width() * theRowCount ) + TABVIEW_EDGE;
+		LONG theEdgeHeight = ( theTabRect.Height() * theRowCount ) + TABVIEW_EDGE;
+		//-----------------------------------------
 		HDC hdc=(HDC)wParam;
 		RECT rcClient,rcLastItem,rcErase;
 
 		int count=GetItemCount();
+		int curItem=GetCurSel();
+		BOOL xp_themed=FALSE;
+		BOOL isVista=FALSE;
 
 		GetClientRect(&rcClient);
 		GetItemRect(count-1,&rcLastItem);
 
 		rcErase=rcClient;
-		rcErase.bottom=rcLastItem.bottom;
+		rcErase.bottom=rcLastItem.bottom+TABVIEW_EDGE;
 
 		HRGN rgnAll=CreateRectRgn(rcErase);
-		
+		//remove the line rect
+		static const int lineHeight=1;
+		RECT rcLine=rcClient;
+		rcLine.top=rcLastItem.bottom;
+		rcLine.bottom=rcLine.top+lineHeight;
+		HRGN tmp=CreateRectRgn(rcLine);
+		CombineRgn(rgnAll,rgnAll,tmp,RGN_DIFF); 
+		DeleteObject(tmp);
+
+		//remove the items rect
 		for (int i=0;i<count;i++)
 		{
 			if( GetItemRect(i,&rcErase) )
 			{
+				if (i==curItem)
+				{
+					rcErase.left-=1;
+					rcErase.right+=1;
+					rcErase.top-=2;
+					if (i==0)
+					{
+						rcErase.left-=1;
+						if (!xp_themed)
+							rcErase.right+=1;
+					}
+					else if (i==count-1)
+					{rcErase.right+=1;}
+				}else
+				{
+					rcErase.bottom-=2;
+					rcErase.right-=1;
+					if((xp_themed||isVista) && i==count-1)
+						rcErase.right-=1;
+				}
+
+
 				HRGN tmp=CreateRectRgn(rcErase);
 				CombineRgn(rgnAll,rgnAll,tmp,RGN_DIFF); 
 				DeleteObject(tmp);

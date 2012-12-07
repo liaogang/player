@@ -52,26 +52,6 @@ public:
 
 	COLORREF clText1,clText2;
 
-	//Ææ,Å¼,ÑÕÉ«
-	void ChangeColor(COLORREF one,COLORREF another)
-	{
-		clText1=one;
-		clText2=another;
-		int top=GetTopIndex();
-		int countPerPage=GetCountPerPage();
-		RedrawItems(top,top+countPerPage);
-		::UpdateWindow(this->m_hWnd);
-	}
-
-	void ChangeColorDefault()
-	{
-		ChangeColor(RGB(249,249,249),RGB(255,255,255));
-	}
-
-	void ChangeColorBlue()
-	{
-		ChangeColor(RGB(230,244,255),RGB(145,200,255));
-	}
 
 	CPlayListView(BOOL bSearch=FALSE):
 	m_bSearch(bSearch),
@@ -426,4 +406,43 @@ public:
 			return 0;
 		}
 
+		//Ææ,Å¼,ÑÕÉ«
+		void ChangeColor(COLORREF one,COLORREF another)
+		{
+			clText1=one;
+			clText2=another;
+			int top=GetTopIndex();
+			int countPerPage=GetCountPerPage();
+			RedrawItems(top,top+countPerPage);
+			::UpdateWindow(this->m_hWnd);
+		}
+
+		void ChangeColorDefault()
+		{
+			HBRUSH brush= ::GetSysColorBrush(COLOR_WINDOW);
+			LOGBRUSH lb;
+			GetObject(brush,sizeof(LOGBRUSH),&lb);
+			COLORREF c=lb.lbColor;
+			INT r= GetRValue(c);
+			INT g= GetGValue(c);
+			INT b= GetBValue(c);
+
+			int average=(r+g+b)/3;
+			int offset=0;
+			if (3<=average && average<=100)
+				offset=-3;
+			else if (average>100 && average <=180)
+				offset=-5;
+			else
+				offset=-7;
+
+			COLORREF a=RGB(r+offset,g+offset,b+offset);
+
+			ChangeColor(c,a);
+		}
+
+		void ChangeColorBlue()
+		{
+			ChangeColor(RGB(230,244,255),RGB(145,200,255));
+		}
 };

@@ -8,18 +8,21 @@
 
 
 CPlayerThread::CPlayerThread(CBasicPlayer *pPlayer):CThread(TRUE),
-m_lpDSBuffer(NULL),m_lpDsound(NULL),m_dwCurWritePos(-1),m_bKeepPlaying(TRUE)
+m_lpDSBuffer(NULL),m_lpDsound(NULL),m_dwCurWritePos(-1),m_bKeepPlaying(TRUE),pPosInfo(NULL)
 {
 	m_pPlayer=pPlayer;
 	m_lpDsound=DSoundDeviceCreate();
 
 	pBufFFT1=new signed char[gDefaultBufferSize];
 	memset(pBufFFT1,0,gDefaultBufferSize);
+
+	pPosInfo=new trackPosInfo;
 } 
 
 CPlayerThread::~CPlayerThread(void)
 {
 	delete[] pBufFFT1;
+	delete pPosInfo;
 }
 
 void CPlayerThread::Reset()
@@ -77,18 +80,16 @@ void CPlayerThread::WriteDataToDSBuf()
 	if(!m_pPlayer->m_pFile->Read(pBufFFT1,gDefaultBufferSize,&m_dwSizeRead))
 	{
 		if(m_pPlayer->m_bStopped)
-		{
-			trackPosInfo posInfo;
-			posInfo.used=0;
-			posInfo.left=100;
-			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)&posInfo,0);
+		{			
+			pPosInfo->used=0;
+			pPosInfo->left=100;
+			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)pPosInfo,0);
 		}
 		else
 		{
-			trackPosInfo posInfo1;
-			posInfo1.used=0;
-			posInfo1.left=0;
-			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)&posInfo1,0);
+			pPosInfo->used=0;
+			pPosInfo->left=0;
+			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)pPosInfo,0);
 			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKSTOPPED,0,0);
 		}
 
@@ -99,9 +100,8 @@ void CPlayerThread::WriteDataToDSBuf()
 		return;
 	}
 
-	trackPosInfo posInfo;
-	m_pPlayer->m_pFile->GetPos(&posInfo.used,&posInfo.left);
-	::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)&posInfo,0);
+	m_pPlayer->m_pFile->GetPos(&(pPosInfo->used),&(pPosInfo->left));
+	::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)pPosInfo,0);
 	
 	DWORD playCursor;
 	if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return;

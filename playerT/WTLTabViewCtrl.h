@@ -69,7 +69,7 @@ class CWTLTabViewCtrl : public CWindowImpl< CWTLTabViewCtrl, CTabCtrl >
 	//	Constants
 	//==============================================================================
 
-	private:
+	protected:
 
 		const LONG TABVIEW_BORDER;			///< Border Width
 		const LONG TABVIEW_EDGE;			///< Distance of tab from content
@@ -101,8 +101,8 @@ class CWTLTabViewCtrl : public CWindowImpl< CWTLTabViewCtrl, CTabCtrl >
 		 */
 		//==============================================================================
 		CWTLTabViewCtrl() :	
-			TABVIEW_BORDER		( 3 ),
-			TABVIEW_EDGE		( 5 ),
+			TABVIEW_BORDER		( /*3*/0 ),
+			TABVIEW_EDGE		( /*5*/1 ),
 			m_ActiveTabIndex	( -1 ) 
 		{ 
 		}
@@ -531,7 +531,6 @@ class CWTLTabViewCtrl : public CWindowImpl< CWTLTabViewCtrl, CTabCtrl >
 	//==============================================================================
 
 	protected:
-
 		//==============================================================================
 		/**
 		 *		UpdateViews:	Update the position of all the contained views.

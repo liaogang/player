@@ -17,16 +17,23 @@ public:
 		brush=::GetSysColorBrush(/*COLOR_3DFACE*/COLOR_BTNSHADOW);
 		newPen=(HPEN)::CreatePen(PS_NULL,0,RGB(255,255,255));
 
-		
-
 		menu=::LoadMenu(NULL,MAKEINTRESOURCE (IDR_MENU_LRC) );
 		trackMenu=::GetSubMenu(menu,0);
-	}
 
+		LOGFONT lf;
+		memset(&lf, 0, sizeof(LOGFONT));       // zero out structure
+		lf.lfHeight = 19;                      // request a 12-pixel-height font
+		lf.lfWeight=FW_SEMIBOLD;
+		_tcscpy(lf.lfFaceName, _T("Arial"));        // request a face name "Arial"
+
+		newFont=::CreateFontIndirect(&lf);
+	}
+	HFONT newFont;
 	~CMyLyric()
 	{
 		::DestroyMenu(menu);
 		DeleteObject(newPen);
+		DeleteObject(newFont);
 	}
 
 public:
@@ -42,6 +49,7 @@ public:
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 		COMMAND_ID_HANDLER(ID_OPEN_LRC_PATH, OnMenuFolderOpen)
 		COMMAND_ID_HANDLER(ID_OPEN_LRCFILE, OnOpenLrcFile)
+		COMMAND_ID_HANDLER(ID_MENU_LRC_PANE_PROPERTY,OnProperty)
 	END_MSG_MAP()
 
 		RECT rc ,lrcRect;
@@ -80,6 +88,13 @@ public:
 			return 0;
 		}
 
+		LRESULT OnProperty(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+		{
+			// 			CColorDialog dlg;
+			// 			dlg.DoModal(m_hWnd);
+			return 0;
+		}
+
 
 		LRESULT OnLyricReload(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
@@ -98,25 +113,17 @@ public:
 			bHandled=FALSE;
 			if(!::IsWindowVisible(m_hWnd))
 				return 0;
-
 			if(!track || !track->m_bLrcFromLrcFile)
 				return 0;
 			if (!bLrcReady)
 				return 0;
 
 			trackPosInfo *posInfo=(trackPosInfo*)wParam;
-
 			if (posInfo->left==0)
 				ResetTitle();
-			
-			
-			//used= used%sz            //以行高为基数，取整。
-			//double lrcContent=used+lefted;
-			//lrcRect=rc;
-			//lrcRect.top=  (rc.bottom-rc.top)/2 - (used/lrcContent) * lrcLines*lrcHeight;
-			
 			//-----------------------------------------
 			LrcLine nextLrcLine=*nextLine;
+			//todo ,nextLine在Dialog里不能解引用问题.
 			double totalsec=nextLrcLine.time.GetTotalMillisecond()/100;
 			if (posInfo->used > totalsec)
 			{
@@ -130,34 +137,6 @@ public:
 				if (nextLine==track->lyricFromLrcFile.end())
 					bLrcReady=FALSE;
 			}
-			/*
-			//-----------------------------------------
-			//-----------------------------------------
-			vector<LrcLine>::iterator i;
-			for (i=track->lyricFromLrcFile.begin(),lastLine=i,preLine=i,curLine=i,nextLine=i,lrcLines=0;
-				i!=track->lyricFromLrcFile.end();
-				preLine=i,++i,++lrcLines)
-			{
-				if (used < (*i).time.GetTotalSec() &&used > (*preLine).time.GetTotalSec() )
-				{
-					if (lastLine!=preLine)
-					{
-						RECT eraseRC={};
-						eraseRC.left=tRc.left;
-						eraseRC.top=tRc.top;
-						eraseRC.right=rc.right;
-						eraseRC.bottom=sz.cy+eraseRC.top;
-						InvalidateRect(&eraseRC);
-						lastLine=preLine;
-					}
-
-					break;
-				}
-				//lrcText+=(*i).text+_T("\n");
-			}//for
-			//-----------------------------------------
-			*/
-
 			return 0;
 		}
 
@@ -189,30 +168,17 @@ public:
 			if(!bLrcReady);
 			else if(track->m_bLrcFromLrcFile)
 			{
-				//LrcLine l=*preLine;
-				//if (!l.text.empty())
-				{
-					::DrawText(ps.hdc,preLine->text.c_str(),preLine->text.length(),&rcPre,DT_CENTER|DT_NOCLIP);
-					
-					
-					LOGFONT lf;
-					memset(&lf, 0, sizeof(LOGFONT));       // zero out structure
-					lf.lfHeight = 19;                      // request a 12-pixel-height font
-					_tcscpy(lf.lfFaceName, _T("Arial"));        // request a face name "Arial"
-					
+				HFONT oldFont=(HFONT) SelectObject(ps.hdc,newFont);
 
-					HFONT newFont=::CreateFontIndirect(&lf);
+				::DrawText(ps.hdc,preLine->text.c_str(),preLine->text.length(),&rcPre,DT_CENTER|DT_NOCLIP);
 
-					COLORREF oldTextColor= GetTextColor(ps.hdc);
-					SetTextColor(ps.hdc,RGB(255,0,0));
-					HFONT oldFont=(HFONT) SelectObject(ps.hdc,newFont);
-					::DrawText(ps.hdc,curLine->text.c_str(),curLine->text.length(),&rcCur,DT_CENTER|DT_NOCLIP);	
-					SetTextColor(ps.hdc,oldTextColor);
-					::SelectObject(ps.hdc,oldFont);
+				COLORREF oldTextColor= GetTextColor(ps.hdc);
+				SetTextColor(ps.hdc,RGB(0,128,128));
+				::DrawText(ps.hdc,curLine->text.c_str(),curLine->text.length(),&rcCur,DT_CENTER|DT_NOCLIP);	
+				SetTextColor(ps.hdc,oldTextColor);
+				::DrawText(ps.hdc,nextLine->text.c_str(),nextLine->text.length(),&rcNext,DT_CENTER|DT_NOCLIP);
 
-					::DrawText(ps.hdc,nextLine->text.c_str(),nextLine->text.length(),&rcNext,DT_CENTER|DT_NOCLIP);
-				}
-							
+				::SelectObject(ps.hdc,oldFont);
 			}
 			else if(track->m_bLrcInner)
 			{
@@ -261,7 +227,8 @@ public:
 
 		void Init()
 		{
-			GetTextExtentPoint32(GetDC(),_T("A"),1,&sz); 
+			//GetTextExtentPoint32(GetDC(),_T("A"),1,&sz); 
+			sz.cy=19;
 			lrcTextHeight=sz.cy;
 			lrcSpare=3;
 			lrcHeight=lrcTextHeight+lrcSpare;

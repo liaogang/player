@@ -1,5 +1,5 @@
 #pragma once
-
+struct trackPosInfo;
 #include "Thread.h"
 #include "CriticalSection.h"
 class CBasicPlayer;
@@ -17,6 +17,7 @@ public:
 	LPDIRECTSOUND m_lpDsound;
 	DWORD m_dwTime;
 
+	trackPosInfo *pPosInfo;
 	/*retain 2 times len of */
 	/*buffer for fft sample parse*/
 	signed char * pBufFFT1;//for ds sound

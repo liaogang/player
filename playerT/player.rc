@@ -146,6 +146,14 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
 END
 
+IDD_DLG_PL_MNG DIALOGEX 0, 0, 249, 118
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "播放列表管理"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,0,0,249,118
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -231,6 +239,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 102
     END
+
+    IDD_DLG_PL_MNG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 242
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 111
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -288,14 +304,16 @@ BEGIN
         MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
         MENUITEM SEPARATOR
-        POPUP "Visualizations"
-        BEGIN
-            MENUITEM "Spectrum",                    ID_MENU_FFTTEST
-        END
         POPUP "PlayListColors"
         BEGIN
             MENUITEM "Default",                     ID_CHANGEPLAYLISTCOLOR_DEFAULT
             MENUITEM "Blue",                        ID_CHANGEPLAYLISTCOLOR_BLUE
+        END
+        MENUITEM "&Playerlist Manager",         ID_VIEW_PLAYLIST_MNG
+        MENUITEM SEPARATOR
+        POPUP "Visualizations"
+        BEGIN
+            MENUITEM "Spectrum",                    ID_MENU_FFTTEST
         END
     END
     POPUP "Play"
@@ -321,7 +339,7 @@ BEGIN
     BEGIN
         MENUITEM "Title format help",           ID_HELP_TITLEFORMATHELP, GRAYED
         MENUITEM SEPARATOR
-        MENUITEM "&About player...",            ID_APP_ABOUT
+        MENUITEM "&About",                      ID_APP_ABOUT
     END
 END
 

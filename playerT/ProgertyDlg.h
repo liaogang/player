@@ -149,3 +149,16 @@ public:
 		return 1;
 	}
 };
+
+
+
+class CPropertyDlgLrcPane:
+	public CDlgConfig,
+	public CDialogImpl<CPropertyDlgLrcPane>,
+	public CWinDataExchange<CPropertyDlgLrcPane>
+{
+public:
+	enum { IDD = IDD_DLG_LRC_PANE_PROPERTY };
+	BEGIN_MSG_MAP(CPropertyDlgLrcPane)
+	END_MSG_MAP()
+};

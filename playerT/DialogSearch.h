@@ -57,7 +57,7 @@ public:
 		return bHandled;
 	}
 
-	BEGIN_MSG_MAP(DialogFFT)
+	BEGIN_MSG_MAP(DialogSearch)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
