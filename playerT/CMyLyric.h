@@ -12,8 +12,11 @@ public:
 	HMENU menu,trackMenu;
 	HBRUSH brush,oldBrush;
 	HPEN  newPen,oldPen; 
+
+	int enableDebug;
 	CMyLyric()
 	{
+		enableDebug=0;
 		brush=::GetSysColorBrush(/*COLOR_3DFACE*/COLOR_BTNSHADOW);
 		newPen=(HPEN)::CreatePen(PS_NULL,0,RGB(255,255,255));
 
@@ -108,29 +111,34 @@ public:
 			::TrackPopupMenu(trackMenu,TPM_LEFTALIGN,point.x,point.y,0,m_hWnd,0);
 		}
 
+
+		
 		LRESULT OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			bHandled=FALSE;
 			if(!::IsWindowVisible(m_hWnd))
 				return 0;
-			if(!track || !track->m_bLrcFromLrcFile)
+			if(!track /*|| !track->m_bLrcFromLrcFile*/)
 				return 0;
+
 			if (!bLrcReady)
 				return 0;
+
+
+
 
 			trackPosInfo *posInfo=(trackPosInfo*)wParam;
 			if (posInfo->left==0)
 				ResetTitle();
 			//-----------------------------------------
 			LrcLine nextLrcLine=*nextLine;
-			//todo ,nextLine在Dialog里不能解引用问题.
 			double totalsec=nextLrcLine.time.GetTotalMillisecond()/100;
 			if (posInfo->used > totalsec)
 			{
 				//change line
 				preLine=curLine;
 				curLine=nextLine;
-				nextLine++;
+				++nextLine;
 
 				InvalidateRect(&lrcRect);
 
@@ -165,8 +173,7 @@ public:
 			::BeginPaint(m_hWnd,&ps);
 			int oldBgkMode=::SetBkMode(ps.hdc,TRANSPARENT);
 
-			if(!bLrcReady);
-			else if(track->m_bLrcFromLrcFile)
+			if(bLrcReady && track->m_bLrcFromLrcFile)
 			{
 				HFONT oldFont=(HFONT) SelectObject(ps.hdc,newFont);
 
@@ -180,14 +187,14 @@ public:
 
 				::SelectObject(ps.hdc,oldFont);
 			}
-			else if(track->m_bLrcInner)
+			else if(track && track->m_bLrcInner)
 			{
 				::DrawText(ps.hdc,track->lyricInner.c_str(),track->lyricInner.length(),&rc,DT_CENTER);
 			}
 
 
 			 ::SetBkMode(ps.hdc,oldBgkMode);
-
+			 
 			::EndPaint(m_hWnd,&ps);	
 		}
 
@@ -203,14 +210,16 @@ public:
 
 
 			LrcMng *sLM=LrcMng::Get();
-			if( track->GetLrcFileFromLib() )
+			if(track->m_bLrcFromLrcFile || track->GetLrcFileFromLib() )
 			{
 				LrcLines *emptyVec=new LrcLines;
 				emptyVec->push_back(lineEmpty);
 				preLine=emptyVec->begin();
+
 				curLine=track->lyricFromLrcFile.begin();
 				nextLine=curLine;
-				nextLine++;
+				++nextLine;
+
 				bLrcReady=TRUE;
 			}
 			
