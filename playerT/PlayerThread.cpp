@@ -77,7 +77,8 @@ void CPlayerThread::Excute()
 void CPlayerThread::WriteDataToDSBuf()
 {
 	char *pFileBuffer=(char*)pBufFFT1;
-	if(!m_pPlayer->m_pFile->Read(pBufFFT1,gDefaultBufferSize,&m_dwSizeRead))
+	if(!m_pPlayer->m_pFile->Read(pBufFFT1,gDefaultBufferSize,&m_dwSizeRead) ||
+		m_dwSizeRead==0 )
 	{
 		if(m_pPlayer->m_bStopped)
 		{			

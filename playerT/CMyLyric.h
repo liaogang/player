@@ -116,8 +116,7 @@ public:
 		LRESULT OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			bHandled=FALSE;
-			if(!::IsWindowVisible(m_hWnd))
-				return 0;
+
 			if(!track /*|| !track->m_bLrcFromLrcFile*/)
 				return 0;
 
@@ -140,7 +139,8 @@ public:
 				curLine=nextLine;
 				++nextLine;
 
-				InvalidateRect(&lrcRect);
+				if(::IsWindowVisible(m_hWnd))
+					InvalidateRect(&lrcRect);
 
 				if (nextLine==track->lyricFromLrcFile.end())
 					bLrcReady=FALSE;
@@ -207,8 +207,6 @@ public:
 			track=playlist->curTrack();
 			if(!track) return;
 
-
-
 			LrcMng *sLM=LrcMng::Get();
 			if(track->m_bLrcFromLrcFile || track->GetLrcFileFromLib() )
 			{
@@ -221,12 +219,17 @@ public:
 				++nextLine;
 
 				bLrcReady=TRUE;
+
+				int i=0;
+				OnSize(0,0,0,i);
+				InvalidateRect(&lrcRect);
 			}
 			
 
 			if(track->lycPath.empty())
 				ResetTitle();
-			else{
+			else
+			{
 				title=track->lycPath;
 				ChangedTitle();
 			}

@@ -53,7 +53,7 @@ void MyLib::play()
 		return;
 
 	PlayListItem* curTrack=playlist->curTrack();
-	curTrack->ScanId3Info(TRUE);
+	curTrack->ScanId3Info(TRUE,TRUE);
 
 	CBasicPlayer* s=CBasicPlayer::shared();
 	if(s->open(curTrack))

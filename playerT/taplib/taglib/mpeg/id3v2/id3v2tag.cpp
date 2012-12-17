@@ -96,14 +96,17 @@ ID3v2::Tag::~Tag()
   delete d;
 }
 
-void ID3v2::Tag::retainPicBuf(ByteVector** buf) const
+int ID3v2::Tag::retainPicBuf(ByteVector** buf) const
 {
+	AttachedPictureFrame::Type type=static_cast<AttachedPictureFrame::Type>(-1);
 	if (!d->frameListMap["APIC"].isEmpty())
 	{
 		AttachedPictureFrame *frame=(AttachedPictureFrame*)d->frameListMap["APIC"].front();
 		frame->retainPicBuf(buf);
+		type=frame->type();
 	}
-	return;
+	
+	return type;
 }
 
 String ID3v2::Tag::lyric() const

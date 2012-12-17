@@ -1,4 +1,7 @@
 #pragma once
+
+#include "PlayListView.h"
+
 using namespace std;
 
 class DialogSearch :
@@ -135,7 +138,7 @@ public:
 		int count=pM->m_pPlaylistView->GetItemCount();
 		for (int i=0;i<count;++i)
 		{
-			PlayListItem *track=(PlayListItem*)pM->m_pPlaylistView->m_ppl->m_songList[i];
+			PlayListItem *track=(PlayListItem*)pM->m_pPlaylistView->GetPlayList()->m_songList[i];
 			if (track->HaveKeywords(const_cast<TCHAR*>( strBuf.c_str()) ))
 				searchPl->m_songList.push_back(track);
 		}

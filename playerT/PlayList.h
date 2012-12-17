@@ -19,6 +19,7 @@
 #include <taglib.h>
 #include <fileref.h>
 #include <tbytevector.h>
+#include <attachedpictureframe.h>
 using namespace TagLib;
 
 class PlayList;
@@ -90,7 +91,7 @@ public:
 	};
 	ID3Status m_bStatus;
 
-	BOOL  ScanId3Info(BOOL bRetainPic=FALSE);
+	BOOL  ScanId3Info( BOOL bRetainPic=FALSE,BOOL forceRescan=TRUE);
 	const TCHAR* GetTitle(){return title.c_str();}
 	BOOL  GetLrcFileFromLib();
 	BOOL  HaveKeywords(TCHAR *keywords);

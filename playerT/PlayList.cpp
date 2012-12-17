@@ -293,13 +293,7 @@ PlayListItem::~PlayListItem()
 }
 
 
-void TrimRightByNull(std::wstring &_str)
-{
-	char c='\0';
-	int index=_str.find_first_of(c);
-	if (index!=_str.npos)
-		_str=_str.substr(0,index);	
-}
+
 
 void PlayListItem::Buf2Img(BYTE* lpRsrc,DWORD len)
 {
@@ -332,9 +326,10 @@ void PlayListItem::Buf2Img(BYTE* lpRsrc,DWORD len)
 		img=NULL;}
 };
 
-BOOL PlayListItem::ScanId3Info(BOOL bRetainPic)
+BOOL PlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 {
-	if(m_bStatus!=UNKNOWN && bRetainPic==FALSE)return TRUE;
+	if( !forceRescan && m_bStatus!=UNKNOWN)
+		return TRUE;
 
 	MPEG::File f(url.c_str());
 
@@ -349,7 +344,8 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic)
 	BOOL bInvalidID3V2=FALSE;
 	if(id3v2tag) 
 	{
-		if(m_bStatus==UNKNOWN)
+		if(forceRescan ||
+			(!forceRescan && m_bStatus==UNKNOWN) )
 		{
 			title=id3v2tag->title().toWString();
 			artist=id3v2tag->artist().toWString();
@@ -365,17 +361,19 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic)
 				bInvalidID3V2=TRUE;
 			else
 				m_bStatus=ID3V2;
-		}
 
-		if(bRetainPic)
-		{
-			// we will use bytevector to retain to memory in frame
-			pPicBuf=NULL;
-			id3v2tag->retainPicBuf(&pPicBuf);
-			if (pPicBuf)
-				Buf2Img((BYTE*)pPicBuf->data(),pPicBuf->size());
-		}
+			if(  m_bStatus==ID3V2  && bRetainPic)
+			{
+				// we will use bytevector to retain to memory in frame
+				pPicBuf=NULL;
+				
 
+				ID3v2::AttachedPictureFrame::Type type=static_cast<ID3v2::AttachedPictureFrame::Type>(id3v2tag->retainPicBuf(&pPicBuf));
+				AtlTrace("picture type :%d \n",(int)type);
+				if (pPicBuf)
+					Buf2Img((BYTE*)pPicBuf->data(),pPicBuf->size());
+			}
+		}
 	}
 	else
 	{
@@ -383,7 +381,7 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic)
 	}
 	
 
-	if(bInvalidID3V2 && m_bStatus==UNKNOWN)
+	if(bInvalidID3V2 &&( (!forceRescan && m_bStatus==UNKNOWN ) || forceRescan))
 	{
 		ID3v1::Tag *id3v1tag = f.ID3v1Tag();
 		if(id3v1tag) 
@@ -519,12 +517,12 @@ BOOL LrcMng::OpenTrackPath(PlayListItem* track,std::tstring &path,BOOL bMatchIde
 		else
 		{
 			
-			if (!ti.empty() && StringCmpNoCase(track->title,ti)!=0)
+			if (!ti.empty() && StrCmpIgnoreCaseAndSpace(track->title,ti)!=0)
 			{
 				 return FALSE;
 			}
 
-			if (!ar.empty() && StringCmpNoCase(track->artist,ar) !=0 )
+			if (!ar.empty() && StrCmpIgnoreCaseAndSpace(track->artist,ar) !=0 )
 			{
 				return FALSE;
 			}

@@ -26,5 +26,8 @@ void CovertFileBuf2UTF16littleEndian(BYTE* pBuf,int bufLen,ENCODETYPE filetype,O
 int MyGetLine(TCHAR *pBuf,int bufLen,std::wstring &str);
 
 int StringCmpNoCase(std::tstring a,std::tstring b);
-
+int StrCmpIgnoreCaseAndSpace(std::tstring a,std::tstring b);
 int hex2dec(char c);
+
+void trimLeftAndRightSpace(std::tstring &str);
+void TrimRightByNull(std::wstring &_str);

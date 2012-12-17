@@ -129,14 +129,15 @@ BEGIN
     EDITTEXT        IDC_EDIT1,5,4,153,12,ES_AUTOHSCROLL
 END
 
-IDD_ABOUTBOX DIALOGEX 0, 0, 242, 98
+IDD_ABOUTBOX DIALOGEX 0, 0, 204, 81
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,177,56,50,22
-    CTEXT           "simple player by lg v0.1\n\n(c) Copyright 2011",IDC_STATIC,50,36,123,25
-    ICON            IDR_MAINFRAME,IDC_STATIC,19,35,20,20
+    DEFPUSHBUTTON   "OK",IDOK,140,51,50,22
+    CONTROL         "Music Player 1.0",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,68,13,100,10
+    ICON            IDR_MAINFRAME,IDC_STATIC,15,27,21,23
+    CONTROL         "(C) 2011-2012 By LG",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,68,32,99,10
 END
 
 IDD_DLG_FFT_OUTLINE DIALOGEX 0, 0, 231, 109
@@ -230,6 +231,10 @@ BEGIN
         RIGHTMARGIN, 160
         TOPMARGIN, 7
         BOTTOMMARGIN, 28
+    END
+
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
     END
 
     IDD_DLG_FFT_OUTLINE, DIALOG
@@ -399,6 +404,26 @@ BEGIN
         MENUITEM "重命名",                         ID_TABBAR_RENAME
         MENUITEM "删除",                          ID_TABBAR_DEL
         MENUITEM SEPARATOR
+    END
+END
+
+IDR_MENU_PL_MNG MENU
+BEGIN
+    POPUP "PlayListMng"
+    BEGIN
+        MENUITEM "激活\tEnter",                   ID_PLAYLISTMNG_D
+        MENUITEM "重命名\tF2",                     ID_PLAYLISTMNG_32878
+        MENUITEM "删除\tDel",                     ID_PLAYLISTMNG_32879
+        MENUITEM "新建\tCtrl+N",                  ID_PLAYLISTMNG_32880
+        MENUITEM SEPARATOR
+        MENUITEM "剪切\tCtrl+X",                  ID_PLAYLISTMNG_32881
+        MENUITEM "复制\tCtrl+C",                  ID_PLAYLISTMNG_32882
+        MENUITEM "粘贴\tCtrl+V",                  ID_PLAYLISTMNG_32883
+        MENUITEM SEPARATOR
+        POPUP "上下文菜单"
+        BEGIN
+            MENUITEM "属性",                          ID_32885
+        END
     END
 END
 

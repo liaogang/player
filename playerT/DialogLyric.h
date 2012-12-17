@@ -26,6 +26,33 @@ public:
 	}
 
 
+	void foo()
+	{
+		RECT rc;
+		GetClientRect(&rc);
+
+		InvalidateRect(&rc,1);
+
+		COLORREF cl=RGB(0,78,152);
+
+		SetWindowLong(GWL_EXSTYLE,GetWindowLong(GWL_EXSTYLE)|WS_EX_LAYERED);
+
+		typedef BOOL (WINAPI *FSetLayeredWindowAttributes)(HWND,COLORREF,BYTE,DWORD);
+
+		FSetLayeredWindowAttributes SetLayeredWindowAttributes;
+
+		HINSTANCE hInst = LoadLibrary(_T("User32.DLL"));
+
+		SetLayeredWindowAttributes = (FSetLayeredWindowAttributes)GetProcAddress(hInst,"SetLayeredWindowAttributes");
+
+		if (SetLayeredWindowAttributes)
+			SetLayeredWindowAttributes(m_hWnd,cl,200 ,LWA_COLORKEY|LWA_ALPHA);//|LWA_ALPHA
+
+		FreeLibrary(hInst);
+
+
+
+	}
 
 };
 

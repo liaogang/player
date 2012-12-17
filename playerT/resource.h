@@ -26,6 +26,7 @@
 #define IDR_MENU_TABBAR                 217
 #define IDD_DLG_LRC_PANE_PROPERTY       218
 #define IDD_DLG_PL_MNG                  219
+#define IDR_MENU_PL_MNG                 220
 #define IDC_TREE                        1000
 #define IDC_RESET_ALL                   1001
 #define IDC_RESET_THIS                  1002
@@ -50,7 +51,6 @@
 #define IDC_BUTTON3                     1023
 #define IDC_RADIO1                      1024
 #define IDC_CHECK1                      1025
-#define IDC_LIST1                       1026
 #define IDD_DLG_CFG_1                   2055
 #define IDD_DLG_LRC_PANE_PROPERTY1      2056
 #define IDD_DLG_LRC_PANE_PROPERTY2      2057
@@ -151,13 +151,22 @@
 #define ID_MENU_LRC_PANE_PROPERTY       32874
 #define ID_VIEW_PLAYER                  32875
 #define ID_VIEW_PLAYLIST_MNG            32876
+#define ID_PLAYLISTMNG_D                32877
+#define ID_PLAYLISTMNG_32878            32878
+#define ID_PLAYLISTMNG_32879            32879
+#define ID_PLAYLISTMNG_32880            32880
+#define ID_PLAYLISTMNG_32881            32881
+#define ID_PLAYLISTMNG_32882            32882
+#define ID_PLAYLISTMNG_32883            32883
+#define ID_PLAYLISTMNG_32884            32884
+#define ID_32885                        32885
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        220
-#define _APS_NEXT_COMMAND_VALUE         32877
+#define _APS_NEXT_RESOURCE_VALUE        221
+#define _APS_NEXT_COMMAND_VALUE         32886
 #define _APS_NEXT_CONTROL_VALUE         1027
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

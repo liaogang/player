@@ -194,6 +194,30 @@ int StringCmpNoCase(std::tstring a,std::tstring b)
 	return _tcscmp(a.c_str(),b.c_str());
 }
 
+void trimLeftAndRightSpace(std::tstring &str)
+{
+	char c=' ';
+	int index=str.find_first_not_of(c);
+	if (index!=str.npos && index!=0)
+		str.erase(0,index);
+
+	index=str.find_last_not_of(c);
+	if(index!=str.npos)
+		str.erase(index+1);
+}
+
+int StrCmpIgnoreCaseAndSpace(std::tstring a,std::tstring b)
+{
+	_tcsupr(const_cast<TCHAR*>(a.c_str()) );
+	_tcsupr(const_cast<TCHAR*>(b.c_str()));
+
+	trimLeftAndRightSpace(a);
+	trimLeftAndRightSpace(b);
+	
+	return _tcscmp(a.c_str(),b.c_str());
+}
+
+
 
 int hex2dec(char c)
 {
@@ -208,3 +232,10 @@ int hex2dec(char c)
 	return ret;
 }
 
+void TrimRightByNull(std::wstring &_str)
+{
+	char c='\0';
+	int index=_str.find_first_of(c);
+	if (index!=_str.npos)
+		_str=_str.substr(0,index);	
+}

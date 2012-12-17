@@ -1,49 +1,50 @@
 #pragma once
+#include "stdafx.h"
+#include "PlayList.h"
+#define INVALID_ITEM -1
 
-unsigned int BKDRHash(char *str)
+unsigned int BKDRHash(char *str);
+
+HMENU LoadPlaylistMenu(BOOL bDestroy=FALSE);
+
+
+class PlayListViewBase
 {
-	unsigned int seed = 131; // 31 131 1313 13131 131313 etc..
-	unsigned int hash = 0;
+private:
+	PlayList *  m_pPlayList;
+public:
+	//清空当前播放列表视图的所有项目,
+	virtual void ClearAllItem()=0;
 
-	while (*str){
-		hash = hash * seed + (*str++);
-	}
+	virtual void ClearAllSel()=0;
+	virtual void SelectAndFocusItem(int item)=0;
 
-	return (hash & 0x7FFFFFFF);
-}
+	virtual void LoadPlayList(PlayList *pPlayList)=0;
+	virtual void EnsureVisibleAndCentrePos(int index)=0;
+	virtual void Reload(PlayList* pPlayList,BOOL SetIndex=-1)=0;
 
-HMENU LoadPlaylistMenu(BOOL bDestroy=FALSE)
-{
-	static HMENU menu=NULL;
-	static HMENU subMenu=NULL;
-	if (!bDestroy)
+	void ReLoad(PlayList *pPL)
 	{
-		if (!menu)
-		{	
-			menu=::LoadMenu(NULL,MAKEINTRESOURCE(IDR_MENU_PLAYLIST));
-			subMenu=::GetSubMenu(menu,0);
-		}
-	}
-	else
-	{
-		if(menu)
-		{
-			::DestroyMenu(menu);
-			menu=NULL;
-		}
+		ClearAllItem();
+		LoadPlayList(pPL);
 	}
 
-	return subMenu;
-}
+	inline void SetPlayList(PlayList * pPlayList){m_pPlayList=pPlayList;}
+	PlayList * GetPlayList(){return m_pPlayList;}
+};
+
+
+
+
 
 class CPlayListView:
 	public CWindowImpl<CPlayListView,CListViewCtrl>,
-	public CMessageFilter
+	public CMessageFilter,
+	public PlayListViewBase
 {
 public:
 	class CMainFrame *pMain;
 	void SetMain(class CMainFrame *pMain);
-	PlayList     *m_ppl;
 	PlayListItem *m_pPlayTrack;
 
 	BOOL bAuto,bDeletable;
@@ -165,11 +166,11 @@ public:
 			NMLISTVIEW * pnml=(NMLISTVIEW *)pnmh;
 			if(m_bC)
 			{
-				m_ppl->topVisibleIndex=pnml->iItem;
-				m_ppl->selectedIndex=pnml->iItem;
+				GetPlayList()->topVisibleIndex=pnml->iItem;
+				GetPlayList()->selectedIndex=pnml->iItem;
 				if (pnml->iItem!=-1)
 				{
-					m_ppl->SetSelectedItem(pnml->iItem);
+					GetPlayList()->SetSelectedItem(pnml->iItem);
 				}
 			}
 			return 1;
@@ -234,8 +235,8 @@ public:
 			if(k!=-1)
 			{
 				PlayItem(k);
-				m_ppl->topVisibleIndex=k;
-				m_ppl->selectedIndex=k;
+				GetPlayList()->topVisibleIndex=k;
+				GetPlayList()->selectedIndex=k;
 			}
 
 			SetMsgHandled(FALSE);
@@ -256,6 +257,9 @@ public:
 
 		void Init()
 		{	
+			if(!m_bSearch)
+				AllPlayListViews()->AddItem(this);
+
 			ChangeColorDefault();
 			SetExtendedListViewStyle(GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP);
 
@@ -318,33 +322,50 @@ public:
 		void InsertTrackItem(PlayListItem &track,int item,BOOL SetIndex=TRUE);
 		inline void InsertTrackItem(PlayListItem *track,int item,BOOL SetIndex=TRUE){InsertTrackItem(*track,item,SetIndex);}
 
-		void Reload(PlayList* pPl,BOOL SetIndex=-1)
+
+		void LoadPlayList(PlayList *pPlayList)
+		{
+			SetItemCount(pPlayList->m_songList.size());
+			SetPlayList(pPlayList);
+		}
+
+		void ClearAllItem()
+		{
+			SetItemCount(0);
+		}
+
+		void SelectAndFocusItem(int item)
+		{
+			SetItemState(item,LVIS_FOCUSED|
+				LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
+		}
+
+
+
+
+		void Reload(PlayList* pPlayList,int SetIndex=INVALID_ITEM)
 		{
 			m_bC=FALSE;
-			int songCount=pPl->m_songList.size();
-			m_ppl=pPl;
-			SetItemCount(songCount);
 			ClearAllSel();
+			LoadPlayList(pPlayList);
 
-			if(SetIndex==-1)
+			if(SetIndex==INVALID_ITEM)//so we highlight last selected item
 			{
 				int selItem;
-				if(m_ppl->selectedIndex==-1)
+				if(GetPlayList()->selectedIndex==-1)
 				{
 					selItem=0;
 				}
 				else
 				{
-					SetItemState(m_ppl->selectedIndex,LVIS_FOCUSED|
-						LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
-					selItem=m_ppl->selectedIndex;
+					selItem=GetPlayList()->selectedIndex;
+					SelectAndFocusItem(selItem);
 				}
 				
 				EnsureVisibleAndCentrePos(selItem);
 			}
 			else
 			{
-				
 				EnsureVisibleAndCentrePos(SetIndex);
 				SetItemState(SetIndex,LVIS_FOCUSED|
 					LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
@@ -387,7 +408,7 @@ public:
 
 			if(nItem!=-1)
 			{
-				PlayListItem *track=m_ppl->m_songList[nItem];
+				PlayListItem *track=GetPlayList()->m_songList[nItem];
 
 				std::tstring parameters=_T("/select,");
 				parameters+=track->url;

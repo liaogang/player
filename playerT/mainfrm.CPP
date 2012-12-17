@@ -6,11 +6,13 @@
 #include "CAlbumCoverView.h"
 #include "CMyTabBar.h"
 #include "DlgProcessing.h"
-#include "PlayListView.h"
+//#include "PlayListView.h"
+#include "PlayListViewMng.h"
 #include "DialogSearch.h"
 #include "DialogLyric.h"
 #include "DialogFFTOutline.h"
 #include "PlayListManager.h"
+#include "glassWnd.h"
 #include <mpg123.h>
 #include <string>
 using namespace std;
@@ -57,7 +59,6 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_CmdBar.LoadImages(IDR_MAINFRAME);
 	// remove old menu
 	SetMenu(NULL);
-
 
 	//-----------------------------------------
 	//standed toobar 
@@ -149,13 +150,15 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	//right pane
 	//------------------------------------------------
-	m_pPlaylistView=new CPlayListView;
-	m_pPlaylistView->Create(m_pSplit->m_hWnd, rcDefault, NULL,  WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN | WS_CLIPSIBLINGS| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA, 0);
-	m_pPlaylistView->Init();	
-
 	//tab bar
 	m_pTabBar=new CMyTabBar;
-	m_pTabBar->Create(m_pSplit->m_hWnd,rcDefault,NULL,WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN | WS_CLIPSIBLINGS,0/*WS_EX_STATICEDGE*/);
+	//m_pTabBar->Create(m_pSplit->m_hWnd,rcDefault,NULL,WS_CHILD/*|WS_VISIBLE*/|WS_CLIPCHILDREN | WS_CLIPSIBLINGS,0/*WS_EX_STATICEDGE*/);
+
+	
+	m_pPlaylistView=new CPlayListView;
+	m_pPlaylistView->Create(m_pSplit->m_hWnd, rcDefault, NULL,  WS_CHILD | WS_VISIBLE /*|WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA, 0);
+	m_pPlaylistView->Init();	
+
 
 	//left pane
 	leftPane=new CHorSplitterWindow;
@@ -165,6 +168,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	albumView1=new CAlbumCoverView;
 	albumView1->Create(leftPane->m_hWnd,0,0,dwSplitStyle);
 	lyricView=new CWndLyric;
+	lyricView->enableDebug=1;
 	lyricView->Create(leftPane->m_hWnd);
 	lyricView->Init();
 
@@ -196,7 +200,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_pTabBar->pMain=this;
 	m_pStatus->pMain=this;
 
-	DoSomethingBeforeShow();
+
+	InitData();
 
 	return 0;
 }
@@ -265,11 +270,12 @@ LRESULT CMainFrame::OnOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 	{
 		PlayList* selPl=MyLib::shared()->SelPlaylist();
 		if(selPl)
+		{
 			selPl->AddFile(dlg.m_ofn.lpstrFile);
-		
-		m_pPlaylistView->Reload(selPl);
+			AllPlayListViews()->Reload(selPl);
+			//m_pPlaylistView->Reload(selPl);
+		}
 	}
-	
 	
 	return 0;
 }
@@ -325,7 +331,8 @@ LRESULT CMainFrame::OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
 	if (playlist){
 		//m_pTabBar->AddPlaylistTab(playlist,TRUE,-1);
-		m_pPlaylistView->Reload(playlist);
+		AllPlayListViews()->Reload(playlist);
+		//m_pPlaylistView->Reload(playlist);
 	}
 	return 0;
 }
@@ -364,9 +371,22 @@ LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 		m_dlgLrc=dlg;
 		dlg->GetClientRect(&dlg->rc);
 		dlg->TrackChanged();
+		dlg->foo();
 	}
 
 	dlg->ShowWindow(SW_SHOW);
+	
+
+
+
+	//test
+// 	GlassWnd *pGlassWnd=new GlassWnd;
+// 	RECT rc;
+// 	GetClientRect(&rc);
+// 	pGlassWnd->Create(this->m_hWnd,rc,0,WS_CHILD|WS_VISIBLE);
+// 	pGlassWnd->foo();
+	
+
 	return 0;
 }
 
@@ -440,7 +460,12 @@ LRESULT CMainFrame::OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 LRESULT CMainFrame::OnFileNewPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	PlayList *pPl=MyLib::shared()->NewPlaylist();
-	m_pTabBar->AddPlaylistTab(pPl,TRUE,-1);
+	
+	AllPlayListViews()->Reload(pPl);
+	//m_pPlaylistView->Reload(pPl);
+	MyLib::shared()->SetSelPlaylist(pPl);
+
+	//m_pTabBar->AddPlaylistTab(pPl,TRUE,-1);
 
 	return 0;
 }
@@ -495,8 +520,11 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 	PlayList::_songContainer::iterator i=curPl->m_songList.begin();
 	for (i=curPl->m_songList.begin();((*i)!=track) && i!=curPl->m_songList.end();i++,k++);
 
-	pMain->m_pTabBar->SetCurSel(curPl,k);
-
+	//TODO
+	//pMain->m_pTabBar->SetCurSel(curPl,k);
+	
+	AllPlayListViews()->Reload(curPl,k);
+	//pMain->m_pPlaylistView->Reload(curPl,k);
 	pMain->m_pPlaylistView->SetFocus();
 
 // 	int i=track->indexInListView;
@@ -566,7 +594,7 @@ void CPlayListView::PlayItem(int nItem)
 	PlayListItem *track;
 	if(nItem==-1)return;
 
-	track=m_ppl->m_songList[nItem];	
+	track=GetPlayList()->m_songList[nItem];	
 
 	s->SetActivePlaylist(track->m_pPL);
 	s->ActivePlaylist()->SetCurPlaying(track,FALSE);
@@ -631,7 +659,7 @@ void CMainFrame::ShowSearchDialog()
 	m_pDlgSearch->ShowSelf();
 }
 
-void CMainFrame::DoSomethingBeforeShow()
+void CMainFrame::InitData()
 {
 	//mylib init will load cfg files 
 	//include playlist and lrc search paths
@@ -641,7 +669,9 @@ void CMainFrame::DoSomethingBeforeShow()
 	{
 		MyLib::PLList::iterator i;
 		for (i=s->m_playLists.begin();i!=s->m_playLists.end();++i)
-			m_pTabBar->AddPlaylistTab(*i,TRUE,-1);
+		{;
+				//m_pTabBar->AddPlaylistTab(*i,TRUE,-1);
+		}
 
 		i--;
 		m_pPlaylistView->Reload(*i);
@@ -741,7 +771,7 @@ LRESULT CPlayListView::OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled)
 	LV_ITEM* pItem= &(pDispInfo)->item;
 	int iItemIndx= pItem->iItem;
 
-	PlayListItem *track=m_ppl->m_songList[iItemIndx];
+	PlayListItem *track=GetPlayList()->m_songList[iItemIndx];
 	if(!track) return 0;
 	TCHAR year[25]={0};
 	TCHAR strIndex[5]={0};
@@ -833,8 +863,8 @@ BOOL CMyTabBar::AddPlaylistTab(PlayList* ppl,BOOL inActiveFlag , int inImage )
 {
 	int nNewTab=AddTab(ppl->m_playlistName.c_str(),pMain->m_pPlaylistView->m_hWnd,inActiveFlag,inImage,(LPARAM)ppl);
 
-	pMain->m_pPlaylistView->Reload(ppl);
-	MyLib::shared()->SetSelPlaylist(ppl);
+// 	pMain->m_pPlaylistView->Reload(ppl);
+// 	MyLib::shared()->SetSelPlaylist(ppl);
 
 	return 0;
 }
@@ -946,4 +976,46 @@ LRESULT DialogFFT::OnFullScreen(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/
 
 
 
+
+
+
+
+
+
+unsigned int BKDRHash(char *str)
+{
+	unsigned int seed = 131; // 31 131 1313 13131 131313 etc..
+	unsigned int hash = 0;
+
+	while (*str){
+		hash = hash * seed + (*str++);
+	}
+
+	return (hash & 0x7FFFFFFF);
+}
+
+
+HMENU LoadPlaylistMenu(BOOL bDestroy)
+{
+	static HMENU menu=NULL;
+	static HMENU subMenu=NULL;
+	if (!bDestroy)
+	{
+		if (!menu)
+		{	
+			menu=::LoadMenu(NULL,MAKEINTRESOURCE(IDR_MENU_PLAYLIST));
+			subMenu=::GetSubMenu(menu,0);
+		}
+	}
+	else
+	{
+		if(menu)
+		{
+			::DestroyMenu(menu);
+			menu=NULL;
+		}
+	}
+
+	return subMenu;
+}
 
