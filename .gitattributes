@@ -152,7 +152,6 @@ playerT/playerT.dsw -text
 playerT/playerT.opt -text
 playerT/playerT.sln -text
 playerT/playerT.vcproj -text
-playerT/playerTview.h -text
 playerT/res/Toolbar.bmp -text
 playerT/res/idr_main.ico -text
 playerT/res/player.ico -text
