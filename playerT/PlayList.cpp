@@ -7,6 +7,10 @@
 #include "DialogLyric.h"
 #include "CImg.h"
 #include "StringConvertions.h"
+
+using namespace TagLib;
+
+
 struct PLANDPATH
 {
 	PlayList* pPlaylist;
@@ -418,6 +422,21 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 
 
 
+BOOL PlayListItem::TryLoadLrcFile(std::tstring &filename)
+{
+	if (LrcFileMacth(filename))//filename match
+	{
+		LrcMng *m=LrcMng::Get();
+		if(m->OpenTrackPath(this,filename,TRUE))//lrc tag match
+		{
+			lycPath=filename;
+			m_bLrcFromLrcFile=TRUE;
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
 
 
 //通过歌词文件名判断,是否与当前歌曲匹配
@@ -449,23 +468,19 @@ BOOL PlayListItem::LrcFileMacth(std::tstring &lrcFile)
 
 
 
-BOOL PlayListItem::GetLrcFileFromLib()
+BOOL PlayListItem::GetLrcFileFromLib(BOOL forceResearch)
 {
+	if (!forceResearch && m_bLrcFromLrcFile)
+		return TRUE;
+
 	vector<std::tstring>::iterator i;
 	for (i=MyLib::shared()->dataPaths.begin();i!=MyLib::shared()->dataPaths.end();i++)
 	{
 		int index=(*i).find_last_of('\\');
 		if(index!=(*i).npos){
 			std::tstring filename=(*i).substr(index+1);
-			if (LrcFileMacth(filename))//filename match
-			{
-				LrcMng *m=LrcMng::Get();
-				if(m->OpenTrackPath(this,*i,TRUE))//lrc tag match
-				{
-					lycPath=*i;
-					return TRUE;
-				}
-			}
+			if(TryLoadLrcFile(filename))
+				return TRUE;
 		}
 	}
 
@@ -511,7 +526,6 @@ BOOL LrcMng::OpenTrackPath(PlayListItem* track,std::tstring &path,BOOL bMatchIde
 		if(!bMatchIdentityTag)
 		{
 			track->lyricFromLrcFile=lib;
-			track->m_bLrcFromLrcFile=TRUE;
 			return TRUE;
 		}
 		else
@@ -529,7 +543,6 @@ BOOL LrcMng::OpenTrackPath(PlayListItem* track,std::tstring &path,BOOL bMatchIde
 
 			{
 				track->lyricFromLrcFile=lib;
-				track->m_bLrcFromLrcFile=TRUE;
 				return TRUE;
 			}
 		}

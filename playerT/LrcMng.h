@@ -147,7 +147,12 @@ public:
 		FILE * pFile;
 		int filesize;
 		pFile = _tfopen( pstrPath, _T("rb") );
-		if (pFile)
+		
+		if (!pFile)
+		{
+			return;
+		}
+		else
 		{
 			//get the file size
 			fseek(pFile,0,SEEK_END);

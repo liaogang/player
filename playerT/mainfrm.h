@@ -30,6 +30,8 @@ class DialogFFT;
 class DialogFFTOutline;
 //-----------------------------------------
 
+
+
 class CMainFrame : 
 	public CFrameWindowImpl<CMainFrame>, 
 	public CUpdateUI<CMainFrame>,
@@ -249,7 +251,8 @@ public:
 	void ShowSearchDialog();
 	void InitData();
 	void ShowDlgProcessFile();
+	void lrcChanged();
 };
 
-
+CMainFrame* GetMainFrame();
 #endif

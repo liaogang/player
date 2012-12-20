@@ -3,6 +3,7 @@
 #pragma once
 
 LPSTR Unicode2Ansi(LPCWSTR s);
+LPSTR Unicode2UTF8(LPWSTR s);
 LPWSTR Ansi2Unicode(LPSTR s);
 LPWSTR UTF82Unicode(LPSTR s);
 
@@ -29,5 +30,13 @@ int StringCmpNoCase(std::tstring a,std::tstring b);
 int StrCmpIgnoreCaseAndSpace(std::tstring a,std::tstring b);
 int hex2dec(char c);
 
+
 void trimLeftAndRightSpace(std::tstring &str);
 void TrimRightByNull(std::wstring &_str);
+
+
+
+
+long Conv(int i) ;
+void CreateQianQianCode(char *id,char *ar,char*ti,std::string &code);
+std::string str2UnicodeCode(const WCHAR *c,int len);

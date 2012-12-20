@@ -73,3 +73,6 @@ DWORD DS_GetAvailable(int maxDSBufferLen , int playCursor, int curWritePos)
 
 
 
+
+
+

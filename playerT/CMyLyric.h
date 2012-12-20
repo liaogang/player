@@ -2,8 +2,8 @@
 
 #include "LrcMng.h"
 #include "PlayList.h"
-
-#define  ID_MENU_FOLDER_OPEN (0XF000-202)
+#include "dlgLrcSearch.h"
+//#define  ID_MENU_FOLDER_OPEN (0XF000-202)
 class PlayListItem;
 template <typename T>
 class CMyLyric:public T
@@ -53,6 +53,7 @@ public:
 		COMMAND_ID_HANDLER(ID_OPEN_LRC_PATH, OnMenuFolderOpen)
 		COMMAND_ID_HANDLER(ID_OPEN_LRCFILE, OnOpenLrcFile)
 		COMMAND_ID_HANDLER(ID_MENU_LRC_PANE_PROPERTY,OnProperty)
+		COMMAND_ID_HANDLER(ID_MENU_SEARCH_ONLINE,OnShowDlgLrcSearch)
 	END_MSG_MAP()
 
 		RECT rc ,lrcRect;
@@ -98,6 +99,55 @@ public:
 			return 0;
 		}
 
+		CDlgLrcSearch dlgLrcSearch;
+		LRESULT OnShowDlgLrcSearch(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+		{
+			if (!dlgLrcSearch.IsWindow())
+				dlgLrcSearch.Create(T::m_hWnd);
+			std::tstring path;
+			WCHAR *savepath=NULL;
+
+			PlayList* pPlaylist=MyLib::shared()->ActivePlaylist();
+			if (pPlaylist)
+			{
+				PlayListItem *item=pPlaylist->curTrack();
+				if (item)
+				{
+					
+					if(MyLib::shared()->lrcDirs.size()>0)
+						path=(WCHAR*)(*(MyLib::shared()->lrcDirs.begin())).c_str();
+					else
+					{
+						path=item->url;
+
+						int idx=path.find_last_of('\\');
+						if (idx!=path.npos)
+							path.erase(idx+1);
+					}
+
+					//we use path\artist - title.lrc
+					path+=L"\\";
+					path+=item->artist;
+					path+=L" - ";
+					path+=item->title;
+					path+=L".lrc";
+
+					savepath=(WCHAR*)path.c_str();
+					dlgLrcSearch.ReInit((WCHAR*)item->artist.c_str(),
+						(WCHAR*)item->title.c_str(),
+						savepath);
+				}
+			}
+
+			if(!savepath)
+				dlgLrcSearch.ReInit(NULL,NULL,NULL);
+
+			dlgLrcSearch.ShowWindow(SW_SHOW);
+
+			return 0;
+		}
+		
+		
 
 		LRESULT OnLyricReload(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
@@ -208,7 +258,7 @@ public:
 			if(!track) return;
 
 			LrcMng *sLM=LrcMng::Get();
-			if(track->m_bLrcFromLrcFile || track->GetLrcFileFromLib() )
+			if( track->GetLrcFileFromLib() )
 			{
 				LrcLines *emptyVec=new LrcLines;
 				emptyVec->push_back(lineEmpty);

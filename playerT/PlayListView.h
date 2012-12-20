@@ -346,9 +346,13 @@ public:
 		void Reload(PlayList* pPlayList,int SetIndex=INVALID_ITEM)
 		{
 			m_bC=FALSE;
-			ClearAllSel();
-			LoadPlayList(pPlayList);
 
+			if (GetPlayList()!=pPlayList)
+			{
+				ClearAllSel();
+				LoadPlayList(pPlayList);
+			}
+			
 			if(SetIndex==INVALID_ITEM)//so we highlight last selected item
 			{
 				int selItem;
@@ -386,6 +390,12 @@ public:
 // 			{
 // 				return;
 // 			}
+
+			//isVisible?
+			if (index >= top && index  <= top+countPerPage)
+			{
+				return;
+			}
 
 			EnsureVisible(index,FALSE);
 

@@ -20,7 +20,6 @@
 #include <fileref.h>
 #include <tbytevector.h>
 #include <attachedpictureframe.h>
-using namespace TagLib;
 
 class PlayList;
 
@@ -66,8 +65,8 @@ public:
 	//-----id3 info-------
 	int itemIndex;
 	std::tstring  title,artist,album,genre,comment;
-	UINT year;
 	TagLib::ByteVector *pPicBuf;
+	UINT year;
 	CImage *img;
 	//cimg_library_suffixed::CImg   *img;
 		
@@ -93,11 +92,13 @@ public:
 
 	BOOL  ScanId3Info( BOOL bRetainPic=FALSE,BOOL forceRescan=TRUE);
 	const TCHAR* GetTitle(){return title.c_str();}
-	BOOL  GetLrcFileFromLib();
+	BOOL  GetLrcFileFromLib(BOOL forceResearch=FALSE);
 	BOOL  HaveKeywords(TCHAR *keywords);
+	BOOL TryLoadLrcFile(std::tstring &filename);
 private:
 	void Buf2Img(BYTE* lpRsrc,DWORD len);
 	BOOL  IsInalid();//abondaned
+	
 	BOOL LrcFileMacth(std::tstring &filename);
 };
 

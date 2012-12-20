@@ -83,7 +83,7 @@ int ReSerialize (FILE *pFile,int *pVal)
 };
 
 template <>
-int ReSerialize (FILE *pFile,uint *pVal)
+int ReSerialize (FILE *pFile,UINT *pVal)
 {
 	fread(pVal,4,1,pFile);
 	return 4;

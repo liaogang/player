@@ -15,6 +15,7 @@
 #include "glassWnd.h"
 #include <mpg123.h>
 #include <string>
+
 using namespace std;
 
 
@@ -203,6 +204,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	InitData();
 
+
 	return 0;
 }
 
@@ -362,6 +364,7 @@ LRESULT CMainFrame::OnConfigMediaLib(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 	return 0;
 }
 
+SearchLyric search1;
 LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	static CDialogLyric *dlg=NULL;
@@ -385,23 +388,32 @@ LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 // 	GetClientRect(&rc);
 // 	pGlassWnd->Create(this->m_hWnd,rc,0,WS_CHILD|WS_VISIBLE);
 // 	pGlassWnd->foo();
+	//test
 	
 
 	return 0;
+}
+
+void CMainFrame::lrcChanged()
+{
+	if (m_dlgLrc)
+		m_dlgLrc->TrackChanged();
+
+	//::PostMessage(m_hWnd,WM_LYRIC_RELOAD,0,0);
+
+	if(lyricView)
+		lyricView->TrackChanged();
 }
 
 
 LRESULT CMainFrame::OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
 	ChangeTitle();
-	if (m_dlgLrc)
-		m_dlgLrc->TrackChanged();
 
-	//::PostMessage(m_hWnd,WM_LYRIC_RELOAD,0,0);
-	if(lyricView)
-		lyricView->TrackChanged();
+	lrcChanged();
 
 	albumView1->TrackChanged();
+
 	return 0;
 }
 
@@ -861,7 +873,7 @@ LRESULT  CPlayListManager::OnDbClicked(UINT i,CPoint pt)
 
 BOOL CMyTabBar::AddPlaylistTab(PlayList* ppl,BOOL inActiveFlag , int inImage )
 {
-	int nNewTab=AddTab(ppl->m_playlistName.c_str(),pMain->m_pPlaylistView->m_hWnd,inActiveFlag,inImage,(LPARAM)ppl);
+	//int nNewTab=AddTab(ppl->m_playlistName.c_str(),pMain->m_pPlaylistView->m_hWnd,inActiveFlag,inImage,(LPARAM)ppl);
 
 // 	pMain->m_pPlaylistView->Reload(ppl);
 // 	MyLib::shared()->SetSelPlaylist(ppl);
@@ -1019,3 +1031,69 @@ HMENU LoadPlaylistMenu(BOOL bDestroy)
 	return subMenu;
 }
 
+
+
+
+
+
+LRESULT CListLrcReportView::OnDbClicked(UINT i,CPoint pt)
+{
+	int k=GetFirstSelItem();
+	if(k!=-1)
+	{
+		parent->DownLoad();
+	}
+	return 0;
+}
+
+void CListLrcReportView::ReFillPlaylist()
+{
+	DeleteAllItems();
+	
+	for (int i=0;i<parent->searchTool.vecLrcLines.size()/3;i+=3)
+	{	
+		LPWSTR wAr=UTF82Unicode((char*)parent->searchTool.vecLrcLines[i*3+1].c_str());
+		LPWSTR wTi=UTF82Unicode((char*)parent->searchTool.vecLrcLines[i*3+2].c_str());
+
+		InsertItem(i,wTi);
+		SetItemText(GetItemCount()-1,1,wAr);
+
+		delete[] wAr;
+		delete[] wTi;
+	}
+
+}
+
+
+
+
+
+
+
+void CDlgLrcSearch::DownLoad()
+{
+	if(savePath==NULL)
+	{
+		const TCHAR szFilter[]=_T("lrc files(*.lrc)\0*.lrc\0text files(*.txt)\0*.txt\0");
+		CFileDialog dlg(TRUE,NULL,NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,szFilter,this->m_hWnd);
+		if(dlg.DoModal()==IDOK)
+		{
+			savePath=dlg.m_ofn.lpstrFile;
+		}
+	}
+
+
+	if(searchSuccess)
+	{
+		BOOL saved=searchTool.Download(m_list.GetSelectedIndex(),savePath);
+		if (saved)
+		{
+			::SetWindowText(GetDlgItem(IDC_EDIT_INFO),L"ÏÂÔØ³É¹¦");
+			HideSelf();
+			std::tstring pszpath(savePath);
+			MyLib::shared()->ActivePlaylist()->curTrack()->TryLoadLrcFile(pszpath);
+			GetMainFrame()->lrcChanged();
+		}
+	}
+
+}

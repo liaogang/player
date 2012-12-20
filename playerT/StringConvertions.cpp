@@ -1,6 +1,14 @@
 #include "StringConvertions.h"
 #include <algorithm>
 
+LPSTR Unicode2UTF8(LPWSTR s)
+{
+	DWORD dwNum= WideCharToMultiByte (CP_UTF8, 0, s, -1, NULL, 0,0,0);
+	LPSTR target=new char[dwNum];
+	WideCharToMultiByte(CP_UTF8,0,s,-1,target,dwNum,0,0);
+	return target;
+}
+
 LPSTR Unicode2Ansi(LPCWSTR s)
 {
 	DWORD dwNum= WideCharToMultiByte (CP_ACP, 0, s, -1, NULL, 0,0,0);
@@ -219,6 +227,7 @@ int StrCmpIgnoreCaseAndSpace(std::tstring a,std::tstring b)
 
 
 
+
 int hex2dec(char c)
 {
 	int ret=-1;
@@ -238,4 +247,132 @@ void TrimRightByNull(std::wstring &_str)
 	int index=_str.find_first_of(c);
 	if (index!=_str.npos)
 		_str=_str.substr(0,index);	
+}
+
+
+
+
+long Conv(int i) 
+{
+	long r = i % 4294967296;
+	if (i >= 0 && r > 2147483648)
+		r -= 4294967296;
+
+	if (i < 0 && r < 2147483648)
+		r += 4294967296;
+	return r;
+}
+
+void CreateQianQianCode(char *id,char *ar,char*ti,std::string &code)
+{
+	int iId=atoi(id);
+	std::string arti(ar);
+	arti+=ti;
+
+	int length=arti.length();
+	int *song=new int[length];
+	for (int i=0;i<length;++i)
+	{
+		char *ak=(char*)(arti.c_str()+i);
+		char  akk=*ak;
+		song[i]=((int)akk) & 0x000000FF;	}
+	int t1=0,t2=0,t3=0;
+
+	t1 = (iId & 0x0000FF00) >> 8;
+
+	if ((iId & 0x00FF0000) == 0)
+		t3 = 0x000000FF & ~t1;
+	else
+		t3 = 0x000000FF & ((iId & 0x00FF0000) >> 16);
+
+	t3 |= (0x000000FF & iId) << 8;
+	t3 <<= 8;
+	t3 |= 0x000000FF & t1;
+	t3 <<= 8;
+
+	if ((iId & 0xFF000000) == 0)
+		t3 |= 0x000000FF & (~iId);
+	else
+		t3 |= 0x000000FF & (iId >> 24);
+
+	int j = length - 1;
+	while (j >= 0)
+	{
+		int c = song[j];
+		if (c >= 0x80) c = c - 0x100;
+
+		t1 = (int)((c + t2) & 0x00000000FFFFFFFF);
+		t2 = (int)((t2 << (j % 2 + 4)) & 0x00000000FFFFFFFF);
+		t2 = (int)((t1 + t2) & 0x00000000FFFFFFFF);
+		j -= 1;
+	}
+
+
+	j = 0;
+	t1 = 0;
+	while (j <= length - 1) 
+	{
+		int c = song[j];
+		if (c >= 128) c = c - 256;
+		int t4 = (int)((c + t1) & 0x00000000FFFFFFFF);
+		t1 = (int)((t1 << (j % 2 + 3)) & 0x00000000FFFFFFFF);
+		t1 = (int)((t1 + t4) & 0x00000000FFFFFFFF);
+		j += 1;
+	}
+
+	int t5 = (int)Conv(t2 ^ t3);
+	t5 = (int)Conv(t5 + (t1 | iId));
+	t5 = (int)Conv(t5 * (t1 | t3));
+	t5 = (int)Conv(t5 * (t2 ^ iId));
+
+
+	long t6 = (long)t5;
+	if (t6 > 2147483648)
+		t5 = (int)(t6 - 4294967296);
+
+	char tmp[20]={0};
+	_itoa(t5,tmp,10);
+	code=tmp;
+}
+
+
+std::string str2UnicodeCode(const WCHAR *c,int len)
+{
+	std::string tmp;
+
+	for (int i=0;i<len;++i)
+	{
+		static const WCHAR ign[]=L" ,./<>?`~!@#$%^&*()-_=+\\|[]{};':\"";
+		if(_tcschr(ign,c[i])!=0)
+			continue;
+
+		char t[10]={0};
+		_itoa((int)c[i],t,16);
+
+		bool bAnsi=false;
+		if (t[2]=='\0')
+		{
+			t[2]='0';
+			bAnsi=true;
+		}
+		if (t[3]=='\0')
+		{
+			t[3]='0';
+			bAnsi=true;
+		}
+
+
+		std::string ttmp(t,t+2);
+		std::string tttmp1(t+2,t+4);
+		if (bAnsi)
+		{
+			tmp+=ttmp;
+			tmp+=tttmp1;
+		}else{
+			tmp+=tttmp1;
+			tmp+=ttmp;
+		}
+	}
+
+	return tmp;
 }

@@ -109,7 +109,10 @@ playerT/MySerialize.cpp -text
 playerT/MySerialize.h -text
 playerT/PlayList.cpp -text
 playerT/PlayList.h -text
+playerT/PlayListManager.h -text
 playerT/PlayListView.h -text
+playerT/PlayListViewMng.cpp -text
+playerT/PlayListViewMng.h -text
 playerT/PlayerThread.cpp -text
 playerT/PlayerThread.h -text
 playerT/ProgertyDlg.h -text
@@ -135,6 +138,8 @@ playerT/WaveFileEx.h -text
 playerT/aboutdlg.h -text
 playerT/atlsplit.h -text
 playerT/customMsg.h -text
+playerT/dlgLrcSearch.h -text
+playerT/glassWnd.h -text
 playerT/libmpg123.dll -text
 playerT/libmpg123.lib -text
 playerT/mainfrm.CPP -text
@@ -157,6 +162,8 @@ playerT/res/Toolbar.bmp -text
 playerT/res/idr_main.ico -text
 playerT/res/player.ico -text
 playerT/res/playerT.ico -text
+playerT/res/player_p1.bmp -text
+playerT/res/player_p2.bmp -text
 playerT/resource.h -text
 playerT/stdafx.cpp -text
 playerT/stdafx.h -text

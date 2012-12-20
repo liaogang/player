@@ -11,12 +11,18 @@
 
 CAppModule _Module;
 
+static CMainFrame *pGlobalMain=NULL;
+CMainFrame* GetMainFrame(){return pGlobalMain;}
+
+
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 {
 	CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
 
 	CMainFrame wndMain;
+	
+	pGlobalMain=&wndMain;
 
 	if(wndMain.CreateEx() == NULL)
 	{

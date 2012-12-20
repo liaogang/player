@@ -155,6 +155,23 @@ BEGIN
     CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,0,0,249,118
 END
 
+IDD_DLG_LRC_SEARCH DIALOGEX 0, 0, 234, 177
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "歌词搜索"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_EDIT_AR,45,8,99,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_TI,46,23,99,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "搜  索",IDC_BTN_SEARCH,159,9,61,24
+    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,9,40,211,99
+    CONTROL         "下载完成后关闭本窗口",IDC_CHECK,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,11,157,96,10
+    DEFPUSHBUTTON   "载入",IDOK,116,155,50,14
+    PUSHBUTTON      "取消",IDCANCEL,170,155,50,14
+    EDITTEXT        IDC_EDIT_INFO,12,141,205,12,ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
+    LTEXT           "艺术家:",IDC_STATIC,12,11,28,8
+    LTEXT           "标    题:",IDC_STATIC,13,26,28,10
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -251,6 +268,14 @@ BEGIN
         RIGHTMARGIN, 242
         TOPMARGIN, 7
         BOTTOMMARGIN, 111
+    END
+
+    IDD_DLG_LRC_SEARCH, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 224
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 170
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -380,7 +405,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "参数选项",                        ID_32850
         MENUITEM SEPARATOR
-        MENUITEM "歌词搜索",                        ID_32851
+        MENUITEM "歌词搜索",                        ID_MENU_SEARCH_ONLINE
         MENUITEM "关于当前歌词",                      ID_32852
         MENUITEM SEPARATOR
         MENUITEM "编辑歌词",                        ID_LRC_EDIT
@@ -529,14 +554,15 @@ VS_VERSION_INFO VERSIONINFO
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "040904B0"
+        BLOCK "040904b0"
         BEGIN
-            VALUE "FileDescription", "player Module"
+            VALUE "CompanyName", "LG"
+            VALUE "FileDescription", "使用来播放您的数字音频文件"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "player"
-            VALUE "LegalCopyright", "Copyright 2011"
-            VALUE "OriginalFilename", "player.exe"
-            VALUE "ProductName", "player Module"
+            VALUE "LegalCopyright", "Copyright 2012"
+            VALUE "OriginalFilename", "Player.exe"
+            VALUE "ProductName", "Class Music Player"
             VALUE "ProductVersion", "1, 0, 0, 1"
         END
     END
