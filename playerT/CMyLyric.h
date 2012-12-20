@@ -104,8 +104,7 @@ public:
 		{
 			if (!dlgLrcSearch.IsWindow())
 				dlgLrcSearch.Create(T::m_hWnd);
-			std::tstring path;
-			WCHAR *savepath=NULL;
+			WCHAR  path[30]={};
 
 			PlayList* pPlaylist=MyLib::shared()->ActivePlaylist();
 			if (pPlaylist)
@@ -113,33 +112,27 @@ public:
 				PlayListItem *item=pPlaylist->curTrack();
 				if (item)
 				{
-					
 					if(MyLib::shared()->lrcDirs.size()>0)
-						path=(WCHAR*)(*(MyLib::shared()->lrcDirs.begin())).c_str();
+						wcscpy(path,(WCHAR*)(*(MyLib::shared()->lrcDirs.begin())).c_str());
 					else
 					{
-						path=item->url;
+						int idx=item->url.find_last_of('\\');
+						ATLASSERT(idx!=item->url.npos);
 
-						int idx=path.find_last_of('\\');
-						if (idx!=path.npos)
-							path.erase(idx+1);
+						if (idx!=item->url.npos)
+							wcscpy(path,item->url.c_str()+idx+1);
 					}
 
 					//we use path\artist - title.lrc
-					path+=L"\\";
-					path+=item->artist;
-					path+=L" - ";
-					path+=item->title;
-					path+=L".lrc";
+					wcscat(wcscat(path,L"\\"),item->artist.c_str());
+					wcscat(wcscat(path,L" - "),item->title.c_str());
+					wcscat(path,L".lrc");
 
-					savepath=(WCHAR*)path.c_str();
-					dlgLrcSearch.ReInit((WCHAR*)item->artist.c_str(),
-						(WCHAR*)item->title.c_str(),
-						savepath);
+					dlgLrcSearch.ReInit((WCHAR*)item->artist.c_str(),(WCHAR*)item->title.c_str(),path);
 				}
 			}
 
-			if(!savepath)
+			if(!path)
 				dlgLrcSearch.ReInit(NULL,NULL,NULL);
 
 			dlgLrcSearch.ShowWindow(SW_SHOW);

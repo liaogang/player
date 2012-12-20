@@ -21,7 +21,10 @@ public:
 			if( pMsg->hwnd==m_list.m_hWnd)
 			{
 				if(nChar==VK_ESCAPE)
+				{
 					HideSelf();
+					bHandled=TRUE;
+				}
 			}
 			else if (pMsg->hwnd==m_edit.m_hWnd)
 			{
@@ -30,14 +33,17 @@ public:
 					if (nChar=='x'||nChar=='X')
 					{
 						SendMessage(m_edit.m_hWnd,WM_CUT,0,0);
+						bHandled=TRUE;
 					}
 					else if (nChar=='c'||nChar=='C')
 					{
 						SendMessage(m_edit.m_hWnd,WM_COPY,0,0);
+						bHandled=TRUE;
 					}
 					else if (nChar=='v'||nChar=='V')
 					{
 						SendMessage(m_edit.m_hWnd,WM_PASTE,0,0);
+						bHandled=TRUE;
 					}
 				}
 			}
@@ -46,11 +52,13 @@ public:
 			{
 				//TAB Ë³Ðò
 				if (pMsg->hwnd==m_edit)
-					::SetFocus(m_list);
+					{::SetFocus(m_list);
+				bHandled=TRUE;}
 				else if(pMsg->hwnd==m_list)
 				{
 					::SetFocus(m_edit);
 					m_edit.SetSel(0,-1);
+					bHandled=TRUE;
 				}
 			}
 

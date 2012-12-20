@@ -347,7 +347,7 @@ public:
 		{
 			m_bC=FALSE;
 
-			if (GetPlayList()!=pPlayList)
+			if (1)//GetPlayList()!=pPlayList)
 			{
 				ClearAllSel();
 				LoadPlayList(pPlayList);

@@ -532,6 +532,13 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 	PlayList::_songContainer::iterator i=curPl->m_songList.begin();
 	for (i=curPl->m_songList.begin();((*i)!=track) && i!=curPl->m_songList.end();i++,k++);
 
+
+	WCHAR tmp[30]={};
+	wcscpy(tmp,track->artist.c_str());
+	wcscat(tmp,L" - ");
+	wcscat(tmp,track->title.c_str());
+	GetMainFrame()->m_pStatus->SetText(0,tmp);
+
 	//TODO
 	//pMain->m_pTabBar->SetCurSel(curPl,k);
 	
@@ -1090,13 +1097,10 @@ void CDlgLrcSearch::DownLoad()
 		wcscpy(dlg.m_szFileName,wcscat(artist,title)+len);
 
 		if(dlg.DoModal()==IDOK)
-		{
 			savePath=dlg.m_ofn.lpstrFile;
-			wcscpy(artist+len,savePath);
-		}
 	}
 
-	
+	wcscpy(artist+len,savePath);
 
 	if(searchSuccess)
 	{
@@ -1106,12 +1110,12 @@ void CDlgLrcSearch::DownLoad()
 		{
 			GetMainFrame()->m_pStatus->SetText(0,artist);
 
-			
-		
+			//check box selected?
 			if((int)::SendMessage(GetDlgItem(IDC_CHECK), BM_GETCHECK, 0, 0L))
 				HideSelf();
 			else
 				::SetWindowText(GetDlgItem(IDC_EDIT_INFO),L"ÏÂÔØ³É¹¦");
+
 			std::tstring pszpath(savePath);
 			if(MyLib::shared()->ActivePlaylist() && MyLib::shared()->ActivePlaylist()->curTrack())
 			{

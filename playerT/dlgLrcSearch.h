@@ -85,11 +85,6 @@ public:
 		COMMAND_ID_HANDLER(IDC_BTN_SEARCH,OnSearch)
 	END_MSG_MAP()
 
-	// Handler prototypes (uncomment arguments if needed):
-	//	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-	//	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
-	
 	CListLrcReportView m_list;
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
@@ -99,6 +94,8 @@ public:
 		m_list.Init();
 		m_list.parent=this;
 		savePath=NULL;
+
+		::SendMessage(GetDlgItem(IDC_CHECK), BM_SETCHECK, BST_CHECKED, 0L);
 
 		return TRUE;
 	}
@@ -171,6 +168,7 @@ public:
 	
 		::SetWindowText(GetDlgItem(IDC_EDIT_AR),ar);
 		::SetWindowText(GetDlgItem(IDC_EDIT_TI),ti);
+		::SetWindowText(GetDlgItem(IDC_EDIT_INFO),L"");
 	}
 
 	inline void HideSelf(){ShowWindow(SW_HIDE);}
