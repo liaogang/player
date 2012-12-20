@@ -1072,28 +1072,102 @@ void CListLrcReportView::ReFillPlaylist()
 
 void CDlgLrcSearch::DownLoad()
 {
+	const WCHAR csStr1[]={L"歌词已保存到:"};
+	const int   len=sizeof(csStr1)/sizeof(WCHAR) -1;
+	WCHAR artist[50]={},title[20]={};
+
+	wcscpy(artist,csStr1);
+	
 	if(savePath==NULL)
 	{
-		const TCHAR szFilter[]=_T("lrc files(*.lrc)\0*.lrc\0text files(*.txt)\0*.txt\0");
-		CFileDialog dlg(TRUE,NULL,NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,szFilter,this->m_hWnd);
+		::GetWindowText(GetDlgItem(IDC_EDIT_AR),artist+len,sizeof(artist)-len);
+		::GetWindowText(GetDlgItem(IDC_EDIT_TI),title,sizeof(title));
+
+		const TCHAR szFilter[]=_T("歌词文件(*.lrc)\0*.lrc\0文本文件(*.txt)\0*.txt\0");
+		CFileDialog dlg(FALSE,L"lrc",NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,szFilter,m_hWnd);
+		
+		wcscat(artist,L" - ");
+		wcscpy(dlg.m_szFileName,wcscat(artist,title)+len);
+
 		if(dlg.DoModal()==IDOK)
 		{
 			savePath=dlg.m_ofn.lpstrFile;
+			wcscpy(artist+len,savePath);
 		}
 	}
 
+	
 
 	if(searchSuccess)
 	{
+		::SetWindowText(GetDlgItem(IDC_EDIT_INFO),L"下载中...");
 		BOOL saved=searchTool.Download(m_list.GetSelectedIndex(),savePath);
 		if (saved)
 		{
-			::SetWindowText(GetDlgItem(IDC_EDIT_INFO),L"下载成功");
-			HideSelf();
+			GetMainFrame()->m_pStatus->SetText(0,artist);
+
+			
+		
+			if((int)::SendMessage(GetDlgItem(IDC_CHECK), BM_GETCHECK, 0, 0L))
+				HideSelf();
+			else
+				::SetWindowText(GetDlgItem(IDC_EDIT_INFO),L"下载成功");
 			std::tstring pszpath(savePath);
-			MyLib::shared()->ActivePlaylist()->curTrack()->TryLoadLrcFile(pszpath);
-			GetMainFrame()->lrcChanged();
+			if(MyLib::shared()->ActivePlaylist() && MyLib::shared()->ActivePlaylist()->curTrack())
+			{
+				MyLib::shared()->ActivePlaylist()->curTrack()->TryLoadLrcFile(pszpath);
+				GetMainFrame()->lrcChanged();
+			}
 		}
 	}
 
+
+	savePath=NULL;
+
+}
+
+
+
+
+
+
+void MyLib::play()
+{
+	PlayList* playlist=MyLib::shared()->ActivePlaylist();
+	if (!playlist)
+		return;
+
+	PlayListItem* curTrack=playlist->curTrack();
+	curTrack->ScanId3Info(TRUE,TRUE);
+
+	CBasicPlayer* s=CBasicPlayer::shared();
+	if(s->open(curTrack))
+	{
+		s->play();
+		GetMainFrame()->m_pStatus->SetText(0,L"正在播放...");
+	}
+}
+
+
+void MyLib::pause()
+{
+	CBasicPlayer::shared()->pause();
+	if (CBasicPlayer::shared()->m_bPaused)
+	{
+		GetMainFrame()->m_pStatus->SetText(0,L"已暂停");
+	}
+	else
+	{
+		GetMainFrame()->m_pStatus->SetText(0,L"正在播放...");
+	}
+	
+}
+
+void MyLib::stop()
+{
+	if (!CBasicPlayer::shared()->stoped())
+	{
+		CBasicPlayer::shared()->stop();
+		GetMainFrame()->m_pStatus->SetText(0,L"已停止");
+	}
 }

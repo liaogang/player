@@ -46,30 +46,6 @@ void MyLib::playAfterSlowDown()
 	CBasicPlayer::shared()->OpenAfterSlowDown();
 }
 
-void MyLib::play()
-{
-	PlayList* playlist=MyLib::shared()->ActivePlaylist();
-	if (!playlist)
-		return;
-
-	PlayListItem* curTrack=playlist->curTrack();
-	curTrack->ScanId3Info(TRUE,TRUE);
-
-	CBasicPlayer* s=CBasicPlayer::shared();
-	if(s->open(curTrack))
-		s->play();
-}
-
-
-void MyLib::pause()
-{
-	CBasicPlayer::shared()->pause();
-}
-
-void MyLib::stop()
-{
-	CBasicPlayer::shared()->stop();
-}
 
 //-----------------------------------------
 
