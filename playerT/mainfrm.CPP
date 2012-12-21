@@ -157,7 +157,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	
 	m_pPlaylistView=new CPlayListView;
-	m_pPlaylistView->Create(m_pSplit->m_hWnd, rcDefault, NULL,  WS_CHILD | WS_VISIBLE /*|WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA, 0);
+	m_pPlaylistView->Create(m_pSplit->m_hWnd, rcDefault, NULL, /*LVS_OWNERDRAWFIXED|*/ WS_CHILD | WS_VISIBLE /*|WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA, 0);
 	m_pPlaylistView->Init();	
 
 
@@ -533,7 +533,7 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 	for (i=curPl->m_songList.begin();((*i)!=track) && i!=curPl->m_songList.end();i++,k++);
 
 
-	WCHAR tmp[30]={};
+	WCHAR tmp[MAX_PATH]={};
 	wcscpy(tmp,track->artist.c_str());
 	wcscat(tmp,L" - ");
 	wcscat(tmp,track->title.c_str());
@@ -1069,6 +1069,8 @@ void CListLrcReportView::ReFillPlaylist()
 		delete[] wTi;
 	}
 
+	SetItemState(0,0,LVNI_SELECTED|LVNI_FOCUSED);
+	SetFocus();
 }
 
 
@@ -1079,9 +1081,16 @@ void CListLrcReportView::ReFillPlaylist()
 
 void CDlgLrcSearch::DownLoad()
 {
+	int item=m_list.GetSelectedIndex();
+	if (item==-1)
+	{	
+		savePath=NULL;
+		return;
+	}
+
 	const WCHAR csStr1[]={L"歌词已保存到:"};
 	const int   len=sizeof(csStr1)/sizeof(WCHAR) -1;
-	WCHAR artist[50]={},title[20]={};
+	WCHAR artist[MAX_PATH]={},title[40]={};
 
 	wcscpy(artist,csStr1);
 	
@@ -1105,7 +1114,7 @@ void CDlgLrcSearch::DownLoad()
 	if(searchSuccess)
 	{
 		::SetWindowText(GetDlgItem(IDC_EDIT_INFO),L"下载中...");
-		BOOL saved=searchTool.Download(m_list.GetSelectedIndex(),savePath);
+		BOOL saved=searchTool.Download(item,savePath);
 		if (saved)
 		{
 			GetMainFrame()->m_pStatus->SetText(0,artist);

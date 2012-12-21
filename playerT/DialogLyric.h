@@ -4,7 +4,8 @@
 
 class CDialogLyric : 
 	public CMyLyric<CDialogImpl<CDialogLyric>>,
-	public CDialogResize<CDialogLyric>
+	public CDialogResize<CDialogLyric>,
+	public CMessageFilter
 {
 public:
 	enum { IDD = IDD_DIALOGLRC};
@@ -21,10 +22,21 @@ public:
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 		DlgResize_Init(FALSE,FALSE);
+
+		CMessageLoop* pLoop = _Module.GetMessageLoop();
+		ATLASSERT(pLoop != NULL);
+		pLoop->AddMessageFilter(this);
+
 		bHandled=FALSE;
 		return 0;
 	}
 
+	virtual BOOL PreTranslateMessage(MSG* pMsg)
+	{
+		//让非模态对话框处理模态对话框的消息
+		//如Tab,Esc,Enter...
+		return IsDialogMessage(pMsg);
+	}
 
 	void foo()
 	{

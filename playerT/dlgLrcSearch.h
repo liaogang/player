@@ -73,10 +73,20 @@ public:
 
 
 
-class CDlgLrcSearch : public CDialogImpl<CDlgLrcSearch>
+class CDlgLrcSearch :
+	public CDialogImpl<CDlgLrcSearch>,	
+	public CMessageFilter
 {
 public:
 	enum { IDD = IDD_DLG_LRC_SEARCH };
+
+
+	virtual BOOL PreTranslateMessage(MSG* pMsg)
+	{
+		//让非模态对话框处理模态对话框的消息
+		//如Tab,Esc,Enter...
+		return IsDialogMessage(pMsg);
+	}
 
 	BEGIN_MSG_MAP(CDlgLrcSearch)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
@@ -85,6 +95,7 @@ public:
 		COMMAND_ID_HANDLER(IDC_BTN_SEARCH,OnSearch)
 	END_MSG_MAP()
 
+	
 	CListLrcReportView m_list;
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
@@ -97,6 +108,10 @@ public:
 
 		::SendMessage(GetDlgItem(IDC_CHECK), BM_SETCHECK, BST_CHECKED, 0L);
 
+		CMessageLoop* pLoop = _Module.GetMessageLoop();
+		ATLASSERT(pLoop != NULL);
+		pLoop->AddMessageFilter(this);
+
 		return TRUE;
 	}
 	
@@ -104,7 +119,15 @@ public:
 
 	LRESULT OnOK(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		DownLoad();
+		HWND hwnd=GetFocus();
+		if (hwnd==GetDlgItem(IDC_EDIT_TI) ||
+			hwnd==GetDlgItem(IDC_EDIT_AR))
+		{
+			int i;
+			OnSearch(0,0,0,i);
+		}
+		else
+			DownLoad();
 
 
 		return 0;
@@ -113,6 +136,7 @@ public:
 
 	LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
+		savePath=NULL;
 		ShowWindow(SW_HIDE);
 		return 0;
 	}
@@ -121,6 +145,12 @@ public:
 	BOOL searchSuccess;
 	LRESULT OnSearch(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
+		const WCHAR searching[]={L"..."};
+		const WCHAR search[]={L"搜 索"};
+
+		::EnableWindow(GetDlgItem(IDC_BTN_SEARCH),FALSE);
+		::SetWindowText(GetDlgItem(IDC_BTN_SEARCH),searching);
+
 		m_list.DeleteAllItems();
 
 		searchTool.Init();
@@ -152,6 +182,8 @@ public:
 			::SetWindowText(GetDlgItem(IDC_EDIT_INFO),L"搜索失败,请检查网络");
 		}
 
+		::SetWindowText(GetDlgItem(IDC_BTN_SEARCH),search);
+		::EnableWindow(GetDlgItem(IDC_BTN_SEARCH),TRUE);
 		return 0;
 	}
 	
@@ -174,7 +206,6 @@ public:
 	inline void HideSelf(){ShowWindow(SW_HIDE);}
 	void ShowSelf()
 	{
-
 		ShowWindow(SW_SHOW);
 	}
 

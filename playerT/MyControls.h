@@ -323,6 +323,7 @@ public:
 // 	END_MSG_MAP()
 // };
 
+/*
 class DialogSearch;
 class CMyEdit:public CWindowImpl<CMyEdit,CEdit>
 	,CEditCommands<CMyEdit>
@@ -331,7 +332,7 @@ class CMyEdit:public CWindowImpl<CMyEdit,CEdit>
 	BEGIN_MSG_MAP(CMyEdit)
 		//MSG_WM_KEYDOWN(OnKeyDown)
 		//MSG_WM_SYSKEYDOWN(OnChar)
-		MSG_WM_CHAR(OnChar)
+		//MSG_WM_CHAR(OnChar)
 		CHAIN_MSG_MAP_ALT(CEditCommands<CMyEdit>, 1)
 	END_MSG_MAP()
 
@@ -339,7 +340,7 @@ class CMyEdit:public CWindowImpl<CMyEdit,CEdit>
 	//void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 };
-
+*/
 
 
  

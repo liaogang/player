@@ -104,7 +104,8 @@ public:
 		{
 			if (!dlgLrcSearch.IsWindow())
 				dlgLrcSearch.Create(T::m_hWnd);
-			WCHAR  path[30]={};
+				
+			WCHAR  path[40]={};
 
 			PlayList* pPlaylist=MyLib::shared()->ActivePlaylist();
 			if (pPlaylist)
@@ -244,6 +245,10 @@ public:
 
 		void TrackChanged()
 		{
+			int ii=0;
+			OnSize(0,0,0,ii);
+			InvalidateRect(&lrcRect);
+
 			bLrcReady=FALSE;
 			PlayList *playlist=MyLib::shared()->ActivePlaylist();
 			if(!playlist) return;

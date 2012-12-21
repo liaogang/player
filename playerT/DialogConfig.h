@@ -28,13 +28,18 @@ public:
 
 class CDialogConfig :
 	public CDialogImpl<CDialogConfig>,
-	public CWinDataExchange<CDialogConfig>
+	public CWinDataExchange<CDialogConfig>,
+	public CMessageFilter
 {
 public:
 	enum { IDD = IDD_CONFIG };
 
+	virtual BOOL PreTranslateMessage(MSG* pMsg)
+	{
+		return IsDialogMessage(pMsg);
+	}
+
 	BEGIN_MSG_MAP(CDialogConfig)
-		
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
@@ -52,6 +57,11 @@ public:
 		CenterWindow(GetParent());
 		DoDataExchange(FALSE);
 		InitDlgTree();
+
+		CMessageLoop* pLoop = _Module.GetMessageLoop();
+		ATLASSERT(pLoop != NULL);
+		pLoop->AddMessageFilter(this);
+
 		return TRUE;
 	}
 

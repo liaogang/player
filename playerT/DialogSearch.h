@@ -14,58 +14,7 @@ public:
 	
 	virtual BOOL PreTranslateMessage(MSG* pMsg)
 	{
-		BOOL bHandled=FALSE;
-		if (pMsg->message==WM_KEYDOWN)
-		{
-			UINT nChar=(TCHAR)pMsg->wParam;
-			if( pMsg->hwnd==m_list.m_hWnd)
-			{
-				if(nChar==VK_ESCAPE)
-				{
-					HideSelf();
-					bHandled=TRUE;
-				}
-			}
-			else if (pMsg->hwnd==m_edit.m_hWnd)
-			{
-				if (GetKeyState(VK_CONTROL) &0x80)
-				{
-					if (nChar=='x'||nChar=='X')
-					{
-						SendMessage(m_edit.m_hWnd,WM_CUT,0,0);
-						bHandled=TRUE;
-					}
-					else if (nChar=='c'||nChar=='C')
-					{
-						SendMessage(m_edit.m_hWnd,WM_COPY,0,0);
-						bHandled=TRUE;
-					}
-					else if (nChar=='v'||nChar=='V')
-					{
-						SendMessage(m_edit.m_hWnd,WM_PASTE,0,0);
-						bHandled=TRUE;
-					}
-				}
-			}
-			 
-			if (nChar==VK_TAB )
-			{
-				//TAB 顺序
-				if (pMsg->hwnd==m_edit)
-					{::SetFocus(m_list);
-				bHandled=TRUE;}
-				else if(pMsg->hwnd==m_list)
-				{
-					::SetFocus(m_edit);
-					m_edit.SetSel(0,-1);
-					bHandled=TRUE;
-				}
-			}
-
-		}//if (pMsg->message!=WM_KEYDOWN)
-
-
-		return bHandled;
+		return IsDialogMessage(pMsg);
 	}
 
 	BEGIN_MSG_MAP(DialogSearch)
@@ -73,6 +22,7 @@ public:
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 		COMMAND_CODE_HANDLER(EN_CHANGE, OnSearch )
+		MESSAGE_HANDLER(WM_MEASUREITEM,OnMeasureItem)
 		CHAIN_MSG_MAP(CDialogResize<DialogSearch>)
 		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
@@ -86,17 +36,31 @@ public:
 
 	CMainFrame *pM;
 	CPlayListView m_list;
-	CMyEdit       m_edit;
+	
+	
+
+	LRESULT OnMeasureItem(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+	{
+		if(wParam==IDC_LIST)
+		{
+			LPMEASUREITEMSTRUCT lpMeasureItemStruct=(LPMEASUREITEMSTRUCT)lParam;
+			lpMeasureItemStruct->itemHeight=17;
+		}
+		//SetMsgHandled(FALSE);
+
+		return 1;
+	}
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		DlgResize_Init(FALSE,FALSE);
 		CenterWindow(GetParent());
 		m_list.SubclassWindow(::GetDlgItem(m_hWnd,IDC_LIST));
+		m_list.m_bSearch=TRUE;
 		m_list.Init();
 		m_list.SetMain(pM);
 
-		m_edit.SubclassWindow(::GetDlgItem(m_hWnd,IDC_EDIT));
-		m_edit.m_pDlgSearch=this;
+		//m_edit.SubclassWindow(::GetDlgItem(m_hWnd,IDC_EDIT));
+		//m_edit.m_pDlgSearch=this;
 
 		searchPl=NULL;
 
@@ -169,7 +133,13 @@ public:
 
 	LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		HideSelf();
+		if (wID==IDOK)
+		{
+			::SendMessage(m_list.m_hWnd,WM_CHAR,(WPARAM)VK_RETURN,NULL);
+		}
+		else
+			HideSelf();
+
 		return 0;
 	}
 
@@ -191,21 +161,22 @@ public:
 //ctrl+c,v,x被上层截获.
 //收不到
 
-void CMyEdit::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
-{
-	//AtlTrace(L"%u",nChar);
-
-	if(nChar==VK_ESCAPE)
-	{
-		m_pDlgSearch->HideSelf();
-	}
-	else if (nChar==VK_RETURN )//播放列表选中项
-	{
-		::SetFocus(m_pDlgSearch->m_list.m_hWnd);
-		::SendMessage(m_pDlgSearch->m_list.m_hWnd,WM_CHAR,(WPARAM)VK_RETURN,NULL);	
-	}
-	else
-	{
-		SetMsgHandled(FALSE);
-	}
-}
+// 
+// void CMyEdit::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+// {
+// 	//AtlTrace(L"%u",nChar);
+// 
+// 	if(nChar==VK_ESCAPE)
+// 	{
+// 		m_pDlgSearch->HideSelf();
+// 	}
+// 	else if (nChar==VK_RETURN )//播放列表选中项
+// 	{
+// 		::SetFocus(m_pDlgSearch->m_list.m_hWnd);
+// 		::SendMessage(m_pDlgSearch->m_list.m_hWnd,WM_CHAR,(WPARAM)VK_RETURN,NULL);	
+// 	}
+// 	else
+// 	{
+// 		SetMsgHandled(FALSE);
+// 	}
+// }

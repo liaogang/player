@@ -54,11 +54,15 @@ public:
 class CPropertyDlgMediaLib:
 	public CDlgConfig,
 	public CDialogImpl<CPropertyDlgMediaLib>,
-	public CWinDataExchange<CPropertyDlgMediaLib>
+	public CWinDataExchange<CPropertyDlgMediaLib>,
+	public CMessageFilter
 {
 public:
 	enum { IDD = IDD_DIALOG_MEDIAlIB };
-
+	virtual BOOL PreTranslateMessage(MSG* pMsg)
+	{
+		return IsDialogMessage(pMsg);
+	}
 	BEGIN_MSG_MAP(CPropertyDlgMediaLib)
 		MSG_WM_INITDIALOG(OnInitDialog)
 		COMMAND_ID_HANDLER(IDC_BTN_ADD,OnBtnAdd)
@@ -105,6 +109,12 @@ public:
 		
 		m_list.InsertColumn(0,_T("Â·¾¶"),LVCFMT_LEFT,220);
 		m_list.InsertColumn(1,_T("×´Ì¬"),LVCFMT_LEFT,80);
+
+
+		CMessageLoop* pLoop = _Module.GetMessageLoop();
+		ATLASSERT(pLoop != NULL);
+		pLoop->AddMessageFilter(this);
+
 		return TRUE;
 	}
 

@@ -146,7 +146,7 @@ public:
 		BYTE * pBuf;
 		FILE * pFile;
 		int filesize;
-		pFile = _tfopen( pstrPath, _T("rb") );
+		_wfopen_s(&pFile , pstrPath, _T("rb") );
 		
 		if (!pFile)
 		{
@@ -265,7 +265,7 @@ public:
 			tagInfo.tag=TimeTag;		
 			std::tstring tmp(v1,v2);
 			LPCTSTR pbuf=tmp.c_str();
-			_stscanf(pbuf,_T("%2d:%2d"),&tagInfo.minute,&tagInfo.second);
+			swscanf_s(pbuf,_T("%2d:%2d"),&tagInfo.minute,&tagInfo.second);
 
 			 if(i2!=v2)
 				tagInfo.msec= _wtoi(pbuf+(i2-v1));

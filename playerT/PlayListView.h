@@ -90,21 +90,160 @@ public:
 
 		}//if (pMsg->message!=WM_KEYDOWN)
 
+
 		return FALSE;
 	}
 
 	BEGIN_MSG_MAP_EX(CPlayListView)
+		//MSG_WM_MEASUREITEM(OnMeasureItem)
+		
 		MSG_WM_CREATE(OnCreate);
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
 		MSG_WM_CHAR(OnChar)
 		COMMAND_ID_HANDLER(ID_OPEN_FILE_PATH,OnOpenFilePath)
-
+		
 		REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_RCLICK ,OnNotifyCodeHandlerEX)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED,OnItemChanged)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO,OnGetdispInfo)
-		REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
+		//REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
+		
+		MESSAGE_HANDLER(OCM_DRAWITEM,OnDrawItem)
+		MESSAGE_HANDLER(OCM_MEASUREITEM,OnMeasureItem)
 	END_MSG_MAP()
+	
 
+
+	LRESULT OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+	{
+		LPDRAWITEMSTRUCT lpDIS=(LPDRAWITEMSTRUCT)lParam;
+
+		INT nItem= lpDIS->itemID;
+		CRect rcCol = lpDIS->rcItem;
+		HDC  dc=lpDIS->hDC;
+		
+		
+		LVITEM item;
+		item.iItem = nItem;
+		item.iSubItem = 0;
+		item.mask = LVIF_IMAGE|LVIF_STATE;
+		item.stateMask = 0XFFFF;
+
+		GetItem(&item);
+		BOOL selected = item.state &LVIS_SELECTED;
+		BOOL focused  = item.state & LVIS_FOCUSED;
+
+	
+		
+		//普通
+		//白底,黑字
+		int B=nItem%2?clText1 : clText2;
+		int T=COLOR_WINDOWTEXT ;
+		
+	
+		//蓝底,白字
+		const int SFB=COLOR_HIGHLIGHT;
+		const int SFT=COLOR_WINDOW;
+
+	
+		//灰底,黑字
+		const int SB=COLOR_BTNFACE;
+		const int ST=COLOR_WINDOWTEXT;
+		
+		
+
+		COLORREF clBackgnd;
+		COLORREF clText;
+
+
+
+
+		if(selected)
+		{
+			clBackgnd=::GetSysColor(SFB);
+			clText=::GetSysColor(SFT);
+		}
+		else if(  focused )
+		{	
+			clBackgnd=::GetSysColor(SB);
+			clText=::GetSysColor(ST);
+		}
+		else
+		{
+			clBackgnd=B;
+			clText=::GetSysColor(T);
+		}
+
+
+		//行背景
+		HPEN hOldPen = (HPEN)::SelectObject(dc, ::CreatePen(PS_NULL,0,0 ));
+		HBRUSH hOldBrush = (HBRUSH)::SelectObject(dc, ::CreateSolidBrush(clBackgnd));
+		::Rectangle(dc, rcCol.left, rcCol.top, rcCol.right, rcCol.bottom);
+		
+		//draw text
+		SelectObject(dc,::CreatePen(PS_SOLID,1,clText));
+		::SetTextColor(dc,clText);
+
+
+		LV_COLUMN lvc;
+		lvc.mask=LVCF_FMT|LVCF_WIDTH;
+		rcCol.right = rcCol.left; 
+		for(int nCol=0; GetColumn(nCol,&lvc); ++nCol)
+		{
+			rcCol.left = rcCol.right; 
+			rcCol.right = rcCol.left + GetColumnWidth(nCol);
+
+			WCHAR szText[128];
+			GetItemText(nItem,nCol,szText,128);
+			RECT rcText={rcCol.left,rcCol.top,rcCol.right,rcCol.bottom};
+			
+			//sText=MakeShortString(pDC,GetItemText(nItem,nCol),rcCol.Width());
+			DrawText(dc,szText, -1,&rcText, DT_LEFT);
+		}
+
+	
+		//如果选中项具有焦点,画出虚线矩形焦点边框
+		if (focused)
+		{
+			(HPEN)::SelectObject(dc, ::CreatePen(PS_DOT,1,0 ));
+			(HBRUSH)::SelectObject(dc, ::CreateSolidBrush(clBackgnd));
+			::Rectangle(dc, lpDIS->rcItem.left, lpDIS->rcItem.top, lpDIS->rcItem.right, lpDIS->rcItem.bottom);
+		}
+
+
+		static RECT rcLastFocused={};
+		static int  indexLast=-1;
+		if (focused && nItem!=indexLast)
+		{
+			rcLastFocused.left+=1;
+			rcLastFocused.right+=1;
+			rcLastFocused.top+=1;
+			rcLastFocused.bottom+=1;
+			InvalidateRect(&rcLastFocused);
+
+			rcLastFocused=lpDIS->rcItem;
+			indexLast=nItem;
+		}
+
+
+		::DeleteObject(SelectObject(dc, hOldBrush));
+		::SelectObject(dc,hOldPen);
+
+		return 1;
+	}
+
+	LRESULT OnMeasureItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+	{
+		LPMEASUREITEMSTRUCT lpMeasureItemStruct=(LPMEASUREITEMSTRUCT)lParam;
+	
+		lpMeasureItemStruct->itemHeight=50;
+
+		//SetMsgHandled(FALSE);
+
+		return 1;
+	}
+
+
+	/*
 		LRESULT OnCustomDraw(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 		{
 			LPNMCUSTOMDRAW lpNMCustomDraw = (LPNMCUSTOMDRAW)pnmh;
@@ -122,7 +261,6 @@ public:
 					crText = clText2; 
 				else 
 					crText = clText1; 
-
 				// Store the color back in the NMLVCUSTOMDRAW struct.
 				pLVCD->clrTextBk = crText;
 
@@ -134,6 +272,8 @@ public:
 
 			return dwRet;
 		}
+		*/
+
 
 		LRESULT OnNotifyCodeHandlerEX(LPNMHDR pnmh)
 		{
@@ -148,6 +288,15 @@ public:
 			return 1;
 		}
 
+// 		void OnMeasureItem(int nIDCtl, LPMEASUREITEMSTRUCT lpMeasureItemStruct)
+// 		{
+// 			SetMsgHandled(FALSE);
+// 			lpMeasureItemStruct->itemHeight=17;
+// 		}
+
+		
+
+		 
 		int OnCreate(LPCREATESTRUCT lpCreateStruct)
 		{
 			CMessageLoop* pLoop = _Module.GetMessageLoop();
@@ -264,13 +413,13 @@ public:
 			SetExtendedListViewStyle(GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP);
 
 			const TCHAR * columnName[]={
-				_T("Index"),
-				_T("Title"),
-				_T("Artist"),
-				_T("Album"),
-				_T("Year"),
-				_T("Genre"),
-				_T("Comment")};
+				_T("索引"),
+				_T("标题"),
+				_T("艺术家"),
+				_T("专辑"),
+				_T("年份"),
+				_T("流派"),
+				_T("注解")};
 				
 			const UINT alignment[]={
 				LVCFMT_RIGHT,
@@ -284,7 +433,7 @@ public:
 			const TCHAR* columnNamePlaceHoder[]={
 				_T("Index"),
 				_T("Title                        "),
-				_T("Artist"),
+				_T("艺术家艺"),
 				_T("Album         "),
 				_T("Year"),
 				_T("Genre               "),
