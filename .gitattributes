@@ -116,7 +116,6 @@ playerT/PlayListViewMng.h -text
 playerT/PlayerThread.cpp -text
 playerT/PlayerThread.h -text
 playerT/ProgertyDlg.h -text
-playerT/Release/libmpg123.dll -text
 playerT/Release/player.exe -text
 playerT/SearchLyric.h -text
 playerT/SpectrumAnalyser.cpp -text
