@@ -142,6 +142,7 @@ int PlayList::ReSerialize(FILE *pFile)
 	while(size<totalSize-playlistnameSize){
 		PlayListItem *track=new PlayListItem(this);
 		size+=track->ReSerialize(pFile);
+		track->itemIndex=m_songList.size();
 		m_songList.push_back(track);
 	}
 
@@ -162,9 +163,7 @@ int PlayListItem::SerializeB(FILE *pFile)
 	size+=::Serialize(pFile,artist);
 	size+=::Serialize(pFile,album);
 	size+=::Serialize(pFile,genre);
-	size+=::Serialize(pFile,comment);
 	size+=::Serialize(pFile,year);
-	size+=::Serialize(pFile,itemIndex);
 	return size;
 }
 
@@ -183,9 +182,7 @@ int PlayListItem::ReSerialize(FILE *pFile)
 	size+=::ReSerialize(pFile,&artist);
 	size+=::ReSerialize(pFile,&album);
 	size+=::ReSerialize(pFile,&genre);
-	size+=::ReSerialize(pFile,&comment);
 	size+=::ReSerialize(pFile,&year);
-	size+=::ReSerialize(pFile,&itemIndex);
 	return size;
 }
 

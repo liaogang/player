@@ -214,14 +214,27 @@ void trimLeftAndRightSpace(std::tstring &str)
 		str.erase(index+1);
 }
 
+void TrimBrackets(std::tstring &s)
+{
+	int idx=s.find('(');
+	int idx1=s.find(')');
+	if(idx!=s.npos && idx1!=s.npos)
+		s.erase(idx,idx1+1);
+}
+
 int StrCmpIgnoreCaseAndSpace(std::tstring a,std::tstring b)
 {
 	_tcsupr(const_cast<TCHAR*>(a.c_str()) );
 	_tcsupr(const_cast<TCHAR*>(b.c_str()));
 
+
+	TrimBrackets(a);
+	TrimBrackets(b);
+
 	trimLeftAndRightSpace(a);
 	trimLeftAndRightSpace(b);
-	
+
+
 	return _tcscmp(a.c_str(),b.c_str());
 }
 
@@ -255,11 +268,11 @@ void TrimRightByNull(std::wstring &_str)
 long Conv(int i) 
 {
 	long r = i % 4294967296;
-	if (i >= 0 && r > 2147483648)
-		r -= 4294967296;
+	if (i >= 0 && r > 2147483648L)
+		r -= 4294967296L;
 
-	if (i < 0 && r < 2147483648)
-		r += 4294967296;
+	if (i < 0 && r < 2147483648L)
+		r += 4294967296L;
 	return r;
 }
 
@@ -375,4 +388,62 @@ std::string str2UnicodeCode(const WCHAR *c,int len)
 	}
 
 	return tmp;
+}
+
+
+void MakeShortString(HDC dc,TCHAR *str,long width)
+{
+	static const TCHAR szThreeDots[] ={_T("...")};
+
+	SIZE sz;
+	int strLen=_tcslen(str);
+	::GetTextExtentPoint(dc,str,strLen,&sz);
+	
+	if (strLen && sz.cx > width)
+	{
+		::GetTextExtentPoint(dc,szThreeDots,sizeof(szThreeDots)/sizeof(TCHAR)-1,&sz);
+		int nAddLen=sz.cx;
+
+		for (--strLen;strLen>=0;--strLen)
+			{
+			::GetTextExtentPoint(dc,str,strLen,&sz);
+			if (sz.cx+nAddLen<=width)
+				{
+				_tcscpy(str+strLen,szThreeDots);
+				break;
+				}
+			}
+	}
+
+}
+
+
+//在矩形中央画出,正三角形
+void DrawTriangleInRect(HDC dc,RECT &rc)
+{
+	POINT ptCenter={rc.left+(rc.right-rc.left)/2,rc.top+(rc.bottom-rc.top)/2};
+
+#define TAN60 1.7320508
+#define CENTER_X TAN60/3
+
+	LONG TRIANGLE_LENGTH =rc.bottom-rc.top;
+
+	/*
+		   p0
+		      c  p2
+		   p1
+	*/
+
+	POINT pTri[3]={ 
+		{ptCenter.x-CENTER_X*TRIANGLE_LENGTH/2,ptCenter.y-TRIANGLE_LENGTH/2},
+		{ptCenter.x-CENTER_X*TRIANGLE_LENGTH/2,ptCenter.y+TRIANGLE_LENGTH/2},
+		{ptCenter.x+CENTER_X*TRIANGLE_LENGTH/2,ptCenter.y}
+					};
+
+	HBRUSH blueBrush=::CreateSolidBrush(RGB(200,210,255));
+	HBRUSH oldBrush= (HBRUSH)::SelectObject(dc,blueBrush);
+	HRGN rgn=::CreatePolygonRgn(pTri,3,ALTERNATE);
+	::FillRgn(dc,rgn,blueBrush);
+	::SelectObject(dc,oldBrush);
+	::DeleteObject(blueBrush);
 }

@@ -157,7 +157,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	
 	m_pPlaylistView=new CPlayListView;
-	m_pPlaylistView->Create(m_pSplit->m_hWnd, rcDefault, NULL, /*LVS_OWNERDRAWFIXED|*/ WS_CHILD | WS_VISIBLE /*|WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA, 0);
+	m_pPlaylistView->Create(m_pSplit->m_hWnd, rcDefault, NULL, LVS_OWNERDRAWFIXED| WS_CHILD | WS_VISIBLE /*|WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA, 0);
 	m_pPlaylistView->Init();	
 
 
@@ -609,6 +609,14 @@ void PlayListViewItem(int index)
 void CPlayListView::PlayItem(int nItem)
 {
 	MyLib* s=MyLib::shared();
+	if(s->ActivePlaylist())
+	{
+		PlayListItem *lastTrack=s->ActivePlaylist()->curTrack();
+		if (lastTrack)
+			RedrawItems(lastTrack->itemIndex,lastTrack->itemIndex);
+	}
+
+
 	//搜索列表,实际上是用的tab某个列表的数据
 	PlayListItem *track;
 	if(nItem==-1)return;
@@ -621,9 +629,10 @@ void CPlayListView::PlayItem(int nItem)
 	MyLib::stop();
 	MyLib::playAfterSlowDown();
 
+	RedrawItems(track->itemIndex,track->itemIndex);
 	pMain->ChangeTitle();
+	pMain->albumView1->Invalidate(TRUE);
 
-	pMain->albumView1->Invalidate(TRUE);	
 }
 
 
@@ -794,11 +803,12 @@ LRESULT CPlayListView::OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled)
 	if(!track) return 0;
 	TCHAR year[25]={0};
 	TCHAR strIndex[5]={0};
+	
 	if (pItem->mask & LVIF_TEXT) //valid text buffer?
 	{
 		switch(pItem->iSubItem){
 		case COLUMN_INDEX_INDEX:
-			wsprintf(strIndex,_T("%d"),track->itemIndex);
+			wsprintf(strIndex,_T("%d"),iItemIndx+1);
 			lstrcpy(pItem->pszText,strIndex);
 			break;
 		case COLUMN_INDEX_TITLE: //fill in main text
@@ -829,7 +839,154 @@ LRESULT CPlayListView::OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled)
 	return 1;
 }
 
+LRESULT CPlayListView::OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+{
+	LPDRAWITEMSTRUCT lpDIS=(LPDRAWITEMSTRUCT)lParam;
+	INT nItem= lpDIS->itemID;
+	CRect rcCol = lpDIS->rcItem;
+	HDC  dc=lpDIS->hDC;
 
+	LVITEM item;
+	item.iItem = nItem;
+	item.iSubItem = 0;
+	item.mask = LVIF_IMAGE|LVIF_STATE;
+	item.stateMask = 0XFFFF;
+
+	GetItem(&item);
+	BOOL selected = item.state &LVIS_SELECTED;
+	BOOL focused  = item.state & LVIS_FOCUSED;
+
+
+	//普通
+	//白底,黑字
+	int B=nItem%2?clText1 : clText2;
+	int T=COLOR_WINDOWTEXT ;
+	//蓝底,白字
+	const int SFB=COLOR_HIGHLIGHT;
+	const int SFT=COLOR_WINDOW;
+	//灰底,黑字
+	const int SB=COLOR_BTNFACE;
+	const int ST=COLOR_WINDOWTEXT;
+
+	COLORREF clBackgnd;
+	COLORREF clText;
+	if(selected)
+	{
+		clBackgnd=::GetSysColor(SFB);
+		clText=::GetSysColor(SFT);
+	}
+	else if(  focused )
+	{	
+		clBackgnd=::GetSysColor(SB);
+		clText=::GetSysColor(ST);
+	}
+	else
+	{
+		clBackgnd=B;
+		clText=::GetSysColor(T);
+	}
+
+
+	//行背景
+	HPEN hNewPen=::CreatePen(PS_SOLID,1, clBackgnd );
+	HBRUSH hNewBrush= ::CreateSolidBrush(clBackgnd);
+
+	HPEN hOldPen = (HPEN)::SelectObject(dc, hNewPen);
+	HBRUSH hOldBrush = (HBRUSH)::SelectObject(dc,hNewBrush );
+
+	::Rectangle(dc, rcCol.left, rcCol.top, rcCol.right, rcCol.bottom);
+
+	//如果选中项具有焦点,画出虚线矩形焦点边框
+	if(focused && GetFocus()==m_hWnd)
+	{
+		RECT rcFocus=rcCol;
+		rcFocus.left+=TEXTALIGN__WIDTH;
+		::DrawFocusRect(dc,&rcCol);	
+	}
+
+	//draw text
+	::DeleteObject(hNewPen);
+	hNewPen=::CreatePen(PS_SOLID,1,clText);
+	SelectObject(dc,hNewPen);
+	::SetTextColor(dc,clText);
+
+	LV_COLUMN lvc;
+	lvc.mask=LVCF_FMT|LVCF_WIDTH;
+
+	rcCol.right = rcCol.left+TEXTALIGN__WIDTH; 
+	for(int nOrder=0; GetColumn(nOrder,&lvc); ++nOrder)
+	{
+		int nSubItem=Header_OrderToIndex(ListView_GetHeader(m_hWnd),nOrder);
+
+		HDITEM headerItem;
+		headerItem.mask=HDI_WIDTH | HDI_ORDER |HDI_FORMAT;
+		GetHeader().GetItem(nSubItem,&headerItem);
+
+
+		int fmt=headerItem.fmt;
+		UINT DT_S=DT_LEFT;
+
+		rcCol.left = rcCol.right; 
+		rcCol.right = rcCol.left + headerItem.cxy;
+
+
+		if ( !m_bSearch && nSubItem==COLUMN_INDEX_INDEX)
+		{
+			PlayList *curPl=MyLib::shared()->ActivePlaylist();
+			if (curPl)
+			{
+				PlayListItem *track=curPl->curTrack();
+				if ( nItem ==track->itemIndex )
+				{
+					DrawTriangleInRect(dc,rcCol);
+					continue;
+				}
+			}
+		}
+
+
+		if (fmt & HDF_CENTER)
+		{
+			DT_S=DT_CENTER;	
+		}
+		else if (fmt & HDF_RIGHT)
+		{
+			DT_S=DT_RIGHT;
+			rcCol.right-=TEXTALIGN__WIDTH;
+		}
+		else  //left
+		{
+			rcCol.left+=TEXTALIGN__WIDTH;
+		}
+
+
+
+
+
+		WCHAR szText[MAX_PATH]={};
+		GetItemText(nItem,nSubItem,szText,MAX_PATH);
+
+		MakeShortString(dc,szText,headerItem.cxy-TEXTALIGN__WIDTH);
+
+
+		DrawText(dc,szText, -1,&rcCol, DT_S|DT_VCENTER|DT_SINGLELINE);
+	}
+
+	::SelectObject(dc, hOldBrush);
+	::DeleteObject(hNewBrush);
+
+	::SelectObject(dc,hOldPen);
+	::DeleteObject(hNewPen);
+
+	//去掉之前的焦点边框
+	if (focused && nItem!=indexLast)
+	{
+		RedrawItems(indexLast,indexLast);
+		indexLast=nItem;
+	}
+
+	return 1;
+}
 LRESULT CMyTabBar::OnSelectionChanged( LPNMHDR )
 {
 	int curSel=GetCurSel( );
@@ -1057,7 +1214,7 @@ void CListLrcReportView::ReFillPlaylist()
 {
 	DeleteAllItems();
 	
-	for (int i=0;i<parent->searchTool.vecLrcLines.size()/3;i+=3)
+	for (size_t i=0;i<parent->searchTool.vecLrcLines.size()/3;i+=3)
 	{	
 		LPWSTR wAr=UTF82Unicode((char*)parent->searchTool.vecLrcLines[i*3+1].c_str());
 		LPWSTR wTi=UTF82Unicode((char*)parent->searchTool.vecLrcLines[i*3+2].c_str());
@@ -1128,7 +1285,7 @@ void CDlgLrcSearch::DownLoad()
 			std::tstring pszpath(savePath);
 			if(MyLib::shared()->ActivePlaylist() && MyLib::shared()->ActivePlaylist()->curTrack())
 			{
-				MyLib::shared()->ActivePlaylist()->curTrack()->TryLoadLrcFile(pszpath);
+				MyLib::shared()->ActivePlaylist()->curTrack()->TryLoadLrcFile(pszpath,TRUE);
 				GetMainFrame()->lrcChanged();
 			}
 		}

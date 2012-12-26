@@ -105,7 +105,7 @@ public:
 			if (!dlgLrcSearch.IsWindow())
 				dlgLrcSearch.Create(T::m_hWnd);
 				
-			WCHAR  path[40]={};
+			WCHAR  path[MAX_PATH]={};
 
 			PlayList* pPlaylist=MyLib::shared()->ActivePlaylist();
 			if (pPlaylist)

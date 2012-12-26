@@ -39,17 +39,16 @@ public:
 	
 	
 
-	LRESULT OnMeasureItem(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+	LRESULT OnMeasureItem(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		if(wParam==IDC_LIST)
 		{
-			LPMEASUREITEMSTRUCT lpMeasureItemStruct=(LPMEASUREITEMSTRUCT)lParam;
-			lpMeasureItemStruct->itemHeight=17;
+			m_list.OnMeasureItem(OCM__BASE+uMsg,wParam,lParam,bHandled);
 		}
-		//SetMsgHandled(FALSE);
-
+		
 		return 1;
 	}
+
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		DlgResize_Init(FALSE,FALSE);

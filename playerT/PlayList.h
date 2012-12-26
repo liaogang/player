@@ -94,7 +94,7 @@ public:
 	const TCHAR* GetTitle(){return title.c_str();}
 	BOOL  GetLrcFileFromLib(BOOL forceResearch=FALSE);
 	BOOL  HaveKeywords(TCHAR *keywords);
-	BOOL TryLoadLrcFile(std::tstring &filename);
+	BOOL TryLoadLrcFile(std::tstring &filename,BOOL forceLoad=FALSE);
 private:
 	void Buf2Img(BYTE* lpRsrc,DWORD len);
 	BOOL  IsInalid();//abondaned
@@ -120,7 +120,7 @@ public:
 	typedef vector<_songContainerItem> _songContainer;
 	_songContainer m_songList;
 	_songContainerItem GetItem(int nItem){return m_songList[nItem];};
-	int nPos;
+
 	std::tstring       m_playlistName;
 	void Rename(TCHAR *newName){m_playlistName=newName;}
 	std::tstring       m_saveLocation;

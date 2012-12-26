@@ -40,3 +40,9 @@ void TrimRightByNull(std::wstring &_str);
 long Conv(int i) ;
 void CreateQianQianCode(char *id,char *ar,char*ti,std::string &code);
 std::string str2UnicodeCode(const WCHAR *c,int len);
+
+
+void MakeShortString(HDC dc,TCHAR *str,long width);
+
+
+void DrawTriangleInRect(HDC dc,RECT &rc);

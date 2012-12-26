@@ -155,7 +155,7 @@ public:
 
 		searchTool.Init();
 
-		WCHAR artist[20],title[20];
+		WCHAR artist[MAX_PATH],title[MAX_PATH];
 		::GetWindowText(GetDlgItem(IDC_EDIT_AR),artist,sizeof(artist));
 		::GetWindowText(GetDlgItem(IDC_EDIT_TI),title,sizeof(title));
 		if (artist[0]=='\0' &&title[0]=='\0')

@@ -175,6 +175,7 @@ LRESULT CPropertyDlgLyricsLib::OnCfgToSave(UINT /*uMsg*/, WPARAM /*wParam*/, LPA
 
 void MyLib::InitLrcLib()
 {
+	dataPaths.clear();
 	for_each(lrcDirs.begin(),lrcDirs.end(),&MyLib::ImportLycByPath);
 }
 

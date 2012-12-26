@@ -41,8 +41,7 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 	curPlayingItem(NULL),
 	nextPlayingItem(NULL),
 	topVisibleIndex(0),
-	selectedIndex(-1),
-	nPos(0)
+	selectedIndex(-1)
 {
 
 }
@@ -53,8 +52,7 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 	curPlayingItem(NULL),
 	nextPlayingItem(NULL),
 	topVisibleIndex(0),
-	selectedIndex(-1),
-	nPos(0)
+	selectedIndex(-1)
  {
 	m_playlistName=name;
 	m_saveLocation=m_playlistName+_T(".pl");
@@ -168,9 +166,9 @@ void PlayList::AddFile(TCHAR *filepath)
 	std::tstring str(filepath);
 	PlayListItem *pItem=new PlayListItem(this,&str);
 	pItem->ScanId3Info();
-	pItem->itemIndex=nPos;
+	pItem->itemIndex=m_songList.size();
 	m_songList.push_back(pItem);
-	++nPos;
+
 	//msonglistµÄÎö¹¹»áÉ¾³ý*pItem;
 
 	::SendMessage(MyLib::GetMain(),WM_FILE_FINDED,(WPARAM)filepath,(LPARAM)2);
@@ -422,12 +420,12 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 
 
 
-BOOL PlayListItem::TryLoadLrcFile(std::tstring &filename)
+BOOL PlayListItem::TryLoadLrcFile(std::tstring &filename,BOOL forceLoad)
 {
-	if (LrcFileMacth(filename))//filename match
+	if (forceLoad || LrcFileMacth(filename))//filename match
 	{
 		LrcMng *m=LrcMng::Get();
-		if(m->OpenTrackPath(this,filename,TRUE))//lrc tag match
+		if(m->OpenTrackPath(this,filename,forceLoad ? FALSE :TRUE))//lrc tag match
 		{
 			lycPath=filename;
 			m_bLrcFromLrcFile=TRUE;
@@ -476,12 +474,8 @@ BOOL PlayListItem::GetLrcFileFromLib(BOOL forceResearch)
 	vector<std::tstring>::iterator i;
 	for (i=MyLib::shared()->dataPaths.begin();i!=MyLib::shared()->dataPaths.end();i++)
 	{
-		int index=(*i).find_last_of('\\');
-		if(index!=(*i).npos){
-			std::tstring filename=(*i).substr(index+1);
-			if(TryLoadLrcFile(filename))
-				return TRUE;
-		}
+		if(TryLoadLrcFile(*i))
+			return TRUE;
 	}
 
 	return FALSE;
