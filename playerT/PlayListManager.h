@@ -10,6 +10,7 @@ public:
 
 	CMainFrame *pMain;
     void ReFillPlaylist();
+	void AddPlayList(PlayList *pPL);
 	void ClearAllSel()
 	{
 		int i=-1;
@@ -92,8 +93,7 @@ public:
 		CenterWindow(GetParent());
 		m_list.SubclassWindow(::GetDlgItem(m_hWnd,IDC_LIST));
 		m_list.Init();
-		m_list.ReFillPlaylist();
-
+		
 		return TRUE;
 	}
 

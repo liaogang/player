@@ -330,15 +330,32 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 LRESULT CMainFrame::OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
 	PlayList *playlist=MyLib::shared()->SelPlaylist();
-
+	
 	if (playlist){
 		//m_pTabBar->AddPlaylistTab(playlist,TRUE,-1);
 		AllPlayListViews()->Reload(playlist);
-		//m_pPlaylistView->Reload(playlist);
+		if (m_pDlgPLMng->IsWindow())
+		{
+			m_pDlgPLMng->m_list.ReFillPlaylist();
+		}
 	}
 	return 0;
 }
 
+
+void CPlayListManager::AddPlayList(PlayList *pPL)
+{
+	int item=GetItemCount();
+	TCHAR *strCount=new TCHAR[256];
+	_itow(pPL->m_songList.size(),strCount,10);
+
+	InsertItem(item,pPL->m_playlistName.c_str());
+	SetItemText(item,1,strCount);
+	SetItemData(item,(DWORD_PTR)pPL);
+	++item;
+
+	delete[] strCount;
+}
 
 LRESULT CMainFrame::OnConfigLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
@@ -491,10 +508,10 @@ LRESULT CMainFrame::OnOpenPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 	if(dlg.DoModal()==IDOK)
 	{
 		PlayList* playlist =MyLib::shared()->LoadPlaylist(dlg.m_ofn.lpstrFile);
-		m_pTabBar->AddPlaylistTab(playlist ,TRUE,-1);
-
+		//m_pTabBar->AddPlaylistTab(playlist ,TRUE,-1);
 		////tell the play list view to add this
-		//::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
+		
+		::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
 	}
 
 	return 0;
@@ -741,38 +758,28 @@ LRESULT CMainFrame::OnChangePLColorBlue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 LRESULT CMainFrame::OnViewPlaylistManager(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	static DialogPLManager *dlgPLMng=NULL;
-	if(!dlgPLMng){
-	dlgPLMng=new DialogPLManager;
-	dlgPLMng->m_list.pMain=this;
-	dlgPLMng->Create(m_hWnd);
+	if(!m_pDlgPLMng){
+	m_pDlgPLMng=new DialogPLManager;
+	m_pDlgPLMng->m_list.pMain=this;
+	m_pDlgPLMng->Create(m_hWnd);
 	}
 
-	dlgPLMng->ShowSelf();	
+	m_pDlgPLMng->ShowSelf();	
 	return 0;
 }
 
 void CPlayListManager::ReFillPlaylist()
 {
-	ClearAllSel();
+	DeleteAllItems();
 
 	MyLib *s=MyLib::shared();
-	int item=0;
 	if (s->m_playLists.size()>0)
 	{
 		MyLib::PLList::iterator i;
 		for (i=s->m_playLists.begin();i!=s->m_playLists.end();++i)
 		{
 			PlayList *l=*i;
-			TCHAR *strCount=new TCHAR[256];
-			_itow(l->m_songList.size(),strCount,10);
-
-			InsertItem(item,l->m_playlistName.c_str());
-			SetItemText(item,1,strCount);
-			SetItemData(item,(DWORD_PTR)l);
-			++item;
-
-			delete[] strCount;
+			AddPlayList(l);
 		}
 	}
 }
@@ -826,9 +833,6 @@ LRESULT CPlayListView::OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled)
 		case COLUMN_INDEX_YEAR:
 			wsprintf(year,_T("%u"),track->year);
 			lstrcpy(pItem->pszText,year);
-			break;
-		case COLUMN_INDEX_COMMENT:
-			lstrcpy(pItem->pszText,track->comment.c_str());
 			break;
 		case COLUMN_INDEX_GENRE:
 			lstrcpy(pItem->pszText,track->genre.c_str());

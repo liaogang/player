@@ -216,6 +216,8 @@ PlayList* MyLib::LoadPlaylist(LPTSTR filepath)
 		fclose (pFile);
 	}
 
+
+	SetSelPlaylist(playlist);
 	return playlist;
 }
 

@@ -243,8 +243,7 @@ public:
 			COLUMN_INDEX_ARTIST,
 			COLUMN_INDEX_ALBUM,
 			COLUMN_INDEX_YEAR,
-			COLUMN_INDEX_GENRE,
-			COLUMN_INDEX_COMMENT,
+			COLUMN_INDEX_GENRE
 		};
 
 		void Init()
@@ -263,15 +262,13 @@ public:
 				_T("艺术家"),
 				_T("专辑"),
 				_T("年份"),
-				_T("流派"),
-				_T("注解")};
+				_T("流派")};
 
 				const UINT alignment[]={
-					LVCFMT_RIGHT,
+					LVCFMT_CENTER,
 					LVCFMT_LEFT,
 					LVCFMT_LEFT,
 					LVCFMT_LEFT,
-					LVCFMT_RIGHT,
 					LVCFMT_RIGHT,
 					LVCFMT_RIGHT};
 
@@ -281,8 +278,8 @@ public:
 						_T("艺术家艺"),
 						_T("Album         "),
 						_T("Year"),
-						_T("Genre               "),
-						_T("Comment")};
+						_T("Genre               ")
+					};
 
 						const int cxOffset = 15;
 

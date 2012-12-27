@@ -404,7 +404,7 @@ void MakeShortString(HDC dc,TCHAR *str,long width)
 		::GetTextExtentPoint(dc,szThreeDots,sizeof(szThreeDots)/sizeof(TCHAR)-1,&sz);
 		int nAddLen=sz.cx;
 
-		for (--strLen;strLen>=0;--strLen)
+		for (--strLen;strLen;--strLen)
 			{
 			::GetTextExtentPoint(dc,str,strLen,&sz);
 			if (sz.cx+nAddLen<=width)
@@ -441,9 +441,8 @@ void DrawTriangleInRect(HDC dc,RECT &rc)
 					};
 
 	HBRUSH blueBrush=::CreateSolidBrush(RGB(200,210,255));
-	HBRUSH oldBrush= (HBRUSH)::SelectObject(dc,blueBrush);
 	HRGN rgn=::CreatePolygonRgn(pTri,3,ALTERNATE);
 	::FillRgn(dc,rgn,blueBrush);
-	::SelectObject(dc,oldBrush);
+	::DeleteObject(rgn);
 	::DeleteObject(blueBrush);
 }

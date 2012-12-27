@@ -114,7 +114,14 @@ public:
 		GETDLGWND(pDlg1)
 		GETDLGWND(pDlgMedia)
 		GETDLGWND(pDlgLyrics)
-		GETDLGWND(pDlgLrcPane)
+
+	if (title==pDlgLrcPane->title)
+		{
+		if (!pDlgLrcPane->IsWindow())
+		pDlgLrcPane->Create(m_hWnd);
+		return pDlgLrcPane->m_hWnd;
+		}
+
 		return NULL;
 	}
 

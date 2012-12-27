@@ -28,6 +28,7 @@ class CMySimpleRebar;
 class CMySplitterWindow;
 class DialogFFT;
 class DialogFFTOutline;
+class DialogPLManager;
 //-----------------------------------------
 
 
@@ -61,12 +62,14 @@ public:
 	DialogSearch *m_pDlgSearch;
 	DialogFFT *m_pDlgFFT;
 	DialogFFTOutline *m_pDlgFFTOutline;
+	DialogPLManager *m_pDlgPLMng;
 public:
 	CMainFrame():m_dlgLrc(NULL),
 		m_pTrackBar(NULL),m_pVolumeBar(NULL),
 		m_pDlgSearch(NULL),pDlgProcess(NULL),
 		lyricView(NULL),m_pSplit(NULL),
-		m_pDlgFFT(NULL),m_pDlgFFTOutline(NULL)
+		m_pDlgFFT(NULL),m_pDlgFFTOutline(NULL),
+		m_pDlgPLMng(NULL)
 	{
 	}
 
