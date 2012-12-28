@@ -84,6 +84,8 @@ public:
 	END_MSG_MAP()
 
 	BEGIN_DLGRESIZE_MAP(DialogPLManager)
+		DLGRESIZE_CONTROL(IDC_LIST,DLSZ_SIZE_X)
+		DLGRESIZE_CONTROL(IDC_LIST,DLSZ_SIZE_Y)
 	END_DLGRESIZE_MAP()
 
 	CPlayListManager m_list;
@@ -93,7 +95,8 @@ public:
 		CenterWindow(GetParent());
 		m_list.SubclassWindow(::GetDlgItem(m_hWnd,IDC_LIST));
 		m_list.Init();
-		
+		m_list.ReFillPlaylist();
+
 		return TRUE;
 	}
 

@@ -32,7 +32,7 @@ public:
 	}
 
 	inline void SetPlayList(PlayList * pPlayList){m_pPlayList=pPlayList;}
-	PlayList * GetPlayList(){return m_pPlayList;}
+	inline PlayList * GetPlayList(){return m_pPlayList;}
 };
 
 
@@ -101,12 +101,14 @@ public:
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
 		MSG_WM_CHAR(OnChar)
 		COMMAND_ID_HANDLER(ID_OPEN_FILE_PATH,OnOpenFilePath)
+		COMMAND_ID_HANDLER(ID_PUSH_PLAYQUEUE,OnPushToPlayqueue)
+		COMMAND_ID_HANDLER(ID_DELFROMPLAYQUEUE,OnDeleteFromPlayqueue)
 		REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_RCLICK ,OnNotifyCodeHandlerEX)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED,OnItemChanged)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO,OnGetdispInfo)
 		MESSAGE_HANDLER(OCM_DRAWITEM,OnDrawItem)
 		MESSAGE_HANDLER(OCM_MEASUREITEM,OnMeasureItem)
-		END_MSG_MAP()
+	END_MSG_MAP()
 
 		LRESULT OnMeasureItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 		{
@@ -123,10 +125,12 @@ public:
 			POINT pt;
 			GetCursorPos(&pt);
 
-
 			if(GetNextItem(-1,LVIS_FOCUSED|LVIS_SELECTED)!=-1)
-				::TrackPopupMenu(menu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
+			{
+				::EnableMenuItem(menu,ID_DELFROMPLAYQUEUE,MF_BYCOMMAND|IsAllSelectedItemInPlayQueue()?MF_ENABLED:(MF_DISABLED | MF_GRAYED));
 
+				::TrackPopupMenu(menu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
+			}
 
 			return 1;
 		}
@@ -401,7 +405,9 @@ public:
 			Scroll(sz);
 		}
 
-
+		BOOL IsAllSelectedItemInPlayQueue();
+		LRESULT OnPushToPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnDeleteFromPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnOpenFilePath(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 		{
 			int nItem=GetNextItem(-1,LVIS_SELECTED);

@@ -155,7 +155,7 @@ public:
 	BOOL AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir=FALSE);
 	void TerminateAddDirThread();
 public:
-	void AddFile(TCHAR *filepath);
+	BOOL AddFile(TCHAR *filepath);
 public:
 	PlayListItem* GetNextTrackByOrder(BOOL bMoveCur=TRUE);
 };

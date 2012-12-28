@@ -274,7 +274,6 @@ BOOL MyLib::LoadCoreCfg()
 			size--;
 		} 
 
-
 		//lrc dir list
 		size=0;
 		::ReSerialize(pFile,&size);

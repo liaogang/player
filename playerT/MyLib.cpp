@@ -21,12 +21,7 @@ PlayList* MyLib::AddFolderToCurrentPlayList(LPCTSTR pszFolder)
 MyLib* MyLib::shared()
 {
 	static MyLib* p=NULL;
-	if (p==NULL)
-	{
-		p=new MyLib;
-		p->LoadCoreCfg();
-	}
-	return p;
+	return p==NULL?p=new MyLib:p;
 }
 
 MyLib::~MyLib()
@@ -51,13 +46,19 @@ void MyLib::playAfterSlowDown()
 
 void MyLib::playNext(BOOL scanID3)
 {	
-	PlayListItem *track=shared()->ActivePlaylist()->GetNextTrackByOrder();
+	PlayListItem *track;
+ 	if (!playQueue.empty())
+		track=PopTrackFromPlayQueue();
+	else
+		track=ActivePlaylist()->GetNextTrackByOrder();
+
 	if(!track) return;
 
+	//todo update listview's item
 	track->ScanId3Info(TRUE);
 
 	CBasicPlayer *sbp=CBasicPlayer::shared();
-	if ( track==shared()->ActivePlaylist()->lastTrack())
+	if ( track==ActivePlaylist()->lastTrack())
 	{
 		sbp->m_bFileEnd=FALSE;
 		sbp->play();
@@ -68,7 +69,51 @@ void MyLib::playNext(BOOL scanID3)
 		sbp->open(track);
 		sbp->play();
 	}
+}
 
+//后端插入,前端取出
+void MyLib::PushPlayQueue(PlayListItem* item)
+{
+	playQueue.push_back(item);
+}
+
+PlayListItem* MyLib::PopTrackFromPlayQueue()
+{
+	PlayQueueContainer::iterator i=playQueue.begin();
+	PlayListItem* item=*i;
+	playQueue.erase(i);
+
+	return item;
+}
+
+vector<int> MyLib::GetIndexInPlayQueue(PlayListItem* item)
+{
+	vector<int> v;
+	int idx=0;
+	for(PlayQueueContainer::iterator i=playQueue.begin();
+		i!=playQueue.end();++i,++idx)
+		if(*i == item)
+			v.push_back(idx);
+	
+	return v;
+}
+
+void MyLib::DeleteFromPlayQueue(PlayListItem* item)
+{
+	for(PlayQueueContainer::iterator i=playQueue.begin();
+		i!=playQueue.end();)
+	{
+		PlayQueueContainer::iterator k=i;
+		++i;
+
+		if(*k == item)
+			playQueue.erase(k);
+	}
+}
+
+void MyLib::ClearPlayQueue()
+{
+	playQueue.clear();
 }
 
 

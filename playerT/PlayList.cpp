@@ -161,17 +161,20 @@ BOOL IsDots(TCHAR* fn)
 	return bResult;
 }
 
-void PlayList::AddFile(TCHAR *filepath)
+BOOL PlayList::AddFile(TCHAR *filepath)
 {
 	std::tstring str(filepath);
 	PlayListItem *pItem=new PlayListItem(this,&str);
-	pItem->ScanId3Info();
-	pItem->itemIndex=m_songList.size();
-	m_songList.push_back(pItem);
+	if(pItem->ScanId3Info())
+	{	
+		pItem->itemIndex=m_songList.size();
+		m_songList.push_back(pItem);
+		//msonglist的析构会删除*pItem;
+		::SendMessage(MyLib::GetMain(),WM_FILE_FINDED,(WPARAM)filepath,(LPARAM)2);
+		return TRUE;
+	}
 
-	//msonglist的析构会删除*pItem;
-
-	::SendMessage(MyLib::GetMain(),WM_FILE_FINDED,(WPARAM)filepath,(LPARAM)2);
+	return FALSE;
 }
 
 BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
@@ -382,10 +385,10 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 		bInvalidID3V2=TRUE;
 	}
 	
-
+	ID3v1::Tag *id3v1tag=NULL;
 	if(bInvalidID3V2 &&( (!forceRescan && m_bStatus==UNKNOWN ) || forceRescan))
 	{
-		ID3v1::Tag *id3v1tag = f.ID3v1Tag();
+		id3v1tag = f.ID3v1Tag();
 		if(id3v1tag) 
 		{
 			//the id3v1tag string may be wrongly
@@ -403,18 +406,22 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 		}
 	}
 
-	//if the title is empty ,we will use the filename
-	//without suffix
-	if (title.empty())
+
+	if(id3v2tag && id3v1tag)
 	{
-		int a=url.find_last_of('\\');
-		int b=url.find_last_of('.');
-		if (a<b && b!=url.npos)
-			title=url.substr(a+1,b-(a+1));
+		//if the title is empty ,we will use the filename
+		//without suffix
+		if (title.empty())
+		{
+			int a=url.find_last_of('\\');
+			int b=url.find_last_of('.');
+			if (a<b && b!=url.npos)
+				title=url.substr(a+1,b-(a+1));
+		}
 	}
 
 
-	return TRUE;
+	return id3v2tag&&id3v1tag;
 }
 
 

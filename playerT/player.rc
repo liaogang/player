@@ -172,6 +172,16 @@ BEGIN
     LTEXT           "标    题:",IDC_STATIC,13,26,28,10
 END
 
+IDD_DLG_CONSOLE DIALOGEX 0, 0, 242, 129
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "控制台"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_EDIT,0,0,241,106,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL
+    PUSHBUTTON      "清空",IDC_BTN_CLR,7,108,47,19
+    CONTROL         "写入日志",IDC_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,73,114,43,8
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -277,6 +287,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 170
     END
+
+    IDD_DLG_CONSOLE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 235
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 121
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -304,72 +322,74 @@ END
 
 IDR_MAINFRAME MENU
 BEGIN
-    POPUP "&File"
+    POPUP "文件"
     BEGIN
-        MENUITEM "Open\tO",                     ID_OPEN
+        MENUITEM "打开",                          ID_OPEN, INACTIVE
         MENUITEM SEPARATOR
-        MENUITEM "Add File",                    ID_FILE_OPEN
-        MENUITEM "Add Directory",               ID_FILE_OPENDIRECTORY
+        MENUITEM "添加文件",                        ID_FILE_OPEN
+        MENUITEM "添加目录",                        ID_FILE_OPENDIRECTORY
+        MENUITEM "添加位置",                        ID_32889, INACTIVE
         MENUITEM SEPARATOR
-        MENUITEM "New Playlist",                ID_FILE_NEWPLAYLIST
-        MENUITEM "Open playlist",               ID_OPENPLAYLIST
-        MENUITEM "Save playlist",               ID_FILE_SAVEPLAYLIST
+        MENUITEM "新建播放列表",                      ID_FILE_NEWPLAYLIST
+        MENUITEM "打开播放列表",                      ID_OPENPLAYLIST
+        MENUITEM "保存播放列表",                      ID_FILE_SAVEPLAYLIST
         MENUITEM SEPARATOR
-        MENUITEM "Property",                    ID_CONFIG
+        MENUITEM "参数选项\tCtrl+P",                ID_CONFIG
         MENUITEM SEPARATOR
-        MENUITEM "E&xit",                       ID_APP_EXIT
+        MENUITEM "退出",                          ID_APP_EXIT
     END
-    POPUP "Edit"
+    POPUP "编辑"
     BEGIN
-        MENUITEM "Undo",                        ID_EDIT_UNDO32791, GRAYED
-        MENUITEM "Search\tCtrl+F",              ID_EDIT_SEARCH
-        POPUP "Sort"
+        MENUITEM "撤消",                          ID_EDIT_UNDO32791, GRAYED
+        MENUITEM "搜索\tCtrl+F",                  ID_EDIT_SEARCH
+        POPUP "排序"
         BEGIN
-            MENUITEM "Random",                      ID_SORT_RANDOM, GRAYED
-            MENUITEM "Album",                       ID_SORT_ALBUM, GRAYED
+            MENUITEM "随机",                          ID_SORT_RANDOM, GRAYED
+            MENUITEM "专辑",                          ID_SORT_ALBUM, GRAYED
         END
     END
-    POPUP "&View"
+    POPUP "视图"
     BEGIN
-        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
-        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM "工具栏",                         ID_VIEW_TOOLBAR
+        MENUITEM "状态栏",                         ID_VIEW_STATUS_BAR
         MENUITEM SEPARATOR
-        POPUP "PlayListColors"
+        POPUP "播放列表颜色"
         BEGIN
             MENUITEM "Default",                     ID_CHANGEPLAYLISTCOLOR_DEFAULT
             MENUITEM "Blue",                        ID_CHANGEPLAYLISTCOLOR_BLUE
         END
-        MENUITEM "&Playerlist Manager",         ID_VIEW_PLAYLIST_MNG
+        MENUITEM "播放列表管理器",                     ID_VIEW_PLAYLIST_MNG
         MENUITEM SEPARATOR
-        POPUP "Visualizations"
+        MENUITEM "控制台",                         ID_VIEW_CONSOLE
+        POPUP "可视化"
         BEGIN
-            MENUITEM "Spectrum",                    ID_MENU_FFTTEST
+            MENUITEM "频谱",                          ID_MENU_FFTTEST
         END
     END
-    POPUP "Play"
+    POPUP "播放"
     BEGIN
-        MENUITEM "Play",                        ID_PLAY
-        MENUITEM "Pause",                       ID_PAUSE
-        MENUITEM "Stop",                        ID_STOP
-        MENUITEM "Previous",                    ID_PLAY_PREVIOS, GRAYED
-        MENUITEM "Next",                        ID_PLAY_NEXT
-        MENUITEM "Random",                      ID_PLAY_RANDOM, GRAYED
+        MENUITEM "播放",                          ID_PLAY
+        MENUITEM "暂停",                          ID_PAUSE
+        MENUITEM "停止",                          ID_STOP
+        MENUITEM "上一首",                         ID_PLAY_PREVIOS, GRAYED
+        MENUITEM "下一首",                         ID_PLAY_NEXT
+        MENUITEM "随机",                          ID_PLAY_RANDOM, GRAYED
         MENUITEM SEPARATOR
     END
-    POPUP "Library"
+    POPUP "媒体库"
     BEGIN
-        MENUITEM "Config",                      ID_MEDIALIBRARY_CONFIG
+        MENUITEM "配置",                          ID_MEDIALIBRARY_CONFIG
     END
-    POPUP "Lyric"
+    POPUP "歌词"
     BEGIN
-        MENUITEM "Set Seach Path",              ID_CONFIG_LYRIC
-        MENUITEM "Show Lyric",                  ID_SHOWLYRIC
+        MENUITEM "配置",                          ID_CONFIG_LYRIC
+        MENUITEM "显示歌词",                        ID_SHOWLYRIC
     END
-    POPUP "&Help"
+    POPUP "帮助"
     BEGIN
-        MENUITEM "Title format help",           ID_HELP_TITLEFORMATHELP, GRAYED
+        MENUITEM "标题格式帮助",                      ID_HELP_TITLEFORMATHELP, GRAYED
         MENUITEM SEPARATOR
-        MENUITEM "&About",                      ID_APP_ABOUT
+        MENUITEM "关于",                          ID_APP_ABOUT
     END
 END
 
@@ -378,7 +398,8 @@ BEGIN
     POPUP "列表右键"
     BEGIN
         MENUITEM "播放",                          ID_32830
-        MENUITEM "加入播放列队",                      ID_32831
+        MENUITEM "加入播放列队",                      ID_PUSH_PLAYQUEUE
+        MENUITEM "从播放列队中删除",                    ID_DELFROMPLAYQUEUE
         MENUITEM SEPARATOR
         MENUITEM "剪切",                          ID_32838
         MENUITEM "复制",                          ID_32837

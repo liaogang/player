@@ -29,7 +29,9 @@ public:
 	virtual int ReSerialize(FILE* pFile);
 
 	//-----------------------------------------
-	//
+
+
+
 public:
 	MyLib():m_pActivePlaylist(NULL),m_pSelPlaylist(NULL)
 		,playorder(Default)
@@ -46,6 +48,19 @@ public:
 	//data member
 	typedef list<PlayList*> PLList;
 	PLList m_playLists;
+	//≤•∑≈¡–∂”
+	typedef list<PlayListItem*> PlayQueueContainer;
+	PlayQueueContainer playQueue;
+	void PushPlayQueue(PlayListItem* item);
+	PlayListItem* PopTrackFromPlayQueue();
+
+	//to test track weather in the queue
+	//use return value 's empty funtion
+	vector<int> GetIndexInPlayQueue(PlayListItem* item);
+ 
+	void DeleteFromPlayQueue(PlayListItem* item);
+	void ClearPlayQueue();
+
 private:
 	//pointers
 	PlayList*      m_pActivePlaylist;  //playing
@@ -65,7 +80,7 @@ public:
 	static void play();//set active track, play 
 	static void pause();
 	static void stop();
-	static void playNext(BOOL scanID3=TRUE);
+	void playNext(BOOL scanID3=TRUE);
 
 	
 	static	BOOL SavePlaylist(PlayList *pl,LPTSTR filepath);

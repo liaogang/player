@@ -11,6 +11,7 @@
 #include "DialogSearch.h"
 #include "DialogLyric.h"
 #include "DialogFFTOutline.h"
+#include "DlgConsole.h"
 #include "PlayListManager.h"
 #include "glassWnd.h"
 #include <mpg123.h>
@@ -259,6 +260,7 @@ LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
 
 LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	MyLib::shared()->ClearPlayQueue();
 	MyLib::stop();
 	MyLib::playAfterSlowDown();
 	return 0;
@@ -267,15 +269,35 @@ LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 LRESULT CMainFrame::OnOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	const TCHAR szFilter[]=_T("mp3 files(*.mp3)\0*.mp3\0wave files(*.wav)\0*.wav\0");
-	CFileDialog dlg(TRUE,NULL,NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,szFilter,this->m_hWnd);
+	CFileDialog dlg(TRUE,NULL,NULL,OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT,szFilter,m_hWnd);
+	dlg.m_ofn.Flags|=OFN_ALLOWMULTISELECT;
+
 	if(dlg.DoModal()==IDOK)
 	{
 		PlayList* selPl=MyLib::shared()->SelPlaylist();
 		if(selPl)
 		{
-			selPl->AddFile(dlg.m_ofn.lpstrFile);
+			TCHAR *p=dlg.m_ofn.lpstrFile;
+
+			TCHAR tmpFileName[MAX_PATH]={};
+			_tcscat(_tcscpy(tmpFileName,p),_T("\\"));
+
+			p+=dlg.m_ofn.nFileOffset;
+			while(*p)
+			{
+				int len=1+_tcslen(p);//with null string len
+				
+				_tcsncpy(tmpFileName+dlg.m_ofn.nFileOffset,p,len);
+				if(!selPl->AddFile(tmpFileName))
+				{
+					//Show Error
+				}
+
+				p+=len;
+			}
+
+
 			AllPlayListViews()->Reload(selPl);
-			//m_pPlaylistView->Reload(selPl);
 		}
 	}
 	
@@ -334,7 +356,8 @@ LRESULT CMainFrame::OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 	if (playlist){
 		//m_pTabBar->AddPlaylistTab(playlist,TRUE,-1);
 		AllPlayListViews()->Reload(playlist);
-		if (m_pDlgPLMng->IsWindow())
+		
+		if (m_pDlgPLMng && m_pDlgPLMng->IsWindow())
 		{
 			m_pDlgPLMng->m_list.ReFillPlaylist();
 		}
@@ -411,6 +434,22 @@ LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 	return 0;
 }
 
+
+
+
+LRESULT CMainFrame::OnShowConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	if(!m_pDlgConsole)
+	{
+		m_pDlgConsole=new CDialogConsole;
+		m_pDlgConsole->Create(m_hWnd);
+	}
+
+	::ShowWindow(m_pDlgConsole->m_hWnd,SW_SHOW);
+	
+	return 0;
+}
+
 void CMainFrame::lrcChanged()
 {
 	if (m_dlgLrc)
@@ -477,7 +516,7 @@ LRESULT CMainFrame::OnCbnSelchanged(UINT,int id, HWND hWndCtl)
 
 LRESULT CMainFrame::OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
-	MyLib::playNext();
+	MyLib::shared()->playNext();
 
 	ChangeTitle();
 
@@ -709,18 +748,19 @@ void CMainFrame::InitData()
 	//mylib init will load cfg files 
 	//include playlist and lrc search paths
 	MyLib *s=MyLib::shared();
+	
+	//load all playlist from the file save the data
+	s->LoadCoreCfg();
 
-	if (s->m_playLists.size()>0)
-	{
-		MyLib::PLList::iterator i;
-		for (i=s->m_playLists.begin();i!=s->m_playLists.end();++i)
-		{;
-				//m_pTabBar->AddPlaylistTab(*i,TRUE,-1);
-		}
-
-		i--;
-		m_pPlaylistView->Reload(*i);
-	}
+	::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
+// 	if (s->m_playLists.size()>0)
+// 	{
+// 		MyLib::PLList::iterator i;
+// 		i=s->m_playLists.end();
+// 		i--;
+// 
+// 		AllPlayListViews()->Reload(*i);
+// 	}
 
 	s->InitLrcLib();
 }
@@ -1344,4 +1384,39 @@ void MyLib::stop()
 		CBasicPlayer::shared()->stop();
 		GetMainFrame()->m_pStatus->SetText(0,L"ÒÑÍ£Ö¹");
 	}
+}
+
+BOOL CPlayListView::IsAllSelectedItemInPlayQueue()
+{
+	int nItem=-1;
+	MyLib *s=MyLib::shared();
+	vector<int> v;
+	while((nItem=GetNextItem(nItem,LVNI_SELECTED)) !=-1)
+	{
+		v=s->GetIndexInPlayQueue(GetPlayList()->GetItem(nItem));
+		if(v.empty())
+			return FALSE;
+	}
+
+	return TRUE;
+}
+
+LRESULT CPlayListView::OnPushToPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	int nItem=-1;
+	MyLib *s=MyLib::shared();
+	while((nItem=GetNextItem(nItem,LVNI_SELECTED)) !=-1)
+		s->PushPlayQueue(GetPlayList()->GetItem(nItem));
+	
+	return 0;
+}
+
+LRESULT CPlayListView::OnDeleteFromPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	int nItem=-1;
+	MyLib *s=MyLib::shared();
+	while((nItem=GetNextItem(nItem,LVNI_SELECTED)) !=-1)
+		s->DeleteFromPlayQueue(GetPlayList()->GetItem(nItem));
+	
+	return 0;
 }

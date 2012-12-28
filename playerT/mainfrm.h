@@ -29,6 +29,7 @@ class CMySplitterWindow;
 class DialogFFT;
 class DialogFFTOutline;
 class DialogPLManager;
+class CDialogConsole;
 //-----------------------------------------
 
 
@@ -63,13 +64,14 @@ public:
 	DialogFFT *m_pDlgFFT;
 	DialogFFTOutline *m_pDlgFFTOutline;
 	DialogPLManager *m_pDlgPLMng;
+	CDialogConsole  *m_pDlgConsole;
 public:
 	CMainFrame():m_dlgLrc(NULL),
 		m_pTrackBar(NULL),m_pVolumeBar(NULL),
 		m_pDlgSearch(NULL),pDlgProcess(NULL),
 		lyricView(NULL),m_pSplit(NULL),
 		m_pDlgFFT(NULL),m_pDlgFFTOutline(NULL),
-		m_pDlgPLMng(NULL)
+		m_pDlgPLMng(NULL),m_pDlgConsole(NULL)
 	{
 	}
 
@@ -112,6 +114,7 @@ public:
 		COMMAND_ID_HANDLER(ID_CONFIG_LYRIC,OnConfigLyric)
 		COMMAND_ID_HANDLER(ID_MEDIALIBRARY_CONFIG,OnConfigMediaLib)
 		COMMAND_ID_HANDLER(ID_SHOWLYRIC,OnShowLyric)
+		COMMAND_ID_HANDLER(ID_VIEW_CONSOLE,OnShowConsole)
 		COMMAND_ID_HANDLER(ID_MENU_FFTTEST,OnFftDialog)
 		COMMAND_ID_HANDLER(ID_PLAY, OnPlay)
 		COMMAND_ID_HANDLER(ID_FILE_OPEN, OnOpen)
@@ -226,6 +229,7 @@ public:
 	LRESULT OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnShowConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnConfigLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnConfigMediaLib(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	
