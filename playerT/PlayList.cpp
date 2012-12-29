@@ -74,11 +74,21 @@ PlayList::~PlayList(void)
 	m_songList.clear();
 }
 
-void PlayList::DeleteTrack(PlayListItem* track)
+PlayList::_songContainerItem PlayList::DeleteTrack(int nItem)
 {
-	if(track)
-		m_songList.erase(m_songList.begin()+track->indexInListView);
+	return *(m_songList.erase(m_songList.begin()+nItem));
 }
+
+void PlayList::DeleteTrack(int nItem,int nLastItem)
+{
+	m_songList.erase(m_songList.begin()+nItem,m_songList.begin()+nLastItem);
+}
+
+// void PlayList::DeleteTrack(PlayListItem* track)
+// {
+// 	if(track)
+// 		m_songList.erase(m_songList.begin()+track->indexInListView);
+// }
 
 BOOL PlayList::AddFolderByThread(LPCTSTR pszFolder)
 {
@@ -407,7 +417,7 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 	}
 
 
-	if(id3v2tag && id3v1tag)
+	if(id3v2tag || id3v1tag)
 	{
 		//if the title is empty ,we will use the filename
 		//without suffix
@@ -421,7 +431,7 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 	}
 
 
-	return id3v2tag&&id3v1tag;
+	return id3v2tag || id3v1tag;
 }
 
 

@@ -146,7 +146,9 @@ public:
 	
 public:
 	//operation
-	void DeleteTrack(PlayListItem* track);
+	_songContainerItem DeleteTrack(int nItem);
+	void DeleteTrack(int nItem,int nLastItem);
+	//void DeleteTrack(PlayListItem* track);
 
 public:
 	HANDLE hAddDir;

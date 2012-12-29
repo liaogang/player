@@ -185,24 +185,98 @@ public:
 			//CListCtrl ctrl;ctrl.GetNextSelectedItem()GetNextItem((UINT)nOldPos, LVIS_SELECTED)
 			if (!bDeletable)
 				return;
-			for(int i = GetItemCount()-1; i>=0;--i)
+
+			//从vector删除某项,需要重新搬家,很费时.
+			int blockBeg=0,blockLast;
+
+			
+			int nCount=GetItemCount();
+			int countToDel=0;
+
+			bool *itemDel=new bool[nCount];
+			memset(itemDel,0,nCount*sizeof(bool));
+
+			int nItem=-1;
+			while(-1!=(nItem=GetNextItem(nItem,LVIS_SELECTED)) )
 			{
-				if(LVIS_SELECTED == GetItemState(i, LVIS_SELECTED) )
+				if(!blockBeg)blockBeg=nItem;
+				itemDel[nItem]=true;
+				blockLast=nItem;
+				++countToDel;
+			}
+			
+
+
+			//isEntireBlock?			
+			if ((blockLast-blockBeg+1)==countToDel)
+			{
+				if (countToDel==nCount)
 				{
-					PlayListItem *track=(PlayListItem*)GetItemData(i);
-					if(track )
-					{
-						if(bDelFile && IDYES==::MessageBox(m_hWnd,_T("这将会删除 1 文件 \n要继续吗?"),_T("确认删除文件"),MB_YESNO))
-						{
-							::DeleteFile(track->url.c_str());
-						}
-
-						track->m_pPL->DeleteTrack(track);
-					}
-
-					DeleteItem(i);
+					SetItemCount(0);
+					GetPlayList()->m_songList.clear();
 				}
-			}	
+				else
+				{
+					for (int i=blockLast;i>=blockBeg;--i)
+						DeleteItem(i);
+					GetPlayList()->DeleteTrack(blockBeg,blockLast);
+				}
+			}
+			else
+			{
+				for (int i=nCount-1;i>=0;--i)
+				{
+					if(itemDel[i])
+					{
+						GetPlayList()->DeleteTrack(i);
+						DeleteItem(i);
+					}
+				}
+			}
+			
+
+			/*
+			if ( bDelFile )
+			{
+				TCHAR bf[5]={};
+				_itow(countToDel,bf,10);
+
+				TCHAR title[]=_T("这将会删除\0                     ");
+				TCHAR titleP3[]=_T("文件 \n要继续吗?");
+				_tcscat(title,bf);
+				_tcscat(title,titleP3);
+
+				bDelFile= (IDYES==::MessageBox(m_hWnd,title,_T("确认删除文件"),MB_YESNO));
+			}
+
+			if (bDelFile) ::DeleteFile(GetPlayList()->DeleteTrack(i)->url.c_str());
+			*/
+
+
+			delete[] itemDel;
+
+
+			
+			
+// 
+// 			for(int i = GetItemCount()-1; i>=0;--i)
+// 			{
+// 				if(LVIS_SELECTED == GetItemState(i, LVIS_SELECTED) )
+// 				{
+// 					PlayListItem *track=(PlayListItem*)GetItemData(i);
+// 					if(track )
+// 					{
+// 						if(bDelFile && IDYES==::MessageBox(m_hWnd,_T("这将会删除 1 文件 \n要继续吗?"),_T("确认删除文件"),MB_YESNO))
+// 						{
+// 							::DeleteFile(track->url.c_str());
+// 						}
+// 
+// 						//track->m_pPL->DeleteTrack(track);
+// 					}
+// 
+// 					DeleteItem(i);
+// 				}
+// 			}	
 
 		}
 
