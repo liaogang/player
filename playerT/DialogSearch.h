@@ -29,7 +29,6 @@ public:
 
 	BEGIN_DLGRESIZE_MAP(DialogSearch)
 		DLGRESIZE_CONTROL(IDC_EDIT,DLSZ_SIZE_X)
-		DLGRESIZE_CONTROL(IDC_BUTTON,DLSZ_MOVE_X)
 		DLGRESIZE_CONTROL(IDC_LIST,DLSZ_SIZE_X)
 		DLGRESIZE_CONTROL(IDC_LIST,DLSZ_SIZE_Y)
 	END_DLGRESIZE_MAP()
@@ -109,9 +108,10 @@ public:
 		int count=pM->m_pPlaylistView->GetItemCount();
 		for (int i=0;i<count;++i)
 		{
-			PlayListItem *track=(PlayListItem*)pM->m_pPlaylistView->GetPlayList()->m_songList[i];
+			_songContainerItem item=pM->m_pPlaylistView->GetPlayList()->m_songList[i];
+			FileTrack *track=item.GetFileTrack();
 			if (track->HaveKeywords(const_cast<TCHAR*>( strBuf.c_str()) ))
-				searchPl->m_songList.push_back(track);
+				searchPl->m_songList.push_back(item);
 		}
 
 		if (searchPl->m_songList.size()>0)

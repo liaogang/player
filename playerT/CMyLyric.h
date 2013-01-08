@@ -62,7 +62,7 @@ public:
 		std::tstring lrcText;
 		int lrcLines,lrcTextHeight,lrcSpare,lrcHeight;
 		BOOL bLrcReady;
-		PlayListItem* track;
+		FileTrack* track;
 		vector<LrcLine>::iterator preLine,curLine,nextLine;
 		RECT tRc;
 		
@@ -107,31 +107,33 @@ public:
 				
 			WCHAR  path[MAX_PATH]={};
 
-			PlayList* pPlaylist=MyLib::shared()->ActivePlaylist();
-			if (pPlaylist)
+
+			if(MyLib::shared()->isPlaying())
 			{
-				PlayListItem *item=pPlaylist->curTrack();
-				if (item)
+				_songContainerItem *playlistitem=MyLib::shared()->GetPlayingItem();
+				FileTrack* track=playlistitem->GetFileTrack();
+				if (track)
 				{
 					if(MyLib::shared()->lrcDirs.size()>0)
 						wcscpy(path,(WCHAR*)(*(MyLib::shared()->lrcDirs.begin())).c_str());
 					else
 					{
-						int idx=item->url.find_last_of('\\');
-						ATLASSERT(idx!=item->url.npos);
+						int idx=track->url.find_last_of('\\');
+						ATLASSERT(idx!=track->url.npos);
 
-						if (idx!=item->url.npos)
-							wcscpy(path,item->url.c_str()+idx+1);
+						if (idx!=track->url.npos)
+							wcscpy(path,track->url.c_str()+idx+1);
 					}
 
 					//we use path\artist - title.lrc
-					wcscat(wcscat(path,L"\\"),item->artist.c_str());
-					wcscat(wcscat(path,L" - "),item->title.c_str());
+					wcscat(wcscat(path,L"\\"),track->artist.c_str());
+					wcscat(wcscat(path,L" - "),track->title.c_str());
 					wcscat(path,L".lrc");
 
-					dlgLrcSearch.ReInit((WCHAR*)item->artist.c_str(),(WCHAR*)item->title.c_str(),path);
-				}
+					dlgLrcSearch.ReInit((WCHAR*)track->artist.c_str(),(WCHAR*)track->title.c_str(),path);
+				}//if(item)
 			}
+
 
 			if(!path)
 				dlgLrcSearch.ReInit(NULL,NULL,NULL);
@@ -250,10 +252,13 @@ public:
 			InvalidateRect(&lrcRect);
 
 			bLrcReady=FALSE;
-			PlayList *playlist=MyLib::shared()->ActivePlaylist();
-			if(!playlist) return;
-			track=playlist->curTrack();
-			if(!track) return;
+			//PlayList *playlist=MyLib::shared()->ActivePlaylist();
+			//if(!playlist) return;
+			if(!MyLib::shared()->isPlaying())
+				return;
+
+			track=MyLib::shared()->GetPlayingItem()->GetFileTrack();
+			
 
 			LrcMng *sLM=LrcMng::Get();
 			if( track->GetLrcFileFromLib() )

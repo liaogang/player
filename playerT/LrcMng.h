@@ -25,7 +25,7 @@
 #include "StringConvertions.h"
 
 using namespace std;
-class PlayListItem;
+class FileTrack;
 
 
 enum TagType
@@ -127,7 +127,7 @@ public:
 	static LrcMng* Get();
 
 public:
-	BOOL OpenTrackPath(PlayListItem* track,std::tstring &path,BOOL bMatchIdentityTag=FALSE);
+	BOOL OpenTrackPath(FileTrack *track,std::tstring &path,BOOL bMatchIdentityTag=FALSE);
 	void Clear()
 	{
 		lib.clear();

@@ -19,5 +19,5 @@ public:
 	virtual VOID  SetOutVolume(double vol)=0;
 	virtual bool Open(LPCTSTR pszPath)=0;
 	virtual void  SetPos(int cur,int max)=0;
-	virtual void  Close()=0; 
+	virtual int  Close()=0; 
 };

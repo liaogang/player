@@ -67,8 +67,9 @@ void CBasicPlayer:: SetVolumeByEar(int vol)
 	m_curVolume=index;
 }
 
-void CBasicPlayer::OpenAfterSlowDown()
+void CBasicPlayer::OpenAfterSlowDown(FileTrack* item)
 {
+	itemWaitPlay=item;
 	::CreateThread(NULL,0,WaitPlayThread,(LPVOID)this,0,0);
 }
 
@@ -94,10 +95,8 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
 		m_pFile=new Mp3File();
 	else if (_tcscmp(p,_T("wma"))==0 || _tcscmp(p,_T("WMA"))==0)
 		m_pFile=new Mp3File();
-	else{
-		//MessageBox(m_pMainFrame->m_hWnd,_T("不支持的文件类型"),_T(""),MB_OK);
-		return -1;
-	}
+	else
+		{return -1;}
 
 	return m_pFile->Open(filepath);
 }
@@ -146,7 +145,7 @@ void CBasicPlayer::WaitPlay()
 	if (waitResult==WAIT_TIMEOUT)
 		return;
 	else if (waitResult==WAIT_OBJECT_0)//slowdown ending sign
-		::SendMessage(m_pMainFrame->m_hWnd,WM_PLAY_DIRECTLY,NULL,NULL);
+		::SendMessage(m_pMainFrame->m_hWnd,WM_PLAY_DIRECTLY,(WPARAM)itemWaitPlay,NULL);
 }
 
 void CALLBACK SlowDownVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD dw2)
@@ -296,7 +295,7 @@ void CBasicPlayer::stop()
 	}
 }
 
-BOOL CBasicPlayer::open( PlayListItem *track)
+BOOL CBasicPlayer::open( FileTrack *track)
 {
 	return open(track->url.c_str());
 }

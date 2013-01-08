@@ -123,7 +123,7 @@ int PlayList::SerializeB(FILE *pFile)
 	//m_songList Serialize
 	_songContainer::iterator i;
 	for (i=m_songList.begin();i!=m_songList.end();++i){
-		size+=(*i)->Serialize(pFile);
+		size+=(*i).GetFileTrack()->Serialize(pFile);
 	}
 
 	return size;
@@ -140,20 +140,17 @@ int PlayList::ReSerialize(FILE *pFile)
 	size+=playlistnameSize;
 
 	while(size<totalSize-playlistnameSize){
-		PlayListItem *track=new PlayListItem(this);
-		size+=track->ReSerialize(pFile);
-		track->itemIndex=m_songList.size();
-		m_songList.push_back(track);
+		PlayListItem item(this);
+		size+=item.ReSerialize(pFile);
+		m_songList.push_back(item);
 	}
-
-
 
 
 	return size;
 }
 
 
-int PlayListItem::SerializeB(FILE *pFile)
+int FileTrack::SerializeB(FILE *pFile)
 {
 	int size=0;
 	size+=::Serialize(pFile,url);
@@ -167,7 +164,7 @@ int PlayListItem::SerializeB(FILE *pFile)
 	return size;
 }
 
-int PlayListItem::ReSerialize(FILE *pFile)
+int FileTrack::ReSerialize(FILE *pFile)
 {
 	int size=0;
 

@@ -1,6 +1,7 @@
 #include "MyLib.h"
 #include "BasicPlayer.h"
 #include "ProgertyDlg.h"
+#include "PlayListViewMng.h"
 //-----------------------------------------
 //
 
@@ -18,10 +19,10 @@ PlayList* MyLib::AddFolderToCurrentPlayList(LPCTSTR pszFolder)
 	return p;
 }
 
+static MyLib* gMylib=NULL;
 MyLib* MyLib::shared()
 {
-	static MyLib* p=NULL;
-	return p==NULL?p=new MyLib:p;
+	return gMylib==NULL?gMylib=new MyLib:gMylib;
 }
 
 MyLib::~MyLib()
@@ -36,9 +37,9 @@ MyLib::~MyLib()
 	
 }
 
-void MyLib::playAfterSlowDown()
+void MyLib::playAfterSlowDown(FileTrack  *item)
 {
-	CBasicPlayer::shared()->OpenAfterSlowDown();
+	CBasicPlayer::shared()->OpenAfterSlowDown(item);
 }
 
 
@@ -46,19 +47,27 @@ void MyLib::playAfterSlowDown()
 
 void MyLib::playNext(BOOL scanID3)
 {	
-	PlayListItem *track;
+	PlayListItem track;
  	if (!playQueue.empty())
+	{
 		track=PopTrackFromPlayQueue();
+		SetActivePlaylist(track.GetPlayList());
+		
+	}
 	else
+	{
 		track=ActivePlaylist()->GetNextTrackByOrder();
+	}
 
-	if(!track) return;
+	ActivePlaylist()->SetCurPlaying(track);
+
+	AllPlayListViews()->PlayingItemChanged();
 
 	//todo update listview's item
-	track->ScanId3Info(TRUE);
+	track.ScanId3Info(TRUE);
 
 	CBasicPlayer *sbp=CBasicPlayer::shared();
-	if ( track==ActivePlaylist()->lastTrack())
+	if (1)//todo track==ActivePlaylist()->lastTrack())
 	{
 		sbp->m_bFileEnd=FALSE;
 		sbp->play();
@@ -66,27 +75,27 @@ void MyLib::playNext(BOOL scanID3)
 	else
 	{
 		sbp->stop();
-		sbp->open(track);
+		sbp->open(track.GetFileTrack());
 		sbp->play();
 	}
 }
 
 //后端插入,前端取出
-void MyLib::PushPlayQueue(PlayListItem* item)
+void MyLib::PushPlayQueue(_songContainerItem item)
 {
 	playQueue.push_back(item);
 }
 
-PlayListItem* MyLib::PopTrackFromPlayQueue()
+PlayListItem MyLib::PopTrackFromPlayQueue()
 {
 	PlayQueueContainer::iterator i=playQueue.begin();
-	PlayListItem* item=*i;
+	PlayListItem item=*i;
 	playQueue.erase(i);
 
 	return item;
 }
 
-vector<int> MyLib::GetIndexInPlayQueue(PlayListItem* item)
+vector<int> MyLib::GetIndexInPlayQueue(_songContainerItem item)
 {
 	vector<int> v;
 	int idx=0;
@@ -98,7 +107,7 @@ vector<int> MyLib::GetIndexInPlayQueue(PlayListItem* item)
 	return v;
 }
 
-void MyLib::DeleteFromPlayQueue(PlayListItem* item)
+void MyLib::DeleteFromPlayQueue(_songContainerItem item)
 {
 	for(PlayQueueContainer::iterator i=playQueue.begin();
 		i!=playQueue.end();)
@@ -269,4 +278,7 @@ void MyLib::DeletePlayList(PlayList *pl)
 {
 	m_playLists.remove(pl);
 	delete pl;
+	//todo 
+	//if pl == active pl
+	//active = select pl
 }

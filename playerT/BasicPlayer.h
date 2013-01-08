@@ -8,8 +8,7 @@ class CSpectrumAnalyser;
 class MusicFile;
 class CMainFrame;
 class CPlayerController;
-class PlayListItem;
-
+class FileTrack;
 
 class CBasicPlayer
 {
@@ -43,15 +42,15 @@ public:
 	CPlayerThread* m_pPlayerThread;
 	CSpectrumAnalyser* m_pSpectrumAnalyser;
 
-
+	FileTrack *itemWaitPlay;
 	void InitSlowDown(BOOL bSlowDown=TRUE,BOOL bCloseFile=FALSE);
 	void SlowDownVol();
 	void SetVolumeByEar(int vol);
-	BOOL open( PlayListItem *track);
+	BOOL open(FileTrack * track);
 	void ResetFile();
 	void SetPos(int cur,int max);
 	void WaitPlay();
-	void OpenAfterSlowDown();
+	void OpenAfterSlowDown(FileTrack * item);
 	inline BOOL stoped(){return m_bStopped;}
 protected:
 	void play();

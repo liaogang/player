@@ -32,9 +32,9 @@ public:
 		return r==S_OK;
 	}
 
-	void Close()
+	int Close()
 	{
-		m_wavefile.Close();
+		return m_wavefile.Close();
 	}
 	
 	virtual bool Read(void* pBuf,DWORD dwSizeToRead, DWORD* pdwSizeRead)

@@ -35,22 +35,20 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 
 //-----------------------------------------
 //PlayList
- PlayList::PlayList(void):
-	curSelectedItem(NULL),
-	lastPlayingItem(NULL),
-	curPlayingItem(NULL),
-	nextPlayingItem(NULL),
-	topVisibleIndex(0),
-	selectedIndex(-1)
+ PlayList::PlayList(void)
+	//lastPlayingItem(NULL),
+	//curPlayingItem(NULL),
+	//nextPlayingItem(NULL),
+	//topVisibleIndex(0),
+	//selectedIndex(-1)
 {
 
 }
 
  PlayList::PlayList(std::tstring &name):
-	curSelectedItem(NULL),
-	lastPlayingItem(NULL),
-	curPlayingItem(NULL),
-	nextPlayingItem(NULL),
+	//lastPlayingItem(NULL),
+	//curPlayingItem(NULL),
+	//nextPlayingItem(NULL),
 	topVisibleIndex(0),
 	selectedIndex(-1)
  {
@@ -61,20 +59,10 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 
 PlayList::~PlayList(void)
 {	
-	curPlayingItem=NULL;
-	curSelectedItem=NULL;
-
-	_songContainer::iterator i;
-	for (i=m_songList.begin();i!=m_songList.end();i++)
-	{
-		_songContainerItem item=*i;
-		delete item;
-	}
-
 	m_songList.clear();
 }
 
-PlayList::_songContainerItem PlayList::DeleteTrack(int nItem)
+_songContainerItem PlayList::DeleteTrack(int nItem)
 {
 	return *(m_songList.erase(m_songList.begin()+nItem));
 }
@@ -174,12 +162,11 @@ BOOL IsDots(TCHAR* fn)
 BOOL PlayList::AddFile(TCHAR *filepath)
 {
 	std::tstring str(filepath);
-	PlayListItem *pItem=new PlayListItem(this,&str);
-	if(pItem->ScanId3Info())
+	PlayListItem item(this,str);
+	if(item.ScanId3Info())
 	{	
-		pItem->itemIndex=m_songList.size();
-		m_songList.push_back(pItem);
-		//msonglist的析构会删除*pItem;
+		m_songList.push_back(item);
+
 		::SendMessage(MyLib::GetMain(),WM_FILE_FINDED,(WPARAM)filepath,(LPARAM)2);
 		return TRUE;
 	}
@@ -189,8 +176,6 @@ BOOL PlayList::AddFile(TCHAR *filepath)
 
 BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 {
-	//todo
-	//CFileFind a;a.IsDots()
 	//忽略了子目录下的mp3文件
 	TCHAR* oldPath=new TCHAR[MAX_PATH];
 	_tgetcwd(oldPath,MAX_PATH);
@@ -257,42 +242,47 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 	return TRUE;
 }
 
-PlayListItem* PlayList::nextTrack()
+// PlayListItem* PlayList::nextTrack()
+// {
+// 	PlayListItem*tmp=nextPlayingItem; 
+// 	nextPlayingItem=NULL;
+// 	return tmp;
+// }
+
+
+void PlayList::SetCurPlaying(_songContainerItem item,BOOL scanID3)
 {
-	PlayListItem*tmp=nextPlayingItem; 
-	nextPlayingItem=NULL;
-	return tmp;
+	//curPlayingItem=item;
+	MyLib::shared()->SetPlayingItem(item);
+	if (scanID3) item.ScanId3Info(TRUE);
 }
 
-
-void PlayList::SetCurPlaying(PlayListItem* item,BOOL scanID3)
+_songContainerItem PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 {
-	curPlayingItem=item;
-	if (scanID3) curPlayingItem->ScanId3Info(TRUE);
-}
-
-PlayListItem* PlayList::GetNextTrackByOrder(BOOL bMoveCur)
-{
+	//_songContainerItem item;
 	_songContainer::iterator cur,next;
 
-	for (cur=m_songList.begin();cur!=m_songList.end();++cur)
-	{
-		if (*cur==curPlayingItem)break;
-	}
+	_songContainerItem *item=MyLib::shared()->GetPlayingItem();
+	cur = m_songList.begin()+item->GetIndex();
+	
+// 	for (cur=m_songList.begin();cur!=m_songList.end();++cur)
+// 	{
+// 		if (*cur==MyLib::shared()->GetPlayingItem())break;
+// 	}
 
-	lastPlayingItem=curPlayingItem;
+	MyLib::shared()->lastPlayingItem=*MyLib::shared()->GetPlayingItem();
 
 	if ( cur==m_songList.end()|| ++cur==m_songList.end())
 		return NULL;
 
 	next=MyLib::shared()->GetNextByOrder(--cur);
 
-	if(bMoveCur)curPlayingItem=*next;
+	//if(bMoveCur)curPlayingItem=*next;
 	return *next;
 }
 
 
-PlayListItem::~PlayListItem()
+FileTrack::~FileTrack()
 {
 	if (img)
 	{
@@ -310,7 +300,7 @@ PlayListItem::~PlayListItem()
 
 
 
-void PlayListItem::Buf2Img(BYTE* lpRsrc,DWORD len)
+void FileTrack::Buf2Img(BYTE* lpRsrc,DWORD len)
 {
 // 	TCHAR *picName=_T("runningArtWork.jpeg");
 // 	FILE *file=_tfopen(picName,L"wb");
@@ -341,7 +331,7 @@ void PlayListItem::Buf2Img(BYTE* lpRsrc,DWORD len)
 		img=NULL;}
 };
 
-BOOL PlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
+BOOL FileTrack::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 {
 	if( !forceRescan && m_bStatus!=UNKNOWN)
 		return TRUE;
@@ -364,18 +354,25 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 		{
 			title=id3v2tag->title().toWString();
 			artist=id3v2tag->artist().toWString();
-			album=id3v2tag->album().toWString();
-			genre=id3v2tag->genre().toWString();
-			year=id3v2tag->year();
-			lyricInner=id3v2tag->lyric().toWString();
-		
-			if (!lyricInner.empty())
-				m_bLrcInner=TRUE;
-
+			
 			if ( title.empty() || artist.empty() )
+			{
 				bInvalidID3V2=TRUE;
+			}
 			else
+			{
 				m_bStatus=ID3V2;
+				album=id3v2tag->album().toWString();
+				genre=id3v2tag->genre().toWString();
+				TCHAR cYear[MAX_PATH]={0};
+				_itow(id3v2tag->year(),cYear,10);
+				year=cYear;
+
+				lyricInner=id3v2tag->lyric().toWString();
+
+				if (!lyricInner.empty())
+					m_bLrcInner=TRUE;
+			}
 
 			if(  m_bStatus==ID3V2  && bRetainPic)
 			{
@@ -407,7 +404,10 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 			artist=id3v1tag->artist().toWString();
 			album=id3v1tag->album().toWString();
 			genre=id3v1tag->genre().toWString();
-			year=id3v1tag->year();
+
+			TCHAR cYear[MAX_PATH]={0};
+			_itow(id3v1tag->year(),cYear,10);
+			year=cYear;
 
 			TrimRightByNull(title);
 			TrimRightByNull(artist);
@@ -437,7 +437,7 @@ BOOL PlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 
 
 
-BOOL PlayListItem::TryLoadLrcFile(std::tstring &filename,BOOL forceLoad)
+BOOL FileTrack::TryLoadLrcFile(std::tstring &filename,BOOL forceLoad)
 {
 	if (forceLoad || LrcFileMacth(filename))//filename match
 	{
@@ -455,7 +455,7 @@ BOOL PlayListItem::TryLoadLrcFile(std::tstring &filename,BOOL forceLoad)
 
 
 //通过歌词文件名判断,是否与当前歌曲匹配
-BOOL PlayListItem::LrcFileMacth(std::tstring &lrcFile)
+BOOL FileTrack::LrcFileMacth(std::tstring &lrcFile)
 {
 	if( search(lrcFile.begin(),lrcFile.end(),title.begin(),title.end())!=lrcFile.end() )
 		return TRUE;
@@ -483,7 +483,7 @@ BOOL PlayListItem::LrcFileMacth(std::tstring &lrcFile)
 
 
 
-BOOL PlayListItem::GetLrcFileFromLib(BOOL forceResearch)
+BOOL FileTrack::GetLrcFileFromLib(BOOL forceResearch)
 {
 	if (!forceResearch && m_bLrcFromLrcFile)
 		return TRUE;
@@ -509,7 +509,7 @@ BOOL HaveHeywordsNoCase(std::tstring &my,TCHAR *keywords)
 }
 
 
-BOOL PlayListItem::HaveKeywords(TCHAR *keywords)
+BOOL FileTrack::HaveKeywords(TCHAR *keywords)
 {	
 	BOOL have=FALSE;
 	if(
@@ -528,7 +528,7 @@ BOOL PlayListItem::HaveKeywords(TCHAR *keywords)
 }
 
 
-BOOL LrcMng::OpenTrackPath(PlayListItem* track,std::tstring &path,BOOL bMatchIdentityTag)
+BOOL LrcMng::OpenTrackPath(FileTrack* track,std::tstring &path,BOOL bMatchIdentityTag)
 {
 	Open((LPTSTR)path.c_str());
 

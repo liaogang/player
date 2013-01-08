@@ -14,6 +14,11 @@ class PlayListViewBase
 {
 private:
 	PlayList *  m_pPlayList;
+protected:
+	int nItemPlaying;//正在播放的项目
+public:
+	inline int GetPlayingIdx(){return nItemPlaying;}
+	inline void SetPlayingIdx(int i){nItemPlaying=i;}
 public:
 	//清空当前播放列表视图的所有项目,
 	virtual void ClearAllItem()=0;
@@ -24,6 +29,8 @@ public:
 	virtual void LoadPlayList(PlayList *pPlayList)=0;
 	virtual void EnsureVisibleAndCentrePos(int index)=0;
 	virtual void Reload(PlayList* pPlayList,BOOL SetIndex=-1)=0;
+
+	virtual int GetIndex(PlayListItem *item)=0;
 
 	void ReLoad(PlayList *pPL)
 	{
@@ -57,12 +64,15 @@ public:
 
 	int indexLast;
 
+
+
 	CPlayListView(BOOL bSearch=FALSE):
 	m_bSearch(bSearch),
 		bAuto(FALSE),
 		bDeletable(!bAuto),
 		m_pPlayTrack(NULL),m_bC(TRUE),indexLast(-1)
 	{
+		nItemPlaying=-1;
 		menu=LoadPlaylistMenu();
 	}
 
@@ -157,20 +167,9 @@ public:
 		LRESULT OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled);
 
 		BOOL m_bC;
-		LRESULT OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled)
-		{
-			NMLISTVIEW * pnml=(NMLISTVIEW *)pnmh;
-			if(m_bC)
-			{
-				GetPlayList()->topVisibleIndex=pnml->iItem;
-				GetPlayList()->selectedIndex=pnml->iItem;
-				if (pnml->iItem!=-1)
-				{
-					GetPlayList()->SetSelectedItem(pnml->iItem);
-				}
-			}
-			return 1;
-		}
+		
+		LRESULT OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled);
+		
 
 		inline void SelectAll(){SetItemState(-1, LVIS_SELECTED , LVIS_SELECTED );}
 
@@ -299,14 +298,16 @@ public:
 
 		void PlayItem(int nItem);
 
+		void PlaySelectedItem(_songContainerItem *item);
+
 		LRESULT OnDbClicked(UINT i,CPoint pt)
 		{
-			int k=GetFirstSelItem();
+						
+			int k=GetPlayList()->selectedIndex;
 			if(k!=-1)
 			{
 				PlayItem(k);
 				GetPlayList()->topVisibleIndex=k;
-				GetPlayList()->selectedIndex=k;
 			}
 
 			SetMsgHandled(FALSE);
@@ -380,6 +381,28 @@ public:
 			return InsertColumn(nItem, &lvc);
 		}
 
+		int GetIndex(PlayListItem *item)
+		{
+// 			int nItem= GetPlayList()->GetItem(item);
+// 			return nItem==GetPlayList()->GetItemCount()?-1:nItem;
+
+			return 0;
+		}
+
+
+		void SetPlayingItem(PlayListItem *item)
+		{
+			SetPlayingItem(GetIndex(item));
+		}
+
+		public:
+		void SetPlayingItem(int nItem)
+		{
+			RedrawItems(nItemPlaying,nItemPlaying);
+			nItemPlaying=nItem;
+			RedrawItems(nItemPlaying,nItemPlaying);
+		}
+
 		void ClearAllSel()
 		{
 			int i=-1;
@@ -415,7 +438,7 @@ public:
 		{
 			m_bC=FALSE;
 
-			if (1)//GetPlayList()!=pPlayList)
+			if ( /*m_bSearch ||*/1 || GetPlayList()!=pPlayList)
 			{
 				ClearAllSel();
 				LoadPlayList(pPlayList);
@@ -488,13 +511,13 @@ public:
 
 			if(nItem!=-1)
 			{
-				PlayListItem *track=GetPlayList()->m_songList[nItem];
+				FileTrack *track=GetPlayList()->m_songList[nItem].GetFileTrack();
 
 				std::tstring parameters=_T("/select,");
 				parameters+=track->url;
 
 				std::tstring dir;
-				int index= track->url.find_last_of(_T("\\"));
+				int index=track->url.find_last_of(_T("\\"));
 				if (index!=track->url.npos)
 					dir+=track->url.substr(0,index);
 

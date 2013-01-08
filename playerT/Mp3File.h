@@ -34,13 +34,9 @@ public:
 		}
 	}
 
-	void Close()
+	int Close()
 	{
-		if (m_hmp3)
-		{
-			mpg123_tclose(m_hmp3);
-			m_hmp3=NULL;
-		}
+		return	mpg123_tclose(m_hmp3);		
 	}
 
 	virtual DWORD GetSize()

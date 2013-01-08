@@ -72,18 +72,18 @@ public:
 	}
 
 	BOOL bHasPic;
-	PlayListItem *i;
+	FileTrack* track;
 	RECT rc;
 
 	void TrackChanged()
 	{
 		bHasPic=FALSE;
-		PlayList* ppl=MyLib::shared()->ActivePlaylist();
-		if (ppl)
+		
+		if (MyLib::shared()->isPlaying())
 		{
-			i=ppl->curTrack();
-			if (i &&i->img)
-				bHasPic=TRUE;
+			track=MyLib::shared()->GetPlayingItem()->GetFileTrack();
+			if (track->img)
+			   bHasPic=TRUE;
 		}
 
 		Invalidate();
@@ -100,10 +100,10 @@ public:
 
 		if (bHasPic)
 		{
-			int iw=i->img->GetWidth();
-			int ih=i->img->GetHeight();
+			int iw=track->img->GetWidth();
+			int ih=track->img->GetHeight();
 
-			i->img->Draw(ps.hdc,rc.left,rc.top,iw,ih,0,0,iw,ih);
+			track->img->Draw(ps.hdc,rc.left,rc.top,iw,ih,0,0,iw,ih);
 			oldPen=(HPEN )::SelectObject(ps.hdc,newPen);
 			::Rectangle(ps.hdc,iw,rc.top,rc.right+1,rc.bottom+1);
 			::Rectangle(ps.hdc,rc.left-1,ih,iw+1,rc.bottom+1);
