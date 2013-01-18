@@ -2,6 +2,7 @@
 
 class PlayListViewBase;
 class PlayList;
+#pragma once
 class PlayListViewMng
 {
 public:

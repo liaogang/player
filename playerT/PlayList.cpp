@@ -26,7 +26,13 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 
 	::PostMessage(MyLib::GetMain(),WM_ADDFOLDERED,NULL,NULL);
 	
+	
+
+	p->pPlaylist->m_fileMonitor.AddMonitorDirectory(p->pszFolder);
+	p->pPlaylist->m_fileMonitor.pPL=p->pPlaylist;
+
 	delete p;
+
 	return result;
 }
 
@@ -42,7 +48,12 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 	//topVisibleIndex(0),
 	//selectedIndex(-1)
 {
+	m_bMonitor=true;
+}
 
+PlayList::PlayList(std::tstring &name,bool bMonitor):m_bMonitor(bMonitor)
+{
+	
 }
 
  PlayList::PlayList(std::tstring &name):
@@ -54,12 +65,42 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
  {
 	m_playlistName=name;
 	m_saveLocation=m_playlistName+_T(".pl");
+
+
+	m_bMonitor=true;
  }
 
 
 PlayList::~PlayList(void)
 {	
 	m_songList.clear();
+}
+
+void PlayList::ChangeTrackPath(TCHAR *from,TCHAR *to)
+{
+	for (auto i=m_songList.begin();i!=m_songList.end();++i)
+	{
+		PlayListItem item=*i;
+		if (_tcscmp(from,item.GetFileTrack()->url.c_str())==0)
+		{
+			item.GetFileTrack()->url=to;
+			break;
+		}
+	}
+}
+
+void PlayList::DeleteTrackByPath(TCHAR *path)
+{
+	for (auto i=m_songList.begin();i!=m_songList.end();++i)
+	{
+		PlayListItem item=*i;
+		if (_tcscmp(path,item.GetFileTrack()->url.c_str())==0)
+		{
+			delete item.GetFileTrack();
+			m_songList.erase(i);
+			break;
+		}
+	}
 }
 
 _songContainerItem PlayList::DeleteTrack(int nItem)
@@ -165,6 +206,7 @@ BOOL PlayList::AddFile(TCHAR *filepath)
 	PlayListItem item(this,str);
 	if(item.ScanId3Info())
 	{	
+		item.SetIndex(m_songList.size());
 		m_songList.push_back(item);
 
 		::SendMessage(MyLib::GetMain(),WM_FILE_FINDED,(WPARAM)filepath,(LPARAM)2);
@@ -191,6 +233,7 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 	if(hFind!=INVALID_HANDLE_VALUE)
 	{
 		findResult=TRUE;
+
 		while(findResult)
 		{
 			if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)
@@ -286,7 +329,7 @@ FileTrack::~FileTrack()
 {
 	if (img)
 	{
-		delete img;
+		//delete img;
 		img=NULL;
 	}
 

@@ -88,6 +88,7 @@ playerT/DialogLyric.h -text
 playerT/DialogSearch.h -text
 playerT/DirectSoundController.cpp -text
 playerT/DirectSoundController.h -text
+playerT/DlgConsole.h -text
 playerT/DlgProcessing.h -text
 playerT/DsoundControl.cpp -text
 playerT/DsoundControl.h -text
@@ -138,6 +139,8 @@ playerT/aboutdlg.h -text
 playerT/atlsplit.h -text
 playerT/customMsg.h -text
 playerT/dlgLrcSearch.h -text
+playerT/fileMonitor.cpp -text
+playerT/fileMonitor.h -text
 playerT/glassWnd.h -text
 playerT/libmpg123.dll -text
 playerT/libmpg123.lib -text

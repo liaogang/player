@@ -482,7 +482,10 @@ LRESULT CMainFrame::OnPlayDirectly(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam
 {
 	MyLib::stop();
 	
-	MyLib::shared()->SetPlayingItem(*MyLib::shared()->GetWaitPlayItem());
+	_songContainerItem *item=MyLib::shared()->GetWaitPlayItem();
+	MyLib::shared()->SetPlayingItem(*item);
+	MyLib::shared()->SetActivePlaylist(item->GetPlayList());
+
 	MyLib::shared()->play((FileTrack*)wParam);
 
 	return 0;
@@ -1455,7 +1458,7 @@ void PlayListViewMng::Reload(PlayList *pPL,bool bCenterItem)
 	{
 		(*i)->Reload(pPL);
 
-		int centerItem=(*i)->GetPlayingIdx();
+		int centerItem=(*i)->GetPlayList()->selectedIndex;
 
 		if(centerItem==INVALID_ITEM)
 			centerItem=(*i)->GetPlayList()->selectedIndex;
@@ -1479,6 +1482,7 @@ LRESULT CPlayListView::OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled)
 			_songContainerItem item= GetPlayList()->GetItem(pnml->iItem);
 			MyLib::shared()->SetWaitPlayItem(item);
 			//GetPlayList()->SetSelectedItem(pnml->iItem);
+
 		}
 	}
 	return 1;

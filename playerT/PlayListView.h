@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "PlayList.h"
+#include "PlayListViewMng.h"
 #define INVALID_ITEM -1
 
 unsigned int BKDRHash(char *str);
@@ -38,7 +39,11 @@ public:
 		LoadPlayList(pPL);
 	}
 
-	inline void SetPlayList(PlayList * pPlayList){m_pPlayList=pPlayList;}
+	inline void SetPlayList(PlayList * pPlayList){
+		m_pPlayList=pPlayList;
+		if (m_pPlayList)
+			m_pPlayList->pPLV=this;
+	}
 	inline PlayList * GetPlayList(){return m_pPlayList;}
 };
 
@@ -72,7 +77,8 @@ public:
 		bDeletable(!bAuto),
 		m_pPlayTrack(NULL),m_bC(TRUE),indexLast(-1)
 	{
-		nItemPlaying=-1;
+		SetPlayList(NULL);
+		//nItemPlaying=-1;
 		menu=LoadPlaylistMenu();
 	}
 
@@ -416,6 +422,9 @@ public:
 
 		void LoadPlayList(PlayList *pPlayList)
 		{
+			if (GetPlayList())
+				GetPlayList()->pPLV=NULL;
+			
 			SetItemCount(pPlayList->m_songList.size());
 			SetPlayList(pPlayList);
 		}
@@ -447,13 +456,14 @@ public:
 			if(SetIndex==INVALID_ITEM)//so we highlight last selected item
 			{
 				int selItem;
-				if(GetPlayList()->selectedIndex==-1)
+				
+				if(GetPlayingIdx()==-1)
 				{
 					selItem=0;
 				}
 				else
 				{
-					selItem=GetPlayList()->selectedIndex;
+					selItem=GetPlayingIdx();;
 					SelectAndFocusItem(selItem);
 				}
 

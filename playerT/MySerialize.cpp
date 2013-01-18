@@ -142,6 +142,7 @@ int PlayList::ReSerialize(FILE *pFile)
 	while(size<totalSize-playlistnameSize){
 		PlayListItem item(this);
 		size+=item.ReSerialize(pFile);
+		item.SetIndex(m_songList.size());
 		m_songList.push_back(item);
 	}
 

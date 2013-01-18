@@ -1,6 +1,9 @@
 #pragma once
 #include "MySerialize.h"
 #include "LrcMng.h"
+#include "fileMonitor.h"
+
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -22,7 +25,7 @@
 #include <attachedpictureframe.h>
 
 class PlayList;
-
+class PlayListViewBase;
 /*
 PlayListItem is outside of playlistitemproxy
 PlayListItemProxy is true data item ,datas from file
@@ -108,7 +111,10 @@ private:
 class PlayListItem
  {
 public:
-	PlayListItem(){}
+	PlayListItem()
+	{
+
+	}
 
 	PlayListItem(PlayList *playlist,std::tstring url):
 	  pPL(playlist),filetrack(new FileTrack(url))
@@ -122,6 +128,19 @@ public:
 	  }
 
 	  ~PlayListItem(){};
+
+	  //Move¸³Öµ¿½±´
+	  PlayListItem& operator=(PlayListItem&& b)
+	  {
+		  if (this!=&b)
+		  {
+			  this->SetPlayList(b.GetPlayList());
+			  this->filetrack=b.filetrack;
+		  }
+
+		  return *this;
+	  }
+
 
 	  bool operator==(const PlayListItem &other)
 	  {
@@ -198,12 +217,15 @@ public:
 public:
 	PlayList(void);
 	PlayList(std::tstring &name);
+	PlayList(std::tstring &name,bool bMonitor);
 	~PlayList(void);
 
 public:
 	//operation
 	_songContainerItem DeleteTrack(int nItem);
 	void DeleteTrack(int nItem,int nLastItem);
+	void DeleteTrackByPath(TCHAR *path);
+	void ChangeTrackPath(TCHAR *from,TCHAR *to);
 	//void DeleteTrack(PlayListItem* track);
 
 public:
@@ -222,4 +244,10 @@ public:
 	//this data will used in list view when display
 	int topVisibleIndex;
 	int selectedIndex;
+
+	bool m_bMonitor;
+	fileMonitor m_fileMonitor;
+
+
+	PlayListViewBase *pPLV;
 };
