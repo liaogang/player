@@ -119,27 +119,32 @@ public:
 	PlayListItem(PlayList *playlist,std::tstring url):
 	  pPL(playlist),filetrack(new FileTrack(url))
 	  {
+		  pfiletrack=&filetrack;
 		  //filetrack->SetParent(this);
 	  }
 	  PlayListItem(PlayList *playlist):
 	  pPL(playlist),filetrack(new FileTrack())
 	  {
+		   pfiletrack=&filetrack;
 		  //filetrack->SetParent(this);
 	  }
 
-	  ~PlayListItem(){};
+	  ~PlayListItem()
+	  {
+
+	  };
 
 	  //Move¸³Öµ¿½±´
-	  PlayListItem& operator=(PlayListItem&& b)
-	  {
-		  if (this!=&b)
-		  {
-			  this->SetPlayList(b.GetPlayList());
-			  this->filetrack=b.filetrack;
-		  }
-
-		  return *this;
-	  }
+// 	  PlayListItem& operator=(PlayListItem&& b)
+// 	  {
+// 		  if (this!=&b)
+// 		  {
+// 			  this->SetPlayList(b.GetPlayList());
+// 			  this->filetrack=b.filetrack;
+// 		  }
+// 
+// 		  return *this;
+// 	  }
 
 
 	  bool operator==(const PlayListItem &other)
@@ -148,6 +153,7 @@ public:
 			  return true;
 		  return false;
 	  }
+
 	  inline PlayList * GetPlayList(){return this->pPL;}
 	  inline void  SetPlayList(PlayList *pPL){this->pPL=pPL;}
 
@@ -168,6 +174,8 @@ private:
 
 	shared_ptr<FileTrack> filetrack;
 	
+	//debug
+	shared_ptr<FileTrack>* pfiletrack;
 	//index in playlist
 	int index;
 };
@@ -217,7 +225,7 @@ public:
 public:
 	PlayList(void);
 	PlayList(std::tstring &name);
-	PlayList(std::tstring &name,bool bMonitor);
+	PlayList(std::tstring &name,bool bMonitor=false);
 	~PlayList(void);
 
 public:
@@ -232,8 +240,11 @@ public:
 	HANDLE hAddDir;
 	BOOL AddFolderByThread(LPCTSTR pszFolder);
 	void scanAllId3Info();
-	BOOL AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir=FALSE);
 	void TerminateAddDirThread();
+
+	//return file added
+	int AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir=FALSE);
+	
 public:
 	BOOL AddFile(TCHAR *filepath);
 public:
@@ -246,8 +257,9 @@ public:
 	int selectedIndex;
 
 	bool m_bMonitor;
-	fileMonitor m_fileMonitor;
+	fileMonitors m_fileMonitor;
 
+	
 
 	PlayListViewBase *pPLV;
 };

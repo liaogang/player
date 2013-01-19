@@ -5,10 +5,11 @@
 //-----------------------------------------
 //
 
-PlayList*  MyLib::NewPlaylist(std::tstring playlistname)
+PlayList*  MyLib::NewPlaylist(std::tstring playlistname,bool bAutoPL)
 {
-	PlayList *l=new PlayList(playlistname);
+	PlayList *l=new PlayList(playlistname,bAutoPL);
 	m_playLists.push_back(l);
+
 	return l;
 }
 
@@ -80,6 +81,38 @@ void MyLib::playNext(BOOL scanID3)
 	}
 }
 
+//
+PlayList* MyLib::GetAutoPlaylist()
+{
+	static PlayList *p=NULL;
+	if (!p)
+	{
+		p=NewPlaylist(_T("自动播放列表"),true);
+	}
+	
+	return p;
+}
+
+
+void MyLib::ClearMediaPath()
+{
+	mediaPaths.clear();
+	GetAutoPlaylist()->m_fileMonitor.Reset();
+}
+
+void MyLib::AddMediaPath(std::tstring &path)
+{
+	mediaPaths.push_back(path);
+	GetAutoPlaylist()->m_fileMonitor.DelDirectory(path.c_str());
+
+}
+
+void MyLib::DelMediaPath(std::tstring &path)
+{
+	GetAutoPlaylist()->m_fileMonitor.DelDirectory(path.c_str());
+}
+
+
 //后端插入,前端取出
 void MyLib::PushPlayQueue(_songContainerItem item)
 {
@@ -134,7 +167,16 @@ LRESULT CPropertyDlgMediaLib::OnBtnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 	if (dlg.DoModal()==IDOK)
 	{
 		LPCTSTR path=dlg.GetFolderPath();
-		m_list.InsertItem(0,path);
+		
+		int count=m_list.GetItemCount();
+		m_list.InsertItem(count,path);
+		m_list.SetItemText(count,1,_T("正在扫描"));
+
+		std::tstring *strPath=new std::tstring(path);
+		MyLib::shared()->AddMediaPath(*strPath);
+		MyLib::shared()->GetAutoPlaylist()->AddFolderByThread(strPath->c_str());
+
+		m_list.SetItemData(count,(DWORD)strPath);
 	}
 
 	return 0;
@@ -142,8 +184,15 @@ LRESULT CPropertyDlgMediaLib::OnBtnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 
 LRESULT CPropertyDlgMediaLib::OnBtnDel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	m_list.DeleteItem(m_list.GetSelectedIndex());
+	int index=m_list.GetSelectedIndex();
+	
+	std::tstring *strPath((std::tstring*)m_list.GetItemData(index));
+	
+	MyLib::shared()->DelMediaPath(*strPath);
 
+	m_list.DeleteItem(index);
+
+	delete strPath;
 	return 0;
 }
 

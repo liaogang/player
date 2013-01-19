@@ -11,12 +11,16 @@ public:
 	CMainFrame *pMain;
     void ReFillPlaylist();
 	void AddPlayList(PlayList *pPL);
+	void DelPlayList(PlayList *pPL);
+	void UpdateByPLTrack(PlayList *pPL,int trackNum);
+
 	void ClearAllSel()
 	{
 		int i=-1;
 		while ( (i=GetNextItem(i,LVIS_SELECTED)) != -1)
 			SetItemState(i,0,LVNI_SELECTED|LVNI_FOCUSED );
 	}
+
 	void Init()
 	{	
 		SetExtendedListViewStyle(GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP);

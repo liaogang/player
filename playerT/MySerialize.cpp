@@ -1,4 +1,5 @@
 #include "MySerialize.h"
+#include "customMsg.h"
 #include "Util1.h"
 #include "MyLib.h"
 
@@ -211,6 +212,7 @@ PlayList* MyLib::LoadPlaylist(LPTSTR filepath)
 		playlist->m_saveLocation=filepath;
 		result=playlist->ReSerialize(pFile);
 		m_playLists.push_back(playlist);
+		SdMsg(WM_PL_TRACKNUM_CHANGED,TRUE,(WPARAM)playlist,(LPARAM)playlist->GetItemCount());
 		fclose (pFile);
 	}
 

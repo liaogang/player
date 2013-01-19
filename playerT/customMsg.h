@@ -1,4 +1,7 @@
 #pragma once 
+
+void SdMsg(UINT msg,BOOL bPost=TRUE,WPARAM wparam=NULL,LPARAM lparam=NULL);
+
 struct trackPosInfo
 {
 	double used;
@@ -26,3 +29,13 @@ struct trackPosInfo
 
 //准备重新显示歌词
 #define  WM_LYRIC_RELOAD  (WM_USER+50)
+
+//added or deleted one playlist
+//PlayList changed,added or deleted
+//playlist added number
+#define  WM_PL_CHANGED    (WM_USER+51)
+
+//PlayList
+//track number added
+#define  WM_PL_TRACKNUM_CHANGED (WM_USER+52)
+

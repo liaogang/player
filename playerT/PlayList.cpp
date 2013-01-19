@@ -24,12 +24,15 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 	BOOL result=p->pPlaylist->AddFolder(p->pszFolder,TRUE);
 	::SendMessage(MyLib::GetMain(),WM_FILE_FINDED,NULL,(LPARAM)0);
 
-	::PostMessage(MyLib::GetMain(),WM_ADDFOLDERED,NULL,NULL);
-	
-	
+	//::PostMessage(MyLib::GetMain(),WM_ADDFOLDERED,NULL,NULL);
+	SdMsg(WM_PL_TRACKNUM_CHANGED,TRUE,(WPARAM)p->pPlaylist,(LPARAM)result);
 
-	p->pPlaylist->m_fileMonitor.AddMonitorDirectory(p->pszFolder);
-	p->pPlaylist->m_fileMonitor.pPL=p->pPlaylist;
+
+	
+	if(p->pPlaylist->m_bMonitor)
+	{	
+		p->pPlaylist->m_fileMonitor.AddDirectory(p->pszFolder);
+	}
 
 	delete p;
 
@@ -41,7 +44,7 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 
 //-----------------------------------------
 //PlayList
- PlayList::PlayList(void)
+ PlayList::PlayList(void):m_fileMonitor(this),pPLV(NULL)
 	//lastPlayingItem(NULL),
 	//curPlayingItem(NULL),
 	//nextPlayingItem(NULL),
@@ -49,11 +52,13 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 	//selectedIndex(-1)
 {
 	m_bMonitor=true;
+	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
 }
 
 PlayList::PlayList(std::tstring &name,bool bMonitor):m_bMonitor(bMonitor)
+	,m_fileMonitor(this),m_playlistName(name),pPLV(NULL)
 {
-	
+	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
 }
 
  PlayList::PlayList(std::tstring &name):
@@ -61,19 +66,24 @@ PlayList::PlayList(std::tstring &name,bool bMonitor):m_bMonitor(bMonitor)
 	//curPlayingItem(NULL),
 	//nextPlayingItem(NULL),
 	topVisibleIndex(0),
-	selectedIndex(-1)
+	selectedIndex(-1),m_fileMonitor(this),m_playlistName(name)
+	,pPLV(NULL)
  {
 	m_playlistName=name;
 	m_saveLocation=m_playlistName+_T(".pl");
 
 
 	m_bMonitor=true;
+
+	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
  }
 
 
 PlayList::~PlayList(void)
 {	
 	m_songList.clear();
+
+	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)-1);
 }
 
 void PlayList::ChangeTrackPath(TCHAR *from,TCHAR *to)
@@ -216,7 +226,7 @@ BOOL PlayList::AddFile(TCHAR *filepath)
 	return FALSE;
 }
 
-BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
+int PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 {
 	//忽略了子目录下的mp3文件
 	TCHAR* oldPath=new TCHAR[MAX_PATH];
@@ -228,7 +238,7 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 	BOOL findResult=FALSE;
 	WIN32_FIND_DATA findFileData;
 	HANDLE hFind;
-
+	int fileAdded=0;
 	hFind=::FindFirstFile(_T("*"),&findFileData);
 	if(hFind!=INVALID_HANDLE_VALUE)
 	{
@@ -245,7 +255,7 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 				!IsDots(findFileData.cFileName))
 			{
 				if(bIncludeDir)
-					AddFolder(findFileData.cFileName,bIncludeDir);
+					fileAdded+=AddFolder(findFileData.cFileName,bIncludeDir);
 			}
 			else//文件
 			{
@@ -282,7 +292,7 @@ BOOL PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 	_tchdir(oldPath);
 	delete[] oldPath;
 
-	return TRUE;
+	return fileAdded;
 }
 
 // PlayListItem* PlayList::nextTrack()

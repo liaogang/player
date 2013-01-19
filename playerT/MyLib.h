@@ -50,6 +50,12 @@ public:
 	typedef list<PlayList*> PLList;
 	PLList m_playLists;
 
+	//自动播放列表,媒体库专用.
+	PlayList* GetAutoPlaylist();
+	vector<std::tstring> mediaPaths;
+	void ClearMediaPath();
+	void AddMediaPath(std::tstring &path);
+	void DelMediaPath(std::tstring &path);
 
 	//播放列队
 	typedef list<_songContainerItem> PlayQueueContainer;
@@ -90,7 +96,7 @@ public:
 	void SetActivePlaylist(PlayList* p){m_pActivePlaylist=p;}
 	PlayList* ActivePlaylist(){return m_pActivePlaylist;}
 
-	PlayList* NewPlaylist(std::tstring playlistname=_T("新建播放列表1"));
+	PlayList* NewPlaylist(std::tstring playlistname=_T("新建播放列表1"),bool bAutoPL=false);
 	void DeletePlayList(PlayList *pl);
 
 	

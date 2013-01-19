@@ -356,6 +356,8 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 LRESULT CMainFrame::OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
+	//msg send to playlist track num changed
+	/*
 	PlayList *playlist=MyLib::shared()->SelPlaylist();
 	
 	if (playlist){
@@ -366,7 +368,9 @@ LRESULT CMainFrame::OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 		{
 			m_pDlgPLMng->m_list.ReFillPlaylist();
 		}
-	}
+	}*/
+
+
 	return 0;
 }
 
@@ -374,7 +378,7 @@ LRESULT CMainFrame::OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 void CPlayListManager::AddPlayList(PlayList *pPL)
 {
 	int item=GetItemCount();
-	TCHAR *strCount=new TCHAR[256];
+	TCHAR strCount[256];
 	_itow(pPL->m_songList.size(),strCount,10);
 
 	InsertItem(item,pPL->m_playlistName.c_str());
@@ -382,7 +386,37 @@ void CPlayListManager::AddPlayList(PlayList *pPL)
 	SetItemData(item,(DWORD_PTR)pPL);
 	++item;
 
-	delete[] strCount;
+}
+
+void CPlayListManager::DelPlayList(PlayList *pPL)
+{
+	int c=GetItemCount();
+	for (int i=0;i<c;++i)
+	{
+		auto pl= (PlayList*)GetItemData(i);
+		if (pl==pPL){
+			DeleteItem(i);
+			break;
+			}
+	}
+}
+
+void CPlayListManager::UpdateByPLTrack(PlayList *pPL,int trackNum)
+{
+	int c=GetItemCount();
+	for (int i=0;i<c;++i)
+	{
+		auto pl= (PlayList*)GetItemData(i);
+		if (pl==pPL){
+			SetItemText(i,0,pPL->m_playlistName.c_str());
+
+			TCHAR strCount[256];
+			_itow(pPL->m_songList.size()+trackNum,strCount,10);
+			SetItemText(i,1,strCount);
+			
+			break;
+			}
+	}
 }
 
 LRESULT CMainFrame::OnConfigLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -535,6 +569,41 @@ LRESULT CMainFrame::OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 	return 0;
 }
 
+LRESULT CMainFrame::OnPLChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	BOOL bAdd=(BOOL)lParam;
+	PlayList *pl=(PlayList*)wParam;
+
+	if (m_pDlgPLMng && m_pDlgPLMng->IsWindow())
+	{
+		if (bAdd)
+			m_pDlgPLMng->m_list.AddPlayList(pl);
+		else
+			m_pDlgPLMng->m_list.DelPlayList(pl);
+	}
+
+	return 0;
+}
+
+
+LRESULT CMainFrame::OnPLTrackNumChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	int tracknum=(int)lParam;
+	PlayList *pl=(PlayList*)wParam;
+	
+
+	//m_pTabBar->AddPlaylistTab(playlist,TRUE,-1);
+	//AllPlayListViews()->Reload(playlist);
+
+	if (m_pDlgPLMng && m_pDlgPLMng->IsWindow())
+	{
+		m_pDlgPLMng->m_list.UpdateByPLTrack(pl,tracknum);
+	}
+	
+	
+
+	return 0;
+}
 
 LRESULT CMainFrame::OnFileNewPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
@@ -1486,4 +1555,20 @@ LRESULT CPlayListView::OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled)
 		}
 	}
 	return 1;
+}
+
+
+void SdMsg(UINT msg,BOOL bPost,WPARAM wparam,LPARAM lparam)
+{
+	static HWND HMainFrm=NULL;
+	if (!HMainFrm)
+	{
+		HMainFrm=GetMainFrame()->m_hWnd;
+		ATLASSERT(::IsWindow(HMainFrm));
+	}
+
+	if (bPost)
+		::PostMessage(HMainFrm,msg,wparam,lparam);
+	else
+		::SendMessage(HMainFrm,msg,wparam,lparam);
 }
