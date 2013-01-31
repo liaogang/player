@@ -7,7 +7,7 @@
 #include "DialogLyric.h"
 #include "CImg.h"
 #include "StringConvertions.h"
-
+#include "globalStuffs.h"
 using namespace TagLib;
 
 
@@ -306,7 +306,7 @@ int PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 void PlayList::SetCurPlaying(_songContainerItem item,BOOL scanID3)
 {
 	//curPlayingItem=item;
-	MyLib::shared()->SetPlayingItem(item);
+	SetPlayingItem(&item);
 	if (scanID3) item.ScanId3Info(TRUE);
 }
 
@@ -315,7 +315,7 @@ _songContainerItem PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 	//_songContainerItem item;
 	_songContainer::iterator cur,next;
 
-	_songContainerItem *item=MyLib::shared()->GetPlayingItem();
+	_songContainerItem *item=GetPlayingItem();
 	cur = m_songList.begin()+item->GetIndex();
 	
 // 	for (cur=m_songList.begin();cur!=m_songList.end();++cur)
@@ -323,7 +323,7 @@ _songContainerItem PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 // 		if (*cur==MyLib::shared()->GetPlayingItem())break;
 // 	}
 
-	MyLib::shared()->lastPlayingItem=*MyLib::shared()->GetPlayingItem();
+	MyLib::shared()->lastPlayingItem=*GetPlayingItem();
 
 	if ( cur==m_songList.end()|| ++cur==m_songList.end())
 		return NULL;
@@ -434,7 +434,7 @@ BOOL FileTrack::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 				
 
 				ID3v2::AttachedPictureFrame::Type type=static_cast<ID3v2::AttachedPictureFrame::Type>(id3v2tag->retainPicBuf(&pPicBuf));
-				AtlTrace("picture type :%d \n",(int)type);
+				//AtlTrace("picture type :%d \n",(int)type);
 				if (pPicBuf)
 					Buf2Img((BYTE*)pPicBuf->data(),pPicBuf->size());
 			}

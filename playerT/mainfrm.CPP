@@ -3,6 +3,11 @@
 #include "MyControls.h"
 #include "PlayList.h"
 #include "BasicPlayer.h"
+#include "mysplit.h"
+#include "globalStuffs.h"
+
+
+#include "DialogConfig.h"
 #include "CAlbumCoverView.h"
 #include "CMyTabBar.h"
 #include "DlgProcessing.h"
@@ -16,7 +21,6 @@
 #include "glassWnd.h"
 #include <mpg123.h>
 #include <string>
-
 using namespace std;
 
 
@@ -40,7 +44,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 BOOL CMainFrame::OnIdle()
 {
 	UIUpdateToolBar();
-	BOOL flag=MyLib::shared()->SelPlaylist()!=NULL;
+	BOOL flag=ActivePlaylist()!=NULL;
 	UIEnable(ID_FILE_OPENDIRECTORY,flag);
 	UIEnable(ID_FILE_OPEN,flag);
 	UIEnable(ID_FILE_SAVEPLAYLIST,flag);
@@ -140,55 +144,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	UISetCheck(ID_VIEW_TOOLBAR, 1);
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
 
-
-	//-----------------------------------------
-	//split
-	DWORD dwSplitStyle = WS_CHILD|WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
-	DWORD dwSplitExStyle =0;
-
-	m_pSplit=new CMySplitterWindow;
-	m_pSplit->Create(m_hWnd, rcDefault, NULL, 
-		dwSplitStyle, dwSplitExStyle );
-
-	//right pane
-	//------------------------------------------------
-	//tab bar
-	m_pTabBar=new CMyTabBar;
-	//m_pTabBar->Create(m_pSplit->m_hWnd,rcDefault,NULL,WS_CHILD/*|WS_VISIBLE*/|WS_CLIPCHILDREN | WS_CLIPSIBLINGS,0/*WS_EX_STATICEDGE*/);
-
-	
-	m_pPlaylistView=new CPlayListView;
-	m_pPlaylistView->Create(m_pSplit->m_hWnd, rcDefault, NULL, LVS_OWNERDRAWFIXED| WS_CHILD | WS_VISIBLE /*|WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA, 0);
-	m_pPlaylistView->Init();	
-
-
-	//left pane
-	leftPane=new CHorSplitterWindow;
-	leftPane->Create(m_pSplit->m_hWnd,rcDefault,0,dwSplitStyle);
-
-
-	albumView1=new CAlbumCoverView;
-	albumView1->Create(leftPane->m_hWnd,0,0,dwSplitStyle);
-	lyricView=new CWndLyric;
-	lyricView->enableDebug=1;
-	lyricView->Create(leftPane->m_hWnd);
-	lyricView->Init();
-
-	leftPane->SetSplitterPanes(albumView1->m_hWnd,lyricView->m_hWnd);
-	
-	//set left and right
-	//m_pSplit->SetSplitterPanes( m_pTabBar->m_hWnd,leftPane->m_hWnd);
-	m_pSplit->SetSplitterPanes( m_pPlaylistView->m_hWnd,leftPane->m_hWnd);
-	
-	//-----------------------------------------
-	//EnableThemeDialogTexture(m_pTabBar->m_hWnd,ETDT_ENABLE);
-	//EnableThemeDialogTexture(m_hWnd,ETDT_ENABLE);
-	m_hWndClient=m_pSplit->m_hWnd;
-
-	UpdateLayout();
-	leftPane->SetSplitterPos(130);
-	m_pSplit->SetSplitterPos(482);
-	
+	InitUILayout();
 
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
@@ -197,10 +153,10 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	pLoop->AddIdleHandler(this);
 
 	//set main pointer
-	m_pPlaylistView->SetMain(this);
+	//m_pPlaylistView->SetMain(this);
 	CBasicPlayer::shared()->m_pMainFrame=this;
-	m_pTabBar->pMain=this;
-	m_pStatus->pMain=this;
+	//m_pTabBar->pMain=this;
+	//m_pStatus->pMain=this;
 
 
 	InitData();
@@ -209,6 +165,59 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	return 0;
 }
 
+void CMainFrame::InitUILayout()
+{
+	m_pDlgMultiSplitter=new CMultiSpliltWnd;
+	m_hWndClient=m_pDlgMultiSplitter->Create(m_hWnd);
+	
+	////-----------------------------------------
+	////split
+	//DWORD dwSplitStyle = WS_CHILD|WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+	//DWORD dwSplitExStyle =0;
+
+	//m_pSplit=new CMySplitterWindow;
+	//m_pSplit->Create(m_hWnd, rcDefault, NULL, 
+	//	dwSplitStyle, dwSplitExStyle );
+
+	////right pane
+	////------------------------------------------------
+	////tab bar
+	//m_pTabBar=new CMyTabBar;
+	////m_pTabBar->Create(m_pSplit->m_hWnd,rcDefault,NULL,WS_CHILD/*|WS_VISIBLE*/|WS_CLIPCHILDREN | WS_CLIPSIBLINGS,0/*WS_EX_STATICEDGE*/);
+
+
+	//m_pPlaylistView=new CPlayListView;
+	//m_pPlaylistView->Create(m_pSplit->m_hWnd, rcDefault, NULL, LVS_OWNERDRAWFIXED| WS_CHILD | WS_VISIBLE /*|WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA, 0);
+	//m_pPlaylistView->Init();	
+
+
+	////left pane
+	//leftPane=new CHorSplitterWindow;
+	//leftPane->Create(m_pSplit->m_hWnd,rcDefault,0,dwSplitStyle);
+
+
+	//albumView1=new CAlbumCoverView;
+	//albumView1->Create(leftPane->m_hWnd,0,0,dwSplitStyle);
+	//lyricView=new CWndLyric;
+	//lyricView->enableDebug=1;
+	//lyricView->Create(leftPane->m_hWnd);
+	//lyricView->Init();
+
+	//leftPane->SetSplitterPanes(albumView1->m_hWnd,lyricView->m_hWnd);
+
+	////set left and right
+	////m_pSplit->SetSplitterPanes( m_pTabBar->m_hWnd,leftPane->m_hWnd);
+	//m_pSplit->SetSplitterPanes( m_pPlaylistView->m_hWnd,leftPane->m_hWnd);
+
+	////-----------------------------------------
+	////EnableThemeDialogTexture(m_pTabBar->m_hWnd,ETDT_ENABLE);
+	////EnableThemeDialogTexture(m_hWnd,ETDT_ENABLE);
+	//m_hWndClient=m_pSplit->m_hWnd;
+
+	//UpdateLayout();
+	//leftPane->SetSplitterPos(130);
+	//m_pSplit->SetSplitterPos(482);
+}
 
 
 LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
@@ -274,7 +283,7 @@ LRESULT CMainFrame::OnOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 
 	if(dlg.DoModal()==IDOK)
 	{
-		PlayList* selPl=MyLib::shared()->SelPlaylist();
+		PlayList* selPl=ActivePlaylist();
 		if(selPl)
 		{
 			TCHAR *p=dlg.m_ofn.lpstrFile;
@@ -325,12 +334,16 @@ LRESULT CMainFrame::OnPlayNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 }
 LRESULT CMainFrame::OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (!::IsWindow(m_dlgConfig.m_hWnd))
-		m_dlgConfig.Create(m_hWnd);
-	else
-		m_dlgConfig.SetFocus();
+	if (!m_pDlgConfig)
+	{
+		m_pDlgConfig=new CDialogConfig;
+		m_pDlgConfig->Create(m_hWnd);
+	}
 	
-	m_dlgConfig.ShowWindow(SW_SHOW);
+
+	m_pDlgConfig->SetFocus();
+	
+	m_pDlgConfig->ShowWindow(SW_SHOW);
 	return 0;
 }
 
@@ -421,24 +434,30 @@ void CPlayListManager::UpdateByPLTrack(PlayList *pPL,int trackNum)
 
 LRESULT CMainFrame::OnConfigLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (!::IsWindow(m_dlgConfig.m_hWnd))
-		m_dlgConfig.Create(m_hWnd);
+	if (!m_pDlgConfig)
+	{
+		m_pDlgConfig=new CDialogConfig;
+		m_pDlgConfig->Create(m_hWnd);
+	}
 
-	m_dlgConfig.ShowWindow(SW_SHOW);
+	m_pDlgConfig->ShowWindow(SW_SHOW);
 	std::wstring strLyricDlg(L"歌词搜索");
-	m_dlgConfig.ShowDlgByName(strLyricDlg);
+	m_pDlgConfig->ShowDlgByName(strLyricDlg);
 	return 0;
 }
 
 
 LRESULT CMainFrame::OnConfigMediaLib(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (!::IsWindow(m_dlgConfig.m_hWnd))
-		m_dlgConfig.Create(m_hWnd);
+	if (!m_pDlgConfig)
+	{
+		m_pDlgConfig=new CDialogConfig;
+		m_pDlgConfig->Create(m_hWnd);
+	}
 
-	m_dlgConfig.ShowWindow(SW_SHOW);
+	m_pDlgConfig->ShowWindow(SW_SHOW);
 	std::wstring strLyricDlg(L"媒体库");
-	m_dlgConfig.ShowDlgByName(strLyricDlg);
+	m_pDlgConfig->ShowDlgByName(strLyricDlg);
 	
 	return 0;
 }
@@ -507,7 +526,7 @@ LRESULT CMainFrame::OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 	lrcChanged();
 
-	albumView1->TrackChanged();
+	//albumView1->TrackChanged();
 
 	return 0;
 }
@@ -517,8 +536,8 @@ LRESULT CMainFrame::OnPlayDirectly(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam
 	MyLib::stop();
 	
 	_songContainerItem *item=MyLib::shared()->GetWaitPlayItem();
-	MyLib::shared()->SetPlayingItem(*item);
-	MyLib::shared()->SetActivePlaylist(item->GetPlayList());
+	SetPlayingItem(item);
+	SetActivePlaylist(item->GetPlayList());
 
 	MyLib::shared()->play((FileTrack*)wParam);
 
@@ -611,7 +630,7 @@ LRESULT CMainFrame::OnFileNewPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /
 	
 	AllPlayListViews()->Reload(pPl);
 	//m_pPlaylistView->Reload(pPl);
-	MyLib::shared()->SetSelPlaylist(pPl);
+	SetActivePlaylist(pPl);
 
 	//m_pTabBar->AddPlaylistTab(pPl,TRUE,-1);
 
@@ -639,7 +658,7 @@ LRESULT CMainFrame::OnOpenPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 LRESULT CMainFrame::OnSavePlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	PlayList* pl=MyLib::shared()->SelPlaylist();
+	PlayList* pl=ActivePlaylist();
 	if(pl)
 	{
 		const TCHAR szFilter[]=_T("playlist files(*.pl)\0*.pl\0");
@@ -661,7 +680,7 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 	if (!MyLib::shared()->isPlaying())
 		return;
 	
-	PlayListItem *item=MyLib::shared()->GetPlayingItem();
+	PlayListItem *item=GetPlayingItem();
 	FileTrack *track=item->GetFileTrack();
 
 
@@ -675,7 +694,7 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 	//pMain->m_pTabBar->SetCurSel(curPl,k);
 	
 	AllPlayListViews()->Reload(item->GetPlayList(),TRUE);
-	pMain->m_pPlaylistView->SetFocus();
+	//pMain->m_pPlaylistView->SetFocus();
 }
 
 
@@ -687,9 +706,9 @@ void CMainFrame::OnSelectionChanged()
 	int curSel=m_pTabBar->GetCurSel( );
 	m_pTabBar->SetActiveTab(curSel);
 	PlayList* pPl=(PlayList*)m_pTabBar->GetTabParam(curSel);
-	m_pPlaylistView->Reload(pPl);
+	//m_pPlaylistView->Reload(pPl);
 
-	MyLib::shared()->SetSelPlaylist(pPl);
+	SetActivePlaylist(pPl);
 	return;
 }
 
@@ -760,7 +779,11 @@ void CPlayListView::PlayItem(int nItem)
 
 	RedrawItems(nItemPlaying,nItemPlaying);
 	pMain->ChangeTitle();
-	pMain->albumView1->Invalidate(TRUE);
+	
+	
+
+
+	//pMain->albumView1->Invalidate();
 }
 
 
@@ -783,7 +806,7 @@ void CMainFrame::ChangeTitle()
 	if (!MyLib::shared()->isPlaying())
 		return;
 
-	PlayListItem *item=MyLib::shared()->GetPlayingItem();
+	PlayListItem *item=GetPlayingItem();
 	FileTrack *track=item->GetFileTrack();
 	
 		
@@ -863,13 +886,13 @@ LRESULT CMainFrame::OnFileFinded(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BO
 
 LRESULT CMainFrame::OnChangePLColorDefault(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	m_pPlaylistView->ChangeColorDefault();
+	//m_pPlaylistView->ChangeColorDefault();
 	return 0;
 }
 
 LRESULT CMainFrame::OnChangePLColorBlue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	m_pPlaylistView->ChangeColorBlue();
+	//m_pPlaylistView->ChangeColorBlue();
 	return 0;
 }
 
@@ -1051,7 +1074,7 @@ LRESULT CPlayListView::OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPara
 
 		if ( !m_bSearch && nSubItem==COLUMN_INDEX_INDEX)
 		{
-			PlayList *curPl=MyLib::shared()->ActivePlaylist();
+			PlayList *curPl=ActivePlaylist();
 			if (curPl)
 			{
 				if ( nItem == nItemPlaying )
@@ -1110,11 +1133,11 @@ LRESULT CMyTabBar::OnSelectionChanged( LPNMHDR )
 	int curSel=GetCurSel( );
 
 	PlayList* pPl=GetTabPlayList(curSel);
-	MyLib::shared()->SetSelPlaylist(pPl);
+	SetActivePlaylist(pPl);
 
-	SetActiveTab( curSel);
-	pMain->m_pPlaylistView->Reload(pPl);
-	pMain->m_pPlaylistView->SetFocus();
+	//SetActiveTab( curSel);
+	//pMain->m_pPlaylistView->Reload(pPl);
+	//pMain->m_pPlaylistView->SetFocus();
 	return 0;
 }
 
@@ -1128,7 +1151,7 @@ void CMyTabBar::SetCurSel(PlayList* ppl,int index)
 		if(pplOnTab==ppl)
 		{
 			SetActiveTab(nItem);
-			pMain->m_pPlaylistView->Reload(ppl,index);
+			//pMain->m_pPlaylistView->Reload(ppl,index);
 			break;
 		}
 	}
@@ -1142,11 +1165,13 @@ LRESULT  CPlayListManager::OnDbClicked(UINT i,CPoint pt)
 		{
 			PlayList *l=(PlayList*)GetItemData(k);
 
-			MyLib::shared()->SetSelPlaylist(l);
+			SetActivePlaylist(l);
 
 			
-			pMain->m_pPlaylistView->Reload(l);
-			pMain->m_pPlaylistView->SetFocus();
+			AllPlayListViews()->Reload(l);
+
+			//pMain->m_pPlaylistView->Reload(l);
+			//pMain->m_pPlaylistView->SetFocus();
 		}
 
 		SetMsgHandled(FALSE);
@@ -1168,7 +1193,7 @@ LRESULT CMyTabBar::OnPlDel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOO
 	PlayList* pl= GetTabPlayList(RtBtnTab);
 
 	RemoveTab(RtBtnTab);
-	pMain->m_pPlaylistView->Reload(GetTabPlayList(GetCurSel()));
+	//pMain->m_pPlaylistView->Reload(GetTabPlayList(GetCurSel()));
 
 	MyLib::shared()->DeletePlayList(pl);
 
@@ -1401,9 +1426,9 @@ void CDlgLrcSearch::DownLoad()
 				::SetWindowText(GetDlgItem(IDC_EDIT_INFO),L"下载成功");
 
 			std::tstring pszpath(savePath);
-			if(MyLib::shared()->ActivePlaylist() && MyLib::shared()->isPlaying())
+			if(ActivePlaylist() && MyLib::shared()->isPlaying())
 			{
-				MyLib::shared()->GetPlayingItem()->TryLoadLrcFile(pszpath,TRUE);
+				GetPlayingItem()->TryLoadLrcFile(pszpath,TRUE);
 				GetMainFrame()->lrcChanged();
 			}
 		}
@@ -1571,4 +1596,309 @@ void SdMsg(UINT msg,BOOL bPost,WPARAM wparam,LPARAM lparam)
 		::PostMessage(HMainFrm,msg,wparam,lparam);
 	else
 		::SendMessage(HMainFrm,msg,wparam,lparam);
+}
+
+
+void CMainFrame::UpdateTreeView(MYTREE *treeData)
+{
+	if(m_pDlgConfig)
+		m_pDlgConfig->GetLayoutTagDlg()->UpdateTree(treeData);
+}
+
+void CMultiSpliltWnd::UpdateTree(MYTREE *treeData)
+{
+	GetMainFrame()->UpdateTreeView(treeData);
+}
+
+
+
+
+
+LRESULT CMultiSpliltWnd::OnAddEmptyPane(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	MYTREE_Add_Playlist(rclickTree);
+	Invalidate();
+	UpdateTree(rclickTree);
+	return 0;
+}
+
+
+
+LRESULT CMultiSpliltWnd::OnAddPlaylistView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	MYTREE_Add_Playlist(rclickTree);
+
+	Invalidate();
+	UpdateTree(rclickTree);
+
+	return 0;
+}
+
+void CMyTreeView::TraverseSplitTreeAndShowInTreeView(MYTREE *cur,HTREEITEM item)
+{
+	for (;cur;cur=cur->next)
+	{
+		if (cur->hasChild())
+		{
+			HTREEITEM newItem=InsertItem(cur->data.nodeName,item,TVI_LAST);
+			SetItemData(newItem,(DWORD)cur);
+			cur->data.treeItem=newItem;
+
+			TraverseSplitTreeAndShowInTreeView(cur->child,newItem);
+			Expand(newItem,TVE_EXPAND);
+		}
+		else
+		{
+			HTREEITEM newItem= InsertItem(cur->data.nodeName,item,TVI_LAST);
+			SetItemData(newItem,(DWORD)cur);
+			cur->data.treeItem=newItem;
+		}
+	}
+}
+
+void CMyTreeView::UpdateTree(MYTREE *treeData)
+{
+	HTREEITEM item=treeData->data.treeItem;
+	ATLASSERT(item);
+	//ATLASSERT(treeData->hasChild());
+	//ATLASSERT(ItemHasChildren(item));
+
+	//delete all child item
+	HTREEITEM hNextItem;
+	HTREEITEM hChildItem = GetChildItem(item);
+	while (hChildItem != NULL)
+	{
+		hNextItem = GetNextItem(hChildItem, TVGN_NEXT);
+		DeleteItem(hChildItem);
+		hChildItem = hNextItem;
+	}
+	
+	SetItemText(item,treeData->data.nodeName);
+
+	//insert all child item
+	TraverseSplitTreeAndShowInTreeView(treeData->child,item);
+	
+	Expand(item,TVE_EXPAND);
+}
+
+
+
+
+LRESULT CPropertyDlgMediaLib::OnBtnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	UINT uFlags=BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE;
+	uFlags&=~BIF_NONEWFOLDERBUTTON ;
+	CFolderDialog dlg(m_hWnd,_T("请选择要添加的文件夹"),uFlags);
+	if (dlg.DoModal()==IDOK)
+	{
+		LPCTSTR path=dlg.GetFolderPath();
+
+		int count=m_list.GetItemCount();
+		m_list.InsertItem(count,path);
+		m_list.SetItemText(count,1,_T("正在扫描"));
+
+		std::tstring *strPath=new std::tstring(path);
+		MyLib::shared()->AddMediaPath(*strPath);
+		MyLib::shared()->GetAutoPlaylist()->AddFolderByThread(strPath->c_str());
+
+		m_list.SetItemData(count,(DWORD)strPath);
+	}
+
+	return 0;
+}
+
+LRESULT CPropertyDlgMediaLib::OnBtnDel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	int index=m_list.GetSelectedIndex();
+
+	std::tstring *strPath((std::tstring*)m_list.GetItemData(index));
+
+	MyLib::shared()->DelMediaPath(*strPath);
+
+	m_list.DeleteItem(index);
+
+	delete strPath;
+	return 0;
+}
+
+BOOL CPropertyDlgLyricsLib::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
+{
+	DoDataExchange();
+
+	UINT style;
+
+	style=::GetWindowLong(list.m_hWnd,GWL_STYLE);
+	style|=LVS_SINGLESEL;
+	::SetWindowLong(list.m_hWnd,GWL_STYLE,style);
+
+	style=list.GetExtendedListViewStyle();
+	style|= LVS_EX_FULLROWSELECT;
+	list.SetExtendedListViewStyle(style);
+
+	list.InsertColumn(0,_T("路径"),LVCFMT_LEFT,220);
+
+
+	vector<std::tstring>::iterator i;int index;
+	for (i=MyLib::shared()->lrcDirs.begin(),index=0;i!=MyLib::shared()->lrcDirs.end();i++,index++)
+	{
+		std::tstring str=*i;
+		int nItem=list.InsertItem(index,str.c_str());
+
+		int len=_tcslen(str.c_str());
+		LPTSTR pathCopy=new TCHAR[len+1];
+		memset(pathCopy,0,(len+1)*sizeof(TCHAR));
+		_tcsncpy(pathCopy,str.c_str(),len);
+		list.SetItemData(nItem,(DWORD_PTR)pathCopy);
+	}
+
+	return TRUE;
+}
+
+
+LRESULT CPropertyDlgLyricsLib::OnBtnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	UINT uFlags=BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE;
+	uFlags&=~BIF_NONEWFOLDERBUTTON ;
+	CFolderDialog dlg(m_hWnd,_T("请选择要添加的文件夹"),uFlags);
+	if (dlg.DoModal()==IDOK)
+	{
+		LPCTSTR path=dlg.GetFolderPath();
+		int index=list.GetItemCount();
+		index=list.InsertItem(index,path);
+
+		int len=_tcslen(path);
+		LPTSTR pathCopy=new TCHAR[len+1];
+		memset(pathCopy,0,(len+1)*sizeof(TCHAR));
+		_tcsncpy(pathCopy,path,len);
+		list.SetItemData(index,(DWORD_PTR)pathCopy);
+	}
+
+	return 0;
+}
+
+LRESULT CPropertyDlgLyricsLib::OnBtnDel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	int i=list.GetSelectedIndex();
+	LPCTSTR path=(LPCTSTR)list.GetItemData(i);
+	list.DeleteItem(i);
+	delete[] path;
+	return 0;
+}
+
+
+LRESULT CPropertyDlgLyricsLib::OnCfgToSave(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{	
+	MyLib::shared()->ClearLrcSearchLib();
+
+	int count=list.GetItemCount();
+	for (int i=0;i<count;i++)
+	{
+		LPCTSTR path=(LPCTSTR)list.GetItemData(i);
+		MyLib::shared()->AddFolder2LrcSearchLib(path);
+	}
+
+	MyLib::shared()->InitLrcLib();
+	return 0;
+}
+
+
+BOOL CPropertyDlgUILayout::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
+{
+	tree.SubclassWindow(GetDlgItem(IDC_TREE));
+
+	MyRoot=GetSplitter()->rootTree;
+	HTREEITEM rootItem= tree.InsertItem(MyRoot->data.nodeName,TVI_ROOT,TVI_LAST);
+	MyRoot->data.treeItem=rootItem;
+	tree.SetItemData(rootItem,(DWORD)MyRoot);
+
+	UpdateTree(MyRoot);
+
+	return 0;
+}
+
+
+
+
+CMultiSpliltWnd* GetSplitter()
+{
+	return GetMainFrame()->m_pDlgMultiSplitter;
+}
+
+
+
+
+void MYTREE_Add_EmptyWnd(MYTREE* tree)
+{
+	MYTREE *newTree=new MYTREE();
+
+	CPlaceHolderWnd *w=new CPlaceHolderWnd;
+	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
+
+	newTree->setWnd(w->m_hWnd);
+	wcscpy(newTree->data.nodeName,L"空占位视图");
+
+
+	tree->addChildNodeAfter(newTree);
+	tree->CalcChildsRect();
+
+}
+
+void MYTREE_Add_Playlist(MYTREE* tree)
+{
+	CPlayListView *plv=new CPlayListView;
+	plv->Create(GetSplitter()->m_hWnd, 0, NULL, LVS_OWNERDRAWFIXED| WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN | WS_CLIPSIBLINGS| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA,
+		WS_EX_STATICEDGE);  //WS_EX_CLIENTEDGE ,WS_EX_STATICEDGE
+	//SWP_DRAWFRAME
+	//plv->ModifyStyleEx(0, 0 ,~SWP_DRAWFRAME);
+
+	plv->Init();
+
+
+	MYTREE *newTree=new MYTREE();
+	newTree->setWnd(plv->m_hWnd);
+
+	wcscpy(newTree->data.nodeName,L"播放列表视图");
+
+	tree->addChildNodeAfter(newTree);
+	tree->CalcChildsRect();
+}
+
+void MYTREE_Add_AlbumView(MYTREE* tree)
+{	
+	CAlbumCoverView *w=new CAlbumCoverView;
+	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
+
+
+	MYTREE *newTree=new MYTREE();
+	newTree->setWnd(w->m_hWnd);
+	wcscpy(newTree->data.nodeName,L"封面视图");
+
+	tree->addChildNodeAfter(newTree);
+	tree->CalcChildsRect();
+}
+void MYTREE_Add_LyricView(MYTREE* tree)
+{
+	CWndLyric *w=new CWndLyric;
+	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
+
+
+	MYTREE *newTree=new MYTREE();
+	newTree->setWnd(w->m_hWnd);
+	wcscpy(newTree->data.nodeName,L"歌词视图");
+
+	tree->addChildNodeAfter(newTree);
+	tree->CalcChildsRect();
+}
+
+void MYTREE_Add_SpectrumView(MYTREE* tree)
+{
+	DialogFFT *w=new DialogFFT;
+	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
+
+	MYTREE *newTree=new MYTREE();
+	newTree->setWnd(w->m_hWnd);
+	wcscpy(newTree->data.nodeName,L"频谱显示");
+
+	tree->addChildNodeAfter(newTree);
+	tree->CalcChildsRect();
 }

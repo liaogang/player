@@ -2,7 +2,8 @@
 #include "customMsg.h"
 #include "Util1.h"
 #include "MyLib.h"
-
+//#include "PlayList.h"
+#include "globalStuffs.h"
 
 template <class T>
 int Serialize (FILE *pFile,T t)
@@ -100,7 +101,7 @@ int MyLib::SerializeB(FILE *pFile)
 	// 	{
 	// 		size+=(*i).Serialize(out);
 	// 	}
-	size+=m_pActivePlaylist->Serialize(pFile);
+	size+=ActivePlaylist()->Serialize(pFile);
 	return size;
 }
 
@@ -109,7 +110,7 @@ int MyLib::ReSerialize(FILE *pFile)
 	int totalSize=0;
 	fread(&totalSize,1,4,pFile);
 
-	int size=m_pActivePlaylist->ReSerialize(pFile);
+	int size=ActivePlaylist()->ReSerialize(pFile);
 
 	return size;
 }
@@ -217,7 +218,7 @@ PlayList* MyLib::LoadPlaylist(LPTSTR filepath)
 	}
 
 
-	SetSelPlaylist(playlist);
+	SetActivePlaylist(playlist);
 	return playlist;
 }
 

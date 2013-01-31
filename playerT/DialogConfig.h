@@ -75,16 +75,16 @@ public:
 
 	void InitDlgTree()
 	{
-		HTREEITEM firstItem;
+		//HTREEITEM firstItem;
 
-		pDlg=new CPropertyDlg;
-		pDlg->Init(_T("参数选项"),pDlg->m_hWnd);
+		//pDlg=new CPropertyDlg;
+		//pDlg->Init(_T("参数选项"),pDlg->m_hWnd);
 
-		pDlg1=new CPropertyDlg1;
-		pDlg1->Init(_T("The Master"),pDlg1->m_hWnd);
+		//pDlg1=new CPropertyDlg1;
+		//pDlg1->Init(_T("The Master"),pDlg1->m_hWnd);
 
 		pDlgMedia=new CPropertyDlgMediaLib;
-		pDlgMedia->Init(_T("媒体库"),pDlgMedia->m_hWnd);
+		pDlgMedia->Init(_T("多媒体库"),pDlgMedia->m_hWnd);
 		
 		pDlgLyrics=new CPropertyDlgLyricsLib;
 		pDlgLyrics->Init(_T("歌词搜索"),pDlgLyrics->m_hWnd);
@@ -92,12 +92,17 @@ public:
 		pDlgLrcPane=new CPropertyDlgLrcPane;
 		pDlgLrcPane->Init(_T("歌词面板"),pDlgLrcPane->m_hWnd);
 
-		firstItem=AddDlg(pDlg,TVI_ROOT);
-		AddDlg(pDlg1,TVI_ROOT);
+		pDlgLayout=new CPropertyDlgUILayout;
+		pDlgLayout->Init(_T("界面布局"),pDlgLayout->m_hWnd);
+
+
+		//firstItem=AddDlg(pDlg,TVI_ROOT);
+		//AddDlg(pDlg1,TVI_ROOT);
 		AddDlg(pDlgMedia,TVI_ROOT);
 		AddDlg(pDlgLyrics,TVI_ROOT);
-		AddDlg(pDlgLrcPane,TVI_ROOT);
-		
+		//AddDlg(pDlgLrcPane,TVI_ROOT);
+		AddDlg(pDlgLayout,TVI_ROOT);
+
 		m_tree.Expand(TVI_ROOT);
 	}
 
@@ -110,17 +115,11 @@ public:
 	//Make sure the windows is created
 	HWND GetPropertyDlgHwnd(std::tstring &title)
 	{
-		GETDLGWND(pDlg)
-		GETDLGWND(pDlg1)
+		//GETDLGWND(pDlg)
+		//GETDLGWND(pDlg1)
 		GETDLGWND(pDlgMedia)
 		GETDLGWND(pDlgLyrics)
-
-	if (title==pDlgLrcPane->title)
-		{
-		if (!pDlgLrcPane->IsWindow())
-		pDlgLrcPane->Create(m_hWnd);
-		return pDlgLrcPane->m_hWnd;
-		}
+		GETDLGWND(pDlgLayout)
 
 		return NULL;
 	}
@@ -225,6 +224,19 @@ public:
 		return 0;
 	}
 
+	~CDialogConfig()
+	{
+		//if (pDlgMedia)
+		//	delete pDlgMedia;
+		//if(pDlgLyrics)
+		//	delete pDlgLyrics;
+		//if(pDlgLrcPane)
+		//	delete pDlgLyrics;
+		//if(pDlgLayout)
+		//	delete pDlgLyrics;
+	}
+
+	CPropertyDlgUILayout* GetLayoutTagDlg(){return pDlgLayout;}
 protected:
 	CMyTreeCtrl m_tree;
 	CPropertyDlg* pDlg;
@@ -232,4 +244,5 @@ protected:
 	CPropertyDlgMediaLib* pDlgMedia;
 	CPropertyDlgLyricsLib *pDlgLyrics;
 	CPropertyDlgLrcPane   *pDlgLrcPane;
+	CPropertyDlgUILayout  *pDlgLayout;
 };

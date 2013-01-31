@@ -8,7 +8,7 @@ class DialogFFT : public CWindowImpl<DialogFFT>
 {
 public:
 	HMENU menu,trackMenu;
-	DialogFFT():bFullScreen(FALSE)
+	DialogFFT():bFullScreen(FALSE),parent(NULL)
 	{
 		menu=::LoadMenu(NULL,MAKEINTRESOURCE (IDR_MENU_SPECTRUM) );
 		trackMenu=::GetSubMenu(menu,0);
@@ -109,7 +109,6 @@ public:
 	
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
-		
 		PAINTSTRUCT ps;
 		::BeginPaint(m_hWnd,&ps);
 		CBasicPlayer::shared()->m_pSpectrumAnalyser->DrawSpectrum();

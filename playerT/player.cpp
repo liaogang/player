@@ -6,7 +6,7 @@
 #include "Util1.h"
 #include "LrcMng.h"
 #include "MainFrm.h"
-
+#include "globalStuffs.h"
 
 
 CAppModule _Module;

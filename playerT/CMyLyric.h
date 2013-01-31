@@ -14,7 +14,7 @@ public:
 	HPEN  newPen,oldPen; 
 
 	int enableDebug;
-	CMyLyric()
+	CMyLyric():bLrcReady(FALSE),track(NULL)
 	{
 		enableDebug=0;
 		brush=::GetSysColorBrush(/*COLOR_3DFACE*/COLOR_BTNSHADOW);
@@ -110,7 +110,7 @@ public:
 
 			if(MyLib::shared()->isPlaying())
 			{
-				_songContainerItem *playlistitem=MyLib::shared()->GetPlayingItem();
+				_songContainerItem *playlistitem=GetPlayingItem();
 				FileTrack* track=playlistitem->GetFileTrack();
 				if (track)
 				{
@@ -219,7 +219,7 @@ public:
 			::BeginPaint(m_hWnd,&ps);
 			int oldBgkMode=::SetBkMode(ps.hdc,TRANSPARENT);
 
-			if(bLrcReady && track->m_bLrcFromLrcFile)
+			if(bLrcReady && track && track->m_bLrcFromLrcFile)
 			{
 				HFONT oldFont=(HFONT) SelectObject(ps.hdc,newFont);
 
@@ -257,7 +257,7 @@ public:
 			if(!MyLib::shared()->isPlaying())
 				return;
 
-			track=MyLib::shared()->GetPlayingItem()->GetFileTrack();
+			track=GetPlayingItem()->GetFileTrack();
 			
 
 			LrcMng *sLM=LrcMng::Get();

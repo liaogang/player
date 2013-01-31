@@ -6,12 +6,12 @@
 #include "stdafx.h"
 #include "customMsg.h"
 #include "AboutDlg.h"
-#include "DialogConfig.h"
-#include "WTLTabViewCtrl.h"
+
 
 #ifndef _MAINFRAME_H
 #define _MAINFRAME_H
 //-----------------------------------------
+class CDialogConfig;
 class CAlbumCoverView;
 class CDialogLyric;
 class CMyTrackBar;
@@ -30,6 +30,8 @@ class DialogFFT;
 class DialogFFTOutline;
 class DialogPLManager;
 class CDialogConsole;
+class CMultiSpliltWnd;
+struct MYTREE;
 //-----------------------------------------
 
 
@@ -48,14 +50,13 @@ public:
 	CMySimpleRebar *m_pRebar;
 
 	CCommandBarCtrl m_CmdBar;
-	CDialogConfig   m_dlgConfig;
+	CDialogConfig   *m_pDlgConfig;
 	CComboBox m_wndComboBox;
 	CDialogLyric *m_dlgLrc;
 	CProcessingDlg *pDlgProcess;
 
 	CMyTabBar *m_pTabBar;
 	CWndLyric *lyricView;
-	CPlayListView *m_pPlaylistView;
 	CMySplitterWindow *m_pSplit;
 	CHorSplitterWindow *leftPane;
 	CAlbumCoverView    *albumView1;
@@ -65,13 +66,15 @@ public:
 	DialogFFTOutline *m_pDlgFFTOutline;
 	DialogPLManager *m_pDlgPLMng;
 	CDialogConsole  *m_pDlgConsole;
+	CMultiSpliltWnd *m_pDlgMultiSplitter;
 public:
 	CMainFrame():m_dlgLrc(NULL),
 		m_pTrackBar(NULL),m_pVolumeBar(NULL),
 		m_pDlgSearch(NULL),pDlgProcess(NULL),
 		lyricView(NULL),m_pSplit(NULL),
 		m_pDlgFFT(NULL),m_pDlgFFTOutline(NULL),
-		m_pDlgPLMng(NULL),m_pDlgConsole(NULL)
+		m_pDlgPLMng(NULL),m_pDlgConsole(NULL),
+		m_pDlgConfig(NULL),albumView1(NULL)
 	{
 	}
 
@@ -266,10 +269,14 @@ public:
 
 	
 	void ShowSearchDialog();
+	void InitUILayout();
 	void InitData();
 	void ShowDlgProcessFile();
 	void lrcChanged();
+	void UpdateTreeView(MYTREE *treeData);
 };
 
-CMainFrame* GetMainFrame();
+
+
+
 #endif

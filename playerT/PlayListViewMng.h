@@ -2,17 +2,30 @@
 
 class PlayListViewBase;
 class PlayList;
+class CPlayListView;
 #pragma once
 class PlayListViewMng
 {
 public:
-	typedef PlayListViewBase* dataItem;
+	typedef CPlayListView* dataItem;
 	typedef std::vector<dataItem>  container;
 	container dataCollection;
 
-	void AddItem(PlayListViewBase* playlistview)
+	void AddItem(CPlayListView* playlistview)
 	{
 		dataCollection.push_back(playlistview);
+	}
+
+	void RemoveItem(CPlayListView* playlistview)
+	{
+		for (auto it=dataCollection.begin();it!=dataCollection.end();++it)
+		{
+			if ((*it)==playlistview)
+			{
+				dataCollection.erase(it);
+				break;
+			}
+		}
 	}
 
 	 void ClearAllItem();

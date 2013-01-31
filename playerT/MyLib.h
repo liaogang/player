@@ -33,8 +33,7 @@ public:
 
 
 public:
-	MyLib():m_pActivePlaylist(NULL),m_pSelPlaylist(NULL)
-		,playorder(Default)
+	MyLib():playorder(Default)
 	{
 	};
 
@@ -70,10 +69,7 @@ public:
 	void DeleteFromPlayQueue(_songContainerItem item);
 	void ClearPlayQueue();
 
-private:
-	//pointers
-	PlayList*      m_pActivePlaylist;  //playing
-	PlayList*      m_pSelPlaylist;//operating
+
 public:
 	_songContainerItem lastPlayingItem;
 	_songContainerItem nextPlayingItem;
@@ -89,20 +85,9 @@ public:
 	_songContainerItem *GetWaitPlayItem(){
 		return &WaitPlayItem;}
 public:
-
-	void SetSelPlaylist(PlayList* p){m_pSelPlaylist=p;}
-	PlayList* SelPlaylist(){return m_pSelPlaylist;}
-
-	void SetActivePlaylist(PlayList* p){m_pActivePlaylist=p;}
-	PlayList* ActivePlaylist(){return m_pActivePlaylist;}
-
 	PlayList* NewPlaylist(std::tstring playlistname=_T("新建播放列表1"),bool bAutoPL=false);
 	void DeletePlayList(PlayList *pl);
 
-	
-	_songContainerItem playingItem;
-	_songContainerItem * GetPlayingItem(){return &playingItem;}
-	void  SetPlayingItem(_songContainerItem item){playingItem=item;}
 	bool isPlaying();
 
 	static PlayList* AddFolderToCurrentPlayList(LPCTSTR pszFolder);

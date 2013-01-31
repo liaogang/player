@@ -15,7 +15,8 @@ void PlayListViewMng::Reload(PlayList *pPL)
 	for (container::iterator i=dataCollection.begin();
 		i!=dataCollection.end();++i)
 	{
-		(*i)->Reload(pPL);
+		CPlayListView* plv=*i;
+		plv->Reload(pPL);
 	}
 }
 

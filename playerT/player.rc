@@ -181,6 +181,21 @@ BEGIN
     CONTROL         "写入日志",IDC_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,73,114,43,8
 END
 
+IDD_DLG_UI_CONFIG DIALOGEX 0, 0, 300, 235
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_TREE,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | WS_BORDER | WS_HSCROLL | WS_TABSTOP,7,46,160,182
+    GROUPBOX        "预设",IDC_STATIC,5,8,288,30
+    COMBOBOX        IDC_COMBO,19,19,78,13,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "新建",IDC_BUTTON1,108,18,38,16
+    PUSHBUTTON      "删除",IDC_BUTTON4,153,18,38,16
+    PUSHBUTTON      "重置",IDC_BUTTON5,243,18,38,16
+    PUSHBUTTON      "重命名",IDC_BUTTON6,198,18,38,16
+    GROUPBOX        "项目详细",IDC_STATIC,181,45,104,136
+    PUSHBUTTON      "应用",IDC_BUTTON_APPLY,187,193,95,26
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -293,6 +308,13 @@ BEGIN
         RIGHTMARGIN, 235
         TOPMARGIN, 7
         BOTTOMMARGIN, 121
+    END
+
+    IDD_DLG_UI_CONFIG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 193
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -469,6 +491,42 @@ BEGIN
         BEGIN
             MENUITEM "属性",                          ID_32885
         END
+    END
+END
+
+IDR_MENU_EDIT_MODE MENU
+BEGIN
+    POPUP "MultiSplitEditMode"
+    BEGIN
+        POPUP "插入面板"
+        BEGIN
+            MENUITEM "水平分离器",                       ID_INSERT_SPLIT_LR
+            MENUITEM "垂直分离器",                       ID_INSERT_SPLIT_UD
+            MENUITEM SEPARATOR
+            MENUITEM "播放列表",                        ID_PANE_PLAYLIST
+            MENUITEM "歌词显示",                        ID_PANE_LYRIC
+            MENUITEM "封面显示",                        ID_PANE_COVER
+            MENUITEM "频谱显示",                        ID_PANE_SPE
+            MENUITEM SEPARATOR
+            MENUITEM "空窗口",                         ID_ADD_EMPTY_PANE
+        END
+        POPUP "更换分离器类型"
+        BEGIN
+            MENUITEM "水平分离器",                       ID_CHANGE_SPLIT_LR
+            MENUITEM "垂直分离器",                       ID_CHANGE_SPLIT_UD
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "上移",                          ID_MOVE_UP
+        MENUITEM "下移",                          ID_MOVE_DOWN
+        MENUITEM SEPARATOR
+        MENUITEM "删除面板",                        ID_DEL_PANE
+    END
+    POPUP "OnlyPane"
+    BEGIN
+        MENUITEM "上移",                          ID_MOVE_UP
+        MENUITEM "下移",                          ID_MOVE_DOWN
+        MENUITEM SEPARATOR
+        MENUITEM "删除面板",                        ID_DEL_PANE
     END
 END
 

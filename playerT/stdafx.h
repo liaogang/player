@@ -22,10 +22,10 @@
 extern CAppModule _Module;
 
 #include <atlwin.h>
+//#include "SafeWinImpl.h"
 #include <atlframe.h>
 #include <atlmisc.h>
 #include <atlimage.h>
-
 #include <atldlgs.h>
 #include <atlctrls.h>
 #include <atlctrlw.h>

@@ -25,7 +25,7 @@
 #include <attachedpictureframe.h>
 
 class PlayList;
-class PlayListViewBase;
+class CPlayListView;
 /*
 PlayListItem is outside of playlistitemproxy
 PlayListItemProxy is true data item ,datas from file
@@ -261,5 +261,5 @@ public:
 
 	
 
-	PlayListViewBase *pPLV;
+	CPlayListView *pPLV;
 };

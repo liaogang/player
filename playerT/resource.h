@@ -29,6 +29,9 @@
 #define IDR_MENU_PL_MNG                 220
 #define IDD_DLG_LRC_SEARCH              221
 #define IDD_DLG_CONSOLE                 222
+#define IDD_DLG_                        223
+#define IDD_DLG_UI_CONFIG               223
+#define IDR_MENU_EDIT_MODE              224
 #define IDC_TREE                        1000
 #define IDC_RESET_ALL                   1001
 #define IDC_RESET_THIS                  1002
@@ -36,8 +39,12 @@
 #define IDC_BUTTON1                     1005
 #define IDC_PROGRESS1                   1006
 #define IDC_BTN_DEL                     1006
+#define IDC_BUTTON4                     1006
 #define IDC_SLIDER1                     1007
+#define IDC_BUTTON5                     1007
 #define IDC_MEDIA_LIST                  1008
+#define IDC_BUTTON6                     1008
+#define IDC_BUTTON_APPLY                1009
 #define IDC_BTN_ADD                     1011
 #define IDC_EDIT3                       1012
 #define IDC_EDIT_SAVE                   1012
@@ -59,6 +66,7 @@
 #define IDC_EDIT_AR                     1027
 #define IDC_EDIT_INFO                   1030
 #define IDC_BTN_CLR                     1031
+#define IDC_COMBO                       1033
 #define IDD_DLG_CFG_1                   2055
 #define IDD_DLG_LRC_PANE_PROPERTY1      2056
 #define IDD_DLG_LRC_PANE_PROPERTY2      2057
@@ -178,14 +186,50 @@
 #define ID_32893                        32893
 #define ID_DELFROM                      32894
 #define ID_DELFROMPLAYQUEUE             32895
+#define ID_ADD_LEFT                     32896
+#define ID_ADD_UP                       32897
+#define ID_ADD_EMPTYWINDOW              32898
+#define ID_ADD_OTHER                    32899
+#define ID_CHANGE_LEFT                  32900
+#define ID_CHANGE_UP                    32901
+#define ID_CHANGE_EMPTYPANE             32902
+#define ID_CHANGE_OTHERPANE             32903
+#define ID_MULTISPLITEDITMODE_CLOSE     32904
+#define ID_MULTISPLITEDITMODE_SHOWTREEVIEW 32905
+#define ID_MULTISPLITEDITMODE_32906     32906
+#define ID_32907                        32907
+#define ID_32908                        32908
+#define ID_32909                        32909
+#define ID_32910                        32910
+#define ID_PANE_PLAYLIST                32911
+#define ID_PANE_LYRIC                   32912
+#define ID_PANE_COVER                   32913
+#define ID_LR_SPLITTER                  32914
+#define ID_UP_SPLITTER                  32915
+#define ID_DEL_PANE                     32916
+#define ID_ONLYPANE_32917               32917
+#define ID_ONLYPANE_32918               32918
+#define ID_Menu32919                    32919
+#define ID_MULTISPLITEDITMODE_32920     32920
+#define ID_MULTISPLITEDITMODE_32921     32921
+#define ID_MOVE_UP                      32922
+#define ID_MOVE_DOWN                    32923
+#define ID_ADD_EMPTY_PANE               32924
+#define ID_PANE_SPE                     32925
+#define ID_CHANGE_LR                    32926
+#define ID_CHANGE_SPLIT_LR              32927
+#define ID_CHANGE_SPLIT_UD              32928
+#define ID_INSERT_                      32929
+#define ID_INSERT_SPLIT_LR              32930
+#define ID_INSERT_SPLIT_UD              32931
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        223
-#define _APS_NEXT_COMMAND_VALUE         32896
-#define _APS_NEXT_CONTROL_VALUE         1032
+#define _APS_NEXT_RESOURCE_VALUE        225
+#define _APS_NEXT_COMMAND_VALUE         32932
+#define _APS_NEXT_CONTROL_VALUE         1034
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

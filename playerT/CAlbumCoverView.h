@@ -2,6 +2,8 @@
 #include "mainfrm.h"
 #include "MyLib.h"
 #include "PlayList.h"
+#include "globalStuffs.h"
+
 #define  ID_MENU_PIC_SAVE (0XF000-209)
 class CAlbumCoverView :
 	public CWindowImpl<CAlbumCoverView>
@@ -81,7 +83,7 @@ public:
 		
 		if (MyLib::shared()->isPlaying())
 		{
-			track=MyLib::shared()->GetPlayingItem()->GetFileTrack();
+			track=GetPlayingItem()->GetFileTrack();
 			if (track->img)
 			   bHasPic=TRUE;
 		}
@@ -139,3 +141,5 @@ public:
 	}
 	 
 };
+
+

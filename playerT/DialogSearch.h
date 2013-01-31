@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PlayListView.h"
-
+#include "globalStuffs.h"
 using namespace std;
 
 class DialogSearch :
@@ -105,10 +105,10 @@ public:
 		strBuf=strBuf.substr(a,b+1-a);
 
 
-		int count=pM->m_pPlaylistView->GetItemCount();
+		int count=ActivePlaylist()->GetItemCount();
 		for (int i=0;i<count;++i)
 		{
-			_songContainerItem item=pM->m_pPlaylistView->GetPlayList()->m_songList[i];
+			_songContainerItem item=ActivePlaylist()->m_songList[i];
 			FileTrack *track=item.GetFileTrack();
 			if (track->HaveKeywords(const_cast<TCHAR*>( strBuf.c_str()) ))
 				searchPl->m_songList.push_back(item);

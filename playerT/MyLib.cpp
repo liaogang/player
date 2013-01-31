@@ -1,7 +1,7 @@
 #include "MyLib.h"
 #include "BasicPlayer.h"
-#include "ProgertyDlg.h"
 #include "PlayListViewMng.h"
+#include "globalStuffs.h"
 //-----------------------------------------
 //
 
@@ -15,7 +15,7 @@ PlayList*  MyLib::NewPlaylist(std::tstring playlistname,bool bAutoPL)
 
 PlayList* MyLib::AddFolderToCurrentPlayList(LPCTSTR pszFolder)
 {
-	PlayList *p=MyLib::shared()->m_pSelPlaylist;
+	PlayList *p=ActivePlaylist();
 	p->AddFolderByThread(pszFolder);
 	return p;
 }
@@ -158,123 +158,6 @@ void MyLib::ClearPlayQueue()
 	playQueue.clear();
 }
 
-
-LRESULT CPropertyDlgMediaLib::OnBtnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-	UINT uFlags=BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE;
-	uFlags&=~BIF_NONEWFOLDERBUTTON ;
-	CFolderDialog dlg(m_hWnd,_T("请选择要添加的文件夹"),uFlags);
-	if (dlg.DoModal()==IDOK)
-	{
-		LPCTSTR path=dlg.GetFolderPath();
-		
-		int count=m_list.GetItemCount();
-		m_list.InsertItem(count,path);
-		m_list.SetItemText(count,1,_T("正在扫描"));
-
-		std::tstring *strPath=new std::tstring(path);
-		MyLib::shared()->AddMediaPath(*strPath);
-		MyLib::shared()->GetAutoPlaylist()->AddFolderByThread(strPath->c_str());
-
-		m_list.SetItemData(count,(DWORD)strPath);
-	}
-
-	return 0;
-}
-
-LRESULT CPropertyDlgMediaLib::OnBtnDel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-	int index=m_list.GetSelectedIndex();
-	
-	std::tstring *strPath((std::tstring*)m_list.GetItemData(index));
-	
-	MyLib::shared()->DelMediaPath(*strPath);
-
-	m_list.DeleteItem(index);
-
-	delete strPath;
-	return 0;
-}
-
-BOOL CPropertyDlgLyricsLib::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
-{
-	DoDataExchange();
-
-	UINT style;
-
-	style=::GetWindowLong(list.m_hWnd,GWL_STYLE);
-	style|=LVS_SINGLESEL;
-	::SetWindowLong(list.m_hWnd,GWL_STYLE,style);
-
-	style=list.GetExtendedListViewStyle();
-	style|= LVS_EX_FULLROWSELECT;
-	list.SetExtendedListViewStyle(style);
-
-	list.InsertColumn(0,_T("路径"),LVCFMT_LEFT,220);
-
-
-	vector<std::tstring>::iterator i;int index;
-	for (i=MyLib::shared()->lrcDirs.begin(),index=0;i!=MyLib::shared()->lrcDirs.end();i++,index++)
-	{
-		std::tstring str=*i;
-		int nItem=list.InsertItem(index,str.c_str());
-
-		int len=_tcslen(str.c_str());
-		LPTSTR pathCopy=new TCHAR[len+1];
-		memset(pathCopy,0,(len+1)*sizeof(TCHAR));
-		_tcsncpy(pathCopy,str.c_str(),len);
-		list.SetItemData(nItem,(DWORD_PTR)pathCopy);
-	}
-	
-	return TRUE;
-}
-
-
-LRESULT CPropertyDlgLyricsLib::OnBtnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-	UINT uFlags=BIF_RETURNONLYFSDIRS|BIF_NEWDIALOGSTYLE;
-	uFlags&=~BIF_NONEWFOLDERBUTTON ;
-	CFolderDialog dlg(m_hWnd,_T("请选择要添加的文件夹"),uFlags);
-	if (dlg.DoModal()==IDOK)
-	{
-		LPCTSTR path=dlg.GetFolderPath();
-		int index=list.GetItemCount();
-		index=list.InsertItem(index,path);
-		
-		int len=_tcslen(path);
-		LPTSTR pathCopy=new TCHAR[len+1];
-		memset(pathCopy,0,(len+1)*sizeof(TCHAR));
-		_tcsncpy(pathCopy,path,len);
-		list.SetItemData(index,(DWORD_PTR)pathCopy);
-	}
-
-	return 0;
-}
-
-LRESULT CPropertyDlgLyricsLib::OnBtnDel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-	int i=list.GetSelectedIndex();
-	LPCTSTR path=(LPCTSTR)list.GetItemData(i);
-	list.DeleteItem(i);
-	delete[] path;
-	return 0;
-}
-
-
-LRESULT CPropertyDlgLyricsLib::OnCfgToSave(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{	
-	MyLib::shared()->ClearLrcSearchLib();
-
-	int count=list.GetItemCount();
-	for (int i=0;i<count;i++)
-	{
-		LPCTSTR path=(LPCTSTR)list.GetItemData(i);
-		MyLib::shared()->AddFolder2LrcSearchLib(path);
-	}
-
-	MyLib::shared()->InitLrcLib();
-	return 0;
-}
 
 void MyLib::InitLrcLib()
 {

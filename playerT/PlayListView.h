@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "PlayList.h"
 #include "PlayListViewMng.h"
+#include "globalStuffs.h"
 #define INVALID_ITEM -1
 
 unsigned int BKDRHash(char *str);
@@ -10,7 +11,7 @@ HMENU LoadPlaylistMenu(BOOL bDestroy=FALSE);
 
 
 
-
+/*
 class PlayListViewBase
 {
 private:
@@ -45,7 +46,7 @@ public:
 			m_pPlayList->pPLV=this;
 	}
 	inline PlayList * GetPlayList(){return m_pPlayList;}
-};
+};*/
 
 
 
@@ -53,9 +54,24 @@ public:
 
 class CPlayListView:
 	public CWindowImpl<CPlayListView,CListViewCtrl>,
-	public CMessageFilter,
-	public PlayListViewBase
+	public CMessageFilter
+	//,public PlayListViewBase
 {
+private:
+	PlayList *  m_pPlayList;
+protected:
+	int nItemPlaying;//正在播放的项目
+public:
+	inline int GetPlayingIdx(){return nItemPlaying;}
+	inline void SetPlayingIdx(int i){nItemPlaying=i;}
+	inline void SetPlayList(PlayList * pPlayList){
+		m_pPlayList=pPlayList;
+		if (m_pPlayList)
+			m_pPlayList->pPLV=this;
+	}
+	inline PlayList * GetPlayList(){return m_pPlayList;}
+
+
 public:
 	class CMainFrame *pMain;
 	void SetMain(class CMainFrame *pMain);
@@ -84,7 +100,10 @@ public:
 
 	~CPlayListView()
 	{
+		AllPlayListViews()->RemoveItem(this);
+
 		LoadPlaylistMenu(TRUE);
+
 	}
 
 public:
@@ -307,8 +326,8 @@ public:
 		void PlaySelectedItem(_songContainerItem *item);
 
 		LRESULT OnDbClicked(UINT i,CPoint pt)
-		{
-						
+		{	
+			if(!GetPlayList())return 0;
 			int k=GetPlayList()->selectedIndex;
 			if(k!=-1)
 			{
@@ -333,6 +352,8 @@ public:
 
 		void Init()
 		{	
+			pMain=GetMainFrame();
+
 			if(!m_bSearch)
 				AllPlayListViews()->AddItem(this);
 			//CHeaderCtrl header=GetHeaderCtrl();
@@ -578,5 +599,14 @@ public:
 		void ChangeColorBlue()
 		{
 			ChangeColor(RGB(230,244,255),RGB(145,200,255));
+		}
+
+		virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
+		{
+			CMessageLoop* pLoop = _Module.GetMessageLoop();
+			ATLASSERT(pLoop != NULL);
+			pLoop->RemoveMessageFilter(this);
+			
+			delete this;
 		}
 };
