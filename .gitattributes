@@ -142,6 +142,8 @@ playerT/dlgLrcSearch.h -text
 playerT/fileMonitor.cpp -text
 playerT/fileMonitor.h -text
 playerT/glassWnd.h -text
+playerT/globalStuffs.cpp -text
+playerT/globalStuffs.h -text
 playerT/libmpg123.dll -text
 playerT/libmpg123.lib -text
 playerT/mainfrm.CPP -text
