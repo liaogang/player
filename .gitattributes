@@ -148,6 +148,7 @@ playerT/mainfrm.CPP -text
 playerT/mainfrm.h -text
 playerT/music.cpp -text
 playerT/music.h -text
+playerT/mysplit.cpp -text
 playerT/mysplit.h -text
 playerT/player.cpp -text
 playerT/player.h -text
