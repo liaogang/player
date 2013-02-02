@@ -32,7 +32,7 @@ public:
 
 	 void Reload(PlayList *pPL);
 
-	 void Reload(PlayList *pPL,bool bCenterItem);
+	 void Reload(PlayList *pPL,int index);
 
 	 void EnsureVisibleAndCentrePos(int index);
 

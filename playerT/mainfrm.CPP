@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "mytree.h"
 #include "MainFrm.h"
 #include "MyControls.h"
 #include "PlayList.h"
@@ -536,7 +537,7 @@ LRESULT CMainFrame::OnPlayDirectly(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam
 	MyLib::stop();
 	
 	_songContainerItem *item=MyLib::shared()->GetWaitPlayItem();
-	SetPlayingItem(item);
+	SetPlayingItem(*item);
 	SetActivePlaylist(item->GetPlayList());
 
 	MyLib::shared()->play((FileTrack*)wParam);
@@ -680,8 +681,8 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 	if (!MyLib::shared()->isPlaying())
 		return;
 	
-	PlayListItem *item=GetPlayingItem();
-	FileTrack *track=item->GetFileTrack();
+	PlayListItem item=GetPlayingItem();
+	FileTrack *track=item.GetFileTrack();
 
 
 	WCHAR tmp[MAX_PATH]={};
@@ -693,7 +694,7 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 	//TODO
 	//pMain->m_pTabBar->SetCurSel(curPl,k);
 	
-	AllPlayListViews()->Reload(item->GetPlayList(),TRUE);
+	AllPlayListViews()->Reload(item.GetPlayList(),item.GetIndex());
 	//pMain->m_pPlaylistView->SetFocus();
 }
 
@@ -792,7 +793,6 @@ HWND MyLib::GetMain(){return shared()->hMain;};
 
 LRESULT CMainFrame::OnExit(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
-	delete MyLib::shared();
 	bHandled=FALSE;
 	return 0;
 }
@@ -806,8 +806,8 @@ void CMainFrame::ChangeTitle()
 	if (!MyLib::shared()->isPlaying())
 		return;
 
-	PlayListItem *item=GetPlayingItem();
-	FileTrack *track=item->GetFileTrack();
+	PlayListItem item=GetPlayingItem();
+	FileTrack *track=item.GetFileTrack();
 	
 		
 	const TCHAR *trackName=track->GetTitle();
@@ -845,14 +845,11 @@ void CMainFrame::ShowSearchDialog()
 
 void CMainFrame::InitData()
 {
-	//mylib init will load cfg files 
-	//include playlist and lrc search paths
-	MyLib *s=MyLib::shared();
-	
-	//load all playlist from the file save the data
-	s->LoadCoreCfg();
+	//LoadCoreCfg();
+
 
 	::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
+
 // 	if (s->m_playLists.size()>0)
 // 	{
 // 		MyLib::PLList::iterator i;
@@ -862,7 +859,7 @@ void CMainFrame::InitData()
 // 		AllPlayListViews()->Reload(*i);
 // 	}
 
-	s->InitLrcLib();
+	//MyLib::shared()->InitLrcLib();
 }
 
 
@@ -1075,13 +1072,10 @@ LRESULT CPlayListView::OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPara
 		if ( !m_bSearch && nSubItem==COLUMN_INDEX_INDEX)
 		{
 			PlayList *curPl=ActivePlaylist();
-			if (curPl)
+			if ( curPl && nItem == GetPlayingItem().GetIndex() )
 			{
-				if ( nItem == nItemPlaying )
-				{
-					DrawTriangleInRect(dc,rcCol);
-					continue;
-				}
+				DrawTriangleInRect(dc,rcCol);
+				continue;
 			}
 		}
 
@@ -1099,9 +1093,6 @@ LRESULT CPlayListView::OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPara
 		{
 			rcCol.left+=TEXTALIGN__WIDTH;
 		}
-
-
-
 
 
 		WCHAR szText[MAX_PATH]={};
@@ -1128,6 +1119,7 @@ LRESULT CPlayListView::OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPara
 
 	return 1;
 }
+
 LRESULT CMyTabBar::OnSelectionChanged( LPNMHDR )
 {
 	int curSel=GetCurSel( );
@@ -1428,7 +1420,7 @@ void CDlgLrcSearch::DownLoad()
 			std::tstring pszpath(savePath);
 			if(ActivePlaylist() && MyLib::shared()->isPlaying())
 			{
-				GetPlayingItem()->TryLoadLrcFile(pszpath,TRUE);
+				GetPlayingItem().TryLoadLrcFile(pszpath,TRUE);
 				GetMainFrame()->lrcChanged();
 			}
 		}
@@ -1545,21 +1537,21 @@ void PlayListViewMng::PlayingItemChanged()
 
 
 
-void PlayListViewMng::Reload(PlayList *pPL,bool bCenterItem)
+void PlayListViewMng::Reload(PlayList *pPL,int index)
 {
 	for (container::iterator i=dataCollection.begin();
 		i!=dataCollection.end();++i)
 	{
 		(*i)->Reload(pPL);
 
-		int centerItem=(*i)->GetPlayList()->selectedIndex;
+		//int centerItem=(*i)->GetPlayList()->selectedIndex;
 
-		if(centerItem==INVALID_ITEM)
-			centerItem=(*i)->GetPlayList()->selectedIndex;
+		//if(centerItem==INVALID_ITEM)
+			//centerItem=(*i)->GetPlayList()->selectedIndex;
 
 		(*i)->ClearAllSel();
-		(*i)->EnsureVisibleAndCentrePos(centerItem);
-		(*i)->SelectAndFocusItem(centerItem);
+		(*i)->EnsureVisibleAndCentrePos(index);
+		(*i)->SelectAndFocusItem(index);
 	}
 }
 
@@ -1847,7 +1839,7 @@ void MYTREE_Add_Playlist(MYTREE* tree)
 {
 	CPlayListView *plv=new CPlayListView;
 	plv->Create(GetSplitter()->m_hWnd, 0, NULL, LVS_OWNERDRAWFIXED| WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN | WS_CLIPSIBLINGS| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA,
-		WS_EX_STATICEDGE);  //WS_EX_CLIENTEDGE ,WS_EX_STATICEDGE
+		WS_EX_CLIENTEDGE);  //WS_EX_CLIENTEDGE ,WS_EX_STATICEDGE
 	//SWP_DRAWFRAME
 	//plv->ModifyStyleEx(0, 0 ,~SWP_DRAWFRAME);
 
@@ -1901,4 +1893,11 @@ void MYTREE_Add_SpectrumView(MYTREE* tree)
 
 	tree->addChildNodeAfter(newTree);
 	tree->CalcChildsRect();
+}
+
+
+
+CMainFrame::~CMainFrame()
+{
+	SaveCoreCfg();
 }

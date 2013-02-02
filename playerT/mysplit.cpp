@@ -15,10 +15,8 @@ void MoveToNewRect(MYTREE *parent)
 		}
 		else if (IsWindow(cur->data.hWnd))
 		{
-			RECT r=cur->getRect();
-			MoveWindow(cur->data.hWnd,r.left,r.top,r.right-r.left,r.bottom-r.top,FALSE);
-			ShowWindow(cur->data.hWnd,SW_SHOW);
-			InvalidateRect(cur->data.hWnd,0,1);
+			RECT rect=cur->getRect();
+			::SetWindowPos(cur->data.hWnd, NULL, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER);
 		}
 	}
 }

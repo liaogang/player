@@ -119,13 +119,13 @@ public:
 	PlayListItem(PlayList *playlist,std::tstring url):
 	  pPL(playlist),filetrack(new FileTrack(url))
 	  {
-		  pfiletrack=&filetrack;
+		  //pfiletrack=&filetrack;
 		  //filetrack->SetParent(this);
 	  }
 	  PlayListItem(PlayList *playlist):
 	  pPL(playlist),filetrack(new FileTrack())
 	  {
-		   pfiletrack=&filetrack;
+		  // pfiletrack=&filetrack;
 		  //filetrack->SetParent(this);
 	  }
 
@@ -175,7 +175,7 @@ private:
 	shared_ptr<FileTrack> filetrack;
 	
 	//debug
-	shared_ptr<FileTrack>* pfiletrack;
+	//shared_ptr<FileTrack>* pfiletrack;
 	//index in playlist
 	int index;
 };

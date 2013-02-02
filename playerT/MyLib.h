@@ -102,10 +102,6 @@ public:
 	static	BOOL SavePlaylist(PlayList *pl,LPTSTR filepath);
 	PlayList* LoadPlaylist(LPTSTR filepath);
 
-	#define CFGFILENAME _T("coredata")
-
-	BOOL LoadCoreCfg();
-	BOOL SaveCoreCfg();
 
 	//-----------------------------------------
 	enum PlayOrder

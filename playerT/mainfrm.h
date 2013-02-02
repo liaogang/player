@@ -31,7 +31,7 @@ class DialogFFTOutline;
 class DialogPLManager;
 class CDialogConsole;
 class CMultiSpliltWnd;
-struct MYTREE;
+class MYTREE;
 //-----------------------------------------
 
 
@@ -78,7 +78,10 @@ public:
 	{
 	}
 
-	~CMainFrame(){}
+	~CMainFrame();
+
+	
+
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 

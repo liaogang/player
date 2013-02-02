@@ -1,9 +1,14 @@
+#include "MySerialize.h"
+#include <list>
+#include <map>
+
+#pragma once
 #define max_node_name 128
 #define SPLITTER_WH 3
 #define TREES_ROOT NULL
 
-
-
+class MYTREE;
+using namespace std;
 //调用完calcrect之后,调用此函数,更新
 void MoveToNewRect(MYTREE *parent);
 
@@ -48,7 +53,7 @@ enum pane_type
 	panetype_empty
 };
 
-struct dataNode:public SerializeObj
+class dataNode:public SerializeObj
 {
 public:
 	dataNode(TCHAR *name):hWnd(NULL),m_iSplitterBar(SPLITTER_WH)
@@ -102,17 +107,28 @@ public:
 	virtual int ReSerialize(FILE *pFile);
 
 public:
+	//serialize object
 	TCHAR nodeName[max_node_name];
 	RECT rc;
 	split_type type;
+	long  m_iSplitterBar;//把手的长度或宽度
+	TCHAR windowtype[max_node_name];
+	list<RECT> SplitterBarRects;//把手区域列表
 
+
+	//no ....
 	HWND hWnd;	
 	void *wndHolder;
-
-
-	long  m_iSplitterBar;//把手的长度或宽度
 	HTREEITEM treeItem;
-	list<RECT> SplitterBarRects;//把手区域列表
+	
+	
+	typedef  void (*CreateWindowFun)(MYTREE* tree);
+
+	static map<TCHAR*,CreateWindowFun> createWndFuns;
+	static void RegisterCreateWndFuns(TCHAR* panename,CreateWindowFun func)
+	{
+		createWndFuns.insert(map<TCHAR*,CreateWindowFun>::value_type(panename,func));
+	}
 };
 
 
@@ -131,19 +147,19 @@ public:
 };
 
 
-struct MYTREE
+class MYTREE
 	:public SerializeObj
 {
 public:
 	MYTREE(TCHAR *name):next(NULL),prev(NULL),
-		child(NULL),data(name)
+		child(NULL),data(name),childs(0)
 	{
 		//default is not root
 		parent=this;
 	}
 
 	MYTREE():next(NULL),prev(NULL),
-		child(NULL)
+		child(NULL),childs(0)
 	{
 		parent=this;
 
@@ -156,6 +172,10 @@ public:
 		//AtlTrace(L"created : %s\n",paneN);
 	}
 
+	virtual int SerializeB(FILE *pFile);
+	virtual int ReSerialize(FILE *pFile);
+
+	
 	bool wndEmpty()
 	{
 		return data.hWnd==NULL;
@@ -168,6 +188,55 @@ public:
 
 	RECT getRect(){return data.getRect();}
 	void setRect(RECT &rc){data.setRect(rc);}
+
+
+
+	
+	void AdjustSplitterBar(LONG offset,MY_DIRECTION direction)
+	{
+		MYTREE *c=getFirstSibling();
+
+// 		for (auto it=parent->data.SplitterBarRects.begin();)
+// 		{
+// 		}
+
+
+		//splitter
+		if (c->HasSplitter())
+		{
+			bool bX=(direction==ajust_left||direction==ajust_right);
+			bool bxSplitter=c->data.type==up_down;
+			if(bX==bxSplitter)
+			{
+				list<RECT> another;
+				for (auto i=c->data.SplitterBarRects.begin();i!=c->data.SplitterBarRects.end();++i)
+				{
+					RECT r=*i;
+					if (bxSplitter)
+					{
+						if(direction==ajust_left)
+							r.left+=offset;
+						if(direction==ajust_right)
+							r.right+=offset;
+					}
+					else
+					{
+						if(direction==ajust_top)
+							r.top+=offset;
+						if(direction==ajust_bottom)
+							r.bottom+=offset;
+					}
+
+					another.push_back(r);
+				}
+
+				c->data.SplitterBarRects=another;
+			}
+
+
+		}
+	}
+
 
 	//重新调整矩形区域.及子结点
 	void AdjustRect(LONG offset,MY_DIRECTION direction,bool bFirst=true)
@@ -213,43 +282,6 @@ public:
 					c->data.rc.bottom+=offset;
 			}
 
-
-
-
-			//splitter
-			if (c->HasSplitter())
-			{
-				bool bX=(direction==ajust_left||direction==ajust_right);
-				bool bxSplitter=c->data.type==up_down;
-				if(bX==bxSplitter)
-				{
-					list<RECT> another;
-					for (auto i=c->data.SplitterBarRects.begin();i!=c->data.SplitterBarRects.end();++i)
-					{
-						RECT r=*i;
-						if (bxSplitter)
-						{
-							if(direction==ajust_left)
-								r.left+=offset;
-							if(direction==ajust_right)
-								r.right+=offset;
-						}
-						else
-						{
-							if(direction==ajust_top)
-								r.top+=offset;
-							if(direction==ajust_bottom)
-								r.bottom+=offset;
-						}
-
-						another.push_back(r);
-					}
-
-					c->data.SplitterBarRects=another;
-				}
-
-
-			}
 
 			if(c->hasChild())
 				c->child->AdjustRect(offset,direction,false);
@@ -337,6 +369,8 @@ public:
 		}
 		else
 			child=node;
+
+		++childs;
 	}
 
 	//添加子结点,在mark之后.mark=TVI_FIRST,添加为第一个子结点
@@ -370,6 +404,7 @@ public:
 				oldNext->prev=newAdd;
 		}	
 
+		++childs;
 		return newAdd;
 	}
 
@@ -399,6 +434,7 @@ public:
 	MYTREE *prev;
 	MYTREE *next;
 	MYTREE *child;//first child item
+	int     childs;//child number
 
 	//paint stuffs
 public:
@@ -503,7 +539,7 @@ public:
 
 	//遍历
 	// called only if pane is empty
-	void DrawSplitterPane(CDCHandle dc,BOOL invalidate=FALSE)
+	void DrawSplitterPane(CDCHandle dc,BOOL invalidate=FALSE,BOOL bErase=FALSE)
 	{
 		for (MYTREE *cur=this;cur;cur=cur->next)
 		{
@@ -524,7 +560,7 @@ public:
 					//SetWindowPos(getWnd(),NULL,r2.left,r2.top,r2.right-r2.left,r2.bottom-r2.top,SWP_NOOWNERZORDER|
 					//	SWP_SHOWWINDOW);
 					if(invalidate)
-						InvalidateRect(cur->data.hWnd,0,1);
+						InvalidateRect(cur->data.hWnd,0,bErase);
 				}
 			}
 		}

@@ -15,37 +15,37 @@ HMENU LoadPlaylistMenu(BOOL bDestroy=FALSE);
 class PlayListViewBase
 {
 private:
-	PlayList *  m_pPlayList;
+PlayList *  m_pPlayList;
 protected:
-	int nItemPlaying;//正在播放的项目
+int nItemPlaying;//正在播放的项目
 public:
-	inline int GetPlayingIdx(){return nItemPlaying;}
-	inline void SetPlayingIdx(int i){nItemPlaying=i;}
+inline int GetPlayingIdx(){return nItemPlaying;}
+inline void SetPlayingIdx(int i){nItemPlaying=i;}
 public:
-	//清空当前播放列表视图的所有项目,
-	virtual void ClearAllItem()=0;
+//清空当前播放列表视图的所有项目,
+virtual void ClearAllItem()=0;
 
-	virtual void ClearAllSel()=0;
-	virtual void SelectAndFocusItem(int item)=0;
+virtual void ClearAllSel()=0;
+virtual void SelectAndFocusItem(int item)=0;
 
-	virtual void LoadPlayList(PlayList *pPlayList)=0;
-	virtual void EnsureVisibleAndCentrePos(int index)=0;
-	virtual void Reload(PlayList* pPlayList,BOOL SetIndex=-1)=0;
+virtual void LoadPlayList(PlayList *pPlayList)=0;
+virtual void EnsureVisibleAndCentrePos(int index)=0;
+virtual void Reload(PlayList* pPlayList,BOOL SetIndex=-1)=0;
 
-	virtual int GetIndex(PlayListItem *item)=0;
+virtual int GetIndex(PlayListItem *item)=0;
 
-	void ReLoad(PlayList *pPL)
-	{
-		ClearAllItem();
-		LoadPlayList(pPL);
-	}
+void ReLoad(PlayList *pPL)
+{
+ClearAllItem();
+LoadPlayList(pPL);
+}
 
-	inline void SetPlayList(PlayList * pPlayList){
-		m_pPlayList=pPlayList;
-		if (m_pPlayList)
-			m_pPlayList->pPLV=this;
-	}
-	inline PlayList * GetPlayList(){return m_pPlayList;}
+inline void SetPlayList(PlayList * pPlayList){
+m_pPlayList=pPlayList;
+if (m_pPlayList)
+m_pPlayList->pPLV=this;
+}
+inline PlayList * GetPlayList(){return m_pPlayList;}
 };*/
 
 
@@ -84,7 +84,7 @@ public:
 	COLORREF clText1,clText2;
 
 	int indexLast;
-
+	bool bClientEdge;
 
 
 	CPlayListView(BOOL bSearch=FALSE):
@@ -116,11 +116,13 @@ public:
 		{	
 			UINT nChar=(TCHAR)pMsg->wParam;
 
+			//Ctrl+A
 			if (nChar=='A' || nChar=='a')
 			{
 				if (GetKeyState(VK_CONTROL) &0x80)
 					SelectAll();
 			}
+			//Delete
 			else if (nChar==VK_DELETE)
 			{
 				DelSelectedItem(GetKeyState(VK_SHIFT) & 0x80);
@@ -135,6 +137,8 @@ public:
 		MSG_WM_CREATE(OnCreate);
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
 		MSG_WM_CHAR(OnChar)
+		MSG_WM_SIZE(OnSize)
+		MESSAGE_HANDLER(WM_NCPAINT,OnNcPaint)
 		COMMAND_ID_HANDLER(ID_OPEN_FILE_PATH,OnOpenFilePath)
 		COMMAND_ID_HANDLER(ID_PUSH_PLAYQUEUE,OnPushToPlayqueue)
 		COMMAND_ID_HANDLER(ID_DELFROMPLAYQUEUE,OnDeleteFromPlayqueue)
@@ -143,7 +147,51 @@ public:
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO,OnGetdispInfo)
 		MESSAGE_HANDLER(OCM_DRAWITEM,OnDrawItem)
 		MESSAGE_HANDLER(OCM_MEASUREITEM,OnMeasureItem)
-	END_MSG_MAP()
+		END_MSG_MAP()
+	
+		void OnSize(UINT nType, CSize size)
+		{
+			//if ((nType==0||nType==SIZE_RESTORED)&&bClientEdge)
+			DrawSunkenInnerEdge();
+		}
+
+		
+		
+		LRESULT OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			if (bClientEdge)
+			{
+				//let system draw scroll bar it self
+				::DefWindowProc(m_hWnd,uMsg,wParam,lParam);
+				DrawSunkenInnerEdge(wParam);
+			}
+			else
+			{
+				SetMsgHandled(FALSE);
+			}
+
+			return 0;
+		}
+
+		void DrawSunkenInnerEdge(WPARAM wParam=1)
+		{
+			HDC hdc;
+			if((int)wParam==1)
+				hdc=::GetWindowDC(m_hWnd);
+			else
+				hdc = ::GetDCEx(m_hWnd,(HRGN)wParam, DCX_WINDOW|DCX_INTERSECTRGN);
+
+			RECT r;
+			GetWindowRect(&r);
+			ScreenToClient(&r);
+			r.right-=r.left;
+			r.bottom-=r.top;
+			r.left=0;
+			r.top=0;
+
+			DrawEdge(hdc,&r, EDGE_SUNKEN, BF_RECT | BF_ADJUST);
+			ReleaseDC(hdc);
+		}
 
 		LRESULT OnMeasureItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 		{
@@ -181,10 +229,15 @@ public:
 
 		int OnCreate(LPCREATESTRUCT lpCreateStruct)
 		{
+			DWORD dwStyle ;
+			dwStyle= ::GetWindowLong(m_hWnd, GWL_EXSTYLE);
+			bClientEdge=(dwStyle & WS_EX_CLIENTEDGE)?true:false;
+
 			CMessageLoop* pLoop = _Module.GetMessageLoop();
 			ATLASSERT(pLoop != NULL);
 			pLoop->AddMessageFilter(this);
 			SetMsgHandled(FALSE);
+
 			return 0;
 		}
 
@@ -192,9 +245,9 @@ public:
 		LRESULT OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled);
 
 		BOOL m_bC;
-		
+
 		LRESULT OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled);
-		
+
 
 		inline void SelectAll(){SetItemState(-1, LVIS_SELECTED , LVIS_SELECTED );}
 
@@ -213,7 +266,7 @@ public:
 			//从vector删除某项,需要重新搬家,很费时.
 			int blockBeg=0,blockLast;
 
-			
+
 			int nCount=GetItemCount();
 			int countToDel=0;
 
@@ -228,7 +281,7 @@ public:
 				blockLast=nItem;
 				++countToDel;
 			}
-			
+
 
 
 			//isEntireBlock?			
@@ -257,20 +310,20 @@ public:
 					}
 				}
 			}
-			
+
 
 			/*
 			if ( bDelFile )
 			{
-				TCHAR bf[5]={};
-				_itow(countToDel,bf,10);
+			TCHAR bf[5]={};
+			_itow(countToDel,bf,10);
 
-				TCHAR title[]=_T("这将会删除\0                     ");
-				TCHAR titleP3[]=_T("文件 \n要继续吗?");
-				_tcscat(title,bf);
-				_tcscat(title,titleP3);
+			TCHAR title[]=_T("这将会删除\0                     ");
+			TCHAR titleP3[]=_T("文件 \n要继续吗?");
+			_tcscat(title,bf);
+			_tcscat(title,titleP3);
 
-				bDelFile= (IDYES==::MessageBox(m_hWnd,title,_T("确认删除文件"),MB_YESNO));
+			bDelFile= (IDYES==::MessageBox(m_hWnd,title,_T("确认删除文件"),MB_YESNO));
 			}
 
 			if (bDelFile) ::DeleteFile(GetPlayList()->DeleteTrack(i)->url.c_str());
@@ -280,27 +333,27 @@ public:
 			delete[] itemDel;
 
 
-			
-			
-// 
-// 			for(int i = GetItemCount()-1; i>=0;--i)
-// 			{
-// 				if(LVIS_SELECTED == GetItemState(i, LVIS_SELECTED) )
-// 				{
-// 					PlayListItem *track=(PlayListItem*)GetItemData(i);
-// 					if(track )
-// 					{
-// 						if(bDelFile && IDYES==::MessageBox(m_hWnd,_T("这将会删除 1 文件 \n要继续吗?"),_T("确认删除文件"),MB_YESNO))
-// 						{
-// 							::DeleteFile(track->url.c_str());
-// 						}
-// 
-// 						//track->m_pPL->DeleteTrack(track);
-// 					}
-// 
-// 					DeleteItem(i);
-// 				}
-// 			}	
+
+
+			// 
+			// 			for(int i = GetItemCount()-1; i>=0;--i)
+			// 			{
+			// 				if(LVIS_SELECTED == GetItemState(i, LVIS_SELECTED) )
+			// 				{
+			// 					PlayListItem *track=(PlayListItem*)GetItemData(i);
+			// 					if(track )
+			// 					{
+			// 						if(bDelFile && IDYES==::MessageBox(m_hWnd,_T("这将会删除 1 文件 \n要继续吗?"),_T("确认删除文件"),MB_YESNO))
+			// 						{
+			// 							::DeleteFile(track->url.c_str());
+			// 						}
+			// 
+			// 						//track->m_pPL->DeleteTrack(track);
+			// 					}
+			// 
+			// 					DeleteItem(i);
+			// 				}
+			// 			}	
 
 		}
 
@@ -387,10 +440,10 @@ public:
 						_T("Genre               ")
 					};
 
-						const int cxOffset = 15;
+					const int cxOffset = 15;
 
-						for (int i=0;i<sizeof(columnName)/sizeof(int);++i)
-							AddColumn(columnName[i],i,-1, LVCF_FMT| LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM ,alignment[i],GetStringWidth(columnNamePlaceHoder[i])+cxOffset);
+					for (int i=0;i<sizeof(columnName)/sizeof(int);++i)
+						AddColumn(columnName[i],i,-1, LVCF_FMT| LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM ,alignment[i],GetStringWidth(columnNamePlaceHoder[i])+cxOffset);
 		}
 
 		int AddColumn(LPCTSTR strItem, int nItem, int nSubItem = -1,
@@ -410,8 +463,8 @@ public:
 
 		int GetIndex(PlayListItem *item)
 		{
-// 			int nItem= GetPlayList()->GetItem(item);
-// 			return nItem==GetPlayList()->GetItemCount()?-1:nItem;
+			// 			int nItem= GetPlayList()->GetItem(item);
+			// 			return nItem==GetPlayList()->GetItemCount()?-1:nItem;
 
 			return 0;
 		}
@@ -422,191 +475,191 @@ public:
 			SetPlayingItem(GetIndex(item));
 		}
 
-		public:
-		void SetPlayingItem(int nItem)
+public:
+	void SetPlayingItem(int nItem)
+	{
+		RedrawItems(nItemPlaying,nItemPlaying);
+		nItemPlaying=nItem;
+		RedrawItems(nItemPlaying,nItemPlaying);
+	}
+
+	void ClearAllSel()
+	{
+		int i=-1;
+		while ( (i=GetNextItem(i,LVIS_SELECTED)) != -1)
+			SetItemState(i,0,LVNI_SELECTED|LVNI_FOCUSED );
+	}
+
+	void InsertTrackItem(PlayListItem &track,int item,BOOL SetIndex=TRUE);
+	inline void InsertTrackItem(PlayListItem *track,int item,BOOL SetIndex=TRUE){InsertTrackItem(*track,item,SetIndex);}
+
+
+	void LoadPlayList(PlayList *pPlayList)
+	{
+		if (GetPlayList())
+			GetPlayList()->pPLV=NULL;
+
+		SetItemCount(pPlayList->m_songList.size());
+		SetPlayList(pPlayList);
+	}
+
+	void ClearAllItem()
+	{
+		SetItemCount(0);
+	}
+
+	void SelectAndFocusItem(int item)
+	{
+		SetItemState(item,LVIS_FOCUSED|
+			LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
+	}
+
+
+
+
+	void Reload(PlayList* pPlayList,int SetIndex=INVALID_ITEM)
+	{
+		m_bC=FALSE;
+
+		if ( /*m_bSearch ||*/1 || GetPlayList()!=pPlayList)
 		{
-			RedrawItems(nItemPlaying,nItemPlaying);
-			nItemPlaying=nItem;
-			RedrawItems(nItemPlaying,nItemPlaying);
+			ClearAllSel();
+			LoadPlayList(pPlayList);
 		}
 
-		void ClearAllSel()
+		if(SetIndex==INVALID_ITEM)//so we highlight last selected item
 		{
-			int i=-1;
-			while ( (i=GetNextItem(i,LVIS_SELECTED)) != -1)
-				SetItemState(i,0,LVNI_SELECTED|LVNI_FOCUSED );
+			int selItem;
+
+			if(GetPlayingIdx()==-1)
+			{
+				selItem=0;
+			}
+			else
+			{
+				selItem=GetPlayingIdx();;
+				SelectAndFocusItem(selItem);
+			}
+
+			EnsureVisibleAndCentrePos(selItem);
 		}
-
-		void InsertTrackItem(PlayListItem &track,int item,BOOL SetIndex=TRUE);
-		inline void InsertTrackItem(PlayListItem *track,int item,BOOL SetIndex=TRUE){InsertTrackItem(*track,item,SetIndex);}
-
-
-		void LoadPlayList(PlayList *pPlayList)
+		else
 		{
-			if (GetPlayList())
-				GetPlayList()->pPLV=NULL;
-			
-			SetItemCount(pPlayList->m_songList.size());
-			SetPlayList(pPlayList);
-		}
-
-		void ClearAllItem()
-		{
-			SetItemCount(0);
-		}
-
-		void SelectAndFocusItem(int item)
-		{
-			SetItemState(item,LVIS_FOCUSED|
+			EnsureVisibleAndCentrePos(SetIndex);
+			SetItemState(SetIndex,LVIS_FOCUSED|
 				LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
-		}
+		}//if(!SetIndex)
 
 
+		m_bC=TRUE;
+	}
 
 
-		void Reload(PlayList* pPlayList,int SetIndex=INVALID_ITEM)
+	void EnsureVisibleAndCentrePos(int index)
+	{
+		int top=GetTopIndex();
+		int countPerPage=GetCountPerPage();
+
+		// 			if ( (index> top && index-top < countPerPage) || 
+		// 				 ( index<top && top-index > 0-countPerPage))
+		// 			{
+		// 				return;
+		// 			}
+
+		//isVisible?
+		if (index >= top && index  <= top+countPerPage)
 		{
-			m_bC=FALSE;
-
-			if ( /*m_bSearch ||*/1 || GetPlayList()!=pPlayList)
-			{
-				ClearAllSel();
-				LoadPlayList(pPlayList);
-			}
-
-			if(SetIndex==INVALID_ITEM)//so we highlight last selected item
-			{
-				int selItem;
-				
-				if(GetPlayingIdx()==-1)
-				{
-					selItem=0;
-				}
-				else
-				{
-					selItem=GetPlayingIdx();;
-					SelectAndFocusItem(selItem);
-				}
-
-				EnsureVisibleAndCentrePos(selItem);
-			}
-			else
-			{
-				EnsureVisibleAndCentrePos(SetIndex);
-				SetItemState(SetIndex,LVIS_FOCUSED|
-					LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
-			}//if(!SetIndex)
-
-
-			m_bC=TRUE;
+			return;
 		}
 
+		EnsureVisible(index,FALSE);
 
-		void EnsureVisibleAndCentrePos(int index)
+		top=GetTopIndex();
+
+
+		RECT rc;
+		GetItemRect(top,&rc,LVIR_BOUNDS);
+
+		SIZE sz;
+		sz.cx=0;
+		sz.cy=(index-top-countPerPage/2)*(rc.bottom-rc.top);
+		Scroll(sz);
+	}
+
+	BOOL IsAllSelectedItemInPlayQueue();
+	LRESULT OnPushToPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnDeleteFromPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnOpenFilePath(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		int nItem=GetNextItem(-1,LVIS_SELECTED);
+
+		if(nItem!=-1)
 		{
-			int top=GetTopIndex();
-			int countPerPage=GetCountPerPage();
+			FileTrack *track=GetPlayList()->m_songList[nItem].GetFileTrack();
 
-			// 			if ( (index> top && index-top < countPerPage) || 
-			// 				 ( index<top && top-index > 0-countPerPage))
-			// 			{
-			// 				return;
-			// 			}
+			std::tstring parameters=_T("/select,");
+			parameters+=track->url;
 
-			//isVisible?
-			if (index >= top && index  <= top+countPerPage)
-			{
-				return;
-			}
+			std::tstring dir;
+			int index=track->url.find_last_of(_T("\\"));
+			if (index!=track->url.npos)
+				dir+=track->url.substr(0,index);
 
-			EnsureVisible(index,FALSE);
-
-			top=GetTopIndex();
-
-
-			RECT rc;
-			GetItemRect(top,&rc,LVIR_BOUNDS);
-
-			SIZE sz;
-			sz.cx=0;
-			sz.cy=(index-top-countPerPage/2)*(rc.bottom-rc.top);
-			Scroll(sz);
+			/*   example
+			*   "/select,C:\a.txt"
+			*/
+			ShellExecute(NULL,_T("open"),_T("explorer"),
+				parameters.c_str(),dir.c_str(),SW_SHOW);
 		}
+		return 0;
+	}
 
-		BOOL IsAllSelectedItemInPlayQueue();
-		LRESULT OnPushToPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-		LRESULT OnDeleteFromPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-		LRESULT OnOpenFilePath(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-		{
-			int nItem=GetNextItem(-1,LVIS_SELECTED);
+	//奇,偶,颜色
+	void ChangeColor(COLORREF one,COLORREF another)
+	{
+		clText1=one;
+		clText2=another;
+		int top=GetTopIndex();
+		int countPerPage=GetCountPerPage();
+		RedrawItems(top,top+countPerPage);
+		::UpdateWindow(this->m_hWnd);
+	}
 
-			if(nItem!=-1)
-			{
-				FileTrack *track=GetPlayList()->m_songList[nItem].GetFileTrack();
+	void ChangeColorDefault()
+	{
+		HBRUSH brush= ::GetSysColorBrush(COLOR_WINDOW);
+		LOGBRUSH lb;
+		GetObject(brush,sizeof(LOGBRUSH),&lb);
+		COLORREF c=lb.lbColor;
+		INT r= GetRValue(c);
+		INT g= GetGValue(c);
+		INT b= GetBValue(c);
 
-				std::tstring parameters=_T("/select,");
-				parameters+=track->url;
+		int average=(r+g+b)/3;
+		int offset=0;
+		if (3<=average && average<=100)
+			offset=-3;
+		else if (average>100 && average <=180)
+			offset=-5;
+		else
+			offset=-7;
 
-				std::tstring dir;
-				int index=track->url.find_last_of(_T("\\"));
-				if (index!=track->url.npos)
-					dir+=track->url.substr(0,index);
+		COLORREF a=RGB(r+offset,g+offset,b+offset);
 
-				/*   example
-				*   "/select,C:\a.txt"
-				*/
-				ShellExecute(NULL,_T("open"),_T("explorer"),
-					parameters.c_str(),dir.c_str(),SW_SHOW);
-			}
-			return 0;
-		}
+		ChangeColor(c,a);
+	}
 
-		//奇,偶,颜色
-		void ChangeColor(COLORREF one,COLORREF another)
-		{
-			clText1=one;
-			clText2=another;
-			int top=GetTopIndex();
-			int countPerPage=GetCountPerPage();
-			RedrawItems(top,top+countPerPage);
-			::UpdateWindow(this->m_hWnd);
-		}
+	void ChangeColorBlue()
+	{
+		ChangeColor(RGB(230,244,255),RGB(145,200,255));
+	}
 
-		void ChangeColorDefault()
-		{
-			HBRUSH brush= ::GetSysColorBrush(COLOR_WINDOW);
-			LOGBRUSH lb;
-			GetObject(brush,sizeof(LOGBRUSH),&lb);
-			COLORREF c=lb.lbColor;
-			INT r= GetRValue(c);
-			INT g= GetGValue(c);
-			INT b= GetBValue(c);
+	virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
+	{
+		CMessageLoop* pLoop = _Module.GetMessageLoop();
+		ATLASSERT(pLoop != NULL);
+		pLoop->RemoveMessageFilter(this);
 
-			int average=(r+g+b)/3;
-			int offset=0;
-			if (3<=average && average<=100)
-				offset=-3;
-			else if (average>100 && average <=180)
-				offset=-5;
-			else
-				offset=-7;
-
-			COLORREF a=RGB(r+offset,g+offset,b+offset);
-
-			ChangeColor(c,a);
-		}
-
-		void ChangeColorBlue()
-		{
-			ChangeColor(RGB(230,244,255),RGB(145,200,255));
-		}
-
-		virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
-		{
-			CMessageLoop* pLoop = _Module.GetMessageLoop();
-			ATLASSERT(pLoop != NULL);
-			pLoop->RemoveMessageFilter(this);
-			
-			delete this;
-		}
+		delete this;
+	}
 };

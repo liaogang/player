@@ -10,6 +10,7 @@ using namespace std;
 template <class T> int Serialize (FILE *pFile,T t);
 template <> int Serialize (FILE *pFile,std::tstring t);
 template <> int Serialize (FILE *pFile,int t);
+template <> int Serialize (FILE *pFile,WCHAR szStr);
 
 
 // template <class T> T ReSerialize (FILE *pFile);
@@ -21,6 +22,7 @@ template <> int Serialize (FILE *pFile,int t);
 class SerializeObj
 {
 public:
+	//object to file
 	int Serialize(FILE *pFile)
 	{
 		int size=0;
@@ -47,6 +49,7 @@ public:
 	//return the size used
 	virtual int SerializeB(FILE *pFile)=0;
 
+	//file to object
 	//read size
 	virtual int ReSerialize(FILE *pFile)=0;
 };

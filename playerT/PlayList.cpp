@@ -306,7 +306,7 @@ int PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 void PlayList::SetCurPlaying(_songContainerItem item,BOOL scanID3)
 {
 	//curPlayingItem=item;
-	SetPlayingItem(&item);
+	SetPlayingItem(item);
 	if (scanID3) item.ScanId3Info(TRUE);
 }
 
@@ -315,15 +315,15 @@ _songContainerItem PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 	//_songContainerItem item;
 	_songContainer::iterator cur,next;
 
-	_songContainerItem *item=GetPlayingItem();
-	cur = m_songList.begin()+item->GetIndex();
+	_songContainerItem item=GetPlayingItem();
+	cur = m_songList.begin()+item.GetIndex();
 	
 // 	for (cur=m_songList.begin();cur!=m_songList.end();++cur)
 // 	{
 // 		if (*cur==MyLib::shared()->GetPlayingItem())break;
 // 	}
 
-	MyLib::shared()->lastPlayingItem=*GetPlayingItem();
+	MyLib::shared()->lastPlayingItem=GetPlayingItem();
 
 	if ( cur==m_songList.end()|| ++cur==m_songList.end())
 		return NULL;
@@ -614,3 +614,6 @@ BOOL LrcMng::OpenTrackPath(FileTrack* track,std::tstring &path,BOOL bMatchIdenti
 
 	return FALSE;
 }
+
+
+

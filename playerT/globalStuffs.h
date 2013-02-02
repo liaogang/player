@@ -13,5 +13,26 @@ PlayList* ActivePlaylist();
 void SetActivePlaylist(PlayList* p);
 
 
-PlayListItem * GetPlayingItem();
-void  SetPlayingItem(PlayListItem *item);
+PlayListItem  GetPlayingItem();
+void  SetPlayingItem(PlayListItem item);
+
+
+
+class MYTREE;
+MYTREE *UISplitterTreeRoot();
+
+
+
+
+#define CFGFILENAME _T("Cfg")
+
+bool LoadCoreCfg();
+bool SaveCoreCfg();
+
+
+
+//保存当前播放项目的序号
+// int GetPlayingIndex();
+// void SetPlayingIndex();
+
+

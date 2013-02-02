@@ -189,11 +189,36 @@ public:
 	DECLARE_WND_CLASS(NULL)
 
 	BEGIN_MSG_MAP_EX(CPlaceHolderWnd)
+		//MSG_WM_NCPAINT(OnNcPaint)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		MSG_WM_SIZE(OnSize)
 	END_MSG_MAP()
 	
+	void OnNcPaint(CRgnHandle rgn)
+	{
+		RECT r;
+		GetWindowRect(&r);
+		ScreenToClient(&r);
+
+		HDC hdc;//=::GetDC(m_hWnd);
+		int b=::IsWindow(m_hWnd);
+		if((int)rgn.m_hRgn==1)
+			hdc=::GetWindowDC(m_hWnd);
+		else
+			hdc = ::GetDCEx(m_hWnd,(HRGN)rgn.m_hRgn, DCX_WINDOW|DCX_INTERSECTRGN);
+
+// 		r.bottom+=r.top;
+// 		r.right+=r.left;
+// 		r.top=0;
+// 		r.left=0;
+
+		// Paint into this DC
+		DrawEdge(hdc,&r, EDGE_SUNKEN, BF_RECT | BF_ADJUST);
+		//FillRect(hdc,&r, (HBRUSH)COLOR_APPWORKSPACE);
+
+		ReleaseDC(hdc);
+	}
 
 	void OnSize(UINT nType, CSize size)
 	{
@@ -221,20 +246,20 @@ public:
 
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		PAINTSTRUCT ps;
-		::BeginPaint(m_hWnd,&ps);
+		//PAINTSTRUCT ps;
+		//::BeginPaint(m_hWnd,&ps);
 
-		CDCHandle dc(ps.hdc);
+		//CDCHandle dc(ps.hdc);
 
-		RECT r;
-		GetClientRect(&r);
+		//RECT r;
+		//GetClientRect(&r);
 
 		//dc.DrawEdge(&r, EDGE_SUNKEN, BF_RECT | BF_ADJUST);
-		dc.FillRect(&r, COLOR_3DFACE);
+		//dc.FillRect(&r, COLOR_3DFACE);
 
-		dc.TextOut(r.left+5,r.top+5,L"place holder window");
+		//dc.TextOut(r.left+5,r.top+5,L"place holder window");
 
-		::EndPaint(m_hWnd,&ps);	
+		//::EndPaint(m_hWnd,&ps);	
 
 		return 0;
 	}
@@ -370,7 +395,7 @@ public:
 
 		MoveToNewRect(mytree);
 		UpdateTree(mytree);
-
+		GetSplitter()->Invalidate();
 		return 0;
 	}
 
@@ -383,6 +408,7 @@ public:
 		MYTREE_Add_SpectrumView(mytree);
 		MoveToNewRect(mytree);
 		UpdateTree(mytree);
+		GetSplitter()->Invalidate();
 
 		return 0;
 	}
@@ -401,6 +427,7 @@ public:
 		MYTREE_Add_LyricView(mytree);
 		MoveToNewRect(mytree);
 		UpdateTree(mytree);
+		GetSplitter()->Invalidate();
 
 		return 0;
 	}
@@ -412,7 +439,7 @@ public:
 		MYTREE_Add_EmptyWnd(mytree);
 		MoveToNewRect(mytree);
 		UpdateTree(mytree);
-
+		GetSplitter()->Invalidate();
 
 
 		return 0;
@@ -427,6 +454,7 @@ public:
 			mytree->CalcChildsRect();
 			MoveToNewRect(mytree);
 			UpdateTree(mytree);
+			GetSplitter()->Invalidate();
 		}
 
 		return 0;
@@ -441,6 +469,7 @@ public:
 			mytree->CalcChildsRect();
 			MoveToNewRect(mytree);
 			UpdateTree(mytree);
+			GetSplitter()->Invalidate();
 		}
 
 		return 0;
@@ -453,8 +482,9 @@ public:
 		MYTREE *parent=MYTree_RemoveFromRoot(mytree);
 
 		parent->CalcChildsRect();
-		MoveToNewRect(parent);
+		//MoveToNewRect(parent);
 		UpdateTree(parent);
+		GetSplitter()->Invalidate();
 
 		return 0;
 	}
@@ -501,7 +531,7 @@ public:
 
 };
 
-struct MYTREE;
+class MYTREE;
 class CPropertyDlgUILayout:
 	public CDlgConfig,
 	public CDialogImpl<CPropertyDlgUILayout>

@@ -100,8 +100,10 @@ public:
 
 		//dscrl->SetSpectrumRect(CRect(0,0,500,400));
 		//dscrl->SetFftEnvironment(this->m_hWnd);
-		CBasicPlayer::shared()->m_pSpectrumAnalyser->DCRECTInit(m_hWnd,GetDC(),rc);
+		HDC hdc=GetDC();
+		CBasicPlayer::shared()->m_pSpectrumAnalyser->DCRECTInit(m_hWnd,hdc,rc);
 		CBasicPlayer::shared()->m_pSpectrumAnalyser->Init(FALSE);
+		ReleaseDC(hdc);
 		bHandled=FALSE;
 		return 0;
 	}
@@ -127,11 +129,11 @@ public:
 		rc.right=0;
 		rc.right=_width;
 		rc.bottom=_height;
-
+		HDC hdc=GetDC();
 		//CBasicPlayer::shared()->m_pSpectrumAnalyser->m_rc=rc;
-		CBasicPlayer::shared()->m_pSpectrumAnalyser->DCRECTInit(m_hWnd,GetDC(),rc);
+		CBasicPlayer::shared()->m_pSpectrumAnalyser->DCRECTInit(m_hWnd,hdc,rc);
 		CBasicPlayer::shared()->m_pSpectrumAnalyser->Init(FALSE);
-
+		ReleaseDC(hdc);
 		bHandled=FALSE;
 		return 0;
 	}

@@ -83,7 +83,7 @@ public:
 		
 		if (MyLib::shared()->isPlaying())
 		{
-			track=GetPlayingItem()->GetFileTrack();
+			track=GetPlayingItem().GetFileTrack();
 			if (track->img)
 			   bHasPic=TRUE;
 		}

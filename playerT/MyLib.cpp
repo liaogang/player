@@ -23,19 +23,19 @@ PlayList* MyLib::AddFolderToCurrentPlayList(LPCTSTR pszFolder)
 static MyLib* gMylib=NULL;
 MyLib* MyLib::shared()
 {
-	return gMylib==NULL?gMylib=new MyLib:gMylib;
+	if(gMylib==NULL)
+		gMylib=new MyLib();
+
+	return gMylib;
 }
 
 MyLib::~MyLib()
 {
-	SaveCoreCfg();
 	CBasicPlayer::shared()->stop();
-
 
 	PLList::iterator i;
 	for (i=m_playLists.begin();i!=m_playLists.end();i++)
 		delete *i;
-	
 }
 
 void MyLib::playAfterSlowDown(FileTrack  *item)
