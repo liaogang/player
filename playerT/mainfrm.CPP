@@ -162,23 +162,40 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	InitData();
 
-
+	SetMsgHandled(FALSE);
 	return 0;
 }
 
 void CMainFrame::InitUILayout()
 {
-	m_pDlgMultiSplitter=new CMultiSpliltWnd;
-	m_hWndClient=m_pDlgMultiSplitter->Create(m_hWnd);
 	
-	////-----------------------------------------
-	////split
-	//DWORD dwSplitStyle = WS_CHILD|WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
-	//DWORD dwSplitExStyle =0;
+	//-----------------------------------------
+	//split
+	DWORD dwSplitStyle = WS_CHILD|WS_VISIBLE | WS_CLIPCHILDREN |WS_CLIPSIBLINGS  ;
+	DWORD dwSplitExStyle =WS_EX_CLIENTEDGE;
 
-	//m_pSplit=new CMySplitterWindow;
-	//m_pSplit->Create(m_hWnd, rcDefault, NULL, 
-	//	dwSplitStyle, dwSplitExStyle );
+	
+	//CPlaceHolderWnd *ph=new CPlaceHolderWnd;
+	//m_hWndClient=ph->Create(m_hWnd,rcDefault,NULL,WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN |WS_CLIPSIBLINGS);
+	
+
+	m_pDlgMultiSplitter=new CMultiSpliltWnd;
+	m_hWndClient=m_pDlgMultiSplitter->Create(m_hWnd,rcDefault,NULL,dwSplitStyle,0);
+	
+
+	//CPlayListView *plv=new CPlayListView;
+	//WS_EX_CLIENTEDGE ,WS_EX_STATICEDGE
+	//plv->Create(ph->m_hWnd, 0, NULL, LVS_OWNERDRAWFIXED| WS_CHILD | WS_VISIBLE  | LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA,WS_EX_STATICEDGE);  
+	//plv->Init();
+	//ph->child=plv->m_hWnd;
+
+
+	//ph->child=plv->m_hWnd;
+
+
+// 	m_pSplit=new CMySplitterWindow;
+// 	m_pSplit->Create(m_hWnd, rcDefault, NULL, 
+// 		dwSplitStyle, 0 );
 
 	////right pane
 	////------------------------------------------------
@@ -187,8 +204,8 @@ void CMainFrame::InitUILayout()
 	////m_pTabBar->Create(m_pSplit->m_hWnd,rcDefault,NULL,WS_CHILD/*|WS_VISIBLE*/|WS_CLIPCHILDREN | WS_CLIPSIBLINGS,0/*WS_EX_STATICEDGE*/);
 
 
-	//m_pPlaylistView=new CPlayListView;
-	//m_pPlaylistView->Create(m_pSplit->m_hWnd, rcDefault, NULL, LVS_OWNERDRAWFIXED| WS_CHILD | WS_VISIBLE /*|WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA, 0);
+	//CPlayListView *m_pPlaylistView=new CPlayListView;
+	//m_pPlaylistView->Create(m_pSplit->m_hWnd, rcDefault, NULL, LVS_OWNERDRAWFIXED| WS_CHILD | WS_VISIBLE /*|WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA, dwSplitExStyle);
 	//m_pPlaylistView->Init();	
 
 
@@ -198,7 +215,7 @@ void CMainFrame::InitUILayout()
 
 
 	//albumView1=new CAlbumCoverView;
-	//albumView1->Create(leftPane->m_hWnd,0,0,dwSplitStyle);
+	//albumView1->Create(leftPane->m_hWnd,0,0,dwSplitStyle,dwSplitExStyle);
 	//lyricView=new CWndLyric;
 	//lyricView->enableDebug=1;
 	//lyricView->Create(leftPane->m_hWnd);
@@ -221,7 +238,7 @@ void CMainFrame::InitUILayout()
 }
 
 
-LRESULT CMainFrame::OnNotify(int idCtrl, LPNMHDR pnmh)
+LRESULT CMainFrame::OnNotify2(int idCtrl, LPNMHDR pnmh)
 {
 	if (pnmh->code==TCN_SELCHANGE){
 		//drop list combo box , changed
@@ -1838,11 +1855,8 @@ void MYTREE_Add_EmptyWnd(MYTREE* tree)
 void MYTREE_Add_Playlist(MYTREE* tree)
 {
 	CPlayListView *plv=new CPlayListView;
-	plv->Create(GetSplitter()->m_hWnd, 0, NULL, LVS_OWNERDRAWFIXED| WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN | WS_CLIPSIBLINGS| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA,
-		WS_EX_CLIENTEDGE);  //WS_EX_CLIENTEDGE ,WS_EX_STATICEDGE
-	//SWP_DRAWFRAME
-	//plv->ModifyStyleEx(0, 0 ,~SWP_DRAWFRAME);
-
+	//WS_EX_CLIENTEDGE ,WS_EX_STATICEDGE
+	plv->Create(GetSplitter()->m_hWnd, 0, NULL, LVS_OWNERDRAWFIXED| WS_CHILD | WS_VISIBLE  | LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA,WS_EX_STATICEDGE);  
 	plv->Init();
 
 

@@ -539,7 +539,7 @@ public:
 
 	//±éÀú
 	// called only if pane is empty
-	void DrawSplitterPane(CDCHandle dc,BOOL invalidate=FALSE,BOOL bErase=FALSE)
+	void DrawSplitterPane(HDC dc,BOOL invalidate=FALSE,BOOL bErase=FALSE)
 	{
 		for (MYTREE *cur=this;cur;cur=cur->next)
 		{
@@ -569,23 +569,10 @@ public:
 
 
 	// Overrideables
-	void DrawSplitterBar(CDCHandle dc,RECT &rect)
+	void DrawSplitterBar(HDC dc,RECT &rect)
 	{
-		dc.FillRect(&rect, COLOR_3DFACE);
-#define  SPLIT_GRADIENTBAR 0x00000008
-#if (!defined(_WIN32_WCE) || (_WIN32_WCE >= 420))
-		if(( 0 & SPLIT_GRADIENTBAR & SPLIT_GRADIENTBAR) != 0)
-		{
-			RECT rect2 = rect;
-			if(data.type==left_right)
-				rect2.left = (rect.left + rect.right) / 2 - 1;
-			else
-				rect2.top = (rect.top + rect.bottom) / 2 - 1;
-
-			dc.GradientFillRect(rect2, ::GetSysColor(COLOR_3DFACE), ::GetSysColor(COLOR_3DSHADOW), data.type==up_down);
-		}
-#endif // !defined(_WIN32_WCE) || (_WIN32_WCE >= 420)
-
+		FillRect(dc,&rect, (HBRUSH)LongToPtr(COLOR_3DFACE+ 1));
+		
 		// draw 3D edge if needed
 		//if((WS_EX_CLIENTEDGE & WS_EX_CLIENTEDGE) != 0)
 		//	dc.DrawEdge(&rect, EDGE_RAISED, data.type==left_right ? (BF_LEFT | BF_RIGHT) : (BF_TOP | BF_BOTTOM));

@@ -1,9 +1,8 @@
-
-
 #include "LrcMng.h"
 #include "PlayList.h"
 #include "dlgLrcSearch.h"
-//#define  ID_MENU_FOLDER_OPEN (0XF000-202)
+#include "forwardMsg.h"
+
 class PlayListItem;
 template <typename T>
 class CMyLyric:public T
@@ -41,11 +40,14 @@ public:
 
 public:
 	BEGIN_MSG_MAP_EX(CMyLyric)
+		MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
+		MESSAGE_HANDLER(WM_LYRIC_RELOAD,OnLyricReload)
+		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
+		
+		MSG_WM_CREATE(OnCreate)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		MSG_WM_PAINT(OnPaint)
-		MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
 		MESSAGE_HANDLER(WM_SIZE,OnSize)
-		MESSAGE_HANDLER(WM_LYRIC_RELOAD,OnLyricReload)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
 		MSG_WM_RBUTTONUP(OnRButtonUp)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
@@ -55,6 +57,19 @@ public:
 		COMMAND_ID_HANDLER(ID_MENU_LRC_PANE_PROPERTY,OnProperty)
 		COMMAND_ID_HANDLER(ID_MENU_SEARCH_ONLINE,OnShowDlgLrcSearch)
 	END_MSG_MAP()
+
+	int OnCreate(LPCREATESTRUCT lpCreateStruct)
+	{
+		Init();
+		SetMsgHandled(FALSE);
+		return 0;
+	}
+
+	LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		TrackChanged();
+		return 0;
+	}
 
 		RECT rc ,lrcRect;
 		RECT rcPre,rcCur,rcNext;
@@ -302,6 +317,13 @@ public:
 
 			track=NULL;
 			bLrcReady=FALSE;
+
+
+			RegistMsgReceiver(WM_TRACKPOS,m_hWnd);
+			RegistMsgReceiver(WM_LYRIC_RELOAD,m_hWnd);
+			RegistMsgReceiver(WM_NEW_TRACK_STARTED,m_hWnd);
+
+			TrackChanged();
 		}
 
 		LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)

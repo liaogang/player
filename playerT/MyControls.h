@@ -349,7 +349,7 @@ class CMySplitterWindow:
 {
 public:
 	typedef CSplitterWindowImpl<CSplitterWindowT<true>, true> _baseClass1;
-	DECLARE_WND_CLASS_EX(_T("WTL_SplitterWindow"), CS_DBLCLKS, COLOR_WINDOW)
+	DECLARE_WND_CLASS_EX(_T("WTL_SplitterWindow"), CS_DBLCLKS,NULL)
 	BEGIN_MSG_MAP(CMySplitterWindow)
 		REFLECT_NOTIFICATIONS()
 		CHAIN_MSG_MAP(_baseClass1)

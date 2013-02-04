@@ -184,15 +184,16 @@ class CPlaceHolderWnd :
 	public CWindowImpl<CPlaceHolderWnd>
 {
 public:
-	
+	HWND child;	
 public:
-	DECLARE_WND_CLASS(NULL)
-
+	DECLARE_WND_CLASS_EX(NULL,NULL,NULL)
+		
 	BEGIN_MSG_MAP_EX(CPlaceHolderWnd)
 		//MSG_WM_NCPAINT(OnNcPaint)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
-		MSG_WM_SIZE(OnSize)
+		MESSAGE_HANDLER(WM_SIZE, OnSize)
+		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 	
 	void OnNcPaint(CRgnHandle rgn)
@@ -220,12 +221,15 @@ public:
 		ReleaseDC(hdc);
 	}
 
-	void OnSize(UINT nType, CSize size)
+	LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		//RECT rc;
-		//GetClientRect(&rc);
+		RECT rect;
+		GetClientRect(&rect);
+		
+		//::SetWindowPos(child,NULL, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,SWP_NOZORDER | SWP_NOACTIVATE);
 
-		SetMsgHandled(FALSE);
+		bHandled=FALSE;
+		return 1;
 	}
 
 	void OnRButtonUp(UINT nFlags, CPoint point)
@@ -236,7 +240,6 @@ public:
 
 	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		
 		// handled, no background painting needed
 		return 1;
 	}
@@ -246,21 +249,20 @@ public:
 
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		//PAINTSTRUCT ps;
-		//::BeginPaint(m_hWnd,&ps);
+		PAINTSTRUCT ps;
+		::BeginPaint(m_hWnd,&ps);
 
-		//CDCHandle dc(ps.hdc);
-
-		//RECT r;
-		//GetClientRect(&r);
+		RECT r;
+		GetClientRect(&r);
 
 		//dc.DrawEdge(&r, EDGE_SUNKEN, BF_RECT | BF_ADJUST);
-		//dc.FillRect(&r, COLOR_3DFACE);
 
-		//dc.TextOut(r.left+5,r.top+5,L"place holder window");
+		::FillRect(ps.hdc,&r,(HBRUSH)LongToPtr(COLOR_APPWORKSPACE+ 1));
 
-		//::EndPaint(m_hWnd,&ps);	
+		SetBkMode(ps.hdc,TRANSPARENT);
+		::TextOut(ps.hdc,r.left+30,r.top+30,L"place holder window",wcslen(L"place holder window"));
 
+		::EndPaint(m_hWnd,&ps);	
 		return 0;
 	}
 };
@@ -482,7 +484,7 @@ public:
 		MYTREE *parent=MYTree_RemoveFromRoot(mytree);
 
 		parent->CalcChildsRect();
-		//MoveToNewRect(parent);
+		MoveToNewRect(parent);
 		UpdateTree(parent);
 		GetSplitter()->Invalidate();
 

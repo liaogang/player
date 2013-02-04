@@ -112,22 +112,17 @@ public:
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg)
 	{
-		if (pMsg->message==WM_KEYDOWN)
-		{	
+		if (pMsg->message==WM_KEYDOWN){	
 			UINT nChar=(TCHAR)pMsg->wParam;
-
 			//Ctrl+A
-			if (nChar=='A' || nChar=='a')
-			{
+			if (nChar=='A' || nChar=='a'){
 				if (GetKeyState(VK_CONTROL) &0x80)
 					SelectAll();
 			}
 			//Delete
-			else if (nChar==VK_DELETE)
-			{
+			else if (nChar==VK_DELETE){
 				DelSelectedItem(GetKeyState(VK_SHIFT) & 0x80);
 			}
-
 		}//if (pMsg->message!=WM_KEYDOWN)
 
 		return FALSE;
@@ -137,7 +132,6 @@ public:
 		MSG_WM_CREATE(OnCreate);
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
 		MSG_WM_CHAR(OnChar)
-		MSG_WM_SIZE(OnSize)
 		MESSAGE_HANDLER(WM_NCPAINT,OnNcPaint)
 		COMMAND_ID_HANDLER(ID_OPEN_FILE_PATH,OnOpenFilePath)
 		COMMAND_ID_HANDLER(ID_PUSH_PLAYQUEUE,OnPushToPlayqueue)
@@ -148,29 +142,33 @@ public:
 		MESSAGE_HANDLER(OCM_DRAWITEM,OnDrawItem)
 		MESSAGE_HANDLER(OCM_MEASUREITEM,OnMeasureItem)
 		END_MSG_MAP()
-	
-		void OnSize(UINT nType, CSize size)
+
+
+		LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			//if ((nType==0||nType==SIZE_RESTORED)&&bClientEdge)
-			DrawSunkenInnerEdge();
+			if (bClientEdge)
+				DrawSunkenInnerEdge();
+
+			return 1;
 		}
 
 		
 		
 		LRESULT OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
+			// return zero  if processed
+
 			if (bClientEdge)
 			{
 				//let system draw scroll bar it self
 				::DefWindowProc(m_hWnd,uMsg,wParam,lParam);
 				DrawSunkenInnerEdge(wParam);
-			}
-			else
-			{
-				SetMsgHandled(FALSE);
+				return 0;
 			}
 
-			return 0;
+
+			bHandled=FALSE;
+			return 1;
 		}
 
 		void DrawSunkenInnerEdge(WPARAM wParam=1)
@@ -236,8 +234,8 @@ public:
 			CMessageLoop* pLoop = _Module.GetMessageLoop();
 			ATLASSERT(pLoop != NULL);
 			pLoop->AddMessageFilter(this);
-			SetMsgHandled(FALSE);
 
+			SetMsgHandled(FALSE);
 			return 0;
 		}
 

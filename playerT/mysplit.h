@@ -22,7 +22,7 @@ static HCURSOR m_hCursorLeftRight=NULL;
 static HCURSOR m_hCursorUpDown=NULL;
 
 class CMultiSpliltWnd:
-	public ATL::CWindowImpl< CMultiSpliltWnd, ATL::CWindow, ATL::CControlWinTraits >
+	public ATL::CWindowImpl< CMultiSpliltWnd>
 {
 public:
 	MYTREE *rootTree;
@@ -37,6 +37,7 @@ public:
 	HMENU subMenu;
 
 public:
+	DECLARE_WND_CLASS_EX(NULL,NULL,NULL)
 
 	BEGIN_MSG_MAP_EX(CMultiSpliltWnd)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
@@ -53,12 +54,12 @@ public:
 #ifndef _WIN32_WCE
 		MESSAGE_HANDLER(WM_PRINTCLIENT, OnPaint)
 #endif // !_WIN32_WCE
-		COMMAND_ID_HANDLER(ID_ADD_EMPTYWINDOW,OnAddEmptyPane)
-		COMMAND_ID_HANDLER(ID_ADD_LEFT,OnAddLeftRightSplit)
-		COMMAND_ID_HANDLER(ID_ADD_UP,OnAddUpDownSplit)
-		COMMAND_ID_HANDLER(ID_MULTISPLITEDITMODE_CLOSE,OnClosePane)
-		COMMAND_ID_HANDLER(ID_MULTISPLITEDITMODE_SHOWTREEVIEW,OnShowTreeView)
-		COMMAND_ID_HANDLER(ID_PANE_PLAYLIST,OnAddPlaylistView)
+		//COMMAND_ID_HANDLER(ID_ADD_EMPTYWINDOW,OnAddEmptyPane)
+		//COMMAND_ID_HANDLER(ID_ADD_LEFT,OnAddLeftRightSplit)
+		//COMMAND_ID_HANDLER(ID_ADD_UP,OnAddUpDownSplit)
+		//COMMAND_ID_HANDLER(ID_MULTISPLITEDITMODE_CLOSE,OnClosePane)
+		//COMMAND_ID_HANDLER(ID_MULTISPLITEDITMODE_SHOWTREEVIEW,OnShowTreeView)
+		//COMMAND_ID_HANDLER(ID_PANE_PLAYLIST,OnAddPlaylistView)
 		REFLECT_NOTIFICATIONS()
 		END_MSG_MAP()
 
@@ -74,13 +75,6 @@ public:
 
 	BOOL OnEraseBkgnd(CDCHandle dc)
 	{
-		//RECT rc;
-		//GetClientRect(&rc);
-		//::Rectangle(dc.m_hDC,rc.left,rc.top,rc.right,rc.bottom);
-		//AtlTrace(L"OnErase");
-		//rootTree->DrawSplitterPane(dc,TRUE);
-
-
 		return TRUE;
 	}
 
@@ -107,13 +101,12 @@ public:
 	{
 		rootTree=UISplitterTreeRoot();
 
-
 		if(m_hCursorLeftRight == NULL)
 			m_hCursorLeftRight = ::LoadCursor(NULL, IDC_SIZEWE);
 		if(m_hCursorUpDown == NULL)
 			m_hCursorUpDown = ::LoadCursor(NULL, IDC_SIZENS );			
 
-		bHandled = FALSE;
+		SetMsgHandled(FALSE);
 		return 1;
 	}
 
@@ -125,11 +118,13 @@ public:
 		GetClientRect(&rc);
 		rootTree->setRect(rc);
 
-		if(rootTree->hasChild())
-			rootTree->CalcChildsRect();
+ 		if(rootTree->hasChild())
+ 			rootTree->CalcChildsRect();
+ 
+ 		MoveToNewRect(rootTree);
 
-		MoveToNewRect(rootTree);
 
+		bHandled=FALSE;
 		return 1;
 	}
 
@@ -137,10 +132,8 @@ public:
 	{
 		PAINTSTRUCT ps;
 		::BeginPaint(m_hWnd,&ps);
-		CDCHandle dc(ps.hdc);
-		rootTree->DrawSplitterPane(dc,TRUE);
+		rootTree->DrawSplitterPane(ps.hdc,FALSE);
 		::EndPaint(m_hWnd,&ps);
-
 		return 0;
 	}
 

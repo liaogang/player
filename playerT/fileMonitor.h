@@ -37,7 +37,7 @@ public:
 		ATLASSERT(!hDir);
 		ATLASSERT(pPL);
 
-		_tcscpy(szPath,szDir);
+		_tcscpy_s(szPath,szDir);
 
 		hDir=::CreateFile(
 			szPath,

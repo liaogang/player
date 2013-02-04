@@ -6,7 +6,7 @@
 #include "stdafx.h"
 #include "customMsg.h"
 #include "AboutDlg.h"
-
+#include "forwardMsg.h"
 
 #ifndef _MAINFRAME_H
 #define _MAINFRAME_H
@@ -95,8 +95,9 @@ public:
 		UPDATE_ELEMENT(ID_FILE_SAVEPLAYLIST, UPDUI_MENUPOPUP)
 	END_UPDATE_UI_MAP()
 
-	BEGIN_MSG_MAP_EX(CMainFrame)
-		MSG_WM_NOTIFY(OnNotify)
+	BEGIN_MSG_MAP(CMainFrame)
+		FORWARDMSG(hWnd,uMsg,wParam,lParam);
+		MESSAGE_HANDLER(WM_NOTIFY,OnNotify)
 		MESSAGE_HANDLER(WM_CLOSE,OnExit)
 		COMMAND_CODE_HANDLER_EX(CBN_SELCHANGE,OnCbnSelchanged)
 
@@ -140,10 +141,24 @@ public:
 
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
+
+		//REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 
+	
+	void FORWARDMSG(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+	{
+		GetSharedForwardMsg()->Msg(hWnd,uMsg,wParam,lParam);
+	}
 
-	LRESULT OnNotify(int idCtrl, LPNMHDR pnmh);
+
+	LRESULT OnNotify2(int idCtrl, LPNMHDR pnmh);
+	
+	LRESULT OnNotify(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		return OnNotify2((int)wParam, (LPNMHDR)lParam); 
+	}
+
 	LRESULT OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnCbnSelchanged(UINT,int id, HWND hWndCtl);
