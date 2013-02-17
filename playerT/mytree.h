@@ -118,7 +118,7 @@ public:
 
 	//no ....
 	HWND hWnd;	
-	void *wndHolder;
+	
 	HTREEITEM treeItem;
 	
 	

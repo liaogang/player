@@ -450,7 +450,6 @@ int dataNode::SerializeB(FILE *pFile)
 	size+=::Serialize(pFile,m_iSplitterBar);
 	size+=::Serialize(pFile,windowtype);
 
-
 	int numBars=SplitterBarRects.size();
 	size+=::Serialize(pFile,numBars);
 	for (auto it=SplitterBarRects.begin();it!=SplitterBarRects.end();++it)
