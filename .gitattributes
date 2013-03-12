@@ -75,6 +75,7 @@ playerBranchNonNotify/备份/mpg123_dencd.lib -text
 playerT/BasicPlayer.cpp -text
 playerT/BasicPlayer.h -text
 playerT/CAlbumCoverView.h -text
+playerT/CCtrlViewBase.h -text
 playerT/CImg.h -text
 playerT/CMyLyric.h -text
 playerT/CMyTabBar.h -text
@@ -84,6 +85,7 @@ playerT/DialogConfig.cpp -text
 playerT/DialogConfig.h -text
 playerT/DialogFFT.h -text
 playerT/DialogFFTOutline.h -text
+playerT/DialogLrcList.h -text
 playerT/DialogLyric.h -text
 playerT/DialogSearch.h -text
 playerT/DirectSoundController.cpp -text

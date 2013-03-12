@@ -84,7 +84,7 @@ public:
 
 		return FALSE;
 	}
-
+	 
 	BEGIN_MSG_MAP_EX(CPlayListView)
 		MSG_WM_CREATE(OnCreate);
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
