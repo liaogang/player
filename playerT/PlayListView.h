@@ -10,52 +10,11 @@ unsigned int BKDRHash(char *str);
 HMENU LoadPlaylistMenu(BOOL bDestroy=FALSE);
 
 
-
-/*
-class PlayListViewBase
-{
-private:
-PlayList *  m_pPlayList;
-protected:
-int nItemPlaying;//正在播放的项目
-public:
-inline int GetPlayingIdx(){return nItemPlaying;}
-inline void SetPlayingIdx(int i){nItemPlaying=i;}
-public:
-//清空当前播放列表视图的所有项目,
-virtual void ClearAllItem()=0;
-
-virtual void ClearAllSel()=0;
-virtual void SelectAndFocusItem(int item)=0;
-
-virtual void LoadPlayList(PlayList *pPlayList)=0;
-virtual void EnsureVisibleAndCentrePos(int index)=0;
-virtual void Reload(PlayList* pPlayList,BOOL SetIndex=-1)=0;
-
-virtual int GetIndex(PlayListItem *item)=0;
-
-void ReLoad(PlayList *pPL)
-{
-ClearAllItem();
-LoadPlayList(pPL);
-}
-
-inline void SetPlayList(PlayList * pPlayList){
-m_pPlayList=pPlayList;
-if (m_pPlayList)
-m_pPlayList->pPLV=this;
-}
-inline PlayList * GetPlayList(){return m_pPlayList;}
-};*/
-
-
-
 #define TEXTALIGN__WIDTH 3
 
 class CPlayListView:
 	public CWindowImpl<CPlayListView,CListViewCtrl>,
 	public CMessageFilter
-	//,public PlayListViewBase
 {
 private:
 	PlayList *  m_pPlayList;
@@ -80,18 +39,14 @@ public:
 	BOOL bAuto,bDeletable;
 	HMENU menu;
 	BOOL m_bSearch;                  //是否为搜索列表
-
 	COLORREF clText1,clText2;
-
-	int indexLast;
 	bool bClientEdge;
-
 
 	CPlayListView(BOOL bSearch=FALSE):
 	m_bSearch(bSearch),
 		bAuto(FALSE),
 		bDeletable(!bAuto),
-		m_pPlayTrack(NULL),m_bC(TRUE),indexLast(-1)
+		m_pPlayTrack(NULL),m_bC(TRUE)
 	{
 		SetPlayList(NULL);
 		//nItemPlaying=-1;
@@ -107,21 +62,23 @@ public:
 	}
 
 public:
-	DECLARE_WND_SUPERCLASS(NULL,CListViewCtrl::GetWndClassName())
-
+	DECLARE_WND_SUPERCLASS( NULL ,CListViewCtrl::GetWndClassName())
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg)
 	{
 		if (pMsg->message==WM_KEYDOWN){	
 			UINT nChar=(TCHAR)pMsg->wParam;
+			
 			//Ctrl+A
 			if (nChar=='A' || nChar=='a'){
 				if (GetKeyState(VK_CONTROL) &0x80)
 					SelectAll();
 			}
+			
 			//Delete
 			else if (nChar==VK_DELETE){
 				DelSelectedItem(GetKeyState(VK_SHIFT) & 0x80);
+			
 			}
 		}//if (pMsg->message!=WM_KEYDOWN)
 
@@ -139,10 +96,37 @@ public:
 		REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_RCLICK ,OnNotifyCodeHandlerEX)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED,OnItemChanged)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO,OnGetdispInfo)
-		MESSAGE_HANDLER(OCM_DRAWITEM,OnDrawItem)
-		MESSAGE_HANDLER(OCM_MEASUREITEM,OnMeasureItem)
+		REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
 		END_MSG_MAP()
 
+		LRESULT OnCustomDraw(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
+		{
+			LPNMCUSTOMDRAW lpNMCustomDraw = (LPNMCUSTOMDRAW)pnmh;
+			NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>( lpNMCustomDraw );  
+
+			DWORD dwRet = CDRF_DODEFAULT;
+			switch(lpNMCustomDraw->dwDrawStage)
+			{
+			case CDDS_PREPAINT:
+				dwRet=CDRF_NOTIFYITEMDRAW;
+				break;
+			case CDDS_ITEMPREPAINT:
+				COLORREF crText;
+				if ( (pLVCD->nmcd.dwItemSpec % 2) == 0 )
+					crText = clText2; 
+				else 
+					crText = clText1; 
+
+				// Store the color back in the NMLVCUSTOMDRAW struct.
+				pLVCD->clrTextBk = crText;
+
+				// Tell Windows to paint the control itself.
+				dwRet= CDRF_DODEFAULT;
+				break;
+			}
+
+			return dwRet;
+		}
 
 		LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
@@ -152,8 +136,8 @@ public:
 			return 1;
 		}
 
-		
-		
+
+
 		LRESULT OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			// return zero  if processed
@@ -401,17 +385,53 @@ public:
 			COLUMN_INDEX_GENRE
 		};
 
+		CFont m_Font;
+		int   m_nFontHeight;
+		void SetLVFont(int nHeight)
+		{
+			m_nFontHeight=nHeight;
+
+			if (!m_Font.IsNull())
+				m_Font.DeleteObject();
+
+
+			m_Font.CreateFont(
+				m_nFontHeight,                        // nHeight
+				0,                         // nWidth
+				0,                         // nEscapement
+				0,                         // nOrientation
+				FW_NORMAL,                 // nWeight
+				FALSE,                     // bItalic
+				FALSE,                     // bUnderline
+				0,                         // cStrikeOut
+				ANSI_CHARSET,              // nCharSet
+				OUT_DEFAULT_PRECIS,        // nOutPrecision
+				CLIP_DEFAULT_PRECIS,       // nClipPrecision
+				DEFAULT_QUALITY,           // nQuality
+				DEFAULT_PITCH | FF_SWISS,  // nPitchAndFamily
+				_T("Arial"));                 // lpszFacename
+			SetFont(m_Font.m_hFont);
+		}
+
+		void EnlargeLVFont(int value)
+		{
+			m_nFontHeight+=value;
+			SetLVFont(m_nFontHeight);
+		}
+		void CreateIsWnd();
+
 		void Init()
 		{	
+			SetLVFont(16);
+
 			pMain=GetMainFrame();
 
 			if(!m_bSearch)
 				AllPlayListViews()->AddItem(this);
-			//CHeaderCtrl header=GetHeaderCtrl();
-
 
 			ChangeColorDefault();
-			SetExtendedListViewStyle(GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP);
+			SetExtendedListViewStyle(GetExtendedListViewStyle()| LVS_EX_DOUBLEBUFFER |LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP);
+
 
 			const TCHAR * columnName[]={
 				_T("索引"),
@@ -419,29 +439,27 @@ public:
 				_T("艺术家"),
 				_T("专辑"),
 				_T("年份"),
-				_T("流派")};
-
-				const UINT alignment[]={
-					LVCFMT_CENTER,
-					LVCFMT_LEFT,
-					LVCFMT_LEFT,
-					LVCFMT_LEFT,
-					LVCFMT_RIGHT,
-					LVCFMT_RIGHT};
-
-					const TCHAR* columnNamePlaceHoder[]={
-						_T("Index"),
-						_T("Title                        "),
-						_T("艺术家艺"),
-						_T("Album         "),
-						_T("Year"),
-						_T("Genre               ")
-					};
-
-					const int cxOffset = 15;
-
-					for (int i=0;i<sizeof(columnName)/sizeof(int);++i)
-						AddColumn(columnName[i],i,-1, LVCF_FMT| LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM ,alignment[i],GetStringWidth(columnNamePlaceHoder[i])+cxOffset);
+				_T("流派")
+			};
+			const UINT alignment[]={
+				LVCFMT_CENTER,
+				LVCFMT_LEFT,
+				LVCFMT_LEFT,
+				LVCFMT_LEFT,
+				LVCFMT_RIGHT,
+				LVCFMT_RIGHT
+			};
+			const TCHAR* columnNamePlaceHoder[]={
+				_T("Index"),
+				_T("Title                        "),
+				_T("艺术家艺"),
+				_T("Album         "),
+				_T("Year"),
+				_T("Genre               ")
+			};
+			const int cxOffset = 15;
+			for (int i=0;i<sizeof(columnName)/sizeof(int);++i)
+				AddColumn(columnName[i],i,-1, LVCF_FMT| LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM ,alignment[i],GetStringWidth(columnNamePlaceHoder[i])+cxOffset);		
 		}
 
 		int AddColumn(LPCTSTR strItem, int nItem, int nSubItem = -1,
@@ -488,8 +506,8 @@ public:
 			SetItemState(i,0,LVNI_SELECTED|LVNI_FOCUSED );
 	}
 
-	void InsertTrackItem(PlayListItem &track,int item,BOOL SetIndex=TRUE);
-	inline void InsertTrackItem(PlayListItem *track,int item,BOOL SetIndex=TRUE){InsertTrackItem(*track,item,SetIndex);}
+	//void InsertTrackItem(PlayListItem &track,int item,BOOL SetIndex=TRUE);
+	//inline void InsertTrackItem(PlayListItem *track,int item,BOOL SetIndex=TRUE){InsertTrackItem(*track,item,SetIndex);}
 
 
 	void LoadPlayList(PlayList *pPlayList)
@@ -499,6 +517,7 @@ public:
 
 		SetItemCount(pPlayList->m_songList.size());
 		SetPlayList(pPlayList);
+		EnsureVisible(0,0);
 	}
 
 	void ClearAllItem()
@@ -658,6 +677,7 @@ public:
 		ATLASSERT(pLoop != NULL);
 		pLoop->RemoveMessageFilter(this);
 
-		delete this;
+		if (!m_bSearch)
+			delete this;
 	}
 };

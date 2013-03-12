@@ -141,6 +141,8 @@ playerT/customMsg.h -text
 playerT/dlgLrcSearch.h -text
 playerT/fileMonitor.cpp -text
 playerT/fileMonitor.h -text
+playerT/forwardMsg.cpp -text
+playerT/forwardMsg.h -text
 playerT/glassWnd.h -text
 playerT/globalStuffs.cpp -text
 playerT/globalStuffs.h -text

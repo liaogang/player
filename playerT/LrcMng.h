@@ -125,9 +125,10 @@ public:
 public:
 	LrcMng(void);
 	static LrcMng* Get();
+	
 
 public:
-	BOOL OpenTrackPath(FileTrack *track,std::tstring &path,BOOL bMatchIdentityTag=FALSE);
+	UINT MatchTrackAndLrcTags(FileTrack *track,std::tstring &lrcpath);
 	void Clear()
 	{
 		lib.clear();
@@ -332,5 +333,9 @@ public:
 
 	}
 };
+
+
+
+
 
 #endif

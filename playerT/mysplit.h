@@ -72,6 +72,10 @@ public:
 		rootTree=NULL;
 	}
 
+	virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
+	{
+		delete this;
+	}
 
 	BOOL OnEraseBkgnd(CDCHandle dc)
 	{
@@ -100,6 +104,12 @@ public:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 		rootTree=UISplitterTreeRoot();
+		if (rootTree->hasChild())//reserialize from cfg file
+		{
+			CreateHWNDbyName(rootTree);
+		}
+
+
 
 		if(m_hCursorLeftRight == NULL)
 			m_hCursorLeftRight = ::LoadCursor(NULL, IDC_SIZEWE);

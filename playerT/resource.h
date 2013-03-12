@@ -2,7 +2,10 @@
 // Microsoft Visual C++ generated include file.
 // Used by player.rc
 //
+#define IDDEL                           99
 #define IDD_ABOUTBOX                    100
+#define IDC_LOAD                        100
+#define IDC_SHOW_FILE                   101
 #define IDR_MAINFRAME                   128
 #define IDD_CONFIG                      201
 #define IDD_DLG_EMPTY                   202
@@ -32,6 +35,7 @@
 #define IDD_DLG_                        223
 #define IDD_DLG_UI_CONFIG               223
 #define IDR_MENU_EDIT_MODE              224
+#define IDD_DLG_LRC_LIST                225
 #define IDC_TREE                        1000
 #define IDC_RESET_ALL                   1001
 #define IDC_RESET_THIS                  1002
@@ -67,6 +71,8 @@
 #define IDC_EDIT_INFO                   1030
 #define IDC_BTN_CLR                     1031
 #define IDC_COMBO                       1033
+#define IDC_RADIO2                      1035
+#define IDC_SHOW_PATH                   1036
 #define IDD_DLG_CFG_1                   2055
 #define IDD_DLG_LRC_PANE_PROPERTY1      2056
 #define IDD_DLG_LRC_PANE_PROPERTY2      2057
@@ -222,14 +228,23 @@
 #define ID_INSERT_                      32929
 #define ID_INSERT_SPLIT_LR              32930
 #define ID_INSERT_SPLIT_UD              32931
+#define ID_32932                        32932
+#define ID_SHOW_LRC_LIST                32933
+#define ID_32934                        32934
+#define ID_32935                        32935
+#define ID_32936                        32936
+#define ID_32937                        32937
+#define ID_LV_ENLARGE_FONT              32938
+#define ID_DECRE                        32939
+#define ID_LV_DECREASE_FONT             32940
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        225
-#define _APS_NEXT_COMMAND_VALUE         32932
-#define _APS_NEXT_CONTROL_VALUE         1034
+#define _APS_NEXT_RESOURCE_VALUE        226
+#define _APS_NEXT_COMMAND_VALUE         32941
+#define _APS_NEXT_CONTROL_VALUE         1038
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

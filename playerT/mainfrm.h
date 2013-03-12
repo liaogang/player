@@ -138,6 +138,8 @@ public:
 		COMMAND_ID_HANDLER(ID_FILE_NEWPLAYLIST,OnFileNewPlaylist)
 		COMMAND_ID_HANDLER(ID_OPENPLAYLIST,OnOpenPlaylist)
 		COMMAND_ID_HANDLER(ID_FILE_SAVEPLAYLIST,OnSavePlaylist)
+		COMMAND_ID_HANDLER(ID_LV_ENLARGE_FONT,OnChangeLVFont)
+		COMMAND_ID_HANDLER(ID_LV_DECREASE_FONT,OnChangeLVFont)
 
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
@@ -271,6 +273,8 @@ public:
 	//保存选中的播放列表
 	LRESULT OnSavePlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnChangeLVFont(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	
 public:
 	void OnSelectionChanged();
 	void ChangeTitle();

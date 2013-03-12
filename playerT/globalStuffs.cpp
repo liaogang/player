@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "globalStuffs.h"
 #include "PlayList.h"
 #include "mysplit.h"
@@ -30,6 +31,11 @@ MYTREE* CreateRootTree()
 }
 
 static MYTREE *gRootTree=NULL;
+void SetRootTree(MYTREE *root)
+{
+	gRootTree=root;
+}
+
 MYTREE *UISplitterTreeRoot()
 {
 	if(gRootTree==NULL)
@@ -41,13 +47,31 @@ MYTREE *UISplitterTreeRoot()
 
 
 
-static int pPlayingIndex=-1;
-int GetPlayingIndex()
-{
-	return pPlayingIndex;
-}
+//static int pPlayingIndex=-1;
+//int GetPlayingIndex()
+//{
+//	return pPlayingIndex;
+//}
+//
+//void SetPlayingIndex(int index)
+//{
+//	pPlayingIndex=index;
+//}
 
-void SetPlayingIndex(int index)
+
+static bool bSearchLrcUntilEnd=false;
+bool GetSearchLrcUntilEnd(){return bSearchLrcUntilEnd;}
+void SetSearchLrcUntilEnd(bool b){bSearchLrcUntilEnd=b;}
+
+static vector<LrcMatchItem> matchlist;
+
+vector<LrcMatchItem> GetLrcMatchList()
 {
-	pPlayingIndex=index;
+	return matchlist;
 }
+void ClearLrcMatchList(){matchlist.clear();}
+void AddToLrcMatchList(LrcMatchItem &item){matchlist.push_back(item);}
+
+static LrcMatchItem highestmatchlrc;
+LrcMatchItem GetHighestMatchLrc(){return highestmatchlrc;}
+void SetHighestMatchLrc(LrcMatchItem &item){highestmatchlrc=item;}

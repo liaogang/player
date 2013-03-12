@@ -74,6 +74,7 @@ public:
 		m_hWnd=_hwnd;
 		m_hdc=dc;
 		m_rc=rc;
+
 		m_memDC=::CreateCompatibleDC(m_hdc);
 		m_hBmp=::CreateCompatibleBitmap(m_hdc,WIDTH(m_rc),HEIGHT(m_rc));
 		::SelectObject(m_memDC,m_hBmp);
@@ -81,9 +82,16 @@ public:
 		m_hDCgrids=CreateCompatibleDC(m_hdc);
 		HBITMAP tmp=::CreateCompatibleBitmap(m_hdc,WIDTH(m_rc),HEIGHT(m_rc));
 		::SelectObject(m_hDCgrids,tmp);
+
 		Prepare();
 	}
 
+	void SetSize(RECT &rc)
+	{
+	    m_rc=rc;
+		Prepare();
+	}
+		
 	void drawSpectrumAnalyserBar(RECT *pRect,int x,int cy,int width,int height,int band);
 
 

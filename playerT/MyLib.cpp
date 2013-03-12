@@ -134,7 +134,7 @@ vector<int> MyLib::GetIndexInPlayQueue(_songContainerItem item)
 	int idx=0;
 	for(PlayQueueContainer::iterator i=playQueue.begin();
 		i!=playQueue.end();++i,++idx)
-		if(*i == item)
+		if( (void*)((*i).GetFileTrack()) == (void*)(item.GetFileTrack()))
 			v.push_back(idx);
 	
 	return v;

@@ -27,12 +27,13 @@ public:
 	{
 		int size=0;
 		//4 byte ,ռλ
-		fwrite(&size,1,4,pFile);
+		fwrite(&size,sizeof(int),1,pFile);
+
 		size+=sizeof(int);
 
 		//size
 		size+=SerializeB(pFile);
-		
+
 		//write the total size
 		fseek(pFile,-size,SEEK_CUR);
 

@@ -33,6 +33,8 @@ struct trackPosInfo
 //added or deleted one playlist
 //PlayList changed,added or deleted
 //playlist added number
+//BOOL bAdd=(BOOL)lParam;
+//PlayList *pl=(PlayList*)wParam;
 #define  WM_PL_CHANGED    (WM_USER+51)
 
 //PlayList

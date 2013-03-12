@@ -52,13 +52,13 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 	//selectedIndex(-1)
 {
 	m_bMonitor=true;
-	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
+	//SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
 }
 
 PlayList::PlayList(std::tstring &name,bool bMonitor):m_bMonitor(bMonitor)
 	,m_fileMonitor(this),m_playlistName(name),pPLV(NULL)
 {
-	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
+	//SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
 }
 
  PlayList::PlayList(std::tstring &name):
@@ -490,20 +490,21 @@ BOOL FileTrack::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 
 
 
-BOOL FileTrack::TryLoadLrcFile(std::tstring &filename,BOOL forceLoad)
+void FileTrack::TryLoadLrcFile(std::tstring &filename,BOOL forceLoad)
 {
 	if (forceLoad || LrcFileMacth(filename))//filename match
 	{
-		LrcMng *m=LrcMng::Get();
-		if(m->OpenTrackPath(this,filename,forceLoad ? FALSE :TRUE))//lrc tag match
-		{
-			lycPath=filename;
-			m_bLrcFromLrcFile=TRUE;
-			return TRUE;
-		}
-	}
+		LrcMatchItem matchitem;
+		matchitem.path=filename;
 
-	return FALSE;
+		LrcMng *m=LrcMng::Get();
+		matchitem.match_type=(_match_type)m->MatchTrackAndLrcTags(this,filename);
+
+		AddToLrcMatchList(matchitem);
+		if (matchitem.match_type <GetHighestMatchLrc().match_type)
+			SetHighestMatchLrc(matchitem);
+	}
+	
 }
 
 
@@ -540,14 +541,32 @@ BOOL FileTrack::GetLrcFileFromLib(BOOL forceResearch)
 {
 	if (!forceResearch && m_bLrcFromLrcFile)
 		return TRUE;
+	
+	ClearLrcMatchList();
+	//clear highest match item , set not perfect
+	LrcMatchItem item;
+	item.match_type=invalide;
+	SetHighestMatchLrc(item);
 
-	vector<std::tstring>::iterator i;
-	for (i=MyLib::shared()->dataPaths.begin();i!=MyLib::shared()->dataPaths.end();i++)
+	for (auto i=MyLib::shared()->dataPaths.begin();i!=MyLib::shared()->dataPaths.end();i++)
 	{
-		if(TryLoadLrcFile(*i))
-			return TRUE;
+		TryLoadLrcFile(*i);
+		if (!GetSearchLrcUntilEnd() && GetHighestMatchLrc().match_type==perfect)
+			break;
 	}
 
+	
+	//we finded
+	auto matchlist=GetLrcMatchList();
+	auto highest=GetHighestMatchLrc();
+	if (matchlist.size()>0 && highest.match_type!=invalide)
+	{
+		lycPath=highest.path;
+		m_bLrcFromLrcFile=TRUE;
+		lyricFromLrcFile=LrcMng::Get()->lib;
+		return TRUE;
+	}
+	
 	return FALSE;
 }
 
@@ -581,38 +600,25 @@ BOOL FileTrack::HaveKeywords(TCHAR *keywords)
 }
 
 
-BOOL LrcMng::OpenTrackPath(FileTrack* track,std::tstring &path,BOOL bMatchIdentityTag)
+UINT LrcMng::MatchTrackAndLrcTags(FileTrack *track,std::tstring &lrcpath)
 {
-	Open((LPTSTR)path.c_str());
+	UINT matchFlag=perfect;
 
-	if (lib.size()>0)
-	{
-		if(!bMatchIdentityTag)
-		{
-			track->lyricFromLrcFile=lib;
-			return TRUE;
-		}
-		else
-		{
-			
-			if (!ti.empty() && StrCmpIgnoreCaseAndSpace(track->title,ti)!=0)
-			{
-				 return FALSE;
-			}
+	Open((LPTSTR)lrcpath.c_str());
 
-			if (!ar.empty() && StrCmpIgnoreCaseAndSpace(track->artist,ar) !=0 )
-			{
-				return FALSE;
-			}
+	if (ti.empty())
+		matchFlag|=without_title;
+	else
+		if(StrCmpIgnoreCaseAndSpace(track->title,ti) !=0)
+			matchFlag|= title_mismatch;
 
-			{
-				track->lyricFromLrcFile=lib;
-				return TRUE;
-			}
-		}
-	}
+	if (ar.empty() )
+		matchFlag|=without_artist;
+	else
+		if(StrCmpIgnoreCaseAndSpace(track->artist,ar) !=0 )
+			matchFlag|=artist_mismatch;
 
-	return FALSE;
+	return matchFlag;
 }
 
 

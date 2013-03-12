@@ -2,6 +2,7 @@
 #include "PlayList.h"
 #include "dlgLrcSearch.h"
 #include "forwardMsg.h"
+#include "DialogLrcList.h"
 
 class PlayListItem;
 template <typename T>
@@ -56,6 +57,7 @@ public:
 		COMMAND_ID_HANDLER(ID_OPEN_LRCFILE, OnOpenLrcFile)
 		COMMAND_ID_HANDLER(ID_MENU_LRC_PANE_PROPERTY,OnProperty)
 		COMMAND_ID_HANDLER(ID_MENU_SEARCH_ONLINE,OnShowDlgLrcSearch)
+		COMMAND_ID_HANDLER(ID_SHOW_LRC_LIST,OnShowDlgLrcList)
 	END_MSG_MAP()
 
 	int OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -113,6 +115,17 @@ public:
 			// 			dlg.DoModal(m_hWnd);
 			return 0;
 		}
+
+
+		
+		LRESULT OnShowDlgLrcList(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+		{
+			DialogLrcList dlg;
+			dlg.DoModal();
+
+			return 0;
+		}
+
 
 		CDlgLrcSearch dlgLrcSearch;
 		LRESULT OnShowDlgLrcSearch(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -276,12 +289,14 @@ public:
 			
 
 			LrcMng *sLM=LrcMng::Get();
-			if( track->GetLrcFileFromLib() )
+			if( track->GetLrcFileFromLib(TRUE) )
 			{
 				LrcLines *emptyVec=new LrcLines;
 				emptyVec->push_back(lineEmpty);
 				preLine=emptyVec->begin();
 
+				//del lyricfromlrcfile
+				//use global
 				curLine=track->lyricFromLrcFile.begin();
 				nextLine=curLine;
 				++nextLine;

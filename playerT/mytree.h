@@ -3,20 +3,39 @@
 #include <map>
 
 #pragma once
-#define max_node_name 128
+#define max_node_name 40
 #define SPLITTER_WH 3
 #define TREES_ROOT NULL
 
 class MYTREE;
 using namespace std;
+
+
 //调用完calcrect之后,调用此函数,更新
 void MoveToNewRect(MYTREE *parent);
+
+void MYTREE_Set_Playlist(MYTREE* tree);
+void MYTREE_Set_AlbumView(MYTREE* tree);
+void MYTREE_Set_LyricView(MYTREE* tree);
+void MYTREE_Set_SpectrumView(MYTREE* tree);
+
 
 void MYTREE_Add_Playlist(MYTREE* tree);
 void MYTREE_Add_EmptyWnd(MYTREE* tree);
 void MYTREE_Add_AlbumView(MYTREE* tree);
 void MYTREE_Add_LyricView(MYTREE* tree);
 void MYTREE_Add_SpectrumView(MYTREE* tree);
+
+
+typedef  void (*CreateWindowFun)(MYTREE* tree);
+
+
+void RegisterCreateWndFuns(TCHAR* panename,CreateWindowFun func);
+void CreateHWNDbyName(MYTREE *tree);
+
+
+
+
 
 
 //删除自身,在根树中的关系
@@ -64,6 +83,8 @@ public:
 		rc.right=0;
 		rc.top=0;
 		rc.bottom=0;
+
+		treeItem=0;
 	}
 
 	dataNode():hWnd(NULL),m_iSplitterBar(SPLITTER_WH)
@@ -73,6 +94,8 @@ public:
 		rc.right=0;
 		rc.top=0;
 		rc.bottom=0;
+
+		treeItem=0;
 	}
 
 	~dataNode()
@@ -112,7 +135,9 @@ public:
 	RECT rc;
 	split_type type;
 	long  m_iSplitterBar;//把手的长度或宽度
-	TCHAR windowtype[max_node_name];
+
+	//TCHAR windowtype[max_node_name];
+
 	list<RECT> SplitterBarRects;//把手区域列表
 
 
@@ -120,15 +145,7 @@ public:
 	HWND hWnd;	
 	
 	HTREEITEM treeItem;
-	
-	
-	typedef  void (*CreateWindowFun)(MYTREE* tree);
 
-	static map<TCHAR*,CreateWindowFun> createWndFuns;
-	static void RegisterCreateWndFuns(TCHAR* panename,CreateWindowFun func)
-	{
-		createWndFuns.insert(map<TCHAR*,CreateWindowFun>::value_type(panename,func));
-	}
 };
 
 
@@ -295,7 +312,7 @@ public:
 	{
 		return child==NULL;
 	}
-	bool hasChild(){return !isleaf();}
+	bool hasChild(){return childs!=0;}
 
 	void setroot(){parent=NULL;}
 	bool isroot(){return parent==NULL;}
@@ -326,22 +343,24 @@ public:
 
 	int getSiblingNumber()
 	{
-		int i=0;
-		for (auto *after=getFirstSibling();after;after=after->next)
-			++i;
+// 		int i=0;
+// 		for (auto *after=getFirstSibling();after;after=after->next)
+// 			++i;
+// 
+// 		return i;
 
-		return i;
+		return isroot()? 1 : parent->childs;
 	}
 
-	//计算当前之后的兄弟个数,包含自身
-	int getSiblingNumberBehind()
-	{
-		int count=0;
-		for (auto i=this;i;i=i->next)
-			++count;
-
-		return count;
-	}
+// 	//计算当前之后的兄弟个数,包含自身
+// 	int getSiblingNumberBehind()
+// 	{
+// 		int count=0;
+// 		for (auto i=this;i;i=i->next)
+// 			++count;
+// 
+// 		return count;
+// 	}
 
 public:
 	void setNode(HWND hWnd)
@@ -430,12 +449,13 @@ public:
 	bool HasSplitter(){return !data.SplitterBarRects.empty();}
 public:
 	MYTREE *parent;//parent item
-	dataNode data;
+	
 	MYTREE *prev;
 	MYTREE *next;
 	MYTREE *child;//first child item
-	int     childs;//child number
 
+	int     childs;//child number
+	dataNode data;
 	//paint stuffs
 public:
 
@@ -449,7 +469,7 @@ public:
 		//clear all splitter bar
 		data.SplitterBarRects.clear();
 
-		int childs=child->getSiblingNumberBehind();
+		
 		MYTREE *first=child;
 
 		if (childs==1)

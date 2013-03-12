@@ -97,6 +97,23 @@ public:
 
 	LRESULT OnLBtnDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
+		RECT rc;
+		GetChannelRect(&rc);
+		RECT rcThumb;
+		GetThumbRect(&rcThumb);
+		int xPos = GET_X_LPARAM(lParam); 
+		int yPos = GET_Y_LPARAM(lParam); 
+		//if (rcThumb.left<=xPos &&xPos <=rcThumb.right && rcThumb.top<=yPos && yPos <= rcThumb.bottom)
+		//{
+			int max,min;
+			GetRange(min,max);
+
+			int pos=((long)(max-min))/(rc.right-rc.left) *((long)xPos-rc.left);
+			SetPos(pos);
+		//}
+
+
+
 		//TO DO ,SET POS
 		SetCapture();
 		
@@ -164,8 +181,6 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 
 	//Ë«»÷×´Ì¬À¸,¼¤»îµ±Ç°²¥·ÅÒô¹ì
 	void OnLButtonDblClk(UINT nFlags, CPoint point);
-
-	CMainFrame *pMain;
 };
 
 

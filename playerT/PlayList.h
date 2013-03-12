@@ -97,7 +97,7 @@ public:
 	const TCHAR* GetTitle(){return title.c_str();}
 	BOOL  GetLrcFileFromLib(BOOL forceResearch=FALSE);
 	BOOL  HaveKeywords(TCHAR *keywords);
-	BOOL TryLoadLrcFile(std::tstring &filename,BOOL forceLoad=FALSE);
+	void TryLoadLrcFile(std::tstring &filename,BOOL forceLoad=FALSE);
 public:
 	//void SetParent(PlayListItem *p){parent=p;}
 	//PlayListItem *GetParent(){return parent;}
@@ -117,13 +117,13 @@ public:
 	}
 
 	PlayListItem(PlayList *playlist,std::tstring url):
-	  pPL(playlist),filetrack(new FileTrack(url))
+	  pPL(playlist),filetrack(new FileTrack(url)),index(-1)
 	  {
 		  //pfiletrack=&filetrack;
 		  //filetrack->SetParent(this);
 	  }
 	  PlayListItem(PlayList *playlist):
-	  pPL(playlist),filetrack(new FileTrack())
+	  pPL(playlist),filetrack(new FileTrack()),index(-1)
 	  {
 		  // pfiletrack=&filetrack;
 		  //filetrack->SetParent(this);
@@ -164,7 +164,7 @@ public:
 	  const TCHAR* GetTitle(){return filetrack->GetTitle();}
 	  BOOL  GetLrcFileFromLib(BOOL forceResearch=FALSE){return filetrack->GetLrcFileFromLib(forceResearch);}
 	  BOOL  HaveKeywords(TCHAR *keywords){return filetrack->HaveKeywords(keywords);}
-	  BOOL TryLoadLrcFile(std::tstring &filename,BOOL forceLoad=FALSE){return filetrack->TryLoadLrcFile(filename,forceLoad);}
+	  void TryLoadLrcFile(std::tstring &filename,BOOL forceLoad=FALSE){return filetrack->TryLoadLrcFile(filename,forceLoad);}
 
 FileTrack* GetFileTrack(){return filetrack.get();}
 int GetIndex(){return index;}

@@ -10,11 +10,9 @@ public:
 	typedef CPlayListView* dataItem;
 	typedef std::vector<dataItem>  container;
 	container dataCollection;
+	void AddItem(CPlayListView* playlistview);
 
-	void AddItem(CPlayListView* playlistview)
-	{
-		dataCollection.push_back(playlistview);
-	}
+
 
 	void RemoveItem(CPlayListView* playlistview)
 	{
@@ -39,6 +37,8 @@ public:
 	 //set the playlistview which's playlist is pPL,
 	 //change nItemPlaying 
 	 void PlayingItemChanged();
+
+	 void EnlargeLVFont(int value);
 };
 
 PlayListViewMng * AllPlayListViews();

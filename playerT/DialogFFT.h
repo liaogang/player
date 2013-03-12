@@ -81,9 +81,10 @@ public:
 		CBasicPlayer::shared()->m_pSpectrumAnalyser->SetBands(160);
 		return 0;	
 	}
+
 	LRESULT OnErase(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
-		return 0;
+		return 1;
 	}
 
 	void OnRButtonUp(UINT nFlags, CPoint point)
@@ -94,16 +95,12 @@ public:
 
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		//DlgResize_Init(false,false);
-		//CenterWindow(GetParent());
-		GetClientRect(&rc);
+		//GetClientRect(&rc);
 
-		//dscrl->SetSpectrumRect(CRect(0,0,500,400));
-		//dscrl->SetFftEnvironment(this->m_hWnd);
-		HDC hdc=GetDC();
-		CBasicPlayer::shared()->m_pSpectrumAnalyser->DCRECTInit(m_hWnd,hdc,rc);
+		//HDC hdc=GetDC();
+		//CBasicPlayer::shared()->m_pSpectrumAnalyser->DCRECTInit(m_hWnd,hdc,rc);
 		CBasicPlayer::shared()->m_pSpectrumAnalyser->Init(FALSE);
-		ReleaseDC(hdc);
+		//ReleaseDC(hdc);
 		bHandled=FALSE;
 		return 0;
 	}
@@ -113,8 +110,9 @@ public:
 	{
 		PAINTSTRUCT ps;
 		::BeginPaint(m_hWnd,&ps);
+		
 		CBasicPlayer::shared()->m_pSpectrumAnalyser->DrawSpectrum();
-
+		
 		::EndPaint(m_hWnd,&ps);
 		return 0;
 	}
@@ -125,16 +123,16 @@ public:
 		int _width=LOWORD(lParam);
 		int _height=HIWORD(lParam);
 
-		rc.left=0;
-		rc.right=0;
-		rc.right=_width;
-		rc.bottom=_height;
+		GetClientRect(&rc);
+
 		HDC hdc=GetDC();
-		//CBasicPlayer::shared()->m_pSpectrumAnalyser->m_rc=rc;
+
+		
 		CBasicPlayer::shared()->m_pSpectrumAnalyser->DCRECTInit(m_hWnd,hdc,rc);
-		CBasicPlayer::shared()->m_pSpectrumAnalyser->Init(FALSE);
+	
+		//CBasicPlayer::shared()->m_pSpectrumAnalyser->Init(FALSE);
+
 		ReleaseDC(hdc);
-		bHandled=FALSE;
 		return 0;
 	}
 
@@ -152,4 +150,5 @@ public:
 		CBasicPlayer::shared()->m_pSpectrumAnalyser->m_rc=rc;
 		CBasicPlayer::shared()->m_pSpectrumAnalyser->Resume();
 	}
+
 };

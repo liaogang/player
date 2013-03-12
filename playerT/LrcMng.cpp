@@ -18,6 +18,8 @@ LrcMng* LrcMng::Get()
 	return p;
 }
 
+
+
 bool pred(LrcLine fir,LrcLine sec)//litter true,else flase
 {
 	return fir.cmp(sec) <0?true:false;

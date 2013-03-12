@@ -22,7 +22,7 @@ int Serialize(FILE *pFile,UINT t)
 template <>
 int Serialize(FILE *pFile,std::tstring t)
 {
-	int totalSize=t.length()+4;
+	int totalSize=sizeof(TCHAR)*t.length()+sizeof(int);
 
 	fwrite(&totalSize,sizeof(int),1,pFile);
 
@@ -34,14 +34,13 @@ int Serialize(FILE *pFile,std::tstring t)
 template <>
 int Serialize(FILE *pFile,int t)
 {
-	fwrite(&t,4,1,pFile);
-	return 4;
+	return sizeof(int)*fwrite(&t,sizeof(int),1,pFile);
 };
 
 template <>
 int Serialize (FILE *pFile,long int t)
 {
-	return  fwrite(&t,sizeof (long int),1,pFile);
+	return  sizeof (long int)*fwrite(&t,sizeof (long int),1,pFile);
 };
 
 
@@ -60,8 +59,8 @@ int Serialize(FILE *pFile,RECT r)
 template <> 
 int Serialize(FILE *pFile,WCHAR *szStr)
 {
-	int len=wcslen(szStr);
-	int size=len + sizeof(int);
+	int len=wcslen(szStr)+1;
+	int size=len*sizeof(WCHAR) + sizeof(int);
 
 	fwrite(&size,sizeof(int),1 ,pFile);
 
@@ -77,12 +76,14 @@ int Serialize(FILE *pFile,WCHAR *szStr)
 template <class T>
 int ReSerialize(FILE *pFile,T *t)
 {
+	ATLASSERT(FALSE);
 	return -1;
 };
 
 template <class T>
 int ReSerialize(FILE *pFile,T &t)
 {
+	ATLASSERT(FALSE);
 	return -1;
 };
 template <>
@@ -136,7 +137,7 @@ int ReSerialize(FILE *pFile,WCHAR *szStr)
 	int size;
 	fread(&size,sizeof(int),1,pFile);
 
-	int len=size - sizeof(int);
+	int len=(size - sizeof(int))/sizeof(WCHAR);
 
 	if (len<0)
 	{
@@ -154,7 +155,7 @@ int ReSerialize(FILE *pFile,WCHAR *szStr)
 template <>
 int ReSerialize(FILE *pFile,long &t)
 {
-	return  fread(&t,sizeof(long),1,pFile);
+	return  sizeof(long)*fread(&t,sizeof(long),1,pFile);
 };
 
 template <>
@@ -215,7 +216,7 @@ int PlayList::ReSerialize(FILE *pFile)
 	int size=0;
 	int totalSize=0;
 	int playlistnameSize=0;
-	fread(&totalSize,1,4,pFile);
+	fread(&totalSize,sizeof(int),1,pFile);
 
 	playlistnameSize=::ReSerialize(pFile,&m_playlistName);
 	size+=playlistnameSize;
@@ -251,7 +252,7 @@ int FileTrack::ReSerialize(FILE *pFile)
 	int size=0;
 
 	int totalSize=0;
-	fread(&totalSize,1,4,pFile);
+	fread(&totalSize,4,1,pFile);
 	size+=4;
 
 	size+=::ReSerialize(pFile,&url);
@@ -287,17 +288,21 @@ PlayList* MyLib::LoadPlaylist(LPTSTR filepath)
 	FILE * pFile;
 
 	pFile = _tfopen ((LPCTSTR)filepath, _T("rb") );
-	if (pFile!=NULL){
+	if (pFile)
+	{
 		playlist=new PlayList;
 		playlist->m_saveLocation=filepath;
 		result=playlist->ReSerialize(pFile);
 		m_playLists.push_back(playlist);
-		SdMsg(WM_PL_TRACKNUM_CHANGED,TRUE,(WPARAM)playlist,(LPARAM)playlist->GetItemCount());
+		SetActivePlaylist(playlist);
+
+		SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)playlist,1);
+
 		fclose (pFile);
 	}
 
 
-	SetActivePlaylist(playlist);
+	
 	return playlist;
 }
 
@@ -327,17 +332,10 @@ bool SaveCoreCfg()
 		for (auto k=MyLib::shared()->lrcDirs.begin();k!=MyLib::shared()->lrcDirs.end();++k)
 			::Serialize<>(pFile,*k);
 		
-		
-
-		/**********user interface split windows's section************/
-		MYTREE* root=UISplitterTreeRoot();
-
-
-
-
 		fclose (pFile);
 	}
 
+	SaveUICfg();
 
 	return TRUE;
 }
@@ -378,32 +376,38 @@ bool LoadCoreCfg()
 				MyLib::shared()->lrcDirs.push_back(lrcDir);
 		}
 
-
-
-
-
-
-
-
-		 /**********user interface split windows's section************/
-
-
+		 MyLib::shared()->InitLrcLib();
+ 
 		fclose (pFile);
 	}
+
+	LoadUICfg();
 
 	return TRUE;
 }
 
 
+
+/************************************************************************/
+/* UI  section                                                                     */
+/************************************************************************/
+
+
 int MYTREE::SerializeB(FILE *pFile)
 {
-	return 0;
+	int size=0;
+	size+=::Serialize(pFile,childs);
+	return size+data.Serialize(pFile);
 }
 
 int MYTREE::ReSerialize(FILE *pFile)
 {
+	int size=4,totalsize;
+	::ReSerialize(pFile,&totalsize);
 
-	return 0;
+
+	size+= ::ReSerialize(pFile,&childs);
+	return size+data.ReSerialize(pFile);
 }
 
 int SerializeTree(FILE *pFile,MYTREE *cur)
@@ -446,14 +450,17 @@ int dataNode::SerializeB(FILE *pFile)
 
 	size+=::Serialize(pFile,nodeName);
 	size+=::Serialize(pFile,rc);
-	size+=::Serialize(pFile,(int)type);
+
+	size+=::Serialize(pFile,type==left_right?1:0);
+
 	size+=::Serialize(pFile,m_iSplitterBar);
-	size+=::Serialize(pFile,windowtype);
+	
 
 	int numBars=SplitterBarRects.size();
 	size+=::Serialize(pFile,numBars);
-	for (auto it=SplitterBarRects.begin();it!=SplitterBarRects.end();++it)
-		size+=::Serialize(pFile,*it);
+	if (numBars>0)
+		for (auto it=SplitterBarRects.begin();it!=SplitterBarRects.end();++it)
+			size+=::Serialize(pFile,*it);
 	
 	return size;
 }
@@ -466,16 +473,19 @@ int dataNode::ReSerialize(FILE *pFile)
 	fread(&totalSize,1,4,pFile);
 	size+=4;
 
-
+	
 	size+=::ReSerialize(pFile,nodeName);
 	size+=::ReSerialize(pFile,rc);
-	size+=::ReSerialize(pFile,type);
+	
+	int leftright;
+	size+=::ReSerialize(pFile,&leftright);
+	type=leftright?left_right:up_down;
+
 	size+=::ReSerialize(pFile,m_iSplitterBar);
-	size+=::ReSerialize(pFile,windowtype);
 
 
 	int numBars;
-	size+=::ReSerialize(pFile,numBars);
+	size+=::ReSerialize(pFile,&numBars);
 	for (int i=0;i<numBars;++i)
 	{
 		RECT rc;
@@ -486,3 +496,99 @@ int dataNode::ReSerialize(FILE *pFile)
 	return size;
 }
 
+
+void SerializeAllTree(MYTREE *c,FILE *pFile)
+{
+	for (;c;c=c->next)	
+	{
+		c->Serialize(pFile);
+		if (c->hasChild())
+			SerializeAllTree(c->child,pFile);
+	}
+}
+
+void ReSerializeAllTree(MYTREE *parent,FILE *pFile)
+{
+	parent->ReSerialize(pFile);
+
+	if (parent->childs==NULL)
+	{
+		return;
+	}
+
+	MYTREE *c=new MYTREE;
+	c->ReSerialize(pFile);
+	c->parent=parent;
+	parent->child=c;
+	
+	if (c->childs)
+	{
+		ReSerializeAllTree(c,pFile);
+	}
+
+	MYTREE *last;
+	last=c;
+
+	for (int i=1;i<parent->childs;++i)
+	{
+		c=new MYTREE;
+		c->ReSerialize(pFile);
+		
+
+		last->next=c;
+
+		c->prev=last;
+		c->parent=last->parent;
+
+		if (c->childs)
+		{
+			ReSerializeAllTree(c,pFile);
+		}
+
+	}
+	
+}
+
+
+bool SaveUICfg()
+{
+	ChangeCurDir2ModulePath();
+	FILE * pFile = _tfopen( UIFILENAME , _T("wb") );
+	if (pFile)
+	{	
+		/**********user interface split windows's section************/
+		MYTREE* root=UISplitterTreeRoot();
+		SerializeAllTree(root,pFile);
+
+
+
+		fclose (pFile);
+	}
+
+
+	return TRUE;
+}
+
+
+
+bool LoadUICfg()
+{
+	ChangeCurDir2ModulePath();
+	FILE * pFile = _tfopen( UIFILENAME , _T("rb") );
+	if (pFile)
+	{
+		/**********user interface split windows's section************/
+		MYTREE *root=new MYTREE(_T(""));
+		root->data.SplitterBarRects.clear();
+
+		root->setroot();
+			
+		ReSerializeAllTree(root,pFile);
+		
+		SetRootTree(root);
+		
+		fclose (pFile);
+	}
+
+	return TRUE;
+}

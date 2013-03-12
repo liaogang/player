@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include <string>
 #include "mytree.h"
 #include "MainFrm.h"
 #include "MyControls.h"
@@ -21,7 +22,7 @@
 #include "PlayListManager.h"
 #include "glassWnd.h"
 #include <mpg123.h>
-#include <string>
+
 using namespace std;
 
 
@@ -54,6 +55,8 @@ BOOL CMainFrame::OnIdle()
 
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	InitData();
+
 	SetWindowText(GetAppName());
 
 	// create command bar window
@@ -83,7 +86,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//------------------------------------------------
 	//progress track bar
 	m_pTrackBar=new CMyTrackBar;
-	UINT style=WS_CHILD | WS_TABSTOP | WS_VISIBLE /*| WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/;
+	UINT style=WS_CHILD  | WS_VISIBLE /*| WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/;
 	style|=TBS_TOOLTIPS  |TBS_NOTICKS |TBS_AUTOTICKS  | TBS_BOTH ; 
 	UINT styleEx=0; 
 	HWND hWndProgressBar=m_pTrackBar->Create( m_hWndToolBar,NULL,NULL,style,styleEx);
@@ -160,7 +163,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//m_pStatus->pMain=this;
 
 
-	InitData();
+	
 
 	SetMsgHandled(FALSE);
 	return 0;
@@ -168,73 +171,11 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 void CMainFrame::InitUILayout()
 {
-	
-	//-----------------------------------------
-	//split
 	DWORD dwSplitStyle = WS_CHILD|WS_VISIBLE | WS_CLIPCHILDREN |WS_CLIPSIBLINGS  ;
 	DWORD dwSplitExStyle =WS_EX_CLIENTEDGE;
 
-	
-	//CPlaceHolderWnd *ph=new CPlaceHolderWnd;
-	//m_hWndClient=ph->Create(m_hWnd,rcDefault,NULL,WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN |WS_CLIPSIBLINGS);
-	
-
 	m_pDlgMultiSplitter=new CMultiSpliltWnd;
 	m_hWndClient=m_pDlgMultiSplitter->Create(m_hWnd,rcDefault,NULL,dwSplitStyle,0);
-	
-
-	//CPlayListView *plv=new CPlayListView;
-	//WS_EX_CLIENTEDGE ,WS_EX_STATICEDGE
-	//plv->Create(ph->m_hWnd, 0, NULL, LVS_OWNERDRAWFIXED| WS_CHILD | WS_VISIBLE  | LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA,WS_EX_STATICEDGE);  
-	//plv->Init();
-	//ph->child=plv->m_hWnd;
-
-
-	//ph->child=plv->m_hWnd;
-
-
-// 	m_pSplit=new CMySplitterWindow;
-// 	m_pSplit->Create(m_hWnd, rcDefault, NULL, 
-// 		dwSplitStyle, 0 );
-
-	////right pane
-	////------------------------------------------------
-	////tab bar
-	//m_pTabBar=new CMyTabBar;
-	////m_pTabBar->Create(m_pSplit->m_hWnd,rcDefault,NULL,WS_CHILD/*|WS_VISIBLE*/|WS_CLIPCHILDREN | WS_CLIPSIBLINGS,0/*WS_EX_STATICEDGE*/);
-
-
-	//CPlayListView *m_pPlaylistView=new CPlayListView;
-	//m_pPlaylistView->Create(m_pSplit->m_hWnd, rcDefault, NULL, LVS_OWNERDRAWFIXED| WS_CHILD | WS_VISIBLE /*|WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/| LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA, dwSplitExStyle);
-	//m_pPlaylistView->Init();	
-
-
-	////left pane
-	//leftPane=new CHorSplitterWindow;
-	//leftPane->Create(m_pSplit->m_hWnd,rcDefault,0,dwSplitStyle);
-
-
-	//albumView1=new CAlbumCoverView;
-	//albumView1->Create(leftPane->m_hWnd,0,0,dwSplitStyle,dwSplitExStyle);
-	//lyricView=new CWndLyric;
-	//lyricView->enableDebug=1;
-	//lyricView->Create(leftPane->m_hWnd);
-	//lyricView->Init();
-
-	//leftPane->SetSplitterPanes(albumView1->m_hWnd,lyricView->m_hWnd);
-
-	////set left and right
-	////m_pSplit->SetSplitterPanes( m_pTabBar->m_hWnd,leftPane->m_hWnd);
-	//m_pSplit->SetSplitterPanes( m_pPlaylistView->m_hWnd,leftPane->m_hWnd);
-
-	////-----------------------------------------
-	////EnableThemeDialogTexture(m_pTabBar->m_hWnd,ETDT_ENABLE);
-	////EnableThemeDialogTexture(m_hWnd,ETDT_ENABLE);
-	//m_hWndClient=m_pSplit->m_hWnd;
-
-	//UpdateLayout();
-	//leftPane->SetSplitterPos(130);
-	//m_pSplit->SetSplitterPos(482);
 }
 
 
@@ -382,6 +323,16 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 		PlayList* pList=MyLib::AddFolderToCurrentPlayList(tmp);
 		pDlgProcess->pList=pList;
 	}
+	return 0;
+}
+
+LRESULT CMainFrame::OnChangeLVFont(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	AllPlayListViews()->EnlargeLVFont(wID==ID_LV_ENLARGE_FONT?1:-1);
+	
+	if (m_pDlgSearch)
+		m_pDlgSearch->m_list.EnlargeLVFont(wID==ID_LV_ENLARGE_FONT?1:-1);
+
 	return 0;
 }
 
@@ -619,6 +570,9 @@ LRESULT CMainFrame::OnPLChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOO
 			m_pDlgPLMng->m_list.DelPlayList(pl);
 	}
 
+	if (bAdd)
+		AllPlayListViews()->Reload(pl);
+
 	return 0;
 }
 
@@ -630,7 +584,8 @@ LRESULT CMainFrame::OnPLTrackNumChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lPa
 	
 
 	//m_pTabBar->AddPlaylistTab(playlist,TRUE,-1);
-	//AllPlayListViews()->Reload(playlist);
+	
+	AllPlayListViews()->Reload(pl);
 
 	if (m_pDlgPLMng && m_pDlgPLMng->IsWindow())
 	{
@@ -732,29 +687,29 @@ void CMainFrame::OnSelectionChanged()
 
 void CPlayListView::SetMain(class CMainFrame *pMain){this->pMain=pMain;}
 
-void CPlayListView::InsertTrackItem(PlayListItem &track,int item,BOOL SetIndex)
-{
-	//for visual list
-	//InsertItem(item,NULL);
-
-// 	int k=0;
-// 	InsertItem(item,track.url.c_str());
-// 	SetItemText(item,k++,track.title.c_str());
-// 	SetItemText(item,k++,track.artist.c_str());
-// 	SetItemText(item,k++,track.album.c_str());
-// 
-// 	TCHAR year[256]={};
-// 	wsprintf(year,_T("%u"),track.year);
-// 
-// 	SetItemText(item,k++,(const TCHAR*)year);
-// 	SetItemText(item,k++,track.comment.c_str());
-// 	SetItemText(item,k++,track.genre.c_str());
-// 
-// 	SetItemData(item,(DWORD_PTR)&track);
-
-// 	if(SetIndex)
-// 		track.indexInListView=item;
-}
+//void CPlayListView::InsertTrackItem(PlayListItem &track1,int item,BOOL SetIndex)
+//{
+//	//for visual list
+//	//InsertItem(item,NULL);
+//	FileTrack *track=track1.GetFileTrack();
+//	int k=0;
+//	InsertItem(item,track->url.c_str());
+//	SetItemText(item,k++,track->title.c_str());
+//	SetItemText(item,k++,track->artist.c_str());
+//	SetItemText(item,k++,track->album.c_str());
+//
+//	//TCHAR year[256]={};
+//	//wsprintf(year,_T("%u"),track.year);
+//
+//	//SetItemText(item,k++,(const TCHAR*)year);
+//	//SetItemText(item,k++,track.comment.c_str());
+//	//SetItemText(item,k++,track.genre.c_str());
+//
+//	//SetItemData(item,(DWORD_PTR)&track);
+//
+//	//if(SetIndex)
+//	//	track.indexInListView=item;
+//}
 
 
 
@@ -862,7 +817,13 @@ void CMainFrame::ShowSearchDialog()
 
 void CMainFrame::InitData()
 {
-	//LoadCoreCfg();
+	RegisterCreateWndFuns(_T("播放列表"),MYTREE_Set_Playlist);
+	RegisterCreateWndFuns(_T("封面面板"),MYTREE_Set_AlbumView);
+	RegisterCreateWndFuns(_T("歌词面板"),MYTREE_Set_LyricView);
+	RegisterCreateWndFuns(_T("频谱面板"),MYTREE_Set_SpectrumView);
+
+
+	LoadCoreCfg();
 
 
 	::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
@@ -1050,13 +1011,15 @@ LRESULT CPlayListView::OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPara
 	HPEN hOldPen = (HPEN)::SelectObject(dc, hNewPen);
 	HBRUSH hOldBrush = (HBRUSH)::SelectObject(dc,hNewBrush );
 
+	rcCol.left+=TEXTALIGN__WIDTH;
+
 	::Rectangle(dc, rcCol.left, rcCol.top, rcCol.right, rcCol.bottom);
 
 	//如果选中项具有焦点,画出虚线矩形焦点边框
 	if(focused && GetFocus()==m_hWnd)
 	{
-		RECT rcFocus=rcCol;
-		rcFocus.left+=TEXTALIGN__WIDTH;
+		//RECT rcFocus=rcCol;
+		//rcFocus.left+=TEXTALIGN__WIDTH;
 		::DrawFocusRect(dc,&rcCol);	
 	}
 
@@ -1126,13 +1089,6 @@ LRESULT CPlayListView::OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPara
 
 	::SelectObject(dc,hOldPen);
 	::DeleteObject(hNewPen);
-
-	//去掉之前的焦点边框
-	if (focused && nItem!=indexLast)
-	{
-		RedrawItems(indexLast,indexLast);
-		indexLast=nItem;
-	}
 
 	return 1;
 }
@@ -1841,7 +1797,9 @@ void MYTREE_Add_EmptyWnd(MYTREE* tree)
 	MYTREE *newTree=new MYTREE();
 
 	CPlaceHolderWnd *w=new CPlaceHolderWnd;
+
 	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
+	
 
 	newTree->setWnd(w->m_hWnd);
 	wcscpy(newTree->data.nodeName,L"空占位视图");
@@ -1852,59 +1810,89 @@ void MYTREE_Add_EmptyWnd(MYTREE* tree)
 
 }
 
-void MYTREE_Add_Playlist(MYTREE* tree)
+void  CPlayListView::CreateIsWnd()
+{
+	Create(GetSplitter()->m_hWnd, 0 , _T("WtlSysListView32"), 
+		WS_CHILD | WS_VISIBLE  |WS_CLIPCHILDREN |WS_CLIPSIBLINGS 
+		|LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA 
+		,WS_EX_CLIENTEDGE);
+}
+
+void MYTREE_Set_Playlist(MYTREE* tree)
 {
 	CPlayListView *plv=new CPlayListView;
-	//WS_EX_CLIENTEDGE ,WS_EX_STATICEDGE
-	plv->Create(GetSplitter()->m_hWnd, 0, NULL, LVS_OWNERDRAWFIXED| WS_CHILD | WS_VISIBLE  | LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA,WS_EX_STATICEDGE);  
+
+	plv->CreateIsWnd();
 	plv->Init();
 
+	tree->setWnd(plv->m_hWnd);
+}
 
+
+void MYTREE_Add_Playlist(MYTREE* tree)
+{
 	MYTREE *newTree=new MYTREE();
-	newTree->setWnd(plv->m_hWnd);
+	MYTREE_Set_Playlist(newTree);
 
-	wcscpy(newTree->data.nodeName,L"播放列表视图");
+	wcscpy(newTree->data.nodeName,L"播放列表");
 
 	tree->addChildNodeAfter(newTree);
 	tree->CalcChildsRect();
+}
+
+
+
+
+
+
+
+void MYTREE_Set_AlbumView(MYTREE* tree)
+{
+	CAlbumCoverView *w=new CAlbumCoverView;
+	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
+	tree->setWnd(w->m_hWnd);
 }
 
 void MYTREE_Add_AlbumView(MYTREE* tree)
 {	
-	CAlbumCoverView *w=new CAlbumCoverView;
-	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
-
-
 	MYTREE *newTree=new MYTREE();
-	newTree->setWnd(w->m_hWnd);
-	wcscpy(newTree->data.nodeName,L"封面视图");
+	MYTREE_Set_AlbumView(newTree);
+	
+	wcscpy(newTree->data.nodeName,L"封面面板");
 
 	tree->addChildNodeAfter(newTree);
 	tree->CalcChildsRect();
 }
-void MYTREE_Add_LyricView(MYTREE* tree)
+void MYTREE_Set_LyricView(MYTREE* tree)
 {
 	CWndLyric *w=new CWndLyric;
 	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
+	tree->setWnd(w->m_hWnd);
+}
 
-
+void MYTREE_Add_LyricView(MYTREE* tree)
+{
 	MYTREE *newTree=new MYTREE();
-	newTree->setWnd(w->m_hWnd);
-	wcscpy(newTree->data.nodeName,L"歌词视图");
+	MYTREE_Set_LyricView(newTree);
+	wcscpy(newTree->data.nodeName,L"歌词面板");
 
 	tree->addChildNodeAfter(newTree);
 	tree->CalcChildsRect();
 }
 
-void MYTREE_Add_SpectrumView(MYTREE* tree)
+
+
+void MYTREE_Set_SpectrumView(MYTREE* tree)
 {
 	DialogFFT *w=new DialogFFT;
 	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
-
+	tree->setWnd(w->m_hWnd);
+}
+void MYTREE_Add_SpectrumView(MYTREE* tree)
+{
 	MYTREE *newTree=new MYTREE();
-	newTree->setWnd(w->m_hWnd);
-	wcscpy(newTree->data.nodeName,L"频谱显示");
-
+	MYTREE_Set_SpectrumView(newTree);
+	wcscpy(newTree->data.nodeName,L"频谱面板");
 	tree->addChildNodeAfter(newTree);
 	tree->CalcChildsRect();
 }
@@ -1914,4 +1902,33 @@ void MYTREE_Add_SpectrumView(MYTREE* tree)
 CMainFrame::~CMainFrame()
 {
 	SaveCoreCfg();
+}
+
+
+static map<TCHAR*,CreateWindowFun> createWndFuns;
+void RegisterCreateWndFuns(TCHAR* panename,CreateWindowFun func)
+{
+	createWndFuns.insert(map<TCHAR*,CreateWindowFun>::value_type(panename,func));
+
+	CreateWindowFun fun =createWndFuns.find(panename)->second;
+}
+
+void CreateHWNDbyName(MYTREE *tree)
+{
+	for (;tree;tree=tree->next)
+	{	
+		for (auto i=createWndFuns.begin();i!=createWndFuns.end();++i)
+		{
+			if (_tcscmp(i->first,tree->data.nodeName)==0)
+			{
+				CreateWindowFun fun=i->second;
+				fun(tree);
+				break;
+			}
+		}
+	
+		if (tree->hasChild())
+			CreateHWNDbyName(tree->child);
+	}
+
 }

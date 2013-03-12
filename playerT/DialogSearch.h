@@ -22,7 +22,6 @@ public:
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 		COMMAND_CODE_HANDLER(EN_CHANGE, OnSearch )
-		MESSAGE_HANDLER(WM_MEASUREITEM,OnMeasureItem)
 		CHAIN_MSG_MAP(CDialogResize<DialogSearch>)
 		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
@@ -37,17 +36,6 @@ public:
 	CPlayListView m_list;
 	
 	
-
-	LRESULT OnMeasureItem(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-	{
-		if(wParam==IDC_LIST)
-		{
-			m_list.OnMeasureItem(OCM__BASE+uMsg,wParam,lParam,bHandled);
-		}
-		
-		return 1;
-	}
-
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		DlgResize_Init(FALSE,FALSE);
@@ -57,17 +45,12 @@ public:
 		m_list.Init();
 		m_list.SetMain(pM);
 
-		//m_edit.SubclassWindow(::GetDlgItem(m_hWnd,IDC_EDIT));
-		//m_edit.m_pDlgSearch=this;
-
 		searchPl=NULL;
 
 		// register object for message filtering and idle updates
 		CMessageLoop* pLoop = _Module.GetMessageLoop();
 		ATLASSERT(pLoop != NULL);
 		pLoop->AddMessageFilter(this);
-
-
 		return TRUE;
 	}
 

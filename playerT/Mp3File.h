@@ -14,7 +14,7 @@
 #define PLAYERMANAGER_RESULT_OK       MPG123_OK
 #define PLAYERMANAGER_RESULT_ERROR       -1
 
-class Mp3File:public MusicFile
+class Mp3File :public MusicFile
 {
 private:
 	mpg123_handle* m_hmp3;

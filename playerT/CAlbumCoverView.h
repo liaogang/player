@@ -139,7 +139,11 @@ public:
 
 		bDisabledLast=bDisable;
 	}
-	 
+
+	virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
+	{
+		delete this;
+	}
 };
 
 

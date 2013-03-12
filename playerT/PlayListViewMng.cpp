@@ -1,7 +1,13 @@
 #include "PlayListViewMng.h"
 #include "PlayListView.h"
 
-
+void PlayListViewMng::AddItem(CPlayListView* playlistview)
+{
+	dataCollection.push_back(playlistview);
+	
+	if (ActivePlaylist())
+		playlistview->Reload(ActivePlaylist());
+}
 
 void PlayListViewMng::ClearAllItem()
 {
@@ -28,7 +34,11 @@ void PlayListViewMng::EnsureVisibleAndCentrePos(int index)
 		(*i)->EnsureVisibleAndCentrePos(index);
 }
 
-
+void PlayListViewMng::EnlargeLVFont(int value)
+{
+	for (container::iterator i=dataCollection.begin();i!=dataCollection.end();++i)
+		(*i)->EnlargeLVFont(value);
+}
 
 PlayListViewMng * AllPlayListViews()
 {
