@@ -46,10 +46,9 @@ public:
 	m_bSearch(bSearch),
 		bAuto(FALSE),
 		bDeletable(!bAuto),
-		m_pPlayTrack(NULL),m_bC(TRUE)
+		m_pPlayTrack(NULL),m_bC(TRUE),nItemPlaying(-1)
 	{
 		SetPlayList(NULL);
-		//nItemPlaying=-1;
 		menu=LoadPlaylistMenu();
 	}
 
@@ -394,7 +393,6 @@ public:
 			if (!m_Font.IsNull())
 				m_Font.DeleteObject();
 
-
 			m_Font.CreateFont(
 				m_nFontHeight,                        // nHeight
 				0,                         // nWidth
@@ -418,6 +416,7 @@ public:
 			m_nFontHeight+=value;
 			SetLVFont(m_nFontHeight);
 		}
+
 		void CreateIsWnd();
 
 		void Init()

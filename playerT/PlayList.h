@@ -79,7 +79,6 @@ public:
 
 	BOOL m_bLrcFromLrcFile;
 	std::tstring  lycPath;
-	LrcLines      lyricFromLrcFile;
 
 	BOOL bUnsynLyc;
 public:

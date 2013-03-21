@@ -390,6 +390,12 @@ std::string str2UnicodeCode(const WCHAR *c,int len)
 	return tmp;
 }
 
+LONG GetStrSizeX(HDC dc,TCHAR *str)
+{
+	SIZE sz;
+	::GetTextExtentPoint( dc ,str,_tcslen(str),&sz);
+	return sz.cx;
+}
 
 void MakeShortString(HDC dc,TCHAR *str,long width)
 {

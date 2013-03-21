@@ -509,8 +509,6 @@ void SerializeAllTree(MYTREE *c,FILE *pFile)
 
 void ReSerializeAllTree(MYTREE *parent,FILE *pFile)
 {
-	parent->ReSerialize(pFile);
-
 	if (parent->childs==NULL)
 	{
 		return;
@@ -522,29 +520,23 @@ void ReSerializeAllTree(MYTREE *parent,FILE *pFile)
 	parent->child=c;
 	
 	if (c->childs)
-	{
 		ReSerializeAllTree(c,pFile);
-	}
-
-	MYTREE *last;
-	last=c;
+	
+	MYTREE *last=c;
 
 	for (int i=1;i<parent->childs;++i)
 	{
 		c=new MYTREE;
 		c->ReSerialize(pFile);
 		
-
 		last->next=c;
-
 		c->prev=last;
 		c->parent=last->parent;
 
 		if (c->childs)
-		{
 			ReSerializeAllTree(c,pFile);
-		}
-
+		
+		last=c;
 	}
 	
 }
@@ -558,6 +550,7 @@ bool SaveUICfg()
 	{	
 		/**********user interface split windows's section************/
 		MYTREE* root=UISplitterTreeRoot();
+		
 		SerializeAllTree(root,pFile);
 
 
@@ -582,7 +575,8 @@ bool LoadUICfg()
 		root->data.SplitterBarRects.clear();
 
 		root->setroot();
-			
+		root->ReSerialize(pFile);
+
 		ReSerializeAllTree(root,pFile);
 		
 		SetRootTree(root);

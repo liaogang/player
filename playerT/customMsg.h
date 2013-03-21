@@ -13,8 +13,10 @@ struct trackPosInfo
 
 #define  WM_TRACKSTOPPED      (WM_USER+34)//音轨播放完毕
 #define  WM_NEW_TRACK_STARTED (WM_USER+37)//开始音轨播放
-//#define  WM_PAUSED            (WM_USER+38)//开始音轨播放
-#define  WM_PLAY_DIRECTLY     (WM_USER+39)
+#define  WM_PAUSED            (WM_USER+38)//暂停音轨播放
+#define  WM_PAUSE_START            (WM_USER+39)//开始暂停的音轨播放
+
+#define  WM_PLAY_DIRECTLY     (WM_USER+40)
 
 //正在添加文件内容  
 //wParam TCHAR *filename;

@@ -563,7 +563,7 @@ BOOL FileTrack::GetLrcFileFromLib(BOOL forceResearch)
 	{
 		lycPath=highest.path;
 		m_bLrcFromLrcFile=TRUE;
-		lyricFromLrcFile=LrcMng::Get()->lib;
+		//lyricFromLrcFile=LrcMng::Get()->lib;
 		return TRUE;
 	}
 	

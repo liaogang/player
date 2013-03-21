@@ -436,6 +436,7 @@ playerT/taplib/taglib/wavpack/wavpackfile.cpp -text
 playerT/taplib/taglib/wavpack/wavpackfile.h -text
 playerT/taplib/taglib/wavpack/wavpackproperties.cpp -text
 playerT/taplib/taglib/wavpack/wavpackproperties.h -text
+playerT/todo.txt -text
 playerT/vc90.idb -text
 playerT/vc90.pdb -text
 playerT/备份/mpg123_denc.dll -text

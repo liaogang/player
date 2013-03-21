@@ -55,6 +55,7 @@ MYTREE * MYTree_RemoveFromRoot(MYTREE *tree)
 		if(tree->next)
 			tree->next->prev=NULL;
 		delete tree;
+		--parent->childs;
 	}
 	else
 	{
@@ -63,6 +64,7 @@ MYTREE * MYTree_RemoveFromRoot(MYTREE *tree)
 		if(tree->next)
 			tree->next->prev=tree->prev;
 		delete tree;
+		--parent->childs;
 	}
 
 

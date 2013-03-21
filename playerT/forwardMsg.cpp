@@ -1,7 +1,12 @@
 #include "forwardMsg.h"
 
 static forwardMsg *pGForwardMsg=NULL;
-forwardMsg* GetSharedForwardMsg()
+// forwardMsg* GetSharedForwardMsg()
+// {
+// 	return pGForwardMsg?pGForwardMsg:pGForwardMsg=new forwardMsg;
+// }
+
+forwardMsg* NotifyCenter()
 {
 	return pGForwardMsg?pGForwardMsg:pGForwardMsg=new forwardMsg;
 }
@@ -9,10 +14,10 @@ forwardMsg* GetSharedForwardMsg()
 
 void RegistMsgReceiver(UINT uMsg,HWND hWnd)
 {
-	GetSharedForwardMsg()->RegistMsgReceiver(uMsg,hWnd);
+	NotifyCenter()->RegistMsgReceiver(uMsg,hWnd);
 }
 
 void LoginOutMsgReceiver(UINT uMsg,HWND hWnd)
 {
-	GetSharedForwardMsg()->LoginOutMsgReceiver(uMsg,hWnd);
+	NotifyCenter()->LoginOutMsgReceiver(uMsg,hWnd);
 }

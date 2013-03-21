@@ -23,12 +23,11 @@ public:
 
 
 	int indexA,indexB;
-	int indexPoint;
+	volatile int indexPoint;
 	int indexVec;
 	double *volBuffer;
 	BOOL     m_bSlowDown;           //down or up
 	BOOL     m_bCloseFileInSlowDown;
-	int      maxTimerCount;
 	MMRESULT m_timerID;
 
 	INT m_curVolume;

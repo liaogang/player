@@ -41,7 +41,7 @@ long Conv(int i) ;
 void CreateQianQianCode(char *id,char *ar,char*ti,std::string &code);
 std::string str2UnicodeCode(const WCHAR *c,int len);
 
-
+LONG GetStrSizeX(HDC dc,TCHAR *str);
 void MakeShortString(HDC dc,TCHAR *str,long width);
 
 

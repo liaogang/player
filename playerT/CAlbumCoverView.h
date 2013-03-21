@@ -28,6 +28,7 @@ public:
 	{
 		DeleteObject(newPen);
 		::DestroyMenu(menu);
+		IDonotWantToReceiveMessage(WM_NEW_TRACK_STARTED);
 	}
 
 public:
@@ -39,7 +40,17 @@ public:
 		MSG_WM_RBUTTONUP(OnRButtonUp)
 		COMMAND_ID_HANDLER(ID_MENU_PIC_SAVE, OnPicSave)
 		MSG_WM_SIZE(OnSize)
+		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
 	END_MSG_MAP()
+
+	HWND CreateMyWnd();
+
+
+	void Init()
+	{
+		IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
+		//IWantToReceiveMessage
+	}
 
 	void OnSize(UINT nType, CSize size)
 	{
@@ -49,14 +60,14 @@ public:
 
 	LRESULT OnPicSave(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-// 		const TCHAR szFilter[]=_T("BMP图像文件(*.bmp)\0*.bmp\0");
-// 		const TCHAR szDefaultExt[]=_T("bmp");
-// 		
-// 		CFileDialog dlg(FALSE,szDefaultExt,NULL,OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
-// 		if(dlg.DoModal()==IDOK)
-// 		{
-// 			i->img->Save(dlg.m_ofn.lpstrFile);
-// 		}
+		const TCHAR szFilter[]=_T("BMP图像文件(*.bmp)\0*.bmp\0");
+		const TCHAR szDefaultExt[]=_T("bmp");
+		
+		CFileDialog dlg(FALSE,szDefaultExt,NULL,OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
+		if(dlg.DoModal()==IDOK)
+		{
+			track->img->Save(dlg.m_ofn.lpstrFile);
+		}
 
 		return 0;
 	}
@@ -92,6 +103,12 @@ public:
 		ResetMenu();
 	}
 
+
+	LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		TrackChanged();
+		return 0;
+	}
 
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{

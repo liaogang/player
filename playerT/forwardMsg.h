@@ -3,6 +3,10 @@
 #include <vector>
 #include <map>
 #pragma once
+
+#define IWantToReceiveMessage(uMsg) RegistMsgReceiver(uMsg,m_hWnd)
+#define IDonotWantToReceiveMessage(uMsg) LoginOutMsgReceiver(uMsg,m_hWnd)
+
 using namespace std;
 class forwardMsg
 {
@@ -52,8 +56,8 @@ public:
 		}
 	}
 
-
-	void Msg(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+	//发送广播消息
+	void Msg(UINT uMsg,WPARAM wParam=NULL,LPARAM lParam=NULL)
 	{
 		auto it=msgMap.find(uMsg);
 		if (it!=msgMap.end())
@@ -67,7 +71,9 @@ public:
 
 
 
-
-forwardMsg* GetSharedForwardMsg();
+forwardMsg* NotifyCenter();
 void LoginOutMsgReceiver(UINT uMsg,HWND hWnd);
 void RegistMsgReceiver(UINT uMsg,HWND hWnd);
+
+
+inline void NotifyMsg(UINT uMsg,WPARAM wParam=NULL,LPARAM lParam=NULL){NotifyCenter()->Msg(uMsg,wParam,lParam);}

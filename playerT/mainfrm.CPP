@@ -425,7 +425,7 @@ LRESULT CMainFrame::OnConfigMediaLib(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 	}
 
 	m_pDlgConfig->ShowWindow(SW_SHOW);
-	std::wstring strLyricDlg(L"Γ½ΜεΏβ");
+	std::wstring strLyricDlg(L"ΆΰΓ½ΜεΏβ");
 	m_pDlgConfig->ShowDlgByName(strLyricDlg);
 	
 	return 0;
@@ -446,18 +446,7 @@ LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 
 	dlg->ShowWindow(SW_SHOW);
 	
-
-
-
-	//test
-// 	GlassWnd *pGlassWnd=new GlassWnd;
-// 	RECT rc;
-// 	GetClientRect(&rc);
-// 	pGlassWnd->Create(this->m_hWnd,rc,0,WS_CHILD|WS_VISIBLE);
-// 	pGlassWnd->foo();
-	//test
 	
-
 	return 0;
 }
 
@@ -524,10 +513,10 @@ LRESULT CMainFrame::OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHa
 		m_pTrackBar->SetPos((int)posInfo->used);
 	}
 
-	if (m_dlgLrc && ::IsWindow(m_dlgLrc->m_hWnd))
-		::PostMessage(m_dlgLrc->m_hWnd,WM_TRACKPOS,wParam,lParam);
-	if (lyricView)
-		::PostMessage(lyricView->m_hWnd,WM_TRACKPOS,wParam,lParam);
+	//if (m_dlgLrc && ::IsWindow(m_dlgLrc->m_hWnd))
+	//	::PostMessage(m_dlgLrc->m_hWnd,WM_TRACKPOS,wParam,lParam);
+	//if (lyricView)
+//		::PostMessage(lyricView->m_hWnd,WM_TRACKPOS,wParam,lParam);
 	
 
 	//AtlTrace("delete %p",posInfo);
@@ -825,19 +814,14 @@ void CMainFrame::InitData()
 
 	LoadCoreCfg();
 
-
 	::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
 
-// 	if (s->m_playLists.size()>0)
-// 	{
-// 		MyLib::PLList::iterator i;
-// 		i=s->m_playLists.end();
-// 		i--;
-// 
-// 		AllPlayListViews()->Reload(*i);
-// 	}
-
-	//MyLib::shared()->InitLrcLib();
+	IWantToReceiveMessage(WM_ADDFOLDERED);
+	IWantToReceiveMessage(WM_TRACKPOS);
+	IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
+	IWantToReceiveMessage(WM_TRACKSTOPPED);
+	IWantToReceiveMessage(WM_PL_CHANGED);
+	IWantToReceiveMessage(WM_PL_TRACKNUM_CHANGED);
 }
 
 
@@ -1123,7 +1107,7 @@ void CMyTabBar::SetCurSel(PlayList* ppl,int index)
 }
 
 
-LRESULT  CPlayListManager::OnDbClicked(UINT i,CPoint pt)
+	LRESULT  CPlayListManager::OnDbClicked(UINT i,CPoint pt)
 	{
 		int k=GetFirstSelItem();
 		if(k!=-1)
@@ -1845,12 +1829,16 @@ void MYTREE_Add_Playlist(MYTREE* tree)
 
 
 
+HWND CAlbumCoverView::CreateMyWnd()
+{
+	return Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
+}
 
 void MYTREE_Set_AlbumView(MYTREE* tree)
 {
 	CAlbumCoverView *w=new CAlbumCoverView;
-	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
-	tree->setWnd(w->m_hWnd);
+	tree->setWnd(w->CreateMyWnd());
+	w->Init();
 }
 
 void MYTREE_Add_AlbumView(MYTREE* tree)

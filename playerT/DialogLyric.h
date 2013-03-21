@@ -76,6 +76,8 @@ class CWndLyric:
 	public CMyLyric<CWindowImpl<CWndLyric>>
 {
 public:
+	DECLARE_WND_CLASS_EX(NULL,NULL,NULL)
+
 	BEGIN_MSG_MAP_EX(CWndLyric)
 		CHAIN_MSG_MAP(CMyLyric<CWindowImpl<CWndLyric>>)
 	END_MSG_MAP()

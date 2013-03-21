@@ -131,8 +131,6 @@ void CBasicPlayer::play()
 	
 	m_bStartPlay=TRUE;
 	InitSlowDown(FALSE);
-
-	::PostMessage(m_pMainFrame->m_hWnd,WM_NEW_TRACK_STARTED,NULL,NULL);
 }
 
 
@@ -159,13 +157,13 @@ void CBasicPlayer::InitSlowDown(BOOL bSlowDown,BOOL bCloseFile)
 {
 	ResetEvent(m_eventSlowDown);
 	m_bSlowDown=bSlowDown;
-	if (!m_bSlowDown)
+	if (!m_bSlowDown)//from 0 to current volume
 	{
 		indexA=0;
 		indexB=m_curVolume;
 		indexVec=1;
 	}
-	else
+	else             //from current volume  to 0
 	{
 		indexA=m_curVolume;
 		indexB=0;
@@ -180,7 +178,7 @@ void CBasicPlayer::InitSlowDown(BOOL bSlowDown,BOOL bCloseFile)
 
 void CBasicPlayer::InitSlowDownVolBuffer()
 {
-	maxTimerCount=50;
+	const int maxTimerCount=50;
 
 	//buffer 0    10000 
 	//buffer max  0
@@ -204,25 +202,30 @@ void CBasicPlayer::InitSlowDownVolBuffer()
 	//set behind 0
 	for (int i=0;i<maxTimerCount;i++)
 		volBuffer[i]=volBuffer[i]-abs(DSBVOLUME_MIN);
-
 }
 
 void CBasicPlayer::SlowDownVol()
 {
 	//todo
 	//有时indexpoint出现极大的数或负数
+#ifdef _DEBUG
+	if(indexPoint>50 || indexPoint<0)
+		ATLASSERT(FALSE);
+#endif
+	
 	m_pPlayerThread->m_lpDSBuffer->SetVolume(volBuffer[indexPoint]);
+
 
 	if (m_bStartPlay && indexPoint==0)
 	{
 		m_bStartPlay=FALSE;
+		NotifyMsg(WM_NEW_TRACK_STARTED);
 		m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
 	}
 
 	indexPoint+=indexVec;
 
 	
-
 	if ( indexPoint == indexB)
 	{
 		indexPoint=0;
@@ -233,15 +236,18 @@ void CBasicPlayer::SlowDownVol()
 			m_pPlayerThread->m_lpDSBuffer->Stop();
 			if(m_bCloseFileInSlowDown)
 			{
-				trackPosInfo *posInfo=new trackPosInfo;
-				posInfo->used=0;
-				posInfo->left=0;
-				::PostMessage(m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)posInfo,0);
+				//trackPosInfo *posInfo=new trackPosInfo;
+				//posInfo->used=0;
+				//posInfo->left=0;
+				//::PostMessage(m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)posInfo,0);
+				//::PostMessage(m_pMainFrame->m_hWnd,WM_TRACKSTOPPED,0,0);
+				NotifyMsg(WM_TRACKSTOPPED);
 				m_pPlayerThread->Teminate();
 				m_pFile->Close();
 			}
 			else
 			{
+				NotifyMsg(WM_PAUSED);
 				m_pPlayerThread->Suspend();
 			}
 		}
@@ -267,6 +273,7 @@ void CBasicPlayer::pause()
 		m_bPaused=FALSE;
 		m_pPlayerThread->Resume();
 		m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
+		NotifyMsg(WM_PAUSE_START);
 		InitSlowDown(FALSE);
 	}
 }

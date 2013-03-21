@@ -91,7 +91,9 @@ void CPlayerThread::WriteDataToDSBuf()
 			pPosInfo->used=0;
 			pPosInfo->left=0;
 			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)pPosInfo,0);
-			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKSTOPPED,0,0);
+			//::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKSTOPPED,0,0);
+
+			NotifyMsg(WM_TRACKSTOPPED);
 		}
 
 		m_lpDSBuffer->Stop();
@@ -102,8 +104,11 @@ void CPlayerThread::WriteDataToDSBuf()
 	}
 
 	m_pPlayer->m_pFile->GetPos(&(pPosInfo->used),&(pPosInfo->left));
-	::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)pPosInfo,0);
-	
+	//::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)pPosInfo,0);
+
+	NotifyMsg(WM_TRACKPOS,(WPARAM)pPosInfo,0);
+
+
 	DWORD playCursor;
 	if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return;
 	DWORD available=DS_GetAvailable(g_dwMaxDSBufferLen,playCursor,m_dwCurWritePos);
