@@ -277,7 +277,7 @@ public:
 		vector<lineinfo> veclineinfo;
 		vector<lineinfo>::iterator curLineInfo;
 		vector<LrcLine> lrcs;
-
+		HDC m_menDCGray;
 		void CreateBackDC()
 		{
 			HDC dc=GetDC();
@@ -301,6 +301,17 @@ public:
 			HBITMAP tmp=::CreateCompatibleBitmap(dc,WIDTH(rcDest),HEIGHT(rcDest));
 			::SelectObject(m_memDC,tmp);
 
+
+
+			
+
+
+
+
+
+
+
+
 			//draw backgnd rectangle
 			RECT rc=rcDest;
 			oldBrush=(HBRUSH)::SelectObject(m_memDC,brush);			
@@ -308,6 +319,11 @@ public:
 			::Rectangle(m_memDC,rc.left-1,rc.top,rc.right+1,rc.bottom+1);
 			::SelectObject(m_memDC,oldBrush);
 			::SelectObject(m_memDC,oldPen);
+
+
+			m_menDCGray=::CreateCompatibleDC(m_memDC);
+			tmp=::CreateCompatibleBitmap(dc,WIDTH(rcDest),HEIGHT(rcDest));
+			::SelectObject(m_memDC,tmp);
 
 			//now draw text
 			int oldBgkMode=::SetBkMode(m_memDC,TRANSPARENT);
@@ -348,8 +364,16 @@ public:
 			y=curLineInfo->yPos-(rc.bottom-rc.top)/2;
 
 
+			HDC tempdc=::CreateCompatibleDC(m_menDCGray);
+			HBITMAP tmp=::CreateCompatibleBitmap(dc,WIDTH(rcDest),HEIGHT(rcDest));
+			::SelectObject(m_menDCGray,tmp);
+
+			::BitBlt(m_menDCGray,rcDest.left,rcDest.top,rcDest.right-rcDest.left,rcDest.bottom-rcDest.top,
+				m_memDC,0,0,SRCINVERT);
+
 			::BitBlt(dc,rcDest.left,rcDest.top,rcDest.right-rcDest.left,rcDest.bottom-rcDest.top,
-				m_memDC,0,y,SRCCOPY);
+				m_menDCGray,0,y, SRCCOPY);
+
 		}
 
 

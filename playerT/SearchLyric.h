@@ -95,7 +95,7 @@ public:
 	INT Init()
 	{
 		MakeSureSocketStartUp();
-		socketInit=SOCKET_INIT_SUCCESS;
+		socketInit=SOCKET_INIT_FAIL;
 
 
 		//in socket
@@ -105,23 +105,23 @@ public:
 
 
 		HOSTENT *host=::gethostbyname(StrServiceDianXin);
-		if (!host)
-		{socketInit=FALSE;goto r;}
+		if(host && host->h_addrtype == AF_INET)
+		{
+			sAddr.sin_addr.s_addr=*(u_long *) host->h_addr_list[0];
+		}
 		else
 		{
-			if(host->h_addrtype == AF_INET)
-			{
-				sAddr.sin_addr.s_addr=*(u_long *) host->h_addr_list[0];
-			}
+			goto r;
 		}
-
+		
 
 		outS=socket(AF_INET,SOCK_STREAM,0);
 		if (outS ==INVALID_SOCKET )
 		{
-			socketInit=SOCKET_INIT_FAIL;
-			DWORD error=GetLastError();
+			goto r;
 		}
+
+		return TRUE;
 
 r:
 		return socketInit;
