@@ -74,7 +74,7 @@ public:
 
 		MSG_WM_CREATE(OnCreate)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-		//MSG_WM_PAINT(OnPaint)
+		MSG_WM_PAINT(OnPaint)
 		MESSAGE_HANDLER(WM_SIZE,OnSize)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
 		MSG_WM_RBUTTONUP(OnRButtonUp)
@@ -111,6 +111,18 @@ public:
 		RECT tRc;
 
 		std::wstring title;
+
+
+		void OnPaint(CDCHandle dc)
+		{
+			PAINTSTRUCT ps;
+			::BeginPaint(m_hWnd,&ps);
+			if(bLrcReady)
+				mydraw(ps.hdc);
+			::EndPaint(m_hWnd,&ps);	
+		}
+
+
 		LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			const int linesSpace=5;
@@ -301,8 +313,8 @@ public:
 
 
 			//Draw In Normal and HighLight mode
-			COLORREF textColor=RGB(0,128,128);
-			COLORREF textColorHighlight=RGB(240,54,13);
+			COLORREF textColor=RGB(0,118,163);
+			COLORREF textColorHighlight=RGB(128,0,0);
 				
 
 			m_memDCNormal=::CreateCompatibleDC(dc);
