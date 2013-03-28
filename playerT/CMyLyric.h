@@ -261,7 +261,7 @@ public:
 		}
 
 
-		HDC m_memDC;
+		HDC m_memDCNormal,m_memDCHighlight;
 		CFont m_Font;
 		int m_nFontHeight;//×Ö¸ß
 
@@ -277,7 +277,7 @@ public:
 		vector<lineinfo> veclineinfo;
 		vector<lineinfo>::iterator curLineInfo;
 		vector<LrcLine> lrcs;
-		HDC m_menDCGray;
+		
 		void CreateBackDC()
 		{
 			HDC dc=GetDC();
@@ -297,40 +297,46 @@ public:
 			rcDest.right=lineWidth;
 			rcDest.bottom=lrcs.size()*lineHeight;
 
-			m_memDC=::CreateCompatibleDC(dc);
+
+
+
+			//Draw In Normal and HighLight mode
+			COLORREF textColor=RGB(0,128,128);
+			COLORREF textColorHighlight=RGB(240,54,13);
+				
+
+			m_memDCNormal=::CreateCompatibleDC(dc);
+			m_memDCHighlight=::CreateCompatibleDC(dc);
 			HBITMAP tmp=::CreateCompatibleBitmap(dc,WIDTH(rcDest),HEIGHT(rcDest));
-			::SelectObject(m_memDC,tmp);
-
-
-
+			::SelectObject(m_memDCNormal,tmp);
+			tmp=::CreateCompatibleBitmap(dc,WIDTH(rcDest),HEIGHT(rcDest));
+			::SelectObject(m_memDCHighlight,tmp);
 			
-
-
-
-
-
-
-
 
 			//draw backgnd rectangle
 			RECT rc=rcDest;
-			oldBrush=(HBRUSH)::SelectObject(m_memDC,brush);			
-			oldPen=(HPEN)::SelectObject(m_memDC,newPen);
-			::Rectangle(m_memDC,rc.left-1,rc.top,rc.right+1,rc.bottom+1);
-			::SelectObject(m_memDC,oldBrush);
-			::SelectObject(m_memDC,oldPen);
+			::SelectObject(m_memDCNormal,brush);			
+			::SelectObject(m_memDCNormal,newPen);
+			::Rectangle(m_memDCNormal,rc.left-1,rc.top,rc.right+1,rc.bottom+1);
+			
+			::SelectObject(m_memDCHighlight,brush);			
+			::SelectObject(m_memDCHighlight,newPen);
+			::Rectangle(m_memDCHighlight,rc.left-1,rc.top,rc.right+1,rc.bottom+1);
 
+			
+			//::SelectObject(m_memDCNormal,oldBrush);
+			//::SelectObject(m_memDCNormal,oldPen);
 
-			m_menDCGray=::CreateCompatibleDC(m_memDC);
-			tmp=::CreateCompatibleBitmap(dc,WIDTH(rcDest),HEIGHT(rcDest));
-			::SelectObject(m_memDC,tmp);
 
 			//now draw text
-			int oldBgkMode=::SetBkMode(m_memDC,TRANSPARENT);
-			COLORREF oldTextColor= GetTextColor(m_memDC);
-			SetTextColor(m_memDC,RGB(0,128,128));
-
-			//::SelectObject(m_memDC,m_Font.m_hFont);
+			//int oldBgkMode=::
+			SetBkMode(m_memDCNormal,TRANSPARENT);
+			SetBkMode(m_memDCHighlight,TRANSPARENT);
+			
+			//COLORREF oldTextColor= GetTextColor(m_memDCNormal);
+			SetTextColor(m_memDCNormal,textColor);
+			SetTextColor(m_memDCHighlight,textColorHighlight);
+			//::SelectObject(m_memDCNormal,m_Font.m_hFont);
 
 
 			lineinfo info;
@@ -348,8 +354,11 @@ public:
 				rcString.right=rcString.left+lineWidth;
 				rcString.top=info.yPos;
 				rcString.bottom=rcString.top+info.nStrLines*m_nFontHeight;
-				::DrawText(m_memDC,i->text.c_str(),i->text.length(),&rcString,DT_CENTER);//DT_CALCRECT|
+				::DrawText(m_memDCNormal,i->text.c_str(),i->text.length(),&rcString,DT_CENTER);//DT_CALCRECT|
+				::DrawText(m_memDCHighlight,i->text.c_str(),i->text.length(),&rcString,DT_CENTER);//DT_CALCRECT|
 			}
+
+			
 
 			totalHeight=info.yPos+info.nStrLines*m_nFontHeight;
 			curLineInfo=veclineinfo.begin();
@@ -362,18 +371,16 @@ public:
 			GetClientRect(&rcDest);
 			int y;
 			y=curLineInfo->yPos-(rc.bottom-rc.top)/2;
-
-
-			HDC tempdc=::CreateCompatibleDC(m_menDCGray);
-			HBITMAP tmp=::CreateCompatibleBitmap(dc,WIDTH(rcDest),HEIGHT(rcDest));
-			::SelectObject(m_menDCGray,tmp);
-
-			::BitBlt(m_menDCGray,rcDest.left,rcDest.top,rcDest.right-rcDest.left,rcDest.bottom-rcDest.top,
-				m_memDC,0,0,SRCINVERT);
+			 
+			RECT rcLine=rcDest;
+			rcLine.top=HEIGHT(rcDest) /2;
+			rcLine.bottom=rcLine.top+curLineInfo->nStrLines*m_nFontHeight;
 
 			::BitBlt(dc,rcDest.left,rcDest.top,rcDest.right-rcDest.left,rcDest.bottom-rcDest.top,
-				m_menDCGray,0,y, SRCCOPY);
-
+				m_memDCNormal,0,y, SRCCOPY);
+			
+			::BitBlt(dc,rcLine.left,rcLine.top,rcLine.right-rcLine.left,rcLine.bottom-rcLine.top,
+				m_memDCHighlight,0,y+rcLine.top, SRCCOPY);
 		}
 
 
