@@ -258,22 +258,22 @@ public:
 		ScreenToClient(&pt);
 		MYTREE *curClickedTree=hittest(pt);
 
-		if(!curClickedTree)
-			return 0;
-
-		if(curClickedTree->GetOverSplitterBar(xPos,yPos,info))
+		if(curClickedTree && !curClickedTree->bLocked)
 		{
-			RECT m_rcSplitter=*(info.i);
-			int m_xySplitterPos=(m_rcSplitter.right-m_rcSplitter.left)/2;
+			if(curClickedTree->GetOverSplitterBar(xPos,yPos,info))
+			{
+				RECT m_rcSplitter=*(info.i);
+				int m_xySplitterPos=(m_rcSplitter.right-m_rcSplitter.left)/2;
 
-			SetCapture();
-			if(info.tree->parent->data.type==up_down)
-			{::SetCursor(m_hCursorUpDown);
-			lastXPPos=yPos;}
-			else
-			{::SetCursor(m_hCursorLeftRight);
-			lastXPPos=xPos;
-			}	
+				SetCapture();
+				if(info.tree->parent->data.type==up_down)
+				{::SetCursor(m_hCursorUpDown);
+				lastXPPos=yPos;}
+				else
+				{::SetCursor(m_hCursorLeftRight);
+				lastXPPos=xPos;
+				}	
+			}
 		}
 
 		bHandled = FALSE;
@@ -413,7 +413,7 @@ public:
 			POINT pt={xPos,yPos};
 			MYTREE *curClickedTree=hittest(pt);
 
-			if(curClickedTree->GetOverSplitterBar(xPos,yPos,info))
+			if(curClickedTree && !curClickedTree->bLocked && curClickedTree->GetOverSplitterBar(xPos,yPos,info))
 			{
 				if(info.tree->parent->data.type==left_right)
 					::SetCursor(m_hCursorLeftRight);

@@ -72,4 +72,25 @@ MYTREE * MYTree_RemoveFromRoot(MYTREE *tree)
 }
 
 
+void SetLockedTrue(MYTREE *tree)
+{
+	tree->bLocked=true;
+}
 
+void SetLockedFalse(MYTREE *tree)
+{
+	tree->bLocked=false;
+}
+
+void WalkOverTree(MYTREE * tree,DoSomeThing func)
+{
+	int siblingNum=tree->getSiblingNumber();
+
+	for (int i=1; i<=siblingNum ; ++i, tree=tree->next)
+	{
+		func(tree);
+
+		if (tree->hasChild())
+			WalkOverTree(tree->child,func);
+	}
+}

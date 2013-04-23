@@ -67,6 +67,7 @@
 #define IDC_RADIO1                      1024
 #define IDC_CHECK1                      1025
 #define IDC_CHECK                       1025
+#define IDC_CHECK_LOCK_SPLIT            1025
 #define IDC_EDIT_AR                     1027
 #define IDC_EDIT_INFO                   1030
 #define IDC_BTN_CLR                     1031

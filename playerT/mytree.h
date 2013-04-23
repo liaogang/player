@@ -43,6 +43,21 @@ void CreateHWNDbyName(MYTREE *tree);
 MYTREE * MYTree_RemoveFromRoot(MYTREE *tree);
 
 
+
+
+
+
+
+typedef  void (*DoSomeThing)(MYTREE* tree);
+void SetLockedTrue(MYTREE *tree);
+void SetLockedFalse(MYTREE *tree);
+//遍历树,执行某动作
+void WalkOverTree(MYTREE * tree,DoSomeThing func);
+
+
+
+
+
 enum MY_DIRECTION
 {
 	ajust_left,
@@ -169,14 +184,14 @@ class MYTREE
 {
 public:
 	MYTREE(TCHAR *name):next(NULL),prev(NULL),
-		child(NULL),data(name),childs(0)
+		child(NULL),data(name),childs(0),bLocked(false)
 	{
 		//default is not root
 		parent=this;
 	}
 
 	MYTREE():next(NULL),prev(NULL),
-		child(NULL),childs(0)
+		child(NULL),childs(0),bLocked(false)
 	{
 		parent=this;
 
@@ -455,6 +470,8 @@ public:
 	MYTREE *child;//first child item
 
 	int     childs;//child number
+
+	bool    bLocked;//是否锁定.锁定之后,子面板不能移动
 	dataNode data;
 	//paint stuffs
 public:

@@ -543,8 +543,9 @@ public:
 
 	CMyTreeView tree;
 
-	BEGIN_MSG_MAP(CPropertyDlgUILayout)
+	BEGIN_MSG_MAP_EX(CPropertyDlgUILayout)
 		MSG_WM_INITDIALOG(OnInitDialog)
+		COMMAND_ID_HANDLER(IDC_CHECK_LOCK_SPLIT,OnLockSplitter)
 		//COMMAND_ID_HANDLER(IDC_BTN_ADD,OnBtnAdd)
 		//COMMAND_ID_HANDLER(IDC_BTN_DEL,OnBtnDel)
 		//NOTIFY_HANDLER_EX(IDC_MEDIA_LIST,LVN_ITEMCHANGED,OnItemChanged)
@@ -557,7 +558,24 @@ public:
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	//LRESULT OnBtnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	//LRESULT OnBtnDel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnLockSplitter(WORD wNotifyCode, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		//pre status
+ 		int bLocked=::SendMessage(m_hWnd, BM_GETCHECK, 0, 0);
+		//cur status
+		bLocked=!bLocked;
 
+
+		if (bLocked)
+ 			WalkOverTree(MyRoot,SetLockedTrue);
+		else
+			WalkOverTree(MyRoot,SetLockedFalse);
+
+
+		return 0;
+	}
+
+	
 	void TraverseSplitTreeAndShowInTreeView(MYTREE *cur,HTREEITEM item)
 	{
 		tree.TraverseSplitTreeAndShowInTreeView(cur,item);
