@@ -4,10 +4,11 @@
 
 #pragma comment(lib, "winmm.lib")
 
+
 #ifdef _DEBUG
-#pragma comment(lib, "Lib\\Debug\\libmpg123.lib")
+#pragma comment(lib, "libmpg123d.lib")
 #else
-#pragma comment(lib, "Lib\\Release\\libmpg123.lib")
+#pragma comment(lib, "libmpg123.lib")
 #endif
 
 

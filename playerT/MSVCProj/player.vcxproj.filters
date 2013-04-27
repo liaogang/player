@@ -1,0 +1,964 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{1e62e6e8-3bc2-44ac-b880-b689f22bc515}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{101ed6c0-dabf-4514-a9bc-0c1e51b82f68}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{b3a1f2f1-4b81-429d-9526-3f4ae31d2deb}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest</Extensions>
+    </Filter>
+    <Filter Include="Taglib Files">
+      <UniqueIdentifier>{6cfb9468-65ec-46fe-b0aa-ffc1754a622e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Taglib Files\Header Files">
+      <UniqueIdentifier>{af601f00-d2a0-49cd-9ad5-d7008836d7d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Taglib Files\Source Files">
+      <UniqueIdentifier>{13ac5faf-729a-46eb-a902-048fd012165b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\aboutdlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\atlsplit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\BasicPlayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CAlbumCoverView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CCtrlViewBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CImg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CMyLyric.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CMyTabBar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CPropertyDlgs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CriticalSection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\customMsg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DialogConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DialogFFT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DialogFFTOutline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DialogLrcList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DialogLyric.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DialogSearch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectSoundController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DlgConsole.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dlgLrcSearch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DlgProcessing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FFT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\fileMonitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\forwardMsg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glassWnd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\globalStuffs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LrcMng.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mainfrm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Mp3File.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\music.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MusicFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MyControls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MyLib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MySerialize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mysplit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mytree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PlayerThread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PlayList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PlayListManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PlayListView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PlayListViewMng.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ProgertyDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SafeWinImpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SearchLyric.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpectrumAnalyser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SpectrumAnalyserThread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\StringConvertions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\WaveFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\WaveFileEx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\WTLTabViewCtrl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\aifffile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\aiffproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\apefooter.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\apeitem.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\apetag.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\asfattribute.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\asffile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\asfproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\asftag.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\attachedpictureframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\audioproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\commentsframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\fileref.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\flacfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\flacproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\generalencapsulatedobjectframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\id3v1genres.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\id3v1tag.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\id3v2extendedheader.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\id3v2footer.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\id3v2frame.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\id3v2framefactory.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\id3v2header.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\id3v2synchdata.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\id3v2tag.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\mp4atom.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\mp4coverart.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\mp4file.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\mp4item.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\mp4properties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\mp4tag.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\mpcfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\mpcproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\mpegfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\mpegheader.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\mpegproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\oggfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\oggflacfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\oggpage.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\oggpageheader.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\popularimeterframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\privateframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\relativevolumeframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\rifffile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\speexfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\speexproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\tag.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\taglib.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\taglib_export.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\tagunion.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\tbytevector.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\tbytevectorlist.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\tdebug.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\textidentificationframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\tfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\tlist.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\tmap.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\trueaudiofile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\trueaudioproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\tstring.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\tstringlist.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\unicode.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\uniquefileidentifierframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\unknownframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\unsynchronizedlyricsframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\urllinkframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\vorbisfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\vorbisproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\wavfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\wavpackfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\wavpackproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\wavproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\xingheader.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\include\xiphcomment.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\ogg\flac\oggflacfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\ogg\vorbis\vorbisfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\ogg\vorbis\vorbisproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\ogg\speex\speexproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\ogg\oggfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\ogg\speex\speexfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\ogg\xiphcomment.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\ogg\oggpage.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\tagunion.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\asf\asfattribute.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\asf\asffile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\asf\asfpicture.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\asf\asfproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\asf\asftag.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\flac\flacfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\flac\flacmetadatablock.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\flac\flacpicture.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\flac\flacproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\flac\flacunknownmetadatablock.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\ape\apefile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\ape\apefooter.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\ape\apeitem.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\ape\apeproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\ape\apetag.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\audioproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\fileref.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\tag.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\trueaudio\trueaudioproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\trueaudio\trueaudiofile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mp4\mp4atom.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mp4\mp4coverart.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mp4\mp4file.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mp4\mp4item.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mp4\mp4properties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mp4\mp4tag.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\wavpack\wavpackfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\wavpack\wavpackproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\taglib_export.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\mpegheader.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\frames\relativevolumeframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\frames\generalencapsulatedobjectframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\frames\textidentificationframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\frames\unknownframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\frames\commentsframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\frames\popularimeterframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\frames\urllinkframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\frames\attachedpictureframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\frames\privateframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\frames\uniquefileidentifierframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\frames\unsynchronizedlyricsframe.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\id3v2extendedheader.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\id3v2synchdata.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\id3v2tag.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\id3v2footer.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\id3v2frame.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\id3v2header.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v2\id3v2framefactory.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v1\id3v1genres.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\id3v1\id3v1tag.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\mpegfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\xingheader.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpeg\mpegproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\riff\wav\wavfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\riff\wav\wavproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\riff\rifffile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\riff\aiff\aifffile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\riff\aiff\aiffproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\toolkit\tbytevector.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\toolkit\tbytevectorlist.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\toolkit\tdebug.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\toolkit\tfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\toolkit\taglib.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\toolkit\tlist.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\toolkit\tmap.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\toolkit\tstring.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\toolkit\unicode.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\toolkit\tstringlist.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpc\mpcfile.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\mpc\mpcproperties.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\taplib\taglib\ogg\oggpageheader.h">
+      <Filter>Taglib Files\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\BasicPlayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DialogConfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\fileMonitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\forwardMsg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\globalStuffs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LrcMng.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mainfrm.CPP">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\music.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MyLib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MySerialize.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mysplit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PlayerThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PlayList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PlayListViewMng.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpectrumAnalyser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SpectrumAnalyserThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\StringConvertions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Thread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Util1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\WaveFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\trueaudio\trueaudiofile.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\trueaudio\trueaudioproperties.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mp4\mp4coverart.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mp4\mp4atom.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mp4\mp4file.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mp4\mp4item.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mp4\mp4properties.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mp4\mp4tag.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\audioproperties.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\fileref.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\tag.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\wavpack\wavpackfile.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\wavpack\wavpackproperties.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\mpegfile.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\frames\attachedpictureframe.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\frames\privateframe.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\frames\uniquefileidentifierframe.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\frames\relativevolumeframe.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\frames\unknownframe.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\frames\unsynchronizedlyricsframe.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\frames\generalencapsulatedobjectframe.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\frames\popularimeterframe.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\frames\textidentificationframe.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\frames\commentsframe.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\frames\urllinkframe.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\id3v2framefactory.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\id3v2synchdata.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\id3v2extendedheader.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\id3v2tag.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\id3v2footer.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\id3v2frame.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v2\id3v2header.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\mpegproperties.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v1\id3v1tag.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\id3v1\id3v1genres.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\mpegheader.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpeg\xingheader.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\riff\wav\wavfile.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\riff\wav\wavproperties.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\riff\rifffile.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\riff\aiff\aifffile.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\riff\aiff\aiffproperties.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\toolkit\tbytevector.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\toolkit\tdebug.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\toolkit\tbytevectorlist.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\toolkit\tfile.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\toolkit\tstring.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\toolkit\tstringlist.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\toolkit\unicode.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpc\mpcfile.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\mpc\mpcproperties.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\ogg\oggfile.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\ogg\oggpage.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\ogg\xiphcomment.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\ogg\flac\oggflacfile.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\ogg\vorbis\vorbisfile.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\ogg\vorbis\vorbisproperties.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\ogg\speex\speexfile.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\ogg\oggpageheader.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\ogg\speex\speexproperties.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\asf\asfattribute.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\asf\asffile.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\asf\asfpicture.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\asf\asfproperties.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\asf\asftag.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\flac\flacmetadatablock.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\flac\flacpicture.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\flac\flacproperties.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\flac\flacunknownmetadatablock.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\flac\flacfile.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\ape\apefile.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\ape\apefooter.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\ape\apeitem.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\ape\apeproperties.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\ape\apetag.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\taplib\taglib\tagunion.cpp">
+      <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\player.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\taplib\include\README">
+      <Filter>Taglib Files\Header Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>
