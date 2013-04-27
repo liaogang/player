@@ -715,10 +715,6 @@ playerT/wtl/Include/atltheme.h -text
 playerT/wtl/Include/atluser.h -text
 playerT/wtl/Include/atlwince.h -text
 playerT/wtl/Include/atlwinx.h -text
-playerT/备份/mpg123_denc.dll -text
-playerT/备份/mpg123_denc.lib -text
-playerT/备份/mpg123_dencd.dll -text
-playerT/备份/mpg123_dencd.lib -text
 playerTBranch/CMyView.h -text
 playerTBranch/CPropertyDlgs.h -text
 playerTBranch/DialogConfig.cpp -text
