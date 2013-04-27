@@ -363,6 +363,8 @@
     <IntDir>Release</IntDir>
     <OutDir>Release</OutDir>
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>c:\openssl\include;..\taplib\include;..\taplib\taglib\ape;F:\C_Source\dsound\player\mpg123\include;c:\openssl\include;$(IncludePath);..\Dx9SDK\Include;</IncludePath>
+    <LibraryPath>..\Dx9SDK\Lib;..\mpg123\Lib;C:\openssl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -402,7 +404,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ExceptionHandling>
