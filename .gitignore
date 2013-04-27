@@ -19,6 +19,9 @@ playerT/*.user
 playerT/*.vcxproj
 playerT/Debug
 playerT/Debug1
+playerT/MSVCProj/Debug
+playerT/MSVCProj/ipch
+playerT/MSVCProj/player.opensdf
 playerT/Release
 playerT/Release/*
 playerT/Release/*.dep
