@@ -88,12 +88,9 @@ playerT/DialogFFTOutline.h -text
 playerT/DialogLrcList.h -text
 playerT/DialogLyric.h -text
 playerT/DialogSearch.h -text
-playerT/DirectSoundController.cpp -text
 playerT/DirectSoundController.h -text
 playerT/DlgConsole.h -text
 playerT/DlgProcessing.h -text
-playerT/DsoundControl.cpp -text
-playerT/DsoundControl.h -text
 playerT/Dx9SDK/Include/Amvideo.h -text
 playerT/Dx9SDK/Include/Bdatif.h -text
 playerT/Dx9SDK/Include/DShow.h -text
@@ -346,7 +343,6 @@ playerT/StringConvertions.cpp -text
 playerT/StringConvertions.h -text
 playerT/Thread.cpp -text
 playerT/Thread.h -text
-playerT/UpgradeLog.XML -text
 playerT/Util1.cpp -text
 playerT/Util1.h -text
 playerT/Utils.h -text
@@ -365,8 +361,6 @@ playerT/forwardMsg.h -text
 playerT/glassWnd.h -text
 playerT/globalStuffs.cpp -text
 playerT/globalStuffs.h -text
-playerT/libmpg123.dll -text
-playerT/libmpg123.lib -text
 playerT/mainfrm.CPP -text
 playerT/mainfrm.h -text
 playerT/mpg123/Lib/libmpg123.lib -text
@@ -432,11 +426,6 @@ playerT/mytree.h -text
 playerT/player.cpp -text
 playerT/player.h -text
 playerT/player.rc -text
-playerT/player.sln -text
-playerT/player.suo -text
-playerT/player.vcproj -text
-playerT/playerT.aps -text
-playerT/playerT.opt -text
 playerT/res/Toolbar.bmp -text
 playerT/res/idr_main.ico -text
 playerT/res/player.ico -text
@@ -705,8 +694,6 @@ playerT/taplib/taglib/wavpack/wavpackfile.h -text
 playerT/taplib/taglib/wavpack/wavpackproperties.cpp -text
 playerT/taplib/taglib/wavpack/wavpackproperties.h -text
 playerT/todo.txt -text
-playerT/vc90.idb -text
-playerT/vc90.pdb -text
 playerT/wtl/Include/atlapp.h -text
 playerT/wtl/Include/atlcrack.h -text
 playerT/wtl/Include/atlctrls.h -text

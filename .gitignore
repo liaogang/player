@@ -23,16 +23,6 @@ playerT/MSVCProj/Debug
 playerT/MSVCProj/ipch
 playerT/MSVCProj/player.opensdf
 playerT/Release
-playerT/Release/*
-playerT/Release/*.dep
-playerT/Release/*.htm
-playerT/Release/*.lastbuildstate
-playerT/Release/*.log
-playerT/Release/*.manifest
-playerT/Release/*.obj
-playerT/Release/*.res
-playerT/Release/*.tlog
-playerT/Release/player.exe
 playerT/SafeWinImpl.h
 playerT/playerT.ncb
 playerT/playerT.suo
