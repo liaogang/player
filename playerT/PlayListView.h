@@ -453,7 +453,7 @@ public:
 				_T("Title                        "),
 				_T("艺术家艺"),
 				_T("Album         "),
-				_T("Year"),
+				_T("年份"),
 				_T("Genre               ")
 			};
 			const int cxOffset = 15;

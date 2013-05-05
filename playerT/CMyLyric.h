@@ -244,10 +244,19 @@ public:
 			{
 				++nextLine;
 
-				++curLineInfo;
-
-				if (curLineInfo!=veclineinfo.end())
+				auto k=curLineInfo;
+				if(++k!=veclineinfo.end())
+					//if (curLineInfo!=veclineinfo.end())
+				{
 					mydraw(GetDC());
+
+					++curLineInfo;
+				}
+				else
+				{
+					mydraw(GetDC());
+					bLrcReady=false;
+				}
 			}
 
 			return 0;
@@ -350,7 +359,7 @@ public:
 			SetTextColor(m_memDCHighlight,textColorHighlight);
 			//::SelectObject(m_memDCNormal,m_Font.m_hFont);
 
-
+			veclineinfo.clear();
 			lineinfo info;
 			info.yPos=0;
 			info.nStrLines=0;
@@ -382,6 +391,7 @@ public:
 			RECT rcDest;
 			GetClientRect(&rcDest);
 			int y;
+			if(!bLrcReady)return;
 			y=curLineInfo->yPos-(rc.bottom-rc.top)/2;
 			 
 			RECT rcLine=rcDest;

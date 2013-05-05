@@ -129,8 +129,12 @@ void CBasicPlayer::play()
 	m_pPlayerThread->WriteDataToDSBuf();
 	m_pPlayerThread->Init(FALSE);
 	
-	m_bStartPlay=TRUE;
-	InitSlowDown(FALSE);
+	//m_bStartPlay=TRUE;
+	
+	TimerVolGrowUp();
+
+	NotifyMsg(WM_NEW_TRACK_STARTED);
+	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
 }
 
 
@@ -152,7 +156,14 @@ void CALLBACK SlowDownVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWO
 	p->SlowDownVol();
 }
 
+void CALLBACK GrowUpVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD dw2)
+{
+	CBasicPlayer *p=(CBasicPlayer*)dwUser;
+	p->GrowUpVol();
+}
 
+
+/*
 void CBasicPlayer::InitSlowDown(BOOL bSlowDown,BOOL bCloseFile)
 {
 	ResetEvent(m_eventSlowDown);
@@ -174,6 +185,62 @@ void CBasicPlayer::InitSlowDown(BOOL bSlowDown,BOOL bCloseFile)
 	m_bCloseFileInSlowDown=bCloseFile;
 	m_timerID=::timeSetEvent(12,100,SlowDownVolFunc,(DWORD)this,TIME_PERIODIC|TIME_CALLBACK_FUNCTION); 
 }
+*/
+
+
+
+
+
+void CBasicPlayer::SlowDownVol()
+{
+	--curVolDown;
+	m_pPlayerThread->m_lpDSBuffer->SetVolume(volBuffer[curVolDown]);
+
+	if(curVolDown==0)
+	{
+		timeKillEvent(m_timerDownID);
+		m_pPlayerThread->m_lpDSBuffer->Stop();
+		if(m_bCloseFileInSlowDown)
+		{
+			NotifyMsg(WM_TRACKSTOPPED);
+			m_pPlayerThread->Teminate();
+			m_pFile->Close();
+		}
+		else
+		{
+			NotifyMsg(WM_PAUSED);
+			m_pPlayerThread->Suspend();
+		}
+	}
+	
+}
+
+void CBasicPlayer::GrowUpVol()
+{
+	curVolUp+=2;
+
+	m_pPlayerThread->m_lpDSBuffer->SetVolume(volBuffer[curVolUp]);
+
+	if(curVolUp>=49)
+	{
+		timeKillEvent(m_timerUpID);
+	}
+}
+
+void CBasicPlayer::TimerVolSlowDown()
+{
+	 curVolDown=49;
+	m_timerDownID=::timeSetEvent(12,100,SlowDownVolFunc,(DWORD)this,TIME_PERIODIC|TIME_CALLBACK_FUNCTION); 
+}
+
+void CBasicPlayer::TimerVolGrowUp()
+{
+	curVolUp=0;
+	m_timerUpID=::timeSetEvent(12,100,GrowUpVolFunc,(DWORD)this,TIME_PERIODIC|TIME_CALLBACK_FUNCTION); 
+}
+
+
+
 
 
 void CBasicPlayer::InitSlowDownVolBuffer()
@@ -204,6 +271,7 @@ void CBasicPlayer::InitSlowDownVolBuffer()
 		volBuffer[i]=volBuffer[i]-abs(DSBVOLUME_MIN);
 }
 
+/*
 void CBasicPlayer::SlowDownVol()
 {
 	//todo
@@ -255,18 +323,21 @@ void CBasicPlayer::SlowDownVol()
 		::SetEvent(m_eventSlowDown);
 	}
 }
+*/
+
 
 void CBasicPlayer::pause()
 {
 	if (m_bStopped )return;
 
-	if(::WaitForSingleObject(m_eventSlowDown,0)!=WAIT_OBJECT_0)
-		return;
+// 	if(::WaitForSingleObject(m_eventSlowDown,0)!=WAIT_OBJECT_0)
+// 		return;
 
 	if (!m_bPaused)
 	{  
 		m_bPaused=TRUE;
-		InitSlowDown();
+		m_bCloseFileInSlowDown=FALSE;
+		TimerVolSlowDown();
 	}
 	else
 	{
@@ -274,7 +345,7 @@ void CBasicPlayer::pause()
 		m_pPlayerThread->Resume();
 		m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
 		NotifyMsg(WM_PAUSE_START);
-		InitSlowDown(FALSE);
+		TimerVolGrowUp();
 	}
 }
 
@@ -282,8 +353,8 @@ void CBasicPlayer::pause()
 
 void CBasicPlayer::stop()
 {
-	if(::WaitForSingleObject(m_eventSlowDown,0)!=WAIT_OBJECT_0)
-		return;
+// 	if(::WaitForSingleObject(m_eventSlowDown,0)!=WAIT_OBJECT_0)
+// 		return;
 
 	if(!m_bStopped )
 	{
@@ -291,7 +362,9 @@ void CBasicPlayer::stop()
 
 		if (!m_bPaused)
 		{
-			InitSlowDown(TRUE,TRUE);
+			m_bCloseFileInSlowDown=TRUE;
+			//InitSlowDown(TRUE,TRUE);
+			TimerVolSlowDown();
 		}
 		else
 		{

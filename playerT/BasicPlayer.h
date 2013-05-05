@@ -30,6 +30,14 @@ public:
 	BOOL     m_bCloseFileInSlowDown;
 	MMRESULT m_timerID;
 
+
+	MMRESULT m_timerDownID;
+	MMRESULT	m_timerUpID;
+	volatile int curVolDown,curVolUp;
+
+
+
+
 	INT m_curVolume;
 	BOOL m_bStopped;
 	BOOL m_bPaused;
@@ -42,8 +50,13 @@ public:
 	CSpectrumAnalyser* m_pSpectrumAnalyser;
 
 	FileTrack *itemWaitPlay;
-	void InitSlowDown(BOOL bSlowDown=TRUE,BOOL bCloseFile=FALSE);
+	//void InitSlowDown(BOOL bSlowDown=TRUE,BOOL bCloseFile=FALSE);
 	void SlowDownVol();
+	void GrowUpVol();
+	void TimerVolSlowDown();
+
+	void TimerVolGrowUp();
+
 	void SetVolumeByEar(int vol);
 	BOOL open(FileTrack * track);
 	void ResetFile();
