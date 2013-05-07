@@ -312,7 +312,6 @@ playerT/Lib/Release/vc90.pdb -text
 playerT/LrcMng.cpp -text
 playerT/LrcMng.h -text
 playerT/MSVCProj/player.sln -text
-playerT/MSVCProj/player.suo -text
 playerT/MSVCProj/player.vcxproj -text
 playerT/MSVCProj/player.vcxproj.filters -text
 playerT/MSVCProj/player.vcxproj.user -text
