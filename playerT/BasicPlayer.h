@@ -45,7 +45,6 @@ public:
 	BOOL m_bStartPlay;
 	MusicFile *m_pFile;
 	CCriticalSection m_cs;
-	CMainFrame *m_pMainFrame;
 	CPlayerThread* m_pPlayerThread;
 	CSpectrumAnalyser* m_pSpectrumAnalyser;
 

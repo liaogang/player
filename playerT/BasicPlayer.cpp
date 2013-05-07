@@ -129,7 +129,6 @@ void CBasicPlayer::play()
 	m_pPlayerThread->WriteDataToDSBuf();
 	m_pPlayerThread->Init(FALSE);
 	
-	//m_bStartPlay=TRUE;
 	
 	TimerVolGrowUp();
 
@@ -141,14 +140,14 @@ void CBasicPlayer::play()
 //这个函数放在线程里,有问题,声音出不来,???
 //所以改用消息通知主线程启动
 //等淡入淡出效果结果
-void CBasicPlayer::WaitPlay()
+/*void CBasicPlayer::WaitPlay()
 {
 	DWORD waitResult=::WaitForSingleObject(m_eventSlowDown,1000);
 	if (waitResult==WAIT_TIMEOUT)
 		return;
 	else if (waitResult==WAIT_OBJECT_0)//slowdown ending sign
 		::SendMessage(m_pMainFrame->m_hWnd,WM_PLAY_DIRECTLY,(WPARAM)itemWaitPlay,NULL);
-}
+}*/
 
 void CALLBACK SlowDownVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD dw2)
 {
@@ -161,33 +160,6 @@ void CALLBACK GrowUpVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD
 	CBasicPlayer *p=(CBasicPlayer*)dwUser;
 	p->GrowUpVol();
 }
-
-
-/*
-void CBasicPlayer::InitSlowDown(BOOL bSlowDown,BOOL bCloseFile)
-{
-	ResetEvent(m_eventSlowDown);
-	m_bSlowDown=bSlowDown;
-	if (!m_bSlowDown)//from 0 to current volume
-	{
-		indexA=0;
-		indexB=m_curVolume;
-		indexVec=1;
-	}
-	else             //from current volume  to 0
-	{
-		indexA=m_curVolume;
-		indexB=0;
-		indexVec=-1;
-	}
-
-	indexPoint=indexA;
-	m_bCloseFileInSlowDown=bCloseFile;
-	m_timerID=::timeSetEvent(12,100,SlowDownVolFunc,(DWORD)this,TIME_PERIODIC|TIME_CALLBACK_FUNCTION); 
-}
-*/
-
-
 
 
 
@@ -271,67 +243,11 @@ void CBasicPlayer::InitSlowDownVolBuffer()
 		volBuffer[i]=volBuffer[i]-abs(DSBVOLUME_MIN);
 }
 
-/*
-void CBasicPlayer::SlowDownVol()
-{
-	//todo
-	//有时indexpoint出现极大的数或负数
-#ifdef _DEBUG
-	if(indexPoint>50 || indexPoint<0)
-		ATLASSERT(FALSE);
-#endif
-	
-	m_pPlayerThread->m_lpDSBuffer->SetVolume(volBuffer[indexPoint]);
-
-
-	if (m_bStartPlay && indexPoint==0)
-	{
-		m_bStartPlay=FALSE;
-		NotifyMsg(WM_NEW_TRACK_STARTED);
-		m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
-	}
-
-	indexPoint+=indexVec;
-
-	
-	if ( indexPoint == indexB)
-	{
-		indexPoint=0;
-
-		::timeKillEvent( m_timerID);
-		if ( m_bSlowDown)
-		{
-			m_pPlayerThread->m_lpDSBuffer->Stop();
-			if(m_bCloseFileInSlowDown)
-			{
-				//trackPosInfo *posInfo=new trackPosInfo;
-				//posInfo->used=0;
-				//posInfo->left=0;
-				//::PostMessage(m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)posInfo,0);
-				//::PostMessage(m_pMainFrame->m_hWnd,WM_TRACKSTOPPED,0,0);
-				NotifyMsg(WM_TRACKSTOPPED);
-				m_pPlayerThread->Teminate();
-				m_pFile->Close();
-			}
-			else
-			{
-				NotifyMsg(WM_PAUSED);
-				m_pPlayerThread->Suspend();
-			}
-		}
-
-		::SetEvent(m_eventSlowDown);
-	}
-}
-*/
 
 
 void CBasicPlayer::pause()
 {
 	if (m_bStopped )return;
-
-// 	if(::WaitForSingleObject(m_eventSlowDown,0)!=WAIT_OBJECT_0)
-// 		return;
 
 	if (!m_bPaused)
 	{  
@@ -353,9 +269,6 @@ void CBasicPlayer::pause()
 
 void CBasicPlayer::stop()
 {
-// 	if(::WaitForSingleObject(m_eventSlowDown,0)!=WAIT_OBJECT_0)
-// 		return;
-
 	if(!m_bStopped )
 	{
 		m_bStopped=TRUE;
@@ -363,7 +276,6 @@ void CBasicPlayer::stop()
 		if (!m_bPaused)
 		{
 			m_bCloseFileInSlowDown=TRUE;
-			//InitSlowDown(TRUE,TRUE);
 			TimerVolSlowDown();
 		}
 		else

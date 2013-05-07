@@ -10,8 +10,8 @@ struct trackPosInfo
 
 #define  WM_TRACKPOS          (WM_USER+22)  
 
-
-#define  WM_TRACKSTOPPED      (WM_USER+34)//音轨播放完毕
+#define  WM_TRACK_REACH_END   (WM_USER+53)//音轨到达末尾
+#define  WM_TRACKSTOPPED      (WM_USER+34)//音轨播放停止
 #define  WM_NEW_TRACK_STARTED (WM_USER+37)//开始音轨播放
 #define  WM_PAUSED            (WM_USER+38)//暂停音轨播放
 #define  WM_PAUSE_START            (WM_USER+39)//开始暂停的音轨播放

@@ -166,7 +166,14 @@ public:
 	}
 	
 
-
+	void Init()
+	{
+		SetPageSize(1);
+		SetLineSize(1);
+		SetThumbLength(2);
+		SetRange(0,100);
+		SetPos(100);
+	}
 
 };
 
@@ -177,10 +184,44 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 
 	BEGIN_MSG_MAP_EX(CMyStatusBar)
 		MSG_WM_LBUTTONDBLCLK(OnLButtonDblClk)
-	END_MSG_MAP()
 
+		//user message
+		MESSAGE_HANDLER(WM_PAUSED,OnPaused)
+		MESSAGE_HANDLER(WM_PAUSE_START,OnResume)
+	END_MSG_MAP()
+	
 	//双击状态栏,激活当前播放音轨
 	void OnLButtonDblClk(UINT nFlags, CPoint point);
+#ifdef _DEBUG
+	int bInit;
+#endif
+	void Init()
+	{
+#ifdef _DEBUG
+		bInit=1;
+#endif
+		
+		IWantToReceiveMessage(WM_PAUSED);
+		IWantToReceiveMessage(WM_PAUSE_START);
+	}
+
+	LRESULT OnPaused(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		SetText(0,_T("已暂停"));
+		return 0;
+	}
+
+	LRESULT OnResume(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		SetText(0,_T("正在播放..."));
+		return 0;
+	}
+
+	virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
+	{
+		IDonotWantToReceiveMessage(WM_PAUSED);	
+		IDonotWantToReceiveMessage(WM_PAUSE_START);	
+	}
 };
 
 

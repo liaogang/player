@@ -112,6 +112,8 @@ public:
 		MESSAGE_HANDLER(WM_ADDFOLDERED,OnAddFolder)
 		MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
+
+		MESSAGE_HANDLER(WM_TRACK_REACH_END,OnTrackReachEnd)
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
 		MESSAGE_HANDLER(WM_PL_CHANGED,OnPLChanged)
 		MESSAGE_HANDLER(WM_PL_TRACKNUM_CHANGED,OnPLTrackNumChanged)
@@ -163,6 +165,7 @@ public:
 	LRESULT OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnCbnSelchanged(UINT,int id, HWND hWndCtl);
+	LRESULT OnTrackReachEnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnPLChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnPLTrackNumChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);

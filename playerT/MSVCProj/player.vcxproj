@@ -356,7 +356,7 @@
     <IntDir>Debug</IntDir>
     <OutDir>Debug</OutDir>
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>c:\openssl\include;$(IncludePath);..\Dx9SDK\Include;..\taplib\include;..\taplib\taglib\ape;F:\SourceCode\mpg123\include</IncludePath>
+    <IncludePath>c:\openssl\include;$(IncludePath);..\Dx9SDK\Include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include</IncludePath>
     <LibraryPath>..\Dx9SDK\Lib;..\mpg123\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

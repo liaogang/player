@@ -128,11 +128,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//volume track bar
 	m_pVolumeBar=new CMyVolumeBar;
 	HWND hWndVolumeBar=m_pVolumeBar->Create(m_hWndToolBar,NULL,NULL,style,styleEx);
-	m_pVolumeBar->SetPageSize(1);
-	m_pVolumeBar->SetLineSize(1);
-	m_pVolumeBar->SetThumbLength(2);
-	m_pVolumeBar->SetRange(0,100);
-	m_pVolumeBar->SetPos(100);
+	m_pVolumeBar->Init();
+	
 	m_pRebar->pVolume=m_pVolumeBar;
 	AddSimpleReBarBand(hWndVolumeBar,NULL,FALSE,50,TRUE);
 
@@ -143,7 +140,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	CreateSimpleStatusBar();
 	m_pStatus=new CMyStatusBar;
 	m_pStatus->SubclassWindow(m_hWndStatusBar);
-		
+	m_pStatus->Init();
+
 	UIAddToolBar(hWndToolBar);
 	UISetCheck(ID_VIEW_TOOLBAR, 1);
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
@@ -156,23 +154,14 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	pLoop->AddMessageFilter(this);
 	pLoop->AddIdleHandler(this);
 
-	//set main pointer
-	//m_pPlaylistView->SetMain(this);
-	CBasicPlayer::shared()->m_pMainFrame=this;
-	//m_pTabBar->pMain=this;
-	//m_pStatus->pMain=this;
-
-
-	
-
 	SetMsgHandled(FALSE);
 	return 0;
 }
 
 void CMainFrame::InitUILayout()
 {
-	DWORD dwSplitStyle = WS_CHILD|WS_VISIBLE | WS_CLIPCHILDREN |WS_CLIPSIBLINGS  ;
-	DWORD dwSplitExStyle =WS_EX_CLIENTEDGE;
+	const DWORD dwSplitStyle = WS_CHILD|WS_VISIBLE | WS_CLIPCHILDREN |WS_CLIPSIBLINGS  ;
+	const DWORD dwSplitExStyle =WS_EX_CLIENTEDGE;
 
 	m_pDlgMultiSplitter=new CMultiSpliltWnd;
 	m_hWndClient=m_pDlgMultiSplitter->Create(m_hWnd,rcDefault,NULL,dwSplitStyle,0);
@@ -536,13 +525,23 @@ LRESULT CMainFrame::OnCbnSelchanged(UINT,int id, HWND hWndCtl)
 }
 
 
-LRESULT CMainFrame::OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+LRESULT CMainFrame::OnTrackReachEnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
 	MyLib::shared()->playNext();
 
 	ChangeTitle();
 
-	bHandled=TRUE;
+	return 0;
+}
+
+LRESULT CMainFrame::OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	/*
+	MyLib::shared()->playNext();
+
+	ChangeTitle();
+	*/
+
 	return 0;
 }
 
@@ -637,6 +636,10 @@ LRESULT CMainFrame::OnSavePlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
+#ifdef _DEBUG
+	ATLASSERT(!bInit);
+#endif
+
 	//PlayList *curPl=MyLib::shared()->ActivePlaylist();
 
 	if (!MyLib::shared()->isPlaying())
@@ -815,7 +818,8 @@ void CMainFrame::InitData()
 	LoadCoreCfg();
 
 	::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
-
+	
+	IWantToReceiveMessage(WM_TRACK_REACH_END);
 	IWantToReceiveMessage(WM_ADDFOLDERED);
 	IWantToReceiveMessage(WM_TRACKPOS);
 	IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
@@ -1409,24 +1413,14 @@ void MyLib::play(FileTrack  *track)
 void MyLib::pause()
 {
 	CBasicPlayer::shared()->pause();
-	if (CBasicPlayer::shared()->m_bPaused)
-	{
-		GetMainFrame()->m_pStatus->SetText(0,L"已暂停");
-	}
-	else
-	{
-		GetMainFrame()->m_pStatus->SetText(0,L"正在播放...");
-	}
+
 	
 }
 
 void MyLib::stop()
 {
-	if (!CBasicPlayer::shared()->stoped())
-	{
-		CBasicPlayer::shared()->stop();
-		GetMainFrame()->m_pStatus->SetText(0,L"已停止");
-	}
+	CBasicPlayer::shared()->stop();
+	GetMainFrame()->m_pStatus->SetText(0,L"已停止");
 }
 
 bool MyLib::isPlaying()

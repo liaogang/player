@@ -91,9 +91,8 @@ void CPlayerThread::WriteDataToDSBuf()
 			pPosInfo->used=0;
 			pPosInfo->left=0;
 			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)pPosInfo,0);
-			//::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKSTOPPED,0,0);
 
-			NotifyMsg(WM_TRACKSTOPPED);
+			NotifyMsg(WM_TRACK_REACH_END);
 		}
 
 		m_lpDSBuffer->Stop();
@@ -104,8 +103,6 @@ void CPlayerThread::WriteDataToDSBuf()
 	}
 
 	m_pPlayer->m_pFile->GetPos(&(pPosInfo->used),&(pPosInfo->left));
-	//::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)pPosInfo,0);
-
 	NotifyMsg(WM_TRACKPOS,(WPARAM)pPosInfo,0);
 
 
