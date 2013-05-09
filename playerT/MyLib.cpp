@@ -38,10 +38,11 @@ MyLib::~MyLib()
 		delete *i;
 }
 
+/*
 void MyLib::playAfterSlowDown(FileTrack  *item)
 {
-	CBasicPlayer::shared()->OpenAfterSlowDown(item);
-}
+	//CBasicPlayer::shared()->OpenAfterSlowDown(item);
+}*/
 
 
 //-----------------------------------------
@@ -53,7 +54,6 @@ void MyLib::playNext(BOOL scanID3)
 	{
 		track=PopTrackFromPlayQueue();
 		SetActivePlaylist(track.GetPlayList());
-		
 	}
 	else
 	{
@@ -62,23 +62,25 @@ void MyLib::playNext(BOOL scanID3)
 
 	ActivePlaylist()->SetCurPlaying(track);
 
-	AllPlayListViews()->PlayingItemChanged();
+	//AllPlayListViews()->PlayingItemChanged();
 
 	//todo update listview's item
-	track.ScanId3Info(TRUE);
+	//track.ScanId3Info(TRUE);
 
-	CBasicPlayer *sbp=CBasicPlayer::shared();
-	if (1)//todo track==ActivePlaylist()->lastTrack())
-	{
-		sbp->m_bFileEnd=FALSE;
-		sbp->play();
-	}
-	else
-	{
-		sbp->stop();
-		sbp->open(track.GetFileTrack());
-		sbp->play();
-	}
+	//CBasicPlayer *sbp=CBasicPlayer::shared();
+	//if (0)//todo track==ActivePlaylist()->lastTrack())
+	//{
+	//	sbp->m_bFileEnd=FALSE;
+	//	sbp->play();
+	//}
+	//else
+	//{
+		::SetPlayingItem(track);
+		play(track.GetFileTrack());
+
+		//sbp->open(track.GetFileTrack());
+		//sbp->play();
+	//}
 }
 
 //

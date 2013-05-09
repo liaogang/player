@@ -188,6 +188,7 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 		//user message
 		MESSAGE_HANDLER(WM_PAUSED,OnPaused)
 		MESSAGE_HANDLER(WM_PAUSE_START,OnResume)
+		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnStopped)
 	END_MSG_MAP()
 	
 	//Ë«»÷×´Ì¬À¸,¼¤»îµ±Ç°²¥·ÅÒô¹ì
@@ -202,6 +203,7 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 #endif
 		
 		IWantToReceiveMessage(WM_PAUSED);
+		IWantToReceiveMessage(WM_TRACKSTOPPED);
 		IWantToReceiveMessage(WM_PAUSE_START);
 	}
 
@@ -217,10 +219,17 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 		return 0;
 	}
 
+	LRESULT OnStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		SetText(0,_T("ÒÑÍ£Ö¹.."));
+		return 0;
+	}
+
 	virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
 	{
 		IDonotWantToReceiveMessage(WM_PAUSED);	
 		IDonotWantToReceiveMessage(WM_PAUSE_START);	
+		IDonotWantToReceiveMessage(WM_TRACKSTOPPED);	
 	}
 };
 

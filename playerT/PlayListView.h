@@ -3,6 +3,8 @@
 #include "PlayList.h"
 #include "PlayListViewMng.h"
 #include "globalStuffs.h"
+#include "customMsg.h"
+
 #define INVALID_ITEM -1
 
 unsigned int BKDRHash(char *str);
@@ -85,6 +87,9 @@ public:
 	}
 	 
 	BEGIN_MSG_MAP_EX(CPlayListView)
+		//user message
+		MESSAGE_HANDLER(WM_PLAYLISTVIEW_SETFOCUS,OnSetFocus)
+		//
 		MSG_WM_CREATE(OnCreate);
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
 		MSG_WM_CHAR(OnChar)
@@ -136,6 +141,13 @@ public:
 		}
 
 
+		LRESULT OnSetFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			// return zero  if processed
+
+			SetFocus();
+			return 1;
+		}
 
 		LRESULT OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
@@ -419,47 +431,8 @@ public:
 
 		void CreateIsWnd();
 
-		void Init()
-		{	
-			SetLVFont(16);
-
-			pMain=GetMainFrame();
-
-			if(!m_bSearch)
-				AllPlayListViews()->AddItem(this);
-
-			ChangeColorDefault();
-			SetExtendedListViewStyle(GetExtendedListViewStyle()| LVS_EX_DOUBLEBUFFER |LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP);
-
-
-			const TCHAR * columnName[]={
-				_T("索引"),
-				_T("标题"),
-				_T("艺术家"),
-				_T("专辑"),
-				_T("年份"),
-				_T("流派")
-			};
-			const UINT alignment[]={
-				LVCFMT_CENTER,
-				LVCFMT_LEFT,
-				LVCFMT_LEFT,
-				LVCFMT_LEFT,
-				LVCFMT_RIGHT,
-				LVCFMT_RIGHT
-			};
-			const TCHAR* columnNamePlaceHoder[]={
-				_T("Index"),
-				_T("Title                        "),
-				_T("艺术家艺"),
-				_T("Album         "),
-				_T("年份"),
-				_T("Genre               ")
-			};
-			const int cxOffset = 15;
-			for (int i=0;i<sizeof(columnName)/sizeof(int);++i)
-				AddColumn(columnName[i],i,-1, LVCF_FMT| LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM ,alignment[i],GetStringWidth(columnNamePlaceHoder[i])+cxOffset);		
-		}
+		void Init();
+		
 
 		int AddColumn(LPCTSTR strItem, int nItem, int nSubItem = -1,
 			int nMask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM,
@@ -670,13 +643,7 @@ public:
 		ChangeColor(RGB(230,244,255),RGB(145,200,255));
 	}
 
-	virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
-	{
-		CMessageLoop* pLoop = _Module.GetMessageLoop();
-		ATLASSERT(pLoop != NULL);
-		pLoop->RemoveMessageFilter(this);
+	virtual void OnFinalMessage(_In_ HWND /*hWnd*/);
 
-		if (!m_bSearch)
-			delete this;
-	}
+
 };

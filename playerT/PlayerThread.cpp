@@ -84,13 +84,15 @@ void CPlayerThread::WriteDataToDSBuf()
 		{			
 			pPosInfo->used=0;
 			pPosInfo->left=100;
-			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)pPosInfo,0);
+			//::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)pPosInfo,0);
+
+			NotifyMsg(WM_TRACKPOS,(WPARAM)pPosInfo,0);
 		}
 		else
 		{
-			pPosInfo->used=0;
-			pPosInfo->left=0;
-			::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)pPosInfo,0);
+			//pPosInfo->used=0;
+			//pPosInfo->left=0;
+			//::PostMessage(m_pPlayer->m_pMainFrame->m_hWnd,WM_TRACKPOS,(WPARAM)pPosInfo,0);
 
 			NotifyMsg(WM_TRACK_REACH_END);
 		}

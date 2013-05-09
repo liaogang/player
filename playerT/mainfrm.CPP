@@ -218,8 +218,9 @@ LRESULT CMainFrame::OnNotify2(int idCtrl, LPNMHDR pnmh)
 LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	MyLib::shared()->ClearPlayQueue();
-	MyLib::stop();
-	MyLib::shared()->playAfterSlowDown(MyLib::shared()->GetWaitPlayItem()->GetFileTrack());
+	//MyLib::stop();
+	MyLib::shared()->play(MyLib::shared()->GetWaitPlayItem()->GetFileTrack());
+	//MyLib::shared()->playAfterSlowDown(MyLib::shared()->GetWaitPlayItem()->GetFileTrack());
 	return 0;
 }
 
@@ -455,6 +456,7 @@ LRESULT CMainFrame::OnShowConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 	return 0;
 }
 
+/*
 void CMainFrame::lrcChanged()
 {
 	if (m_dlgLrc)
@@ -465,15 +467,13 @@ void CMainFrame::lrcChanged()
 	if(lyricView)
 		lyricView->TrackChanged();
 }
-
+*/
 
 LRESULT CMainFrame::OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
 	ChangeTitle();
 
-	lrcChanged();
-
-	//albumView1->TrackChanged();
+	//lrcChanged();
 
 	return 0;
 }
@@ -529,7 +529,6 @@ LRESULT CMainFrame::OnTrackReachEnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*l
 {
 	MyLib::shared()->playNext();
 
-	ChangeTitle();
 
 	return 0;
 }
@@ -637,7 +636,7 @@ LRESULT CMainFrame::OnSavePlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
 #ifdef _DEBUG
-	ATLASSERT(!bInit);
+	ATLASSERT(bInit);
 #endif
 
 	//PlayList *curPl=MyLib::shared()->ActivePlaylist();
@@ -655,11 +654,11 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 	wcscat(tmp,track->title.c_str());
 	GetMainFrame()->m_pStatus->SetText(0,tmp);
 
-	//TODO
-	//pMain->m_pTabBar->SetCurSel(curPl,k);
+
 	
 	AllPlayListViews()->Reload(item.GetPlayList(),item.GetIndex());
-	//pMain->m_pPlaylistView->SetFocus();
+
+	NotifyMsg(WM_PLAYLISTVIEW_SETFOCUS);
 }
 
 
@@ -739,16 +738,10 @@ void CPlayListView::PlayItem(int nItem)
 
 
 
-	MyLib::stop();
-	MyLib::shared()->playAfterSlowDown(track.GetFileTrack());
+	::SetPlayingItem(track);
+	MyLib::shared()->play(track.GetFileTrack());
 
 	RedrawItems(nItemPlaying,nItemPlaying);
-	pMain->ChangeTitle();
-	
-	
-
-
-	//pMain->albumView1->Invalidate();
 }
 
 
@@ -767,11 +760,11 @@ void CMainFrame::ChangeTitle()
 {
 // 	PlayList *ppl=MyLib::shared()->ActivePlaylist();
 // 	if(!ppl)return;
-	if (!MyLib::shared()->isPlaying())
-		return;
+	//if (!MyLib::shared()->isPlaying())
+	//	return;
 
-	PlayListItem item=GetPlayingItem();
-	FileTrack *track=item.GetFileTrack();
+	PlayListItem item = GetPlayingItem();
+	FileTrack *track = item.GetFileTrack();
 	
 		
 	const TCHAR *trackName=track->GetTitle();
@@ -1382,7 +1375,7 @@ void CDlgLrcSearch::DownLoad()
 			if(ActivePlaylist() && MyLib::shared()->isPlaying())
 			{
 				GetPlayingItem().TryLoadLrcFile(pszpath,TRUE);
-				GetMainFrame()->lrcChanged();
+				NotifyMsg(WM_LYRIC_RELOAD);
 			}
 		}
 	}
@@ -1402,10 +1395,10 @@ void MyLib::play(FileTrack  *track)
 	track->ScanId3Info(TRUE,TRUE);
 
 	CBasicPlayer* s=CBasicPlayer::shared();
+	s->stop();
 	if(s->open(track))
 	{
 		s->play();
-		GetMainFrame()->m_pStatus->SetText(0,L"正在播放...");
 	}
 }
 
@@ -1420,7 +1413,6 @@ void MyLib::pause()
 void MyLib::stop()
 {
 	CBasicPlayer::shared()->stop();
-	GetMainFrame()->m_pStatus->SetText(0,L"已停止");
 }
 
 bool MyLib::isPlaying()
@@ -1913,4 +1905,64 @@ void CreateHWNDbyName(MYTREE *tree)
 			CreateHWNDbyName(tree->child);
 	}
 
+}
+
+
+
+
+
+
+void CPlayListView::OnFinalMessage(_In_ HWND /*hWnd*/)
+{
+	CMessageLoop* pLoop = _Module.GetMessageLoop();
+	ATLASSERT(pLoop != NULL);
+	pLoop->RemoveMessageFilter(this);
+
+	IDonotWantToReceiveMessage(WM_PLAYLISTVIEW_SETFOCUS);
+
+	if (!m_bSearch)
+		delete this;
+}
+void CPlayListView::Init()
+{	
+	IWantToReceiveMessage(WM_PLAYLISTVIEW_SETFOCUS);
+
+	SetLVFont(16);
+
+	pMain=GetMainFrame();
+
+	if(!m_bSearch)
+		AllPlayListViews()->AddItem(this);
+
+	ChangeColorDefault();
+	SetExtendedListViewStyle(GetExtendedListViewStyle()| LVS_EX_DOUBLEBUFFER |LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP);
+
+
+	const TCHAR * columnName[]={
+		_T("索引"),
+		_T("标题"),
+		_T("艺术家"),
+		_T("专辑"),
+		_T("年份"),
+		_T("流派")
+	};
+	const UINT alignment[]={
+		LVCFMT_CENTER,
+		LVCFMT_LEFT,
+		LVCFMT_LEFT,
+		LVCFMT_LEFT,
+		LVCFMT_RIGHT,
+		LVCFMT_RIGHT
+	};
+	const TCHAR* columnNamePlaceHoder[]={
+		_T("Index"),
+		_T("Title                        "),
+		_T("艺术家艺"),
+		_T("Album         "),
+		_T("年份"),
+		_T("Genre               ")
+	};
+	const int cxOffset = 15;
+	for (int i=0;i<sizeof(columnName)/sizeof(int);++i)
+		AddColumn(columnName[i],i,-1, LVCF_FMT| LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM ,alignment[i],GetStringWidth(columnNamePlaceHoder[i])+cxOffset);		
 }

@@ -11,13 +11,13 @@
 #include <complex>
 using namespace std;
 
-
+/*
 static DWORD CALLBACK WaitPlayThread(LPVOID lpParameter)
 {
 	CBasicPlayer* p=(CBasicPlayer*)lpParameter;
 	p->WaitPlay();
 	return 0;
-}
+}*/
 
  CBasicPlayer* CBasicPlayer::shared()
  {
@@ -32,7 +32,7 @@ static DWORD CALLBACK WaitPlayThread(LPVOID lpParameter)
 	 m_pFile(NULL),m_bFileEnd(TRUE)
 	 ,m_curVolume(50)
 {
-	m_eventSlowDown=::CreateEvent(0,TRUE,TRUE,0);
+	//m_eventSlowDown=::CreateEvent(0,TRUE,TRUE,0);
 	//nosignaled state,to enter the slowdown
 	//signaled,to leave the slowdown
 
@@ -66,12 +66,12 @@ void CBasicPlayer:: SetVolumeByEar(int vol)
 	
 	m_curVolume=index;
 }
-
+/*
 void CBasicPlayer::OpenAfterSlowDown(FileTrack* item)
 {
 	itemWaitPlay=item;
 	::CreateThread(NULL,0,WaitPlayThread,(LPVOID)this,0,0);
-}
+}*/
 
 BOOL CBasicPlayer::open( LPCTSTR filepath )
 {
@@ -104,9 +104,6 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
 
 void CBasicPlayer::play()
 {
-	if(::WaitForSingleObject(m_eventSlowDown,0)!=WAIT_OBJECT_0)
-		return;
-
 	if (m_bFileEnd)	return;
 	
 	if (!m_bStopped)

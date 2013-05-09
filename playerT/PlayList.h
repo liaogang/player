@@ -165,6 +165,7 @@ public:
 	  BOOL  HaveKeywords(TCHAR *keywords){return filetrack->HaveKeywords(keywords);}
 	  void TryLoadLrcFile(std::tstring &filename,BOOL forceLoad=FALSE){return filetrack->TryLoadLrcFile(filename,forceLoad);}
 
+
 FileTrack* GetFileTrack(){return filetrack.get();}
 int GetIndex(){return index;}
 void SetIndex(int index){this->index=index;}

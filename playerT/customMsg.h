@@ -43,3 +43,7 @@ struct trackPosInfo
 //track number added
 #define  WM_PL_TRACKNUM_CHANGED (WM_USER+52)
 
+
+
+//tell the playlist view to gain the focus
+#define WM_PLAYLISTVIEW_SETFOCUS (WM_USER+54)
