@@ -74,6 +74,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//standed toobar 
 	HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd,IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
 
+	//CreateSimpleReBar(ATL_SIMPLE_REBAR_STYLE);
+	
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 	m_pRebar=new CMySimpleRebar;
 	m_pRebar->SubclassWindow(m_hWndToolBar);
@@ -655,10 +657,12 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 	GetMainFrame()->m_pStatus->SetText(0,tmp);
 
 
-	
+	NotifyMsg(WM_PLAYLISTVIEW_SETFOCUS);
+
+
 	AllPlayListViews()->Reload(item.GetPlayList(),item.GetIndex());
 
-	NotifyMsg(WM_PLAYLISTVIEW_SETFOCUS);
+	
 }
 
 

@@ -270,12 +270,12 @@ void CBasicPlayer::stop()
 	{
 		m_bStopped=TRUE;
 
-		if (!m_bPaused)
-		{
-			m_bCloseFileInSlowDown=TRUE;
-			TimerVolSlowDown();
-		}
-		else
+		//if (!m_bPaused)
+		//{
+		//	m_bCloseFileInSlowDown=TRUE;
+		//	TimerVolSlowDown();
+		//}
+		//else
 		{
 			m_pPlayerThread->m_lpDSBuffer->Stop();
 			m_pPlayerThread->Teminate();
