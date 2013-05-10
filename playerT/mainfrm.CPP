@@ -431,9 +431,6 @@ LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 		dlg=new CDialogLyric;
 		dlg->Create(this->m_hWnd);
 		m_dlgLrc=dlg;
-		dlg->GetClientRect(&dlg->rc);
-		dlg->TrackChanged();
-		dlg->foo();
 	}
 
 	dlg->ShowWindow(SW_SHOW);

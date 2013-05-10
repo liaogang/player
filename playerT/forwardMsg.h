@@ -63,7 +63,7 @@ public:
 	void Msg(UINT uMsg,WPARAM wParam=NULL,LPARAM lParam=NULL)
 	{
 #ifdef _DEBUG
-		AtlTrace(L"message WM_USER+%d come in to msg center\n",uMsg-WM_USER);
+		//AtlTrace(L"message WM_USER+%d come in to msg center\n",uMsg-WM_USER);
 #endif
 
 		auto it=msgMap.find(uMsg);

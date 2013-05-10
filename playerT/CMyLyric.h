@@ -100,18 +100,14 @@ public:
 			return 0;
 		}
 
-		RECT rc ,lrcRect;
-		RECT rcPre,rcCur,rcNext;
 		SIZE sz;
-		std::tstring lrcText;
-		int lrcLines,lrcTextHeight,lrcSpare,lrcHeight;
 		BOOL bLrcReady;
 		FileTrack* track;
 		vector<LrcLine>::iterator curLine,nextLine;
-		RECT tRc;
 
 		std::wstring title;
 
+		RECT m_rcClient;
 
 		void OnPaint(CDCHandle dc)
 		{
@@ -122,30 +118,17 @@ public:
 			::EndPaint(m_hWnd,&ps);	
 		}
 
+		BOOL m_bSized;
 
+		//If an application processes this message, it should return zero. 
 		LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			const int linesSpace=5;
-			GetClientRect(&rc);
-
-			int stringHeight=sz.cy;
-			rcPre=rc;
-			rcPre.bottom=rcPre.top+stringHeight;
-
-			rcCur=rcPre;
-			rcCur.top+=stringHeight+linesSpace;
-			rcCur.bottom=rcCur.top+stringHeight;
-
-			rcNext=rcCur;
-			rcNext.top+=stringHeight+linesSpace;
-			rcNext.bottom=rcNext.top+stringHeight;
-
-			lrcRect=rcPre;
-			lrcRect.bottom=rcNext.bottom;
-
+			GetClientRect(&m_rcClient);
+			
+			m_bSized=TRUE;
 
 			bHandled=FALSE;
-			return 0;
+			return 1;
 		}
 
 		LRESULT OnProperty(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -246,15 +229,14 @@ public:
 
 				auto k=curLineInfo;
 				if(++k!=veclineinfo.end())
-					//if (curLineInfo!=veclineinfo.end())
 				{
-					mydraw(GetDC());
+					mydraw();
 
 					++curLineInfo;
 				}
 				else
 				{
-					mydraw(GetDC());
+					mydraw();
 					bLrcReady=false;
 				}
 			}
@@ -266,14 +248,14 @@ public:
 		LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM  wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 		{
 			HDC dc=(HDC)wParam;
-			RECT rc;
-
-			GetClientRect(&rc);
 
 			oldBrush=(HBRUSH)::SelectObject(dc,brush);			
 			oldPen=(HPEN)::SelectObject(dc,newPen);
 
-			::Rectangle(dc,rc.left-1,rc.top,rc.right+1,rc.bottom+1);
+			GetClientRect(&m_rcClient);
+			::Rectangle(dc,m_rcClient.left,m_rcClient.top,m_rcClient.right,m_rcClient.bottom);
+
+			AtlTrace(L"%d,%d   ",WIDTH(m_rcClient),HEIGHT(m_rcClient));
 
 			::SelectObject(dc,oldBrush);
 			::SelectObject(dc,oldPen);
@@ -284,14 +266,7 @@ public:
 
 		HDC m_memDCNormal,m_memDCHighlight;
 		CFont m_Font;
-		int m_nFontHeight;//字高
 
-		int lineSpacing;//行间隔
-		int lineHeight;//行高=字高*几行字 + 行间隔
-		int lineWidth;//每一行的宽度
-		int lineWidthSpacing;//行与窗口的左右间隔
-
-		int totalHeight;
 
 
 
@@ -299,77 +274,100 @@ public:
 		vector<lineinfo>::iterator curLineInfo;
 		vector<LrcLine> lrcs;
 		
-		void CreateBackDC()
+			int m_nFontHeight;//字高
+
+
+
+		//We will Create two memory drawing context
+		//One is normal,another is highlighted
+		//Then,we will cut on line space from the true display draw context
+		//parse with the highlighted memory one
+		//parse other with the normal memory one
+		void CreateBackDC(BOOL bNewTrack=FALSE)
 		{
+			int lineSpacing;//行间隔
+			int lineHeight;//行高=字高*几行字 + 行间隔
+			int lineWidth;//每一行的宽度
+			int lineWidthSpacing;//行与窗口的左右间隔
+			int totalHeight;
+
+
 			HDC dc=GetDC();
 
 			//settings
 			lineWidthSpacing=3;
-			
 			lineSpacing=3;
-			lineWidth=200;
+			lineWidth=m_rcClient.right-m_rcClient.left-3;
 			lineHeight=+lineSpacing+m_nFontHeight;
 
 
 			//
 			RECT rcDest;
-			rcDest.left=0;
-			rcDest.top=0;
-			rcDest.right=lineWidth;
-			rcDest.bottom=lrcs.size()*lineHeight;
-
-
+			rcDest.left=3;
+			rcDest.top=3;
+			rcDest.right=lineWidth+rcDest.left;
+			rcDest.bottom=lrcs.size()*lineHeight+rcDest.top;
 
 
 			//Draw In Normal and HighLight mode
-			COLORREF textColor=RGB(0,118,163);
-			COLORREF textColorHighlight=RGB(128,0,0);
-				
+			static COLORREF textColor=RGB(0,118,163);
+			static COLORREF textColorHighlight=RGB(128,0,0);
+			
 
+			if(bNewTrack){
+			if(m_memDCNormal!=NULL)::DeleteDC(m_memDCNormal);
+			if(m_memDCHighlight!=NULL)::DeleteDC(m_memDCHighlight);
+
+			
 			m_memDCNormal=::CreateCompatibleDC(dc);
-			m_memDCHighlight=::CreateCompatibleDC(dc);
 			HBITMAP tmp=::CreateCompatibleBitmap(dc,WIDTH(rcDest),HEIGHT(rcDest));
 			::SelectObject(m_memDCNormal,tmp);
+			::DeleteObject(tmp);
+
+			m_memDCHighlight=::CreateCompatibleDC(dc);
 			tmp=::CreateCompatibleBitmap(dc,WIDTH(rcDest),HEIGHT(rcDest));
 			::SelectObject(m_memDCHighlight,tmp);
+			::DeleteObject(tmp);
 			
 
 			//draw backgnd rectangle
-			RECT rc=rcDest;
-			::SelectObject(m_memDCNormal,brush);			
-			::SelectObject(m_memDCNormal,newPen);
-			::Rectangle(m_memDCNormal,rc.left-1,rc.top,rc.right+1,rc.bottom+1);
+			HBRUSH hOldBrush1=(HBRUSH) ::SelectObject(m_memDCNormal,brush);			
+			HPEN hOldPen1=(HPEN) ::SelectObject(m_memDCNormal,newPen);
 			
-			::SelectObject(m_memDCHighlight,brush);			
-			::SelectObject(m_memDCHighlight,newPen);
-			::Rectangle(m_memDCHighlight,rc.left-1,rc.top,rc.right+1,rc.bottom+1);
+			
+			HBRUSH hOldBrush2=(HBRUSH) ::SelectObject(m_memDCHighlight,brush);			
+			HPEN hOldPen2=(HPEN)::SelectObject(m_memDCHighlight,newPen);
+			}
 
 			
-			//::SelectObject(m_memDCNormal,oldBrush);
-			//::SelectObject(m_memDCNormal,oldPen);
+			::Rectangle(m_memDCNormal,m_rcClient.left-1,m_rcClient.top,m_rcClient.right+1,m_rcClient.bottom+1);
+			::Rectangle(m_memDCHighlight,m_rcClient.left-1,m_rcClient.top,m_rcClient.right+1,m_rcClient.bottom+1);
 
 
 			//now draw text
-			//int oldBgkMode=::
-			SetBkMode(m_memDCNormal,TRANSPARENT);
-			SetBkMode(m_memDCHighlight,TRANSPARENT);
+			if(bNewTrack)
+			{
+				SetBkMode(m_memDCNormal,TRANSPARENT);
+				SetBkMode(m_memDCHighlight,TRANSPARENT);
 			
-			//COLORREF oldTextColor= GetTextColor(m_memDCNormal);
-			SetTextColor(m_memDCNormal,textColor);
-			SetTextColor(m_memDCHighlight,textColorHighlight);
-			//::SelectObject(m_memDCNormal,m_Font.m_hFont);
+				SetTextColor(m_memDCNormal,textColor);
+				SetTextColor(m_memDCHighlight,textColorHighlight);
+			}
 
-			veclineinfo.clear();
+
 			lineinfo info;
-			info.yPos=0;
-			info.nStrLines=0;
+			memset(&info,0,sizeof(info));
+			if(bNewTrack)
+				veclineinfo.clear();
+			
 			for (auto i=lrcs.begin();i!=lrcs.end();++i)
 			{
 				info.yPos=info.yPos+info.nStrLines*m_nFontHeight;
 				info.nStrLines=GetStrSizeX(dc,(TCHAR*)i->text.c_str())/(int)lineWidth+1;
 
-				veclineinfo.push_back(info);
-
+				if(bNewTrack)
+					veclineinfo.push_back(info);
+				
 				RECT rcString;
 				rcString.left=lineWidthSpacing;
 				rcString.right=rcString.left+lineWidth;
@@ -380,19 +378,34 @@ public:
 			}
 
 			
+			if(bNewTrack)
+			{
+				curLineInfo=veclineinfo.begin();
+				totalHeight=info.yPos+info.nStrLines*m_nFontHeight;
+			
 
-			totalHeight=info.yPos+info.nStrLines*m_nFontHeight;
-			curLineInfo=veclineinfo.begin();
+
+				//::SelectObject(m_memDCNormal,hOldBrush1);
+				//::SelectObject(m_memDCNormal,hOldPen1);
+				//::SelectObject(m_memDCHighlight,hOldBrush2);
+				//::SelectObject(m_memDCHighlight,hOldPen2);
+			}
+
+			ReleaseDC(dc);
 		}
 
-
-		void mydraw(HDC dc)
+		void mydraw(HDC dc_=NULL)
 		{
+			HDC dc=dc_==NULL?GetDC():dc_;
+			
+			if(m_bSized--)
+				CreateBackDC();
+			
 			RECT rcDest;
 			GetClientRect(&rcDest);
 			int y;
 			if(!bLrcReady)return;
-			y=curLineInfo->yPos-(rc.bottom-rc.top)/2;
+			y=curLineInfo->yPos-(m_rcClient.bottom-m_rcClient.top)/2;
 			 
 			RECT rcLine=rcDest;
 			rcLine.top=HEIGHT(rcDest) /2;
@@ -403,25 +416,21 @@ public:
 			
 			::BitBlt(dc,rcLine.left,rcLine.top,rcLine.right-rcLine.left,rcLine.bottom-rcLine.top,
 				m_memDCHighlight,0,y+rcLine.top, SRCCOPY);
+
+			if(dc_==NULL)
+				ReleaseDC(dc);
 		}
 
 
 
 		void TrackChanged()
 		{
-
-			int ii=0;
-			OnSize(0,0,0,ii);
-			InvalidateRect(&lrcRect);
-
 			bLrcReady=FALSE;
-			//PlayList *playlist=MyLib::shared()->ActivePlaylist();
-			//if(!playlist) return;
+			
 			if(!MyLib::shared()->isPlaying())
 				return;
 
 			track=GetPlayingItem().GetFileTrack();
-
 
 			LrcMng *sLM=LrcMng::Get();
 			if( track->GetLrcFileFromLib(TRUE) )
@@ -429,19 +438,14 @@ public:
 				lrcs=LrcMng::Get()->lib;
 				veclineinfo.clear();
 
-
-				CreateBackDC();
-
-				
+				CreateBackDC(TRUE);
 
 				//del lyricfromlrcfile
 				//use global
 				nextLine=lrcs.begin();
 				bLrcReady=TRUE;
 
-				int i=0;
-				OnSize(0,0,0,i);
-				InvalidateRect(&lrcRect);
+				Invalidate();
 			}
 
 
@@ -452,9 +456,6 @@ public:
 				title=track->lycPath;
 				ChangedTitle();
 			}
-			//无内嵌歌词,搜索*.LRCY文件
-			//track->m_bLrcInner
-
 
 		}
 
@@ -464,15 +465,9 @@ public:
 
 			//GetTextExtentPoint32(GetDC(),_T("A"),1,&sz); 
 			sz.cy=19;
-			lrcTextHeight=sz.cy;
-			lrcSpare=3;
-			lrcHeight=lrcTextHeight+lrcSpare;
-
-
 
 			track=NULL;
 			bLrcReady=FALSE;
-
 
 			IWantToReceiveMessage(WM_TRACKPOS);
 			IWantToReceiveMessage(WM_LYRIC_RELOAD);
