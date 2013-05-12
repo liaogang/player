@@ -24,7 +24,7 @@ public:
 	HPEN  newPen,oldPen; 
 
 
-	CMyLyric():bLrcReady(FALSE),track(NULL),m_nFontHeight(25)
+	CMyLyric():bLrcReady(FALSE),track(NULL),m_nFontHeight(27)
 	{
 		brush=::GetSysColorBrush(/*COLOR_3DFACE*/COLOR_BTNSHADOW);
 		newPen=(HPEN)::CreatePen(PS_NULL,0,RGB(255,255,255));
@@ -252,10 +252,9 @@ public:
 			oldBrush=(HBRUSH)::SelectObject(dc,brush);			
 			oldPen=(HPEN)::SelectObject(dc,newPen);
 
-			GetClientRect(&m_rcClient);
-			::Rectangle(dc,m_rcClient.left,m_rcClient.top,m_rcClient.right,m_rcClient.bottom);
-
-			AtlTrace(L"%d,%d   ",WIDTH(m_rcClient),HEIGHT(m_rcClient));
+			RECT rc;
+			GetClientRect(&rc);
+			::Rectangle(dc,rc.left-1, rc.top-1, rc.right+1 , rc.bottom+1);
 
 			::SelectObject(dc,oldBrush);
 			::SelectObject(dc,oldPen);
@@ -398,8 +397,11 @@ public:
 		{
 			HDC dc=dc_==NULL?GetDC():dc_;
 			
-			if(m_bSized--)
+			if(m_bSized)
+			{
+				m_bSized=FALSE;
 				CreateBackDC();
+			}
 			
 			RECT rcDest;
 			GetClientRect(&rcDest);

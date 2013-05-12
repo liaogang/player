@@ -143,8 +143,6 @@ public:
 
 		LRESULT OnSetFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			// return zero  if processed
-
 			SetFocus();
 			return 1;
 		}

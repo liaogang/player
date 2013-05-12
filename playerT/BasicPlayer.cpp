@@ -126,11 +126,10 @@ void CBasicPlayer::play()
 	m_pPlayerThread->WriteDataToDSBuf();
 	m_pPlayerThread->Init(FALSE);
 	
-	
+	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
 	TimerVolGrowUp();
 
 	NotifyMsg(WM_NEW_TRACK_STARTED);
-	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
 }
 
 
