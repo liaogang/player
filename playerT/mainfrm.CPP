@@ -64,11 +64,12 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	// attach menu
 	CMenu *pMenu=new CMenu;
 	pMenu->LoadMenu(IDR_MAINFRAME);
-	m_CmdBar.AttachMenu(pMenu->m_hMenu);
+	//m_CmdBar.AttachMenu(pMenu->m_hMenu);
 	// load command bar images
 	m_CmdBar.LoadImages(IDR_MAINFRAME);
 	// remove old menu
-	SetMenu(NULL);
+	//SetMenu(NULL);
+	//SetMenu(pMenu->m_hMenu);
 
 	//-----------------------------------------
 	//standed toobar 
@@ -81,7 +82,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_pRebar->SubclassWindow(m_hWndToolBar);
 
 
-	AddSimpleReBarBand(hWndCmdBar);
+	//AddSimpleReBarBand(hWndCmdBar);
 	AddSimpleReBarBand(hWndToolBar, NULL,TRUE,0,TRUE);
 	
 	

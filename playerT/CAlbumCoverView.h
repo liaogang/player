@@ -33,10 +33,9 @@ public:
 	}
 
 public:
-	DECLARE_WND_CLASS(NULL)
+	DECLARE_WND_CLASS_EX(_T("AlbumCoverView"), CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS,COLOR_BTNSHADOW)
 
 	BEGIN_MSG_MAP_EX(CAlbumCoverView)
-		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		MSG_WM_RBUTTONUP(OnRButtonUp)
 		COMMAND_ID_HANDLER(ID_MENU_PIC_SAVE, OnPicSave)
@@ -81,11 +80,6 @@ public:
 		::TrackPopupMenu(menu,TPM_LEFTALIGN,point.x,point.y,0,m_hWnd,0);
 	}
 
-	LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-	{
-		// handled, no background painting needed
-		return 1;
-	}
 
 	BOOL bHasPic;
 	FileTrack* track;

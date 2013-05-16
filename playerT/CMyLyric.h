@@ -382,8 +382,8 @@ public:
 			int y;
 			if(!bLrcReady)return;
 			auto kk=curLineInfo;
-			if(curLineInfo!=veclineinfo.begin())
-				--kk;
+			//if(curLineInfo!=veclineinfo.begin())
+			//	--kk;
 
 			y= kk->yPos - (m_rcClient.bottom-m_rcClient.top)/2;
 			 

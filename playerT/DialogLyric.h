@@ -79,7 +79,7 @@ class CWndLyric:
 	public CMyLyric<CWindowImpl<CWndLyric>>
 {
 public:
-	DECLARE_WND_CLASS_EX(_T("MyLyricsView"),CS_DBLCLKS,COLOR_BTNSHADOW)
+	DECLARE_WND_CLASS_EX(_T("MyLyricsView"), CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS,COLOR_BTNSHADOW)
 
 	BEGIN_MSG_MAP_EX(CWndLyric)
 		CHAIN_MSG_MAP(CMyLyric<CWindowImpl<CWndLyric>>)
