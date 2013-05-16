@@ -76,7 +76,6 @@ public:
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		MSG_WM_PAINT(OnPaint)
 		MESSAGE_HANDLER(WM_SIZE,OnSize)
-		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
 		MSG_WM_RBUTTONUP(OnRButtonUp)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
@@ -245,36 +244,14 @@ public:
 		}
 
 
-		LRESULT OnEraseBackground(UINT /*uMsg*/, WPARAM  wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-		{
-			HDC dc=(HDC)wParam;
-
-			oldBrush=(HBRUSH)::SelectObject(dc,brush);			
-			oldPen=(HPEN)::SelectObject(dc,newPen);
-
-			RECT rc;
-			GetClientRect(&rc);
-			::Rectangle(dc,rc.left-1, rc.top-1, rc.right+1 , rc.bottom+1);
-
-			::SelectObject(dc,oldBrush);
-			::SelectObject(dc,oldPen);
-
-			return 1;
-		}
-
-
 		HDC m_memDCNormal,m_memDCHighlight;
 		CFont m_Font;
-
-
-
 
 		vector<lineinfo> veclineinfo;
 		vector<lineinfo>::iterator curLineInfo;
 		vector<LrcLine> lrcs;
 		
-			int m_nFontHeight;//×Ö¸ß
-
+		int m_nFontHeight;//×Ö¸ß
 
 
 		//We will Create two memory drawing context
@@ -312,19 +289,24 @@ public:
 			static COLORREF textColor=RGB(0,118,163);
 			static COLORREF textColorHighlight=RGB(128,0,0);
 			
-
+			static RECT rcDesktop;
 			if(bNewTrack){
+
+			HWND destop=GetDesktopWindow();
+			::GetClientRect(destop,&rcDesktop);
+			rcDesktop.bottom=HEIGHT(rcDesktop)*4;
+
 			if(m_memDCNormal!=NULL)::DeleteDC(m_memDCNormal);
 			if(m_memDCHighlight!=NULL)::DeleteDC(m_memDCHighlight);
 
 			
 			m_memDCNormal=::CreateCompatibleDC(dc);
-			HBITMAP tmp=::CreateCompatibleBitmap(dc,WIDTH(rcDest),HEIGHT(rcDest));
+			HBITMAP tmp=::CreateCompatibleBitmap(dc,WIDTH(rcDesktop),HEIGHT(rcDesktop));
 			::SelectObject(m_memDCNormal,tmp);
 			::DeleteObject(tmp);
 
 			m_memDCHighlight=::CreateCompatibleDC(dc);
-			tmp=::CreateCompatibleBitmap(dc,WIDTH(rcDest),HEIGHT(rcDest));
+			tmp=::CreateCompatibleBitmap(dc,WIDTH(rcDesktop),HEIGHT(rcDesktop));
 			::SelectObject(m_memDCHighlight,tmp);
 			::DeleteObject(tmp);
 			
@@ -339,9 +321,8 @@ public:
 			}
 
 			
-			::Rectangle(m_memDCNormal,m_rcClient.left-1,m_rcClient.top,m_rcClient.right+1,m_rcClient.bottom+1);
-			::Rectangle(m_memDCHighlight,m_rcClient.left-1,m_rcClient.top,m_rcClient.right+1,m_rcClient.bottom+1);
-
+			::Rectangle(m_memDCNormal,rcDesktop.left-1,rcDesktop.top,rcDesktop.right+1,rcDesktop.bottom+1);
+			::Rectangle(m_memDCHighlight,rcDesktop.left-1,rcDesktop.top,rcDesktop.right+1,rcDesktop.bottom+1);
 
 			//now draw text
 			if(bNewTrack)
@@ -358,7 +339,7 @@ public:
 			memset(&info,0,sizeof(info));
 			if(bNewTrack)
 				veclineinfo.clear();
-			
+
 			for (auto i=lrcs.begin();i!=lrcs.end();++i)
 			{
 				info.yPos=info.yPos+info.nStrLines*m_nFontHeight;
@@ -366,7 +347,7 @@ public:
 
 				if(bNewTrack)
 					veclineinfo.push_back(info);
-				
+
 				RECT rcString;
 				rcString.left=lineWidthSpacing;
 				rcString.right=rcString.left+lineWidth;
@@ -376,20 +357,13 @@ public:
 				::DrawText(m_memDCHighlight,i->text.c_str(),i->text.length(),&rcString,DT_CENTER);//DT_CALCRECT|
 			}
 
-			
+
 			if(bNewTrack)
 			{
 				curLineInfo=veclineinfo.begin();
 				totalHeight=info.yPos+info.nStrLines*m_nFontHeight;
-			
 
-
-				//::SelectObject(m_memDCNormal,hOldBrush1);
-				//::SelectObject(m_memDCNormal,hOldPen1);
-				//::SelectObject(m_memDCHighlight,hOldBrush2);
-				//::SelectObject(m_memDCHighlight,hOldPen2);
 			}
-
 			ReleaseDC(dc);
 		}
 
@@ -407,16 +381,20 @@ public:
 			GetClientRect(&rcDest);
 			int y;
 			if(!bLrcReady)return;
-			y=curLineInfo->yPos-(m_rcClient.bottom-m_rcClient.top)/2;
+			auto kk=curLineInfo;
+			if(curLineInfo!=veclineinfo.begin())
+				--kk;
+
+			y= kk->yPos - (m_rcClient.bottom-m_rcClient.top)/2;
 			 
 			RECT rcLine=rcDest;
 			rcLine.top=HEIGHT(rcDest) /2;
 			rcLine.bottom=rcLine.top+curLineInfo->nStrLines*m_nFontHeight;
 
-			::BitBlt(dc,rcDest.left,rcDest.top,rcDest.right-rcDest.left,rcDest.bottom-rcDest.top,
+			::BitBlt(dc,rcDest.left,rcDest.top,WIDTH(rcDest),HEIGHT(rcDest),
 				m_memDCNormal,0,y, SRCCOPY);
 			
-			::BitBlt(dc,rcLine.left,rcLine.top,rcLine.right-rcLine.left,rcLine.bottom-rcLine.top,
+			::BitBlt(dc,rcLine.left,rcLine.top,WIDTH(rcLine),HEIGHT(rcLine),
 				m_memDCHighlight,0,y+rcLine.top, SRCCOPY);
 
 			if(dc_==NULL)

@@ -3,7 +3,8 @@
 #include "MyLib.h"
 #include "PlayList.h"
 #include "globalStuffs.h"
-
+#define WIDTH(rc) ((rc).right-(rc.left))
+#define HEIGHT(rc) ((rc).bottom-(rc.top))
 #define  ID_MENU_PIC_SAVE (0XF000-209)
 class CAlbumCoverView :
 	public CWindowImpl<CAlbumCoverView>
@@ -50,6 +51,8 @@ public:
 	{
 		IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
 		//IWantToReceiveMessage
+
+		TrackChanged();
 	}
 
 	void OnSize(UINT nType, CSize size)
@@ -121,12 +124,12 @@ public:
 		{
 			int iw=track->img->GetWidth();
 			int ih=track->img->GetHeight();
-
-			track->img->Draw(ps.hdc,rc.left,rc.top,iw,ih,0,0,iw,ih);
+			
 			oldPen=(HPEN )::SelectObject(ps.hdc,newPen);
-			::Rectangle(ps.hdc,iw,rc.top,rc.right+1,rc.bottom+1);
-			::Rectangle(ps.hdc,rc.left-1,ih,iw+1,rc.bottom+1);
+			::Rectangle(ps.hdc,rc.left,rc.top,rc.right,rc.bottom);
 			::SelectObject(ps.hdc,oldPen);
+			
+			track->img->Draw(ps.hdc,WIDTH(rc)/2-iw/2,HEIGHT(rc)/2-ih/2,iw,ih,0,0,iw,ih);
 		}
 		else
 		{

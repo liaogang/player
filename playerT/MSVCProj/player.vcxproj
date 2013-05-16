@@ -326,6 +326,8 @@
     <ResourceCompile Include="..\player.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\res\player.ico" />
+    <None Include="..\res\Toolbar.bmp" />
     <None Include="..\taplib\include\README" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

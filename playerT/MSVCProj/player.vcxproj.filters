@@ -960,5 +960,11 @@
     <None Include="..\taplib\include\README">
       <Filter>Taglib Files\Header Files</Filter>
     </None>
+    <None Include="..\res\Toolbar.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\player.ico">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
