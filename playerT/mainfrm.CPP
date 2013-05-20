@@ -1939,6 +1939,11 @@ void CPlayListView::Init()
 	ChangeColorDefault();
 	SetExtendedListViewStyle(GetExtendedListViewStyle()| LVS_EX_DOUBLEBUFFER |LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP);
 
+	//使用新式风格
+	SetWindowTheme(m_hWnd,_T("Explorer"),0);
+	//取消焦点状态
+	SetCallbackMask(LVIS_FOCUSED);
+
 
 	const TCHAR * columnName[]={
 		_T("索引"),

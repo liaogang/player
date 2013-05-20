@@ -22,7 +22,6 @@
 extern CAppModule _Module;
 
 #include <atlwin.h>
-//#include "SafeWinImpl.h"
 #include <atlframe.h>
 #include <atlmisc.h>
 #include <atlimage.h>
@@ -31,6 +30,7 @@ extern CAppModule _Module;
 #include <atlctrlw.h>
 #include <atlddx.h>
 #include <atlcrack.h>
+#include <atltheme.h>
 
 //split file has changed something
 #include "atlsplit.h"

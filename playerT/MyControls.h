@@ -242,8 +242,21 @@ public:
 
 	BEGIN_MSG_MAP_EX(CMySimpleRebar)
 		MESSAGE_HANDLER(WM_CTLCOLORSTATIC,OnCtrlColorStatic)
+		//MSG_WM_ERASEBKGND(OnEraseBkgnd)
+		//MSG_WM_CREATE()
 	END_MSG_MAP()
 
+	int OnCreate(LPCREATESTRUCT lpCreateStruct)
+	{
+		SetMsgHandled(FALSE);
+		SetWindowTheme(_T("Explorer"));
+		return 0;
+	}
+
+	BOOL OnEraseBkgnd(CDCHandle dc)
+	{
+		return 1;
+	}
 
 	CMyTrackBar *pTrack;
 	CMyVolumeBar *pVolume;
