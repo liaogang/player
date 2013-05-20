@@ -43,7 +43,7 @@ public:
 		rc->right=24;
 		rc->bottom=24;
 		rc->top=0;
-		return 1;
+		return 1;	  
 	}
 
 	LRESULT TBB(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
