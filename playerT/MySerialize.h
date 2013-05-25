@@ -13,6 +13,13 @@ template <> int Serialize (FILE *pFile,int t);
 template <> int Serialize (FILE *pFile,WCHAR szStr);
 
 
+
+template <class T>
+int ReSerialize(FILE *pFile,T *t);
+
+template <class T>
+int ReSerialize(FILE *pFile,T &t);
+
 // template <class T> T ReSerialize (FILE *pFile);
 // template <> std::tstring ReSerialize (FILE *pFile);
 // template <> int ReSerialize (FILE *pFile);

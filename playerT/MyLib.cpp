@@ -210,7 +210,8 @@ void MyLib::ImportLycByPath(std::tstring path)
 
 void MyLib::DeletePlayList(PlayList *pl)
 {
-	m_playLists.remove(pl);
+	auto i= find(m_playLists.begin(),m_playLists.end(),pl);
+	m_playLists.erase(i);
 	delete pl;
 	//todo 
 	//if pl == active pl

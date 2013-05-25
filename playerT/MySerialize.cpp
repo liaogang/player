@@ -4,10 +4,13 @@
 #include "MyLib.h"
 #include "globalStuffs.h"
 #include "mytree.h"
+#include "MyConfigs.h"
+
 
 template <class T>
 int Serialize(FILE *pFile,T t)
 {
+	ATLASSERT(FALSE);
 	return 0;
 };
 
@@ -86,6 +89,7 @@ int ReSerialize(FILE *pFile,T &t)
 	ATLASSERT(FALSE);
 	return -1;
 };
+
 template <>
 int ReSerialize(FILE *pFile,std::tstring *str)
 {
@@ -332,6 +336,12 @@ bool SaveCoreCfg()
 		for (auto k=MyLib::shared()->lrcDirs.begin();k!=MyLib::shared()->lrcDirs.end();++k)
 			::Serialize<>(pFile,*k);
 		
+
+		//***************************************//
+		//MyConfigs
+		GetMyConfigs()->Serialize(pFile);
+
+
 		fclose (pFile);
 	}
 
@@ -378,6 +388,14 @@ bool LoadCoreCfg()
 
 		 MyLib::shared()->InitLrcLib();
  
+
+
+		 //***************************************//
+		 //MyConfigs
+		 GetMyConfigs()->ReSerialize(pFile);
+
+
+
 		fclose (pFile);
 	}
 

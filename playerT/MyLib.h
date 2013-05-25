@@ -46,8 +46,28 @@ public:
 
 public:
 	//data member
-	typedef list<PlayList*> PLList;
+	typedef vector<PlayList*> PLList;
 	PLList m_playLists;
+	int  Playlist2Index(PlayList *pl)
+	{
+		int index=0;
+		for (auto i=m_playLists.begin();
+			i!=m_playLists.end();++i,++index)
+		{
+			if (*i == pl)
+				break;
+		}
+
+		return index;
+	}
+
+	PlayList * Index2Playlist(int index)
+	{
+		PlayList *pl=NULL;
+		if(index < m_playLists.size() && index>= 0 )
+			return m_playLists[index];
+	}
+
 
 	//自动播放列表,媒体库专用.
 	PlayList* GetAutoPlaylist();

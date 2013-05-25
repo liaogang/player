@@ -145,7 +145,8 @@ public:
 		COMMAND_ID_HANDLER(ID_FILE_SAVEPLAYLIST,OnSavePlaylist)
 		COMMAND_ID_HANDLER(ID_LV_ENLARGE_FONT,OnChangeLVFont)
 		COMMAND_ID_HANDLER(ID_LV_DECREASE_FONT,OnChangeLVFont)
-
+		
+		COMMAND_ID_HANDLER(ID_CONFIG_LAYOUT,OnConfigLayout)
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
 
@@ -214,19 +215,10 @@ public:
 		static BOOL bVisible = TRUE;	// initially visible
 		bVisible = !bVisible;
 		CReBarCtrl rebar = m_hWndToolBar;
-		int nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 1);	// toolbar is 2nd added band
-		rebar.ShowBand(nBandIndex, bVisible);
 
-		nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 2);	// toolbar is 2nd added band
-		rebar.ShowBand(nBandIndex, bVisible);
+		for(int i=0;i<4;++i)
+		rebar.ShowBand(rebar.IdToIndex(ATL_IDW_BAND_FIRST + i), bVisible);
 
-		nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 3);	// toolbar is 2nd added band
-		rebar.ShowBand(nBandIndex, bVisible);
-
-		nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 4);	// toolbar is 2nd added band
-		rebar.ShowBand(nBandIndex, bVisible);
-
-		
 		UISetCheck(ID_VIEW_TOOLBAR, bVisible);
 		UpdateLayout();
 		return 0;
@@ -262,12 +254,15 @@ public:
 	LRESULT OnStop(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnPlayNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnConfigLayout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnConfigLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnConfigMediaLib(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+
+	
 	LRESULT OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnShowConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-	LRESULT OnConfigLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-	LRESULT OnConfigMediaLib(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-	
+
 	//新建播放列表
 	LRESULT OnFileNewPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	//加载选中的播放列表文件
@@ -291,13 +286,26 @@ public:
 		return gpAppName;
 	}
 
-	
-	void ShowSearchDialog();
-	void InitUILayout();
-	void InitData();
+
 	void ShowDlgProcessFile();
 	void lrcChanged();
 	void UpdateTreeView(MYTREE *treeData);
+	void ShowSearchDialog();
+
+
+	
+	
+	
+	//when  player booted
+	void InitData();
+	void InitUILayout();
+	
+	
+
+	//when player is shuting down
+	void OnFinalMessage(_In_ HWND /*hWnd*/);
+	
+
 };
 
 

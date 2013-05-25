@@ -42,6 +42,7 @@
     <ClInclude Include="..\Mp3File.h" />
     <ClInclude Include="..\music.h" />
     <ClInclude Include="..\MusicFile.h" />
+    <ClInclude Include="..\MyConfigs.h" />
     <ClInclude Include="..\MyControls.h" />
     <ClInclude Include="..\MyLib.h" />
     <ClInclude Include="..\MySerialize.h" />
@@ -55,7 +56,6 @@
     <ClInclude Include="..\PlayListViewMng.h" />
     <ClInclude Include="..\ProgertyDlg.h" />
     <ClInclude Include="..\resource.h" />
-    <ClInclude Include="..\SafeWinImpl.h" />
     <ClInclude Include="..\SearchLyric.h" />
     <ClInclude Include="..\SpectrumAnalyser.h" />
     <ClInclude Include="..\SpectrumAnalyserThread.h" />
@@ -231,6 +231,7 @@
     <ClCompile Include="..\LrcMng.cpp" />
     <ClCompile Include="..\mainfrm.CPP" />
     <ClCompile Include="..\music.cpp" />
+    <ClCompile Include="..\MyConfigs.cpp" />
     <ClCompile Include="..\MyLib.cpp" />
     <ClCompile Include="..\MySerialize.cpp" />
     <ClCompile Include="..\mysplit.cpp" />

@@ -35,6 +35,12 @@ bool SaveCoreCfg();
 bool LoadUICfg();
 bool SaveUICfg();
 
+
+void CollectInfo();
+void ValidateCfg();
+
+
+
 //保存当前播放项目的序号
 // int GetPlayingIndex();
 // void SetPlayingIndex();

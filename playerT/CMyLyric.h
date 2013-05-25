@@ -24,7 +24,7 @@ public:
 	HPEN  newPen,oldPen; 
 
 
-	CMyLyric():bLrcReady(FALSE),track(NULL),m_nFontHeight(27)
+	CMyLyric():bLrcReady(FALSE),track(NULL),m_nFontHeight(20)
 	{
 		brush=::GetSysColorBrush(/*COLOR_3DFACE*/COLOR_BTNSHADOW);
 		newPen=(HPEN)::CreatePen(PS_NULL,0,RGB(255,255,255));
@@ -41,7 +41,7 @@ public:
 			0,                         // nWidth
 			0,                         // nEscapement
 			0,                         // nOrientation
-			FW_BOLD,                 // nWeight
+			FW_NORMAL,                 // nWeight
 			FALSE,                     // bItalic
 			FALSE,                     // bUnderline
 			0,                         // cStrikeOut
@@ -74,6 +74,7 @@ public:
 
 		MSG_WM_CREATE(OnCreate)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+		MSG_WM_ERASEBKGND(OnEraseBkgnd)
 		MSG_WM_PAINT(OnPaint)
 		MESSAGE_HANDLER(WM_SIZE,OnSize)
 		MSG_WM_RBUTTONUP(OnRButtonUp)
@@ -85,6 +86,19 @@ public:
 		COMMAND_ID_HANDLER(ID_MENU_SEARCH_ONLINE,OnShowDlgLrcSearch)
 		COMMAND_ID_HANDLER(ID_SHOW_LRC_LIST,OnShowDlgLrcList)
 		END_MSG_MAP()
+		
+		BOOL OnEraseBkgnd(CDCHandle dc)
+		{
+			//no bkgnd repaint needed
+			if(bLrcReady)
+				return 1;
+			else 
+			{
+				SetMsgHandled(FALSE);
+				return 0;
+			}
+
+		}
 
 		int OnCreate(LPCREATESTRUCT lpCreateStruct)
 		{
@@ -269,6 +283,7 @@ public:
 
 
 			HDC dc=GetDC();
+			
 
 			//settings
 			lineWidthSpacing=3;
@@ -294,7 +309,8 @@ public:
 
 			HWND destop=GetDesktopWindow();
 			::GetClientRect(destop,&rcDesktop);
-			rcDesktop.bottom=HEIGHT(rcDesktop)*4;
+			rcDesktop.bottom=HEIGHT(rcDesktop)*3;
+
 
 			if(m_memDCNormal!=NULL)::DeleteDC(m_memDCNormal);
 			if(m_memDCHighlight!=NULL)::DeleteDC(m_memDCHighlight);
@@ -304,12 +320,13 @@ public:
 			HBITMAP tmp=::CreateCompatibleBitmap(dc,WIDTH(rcDesktop),HEIGHT(rcDesktop));
 			::SelectObject(m_memDCNormal,tmp);
 			::DeleteObject(tmp);
+			::SelectObject(m_memDCNormal,m_Font);
 
 			m_memDCHighlight=::CreateCompatibleDC(dc);
 			tmp=::CreateCompatibleBitmap(dc,WIDTH(rcDesktop),HEIGHT(rcDesktop));
 			::SelectObject(m_memDCHighlight,tmp);
 			::DeleteObject(tmp);
-			
+			::SelectObject(m_memDCHighlight,m_Font);
 
 			//draw backgnd rectangle
 			HBRUSH hOldBrush1=(HBRUSH) ::SelectObject(m_memDCNormal,brush);			
@@ -386,13 +403,22 @@ public:
 			//	--kk;
 
 			y= kk->yPos - (m_rcClient.bottom-m_rcClient.top)/2;
-			 
+
+			//first draw the back ground
+			if(y<0)
+			{
+				HBRUSH hOldBrush1=(HBRUSH) ::SelectObject(dc,brush);	
+				Rectangle(dc,rcDest.left-1,rcDest.top-1,rcDest.right+1,0-y+2);
+				::SelectObject(dc,hOldBrush1);	
+			}
+
+			// bitblt the lyrics
 			RECT rcLine=rcDest;
 			rcLine.top=HEIGHT(rcDest) /2;
 			rcLine.bottom=rcLine.top+curLineInfo->nStrLines*m_nFontHeight;
 
 			::BitBlt(dc,rcDest.left,rcDest.top,WIDTH(rcDest),HEIGHT(rcDest),
-				m_memDCNormal,0,y, SRCCOPY);
+				m_memDCNormal,0,y , SRCCOPY);
 			
 			::BitBlt(dc,rcLine.left,rcLine.top,WIDTH(rcLine),HEIGHT(rcLine),
 				m_memDCHighlight,0,y+rcLine.top, SRCCOPY);

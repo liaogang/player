@@ -17,6 +17,8 @@ public:
 	}
 };
 
+
+/*
 class CPropertyDlg:
 	public CDlgConfig,
 	public CDialogImpl<CPropertyDlg>,
@@ -41,7 +43,7 @@ public:
 
 
 };
-
+*/
 
 
 class CMyListViewCtrl:
@@ -102,15 +104,8 @@ public:
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 	{
 		DoDataExchange();
-		UINT style;
-
-		style=::GetWindowLong(m_list.m_hWnd,GWL_STYLE);
-		style|=LVS_SINGLESEL;
-		::SetWindowLong(m_list.m_hWnd,GWL_STYLE,style);
-
-		style=m_list.GetExtendedListViewStyle();
-		style|= LVS_EX_FULLROWSELECT;
-		m_list.SetExtendedListViewStyle(style);
+	
+		m_list.SetExtendedListViewStyle(m_list.GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT);
 
 		m_list.InsertColumn(0,_T("Â·¾¶"),LVCFMT_LEFT,220);
 		m_list.InsertColumn(1,_T("×´Ì¬"),LVCFMT_LEFT,80);
@@ -176,6 +171,22 @@ public:
 	enum { IDD = IDD_DLG_LRC_PANE_PROPERTY };
 	BEGIN_MSG_MAP(CPropertyDlgLrcPane)
 	END_MSG_MAP()
+};
+
+class CPropertyDlgNormal:
+	public CDlgConfig,
+	public CDialogImpl<CPropertyDlgNormal>,
+	public CWinDataExchange<CPropertyDlgNormal>
+{
+public:
+	enum { IDD = IDD_DLG_NORMAL };
+	BEGIN_MSG_MAP(CPropertyDlgNormal)
+		MSG_WM_INITDIALOG(OnInitDialog)
+		COMMAND_ID_HANDLER(IDC_CHECK_RESUME_ONBOOT,OnButtonResumeOnBoot)
+	END_MSG_MAP()
+	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
+	LRESULT OnButtonResumeOnBoot(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	
 };
 
 

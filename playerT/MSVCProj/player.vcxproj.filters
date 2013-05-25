@@ -156,9 +156,6 @@
     <ClInclude Include="..\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\SafeWinImpl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\SearchLyric.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -654,6 +651,9 @@
     <ClInclude Include="..\taplib\taglib\ogg\oggpageheader.h">
       <Filter>Taglib Files\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\MyConfigs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\BasicPlayer.cpp">
@@ -949,6 +949,9 @@
     </ClCompile>
     <ClCompile Include="..\taplib\taglib\tagunion.cpp">
       <Filter>Taglib Files\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MyConfigs.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -75,13 +75,8 @@ public:
 
 	void InitDlgTree()
 	{
-		//HTREEITEM firstItem;
-
-		//pDlg=new CPropertyDlg;
-		//pDlg->Init(_T("参数选项"),pDlg->m_hWnd);
-
-		//pDlg1=new CPropertyDlg1;
-		//pDlg1->Init(_T("The Master"),pDlg1->m_hWnd);
+		pDlgNormal=new CPropertyDlgNormal;
+		pDlgNormal->Init(_T("常规面板"),pDlgNormal->m_hWnd);
 
 		pDlgMedia=new CPropertyDlgMediaLib;
 		pDlgMedia->Init(_T("多媒体库"),pDlgMedia->m_hWnd);
@@ -96,11 +91,9 @@ public:
 		pDlgLayout->Init(_T("界面布局"),pDlgLayout->m_hWnd);
 
 
-		//firstItem=AddDlg(pDlg,TVI_ROOT);
-		//AddDlg(pDlg1,TVI_ROOT);
+		AddDlg(pDlgNormal,TVI_ROOT);
 		AddDlg(pDlgMedia,TVI_ROOT);
 		AddDlg(pDlgLyrics,TVI_ROOT);
-		//AddDlg(pDlgLrcPane,TVI_ROOT);
 		AddDlg(pDlgLayout,TVI_ROOT);
 
 		m_tree.Expand(TVI_ROOT);
@@ -115,8 +108,7 @@ public:
 	//Make sure the windows is created
 	HWND GetPropertyDlgHwnd(std::tstring &title)
 	{
-		//GETDLGWND(pDlg)
-		//GETDLGWND(pDlg1)
+		GETDLGWND(pDlgNormal)
 		GETDLGWND(pDlgMedia)
 		GETDLGWND(pDlgLyrics)
 		GETDLGWND(pDlgLayout)
@@ -239,10 +231,9 @@ public:
 	CPropertyDlgUILayout* GetLayoutTagDlg(){return pDlgLayout;}
 protected:
 	CMyTreeCtrl m_tree;
-	CPropertyDlg* pDlg;
-	CPropertyDlg1* pDlg1;
 	CPropertyDlgMediaLib* pDlgMedia;
 	CPropertyDlgLyricsLib *pDlgLyrics;
 	CPropertyDlgLrcPane   *pDlgLrcPane;
 	CPropertyDlgUILayout  *pDlgLayout;
+	CPropertyDlgNormal    *pDlgNormal;
 };

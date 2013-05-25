@@ -33,7 +33,7 @@ public:
 	}
 
 public:
-	DECLARE_WND_CLASS_EX(_T("AlbumCoverView"), CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS,COLOR_BTNSHADOW)
+	DECLARE_WND_CLASS_EX(_T("AlbumCoverView"),  CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS , COLOR_BTNSHADOW)
 
 	BEGIN_MSG_MAP_EX(CAlbumCoverView)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
@@ -41,10 +41,22 @@ public:
 		COMMAND_ID_HANDLER(ID_MENU_PIC_SAVE, OnPicSave)
 		MSG_WM_SIZE(OnSize)
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
+		MSG_WM_ERASEBKGND(OnEraseBkgnd)
 	END_MSG_MAP()
 
 	HWND CreateMyWnd();
 
+	BOOL OnEraseBkgnd(CDCHandle dc)
+	{
+		//no bkgnd repaint needed
+		if (bHasPic)
+			return 1;
+		else 
+		{
+			SetMsgHandled(FALSE);
+			return 0;
+		}
+	}
 
 	void Init()
 	{
@@ -119,18 +131,47 @@ public:
 			int iw=track->img->GetWidth();
 			int ih=track->img->GetHeight();
 			
+			track->img->Draw(ps.hdc,WIDTH(rc)/2-iw/2,HEIGHT(rc)/2-ih/2,iw,ih,0,0,iw,ih);
+
+
 			oldPen=(HPEN )::SelectObject(ps.hdc,newPen);
-			::Rectangle(ps.hdc,rc.left,rc.top,rc.right,rc.bottom);
+
+
+			rc.bottom+=1;
+
+			RECT rcUp,rcDown,rcLeft,rcRight;
+			rcUp=rc;
+			rcUp.bottom=HEIGHT(rc)/2-ih/2+1;
+
+			rcDown=rc;
+			rcDown.top=HEIGHT(rc)/2+ih/2-1;
+
+			rcLeft=rc;
+			rcLeft.top=rcUp.bottom-1;
+			rcLeft.bottom=rcDown.top+1;
+			rcLeft.right=WIDTH(rc)/2-iw/2+1;
+
+			rcRight=rc;
+			rcRight.top=rcUp.bottom-1;
+			rcRight.bottom=rcDown.top+1;
+			rcRight.left=WIDTH(rc)/2+iw/2;
+
+
+			::Rectangle(ps.hdc,rcUp.left,rcUp.top,rcUp.right,rcUp.bottom);
+			::Rectangle(ps.hdc,rcDown.left,rcDown.top,rcDown.right,rcDown.bottom);
+			::Rectangle(ps.hdc,rcLeft.left,rcLeft.top,rcLeft.right,rcLeft.bottom);
+			::Rectangle(ps.hdc,rcRight.left,rcRight.top,rcRight.right,rcRight.bottom);
+
 			::SelectObject(ps.hdc,oldPen);
 			
-			track->img->Draw(ps.hdc,WIDTH(rc)/2-iw/2,HEIGHT(rc)/2-ih/2,iw,ih,0,0,iw,ih);
+			
 		}
-		else
-		{
-			oldPen=(HPEN )::SelectObject(ps.hdc,newPen);
-			::Rectangle(ps.hdc,rc.left-1,rc.top,rc.right+1,rc.bottom+1);
-			::SelectObject(ps.hdc,oldPen);
-		}
+		//else
+		//{
+		//	oldPen=(HPEN )::SelectObject(ps.hdc,newPen);
+		//	::Rectangle(ps.hdc,rc.left-1,rc.top,rc.right+1,rc.bottom+1);
+		//	::SelectObject(ps.hdc,oldPen);
+		//}
 
 		::SelectObject(ps.hdc,oldBrush);
 		::SelectObject(ps.hdc,oldPen);

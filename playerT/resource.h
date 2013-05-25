@@ -36,6 +36,7 @@
 #define IDD_DLG_UI_CONFIG               223
 #define IDR_MENU_EDIT_MODE              224
 #define IDD_DLG_LRC_LIST                225
+#define IDD_DLG_NORMAL                  227
 #define IDC_TREE                        1000
 #define IDC_RESET_ALL                   1001
 #define IDC_RESET_THIS                  1002
@@ -68,6 +69,7 @@
 #define IDC_CHECK1                      1025
 #define IDC_CHECK                       1025
 #define IDC_CHECK_LOCK_SPLIT            1025
+#define IDC_CHECK_RESUME_ONBOOT         1025
 #define IDC_EDIT_AR                     1027
 #define IDC_EDIT_INFO                   1030
 #define IDC_BTN_CLR                     1031
@@ -238,13 +240,18 @@
 #define ID_LV_ENLARGE_FONT              32938
 #define ID_DECRE                        32939
 #define ID_LV_DECREASE_FONT             32940
+#define ID_32941                        32941
+#define ID_32942                        32942
+#define ID_Menu32943                    32943
+#define ID_32944                        32944
+#define ID_CONFIG_LAYOUT                32945
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        226
-#define _APS_NEXT_COMMAND_VALUE         32941
+#define _APS_NEXT_RESOURCE_VALUE        228
+#define _APS_NEXT_COMMAND_VALUE         32946
 #define _APS_NEXT_CONTROL_VALUE         1038
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

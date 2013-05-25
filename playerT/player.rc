@@ -78,7 +78,7 @@ IDD_DIALOG_MEDIAlIB DIALOGEX 0, 0, 300, 235
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    CONTROL         "",IDC_MEDIA_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,15,20,221,72
+    CONTROL         "",IDC_MEDIA_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,15,20,221,72
     LTEXT           "音乐文件夹",IDC_STATIC,8,5,41,8
     CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME | SS_REALSIZEIMAGE | SS_SUNKEN,56,8,228,1
     PUSHBUTTON      "添加",IDC_BTN_ADD,246,22,39,16
@@ -104,7 +104,7 @@ BEGIN
     EDITTEXT        IDC_EDIT_SAVE,93,114,190,12,ES_AUTOHSCROLL
     LTEXT           "预览:",IDC_STATIC,19,130,29,8
     LTEXT           "",IDC_STATIC,62,130,225,8
-    CONTROL         "",IDC_MEDIA_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,15,16,217,44
+    CONTROL         "",IDC_MEDIA_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,15,16,217,44
     PUSHBUTTON      "添加",IDC_BTN_ADD,241,17,39,16
     PUSHBUTTON      "删除",IDC_BTN_DEL,241,43,39,16,WS_DISABLED
 END
@@ -212,6 +212,15 @@ BEGIN
     PUSHBUTTON      "加载",IDC_LOAD,53,159,41,24,WS_DISABLED
     EDITTEXT        IDC_SHOW_PATH,7,3,283,12,ES_AUTOHSCROLL
     PUSHBUTTON      "打开目录",IDC_SHOW_FILE,98,159,41,24
+END
+
+IDD_DLG_NORMAL DIALOGEX 0, 0, 285, 217
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "其它",IDC_STATIC,12,172,24,9
+    CONTROL         "重启后恢复播放",IDC_CHECK_RESUME_ONBOOT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,192,115,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME | SS_REALSIZEIMAGE | SS_SUNKEN,38,177,240,1
 END
 
 
@@ -346,6 +355,14 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 187
     END
+
+    IDD_DLG_NORMAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 278
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 210
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -394,8 +411,8 @@ BEGIN
         MENUITEM "搜索\tCtrl+F",                  ID_EDIT_SEARCH
         POPUP "排序"
         BEGIN
-            MENUITEM "随机",                          ID_SORT_RANDOM, GRAYED
-            MENUITEM "专辑",                          ID_SORT_ALBUM, GRAYED
+            MENUITEM "随机",                          ID_SORT_RANDOM
+            MENUITEM "专辑",                          ID_SORT_ALBUM
         END
     END
     POPUP "视图"
@@ -419,18 +436,20 @@ BEGIN
         BEGIN
             MENUITEM "激活正在播放项",                     ID_32935
             MENUITEM SEPARATOR
-            MENUITEM "增大字体",                        ID_LV_ENLARGE_FONT
-            MENUITEM "减小字体",                        ID_LV_DECREASE_FONT
+            MENUITEM "增大字体\t+",                     ID_LV_ENLARGE_FONT
+            MENUITEM "减小字体\t-",                     ID_LV_DECREASE_FONT
         END
+        MENUITEM SEPARATOR
+        MENUITEM "界面布局配置",                      ID_CONFIG_LAYOUT
     END
     POPUP "播放"
     BEGIN
         MENUITEM "播放",                          ID_PLAY
         MENUITEM "暂停",                          ID_PAUSE
         MENUITEM "停止",                          ID_STOP
-        MENUITEM "上一首",                         ID_PLAY_PREVIOS, GRAYED
+        MENUITEM "上一首",                         ID_PLAY_PREVIOS
         MENUITEM "下一首",                         ID_PLAY_NEXT
-        MENUITEM "随机",                          ID_PLAY_RANDOM, GRAYED
+        MENUITEM "随机",                          ID_PLAY_RANDOM
         MENUITEM SEPARATOR
     END
     POPUP "媒体库"
@@ -441,10 +460,15 @@ BEGIN
     BEGIN
         MENUITEM "配置",                          ID_CONFIG_LYRIC
         MENUITEM "显示歌词",                        ID_SHOWLYRIC
+        POPUP "歌词字体大小"
+        BEGIN
+            MENUITEM "增大\t+",                       ID_32942
+            MENUITEM "减小\t-",                       ID_Menu32943
+        END
     END
     POPUP "帮助"
     BEGIN
-        MENUITEM "标题格式帮助",                      ID_HELP_TITLEFORMATHELP, GRAYED
+        MENUITEM "标题格式帮助",                      ID_HELP_TITLEFORMATHELP
         MENUITEM SEPARATOR
         MENUITEM "关于",                          ID_APP_ABOUT
     END
@@ -537,8 +561,8 @@ BEGIN
     BEGIN
         POPUP "插入面板"
         BEGIN
-            MENUITEM "水平分离器",                       ID_INSERT_SPLIT_LR
-            MENUITEM "垂直分离器",                       ID_INSERT_SPLIT_UD
+            MENUITEM "水平分离器\t| ",                   ID_INSERT_SPLIT_LR
+            MENUITEM "垂直分离器\t—",                    ID_INSERT_SPLIT_UD
             MENUITEM SEPARATOR
             MENUITEM "播放列表",                        ID_PANE_PLAYLIST
             MENUITEM "歌词显示",                        ID_PANE_LYRIC
@@ -549,12 +573,12 @@ BEGIN
         END
         POPUP "更换分离器类型"
         BEGIN
-            MENUITEM "水平分离器",                       ID_CHANGE_SPLIT_LR
-            MENUITEM "垂直分离器",                       ID_CHANGE_SPLIT_UD
+            MENUITEM "水平分离器\t| ",                   ID_CHANGE_SPLIT_LR
+            MENUITEM "垂直分离器\t—",                    ID_CHANGE_SPLIT_UD
         END
         MENUITEM SEPARATOR
-        MENUITEM "上移",                          ID_MOVE_UP
-        MENUITEM "下移",                          ID_MOVE_DOWN
+        MENUITEM "上移\t↑",                       ID_MOVE_UP
+        MENUITEM "下移\t↓",                       ID_MOVE_DOWN
         MENUITEM SEPARATOR
         MENUITEM "删除面板",                        ID_DEL_PANE
     END

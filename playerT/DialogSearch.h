@@ -43,7 +43,7 @@ public:
 		m_list.SubclassWindow(::GetDlgItem(m_hWnd,IDC_LIST));
 		m_list.m_bSearch=TRUE;
 		m_list.Init();
-		m_list.SetMain(pM);
+		
 
 		searchPl=NULL;
 

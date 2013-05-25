@@ -22,6 +22,7 @@
 #include "PlayListManager.h"
 #include "glassWnd.h"
 #include <mpg123.h>
+#include "MyConfigs.h"
 
 using namespace std;
 
@@ -157,6 +158,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	pLoop->AddMessageFilter(this);
 	pLoop->AddIdleHandler(this);
 
+	ValidateCfg();
+
 	SetMsgHandled(FALSE);
 	return 0;
 }
@@ -169,6 +172,10 @@ void CMainFrame::InitUILayout()
 	m_pDlgMultiSplitter=new CMultiSpliltWnd;
 	m_hWndClient=m_pDlgMultiSplitter->Create(m_hWnd,rcDefault,NULL,dwSplitStyle,0);
 }
+
+
+
+
 
 
 LRESULT CMainFrame::OnNotify2(int idCtrl, LPNMHDR pnmh)
@@ -299,6 +306,19 @@ LRESULT CMainFrame::OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
 	return 0;
 }
 
+LRESULT CMainFrame::OnConfigLayout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	if (!m_pDlgConfig)
+	{
+		m_pDlgConfig=new CDialogConfig;
+		m_pDlgConfig->Create(m_hWnd);
+	}
+
+	m_pDlgConfig->ShowWindow(SW_SHOW);
+	m_pDlgConfig->ShowDlgByName(std::wstring(L"界面布局"));
+
+	return 0;
+}
 
 LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
@@ -403,8 +423,7 @@ LRESULT CMainFrame::OnConfigLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 	}
 
 	m_pDlgConfig->ShowWindow(SW_SHOW);
-	std::wstring strLyricDlg(L"歌词搜索");
-	m_pDlgConfig->ShowDlgByName(strLyricDlg);
+	m_pDlgConfig->ShowDlgByName(std::wstring(L"歌词搜索"));
 	return 0;
 }
 
@@ -418,8 +437,7 @@ LRESULT CMainFrame::OnConfigMediaLib(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 	}
 
 	m_pDlgConfig->ShowWindow(SW_SHOW);
-	std::wstring strLyricDlg(L"多媒体库");
-	m_pDlgConfig->ShowDlgByName(strLyricDlg);
+	m_pDlgConfig->ShowDlgByName(std::wstring(L"多媒体库"));
 	
 	return 0;
 }
@@ -678,7 +696,6 @@ void CMainFrame::OnSelectionChanged()
 	return;
 }
 
-void CPlayListView::SetMain(class CMainFrame *pMain){this->pMain=pMain;}
 
 //void CPlayListView::InsertTrackItem(PlayListItem &track1,int item,BOOL SetIndex)
 //{
@@ -844,13 +861,13 @@ LRESULT CMainFrame::OnFileFinded(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BO
 
 LRESULT CMainFrame::OnChangePLColorDefault(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	//m_pPlaylistView->ChangeColorDefault();
+	NotifyMsg(WM_PLAYLISTVIEW_COLOR_DEFAULT);
 	return 0;
 }
 
 LRESULT CMainFrame::OnChangePLColorBlue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	//m_pPlaylistView->ChangeColorBlue();
+	NotifyMsg(WM_PLAYLISTVIEW_COLOR_BLUE);
 	return 0;
 }
 
@@ -939,6 +956,7 @@ LRESULT CPlayListView::OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled)
 	return 1;
 }
 
+#ifdef playlistview_ondrawitem
 LRESULT CPlayListView::OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
 	LPDRAWITEMSTRUCT lpDIS=(LPDRAWITEMSTRUCT)lParam;
@@ -1075,6 +1093,9 @@ LRESULT CPlayListView::OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPara
 
 	return 1;
 }
+#endif
+
+
 
 LRESULT CMyTabBar::OnSelectionChanged( LPNMHDR )
 {
@@ -1658,19 +1679,29 @@ LRESULT CPropertyDlgMediaLib::OnBtnDel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 	return 0;
 }
 
+BOOL CPropertyDlgNormal::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
+{
+	int nCheck=GetMyConfigs()->getResumeOnReboot();
+	
+	 ::SendMessage(GetDlgItem(IDC_CHECK_RESUME_ONBOOT), BM_SETCHECK, nCheck, 0);
+	 
+	return 0;
+}
+
+LRESULT CPropertyDlgNormal::OnButtonResumeOnBoot(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	int nCheck=(int)::SendMessage(GetDlgItem(IDC_CHECK_RESUME_ONBOOT), BM_GETCHECK, 0, 0L);
+
+	GetMyConfigs()->setResumeOnReboot(nCheck);
+	return 0;
+}
+
 BOOL CPropertyDlgLyricsLib::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 {
 	DoDataExchange();
 
-	UINT style;
-
-	style=::GetWindowLong(list.m_hWnd,GWL_STYLE);
-	style|=LVS_SINGLESEL;
-	::SetWindowLong(list.m_hWnd,GWL_STYLE,style);
-
-	style=list.GetExtendedListViewStyle();
-	style|= LVS_EX_FULLROWSELECT;
-	list.SetExtendedListViewStyle(style);
+	//set style full row select
+	list.SetExtendedListViewStyle(list.GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT);
 
 	list.InsertColumn(0,_T("路径"),LVCFMT_LEFT,220);
 
@@ -1877,6 +1908,16 @@ void MYTREE_Add_SpectrumView(MYTREE* tree)
 
 CMainFrame::~CMainFrame()
 {
+	
+}
+
+
+void CMainFrame::OnFinalMessage(_In_ HWND /*hWnd*/)
+{
+	CollectInfo();
+
+
+	//save to file 
 	SaveCoreCfg();
 }
 
@@ -1921,17 +1962,24 @@ void CPlayListView::OnFinalMessage(_In_ HWND /*hWnd*/)
 	pLoop->RemoveMessageFilter(this);
 
 	IDonotWantToReceiveMessage(WM_PLAYLISTVIEW_SETFOCUS);
+	IDonotWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_DEFAULT);
+	IDonotWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_BLUE);
 
 	if (!m_bSearch)
 		delete this;
 }
+
+
 void CPlayListView::Init()
 {	
 	IWantToReceiveMessage(WM_PLAYLISTVIEW_SETFOCUS);
+	IWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_DEFAULT);
+	IWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_BLUE);
 
-	SetLVFont(16);
 
-	pMain=GetMainFrame();
+	SetLVFont(20);
+
+	//pMain=GetMainFrame();
 
 	if(!m_bSearch)
 		AllPlayListViews()->AddItem(this);
@@ -1939,10 +1987,7 @@ void CPlayListView::Init()
 	ChangeColorDefault();
 	SetExtendedListViewStyle(GetExtendedListViewStyle()| LVS_EX_DOUBLEBUFFER |LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP);
 
-	//使用新式风格
-	SetWindowTheme(m_hWnd,_T("Explorer"),0);
-	//取消焦点状态
-	SetCallbackMask(LVIS_FOCUSED);
+
 
 
 	const TCHAR * columnName[]={
@@ -1972,4 +2017,34 @@ void CPlayListView::Init()
 	const int cxOffset = 15;
 	for (int i=0;i<sizeof(columnName)/sizeof(int);++i)
 		AddColumn(columnName[i],i,-1, LVCF_FMT| LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM ,alignment[i],GetStringWidth(columnNamePlaceHoder[i])+cxOffset);		
+}
+
+
+
+void CollectInfo()
+{
+	MyConfigs *c=GetMyConfigs();
+	c->setPlayersVolume(CBasicPlayer::shared()->m_curVolume);
+
+
+	if(c->getResumeOnReboot())
+	{
+		PlayListItem track=GetPlayingItem();
+		
+		c->playlistIndex=MyLib::shared()->Playlist2Index(track.GetPlayList());
+		c->trackIndex=track.GetIndex();
+		CBasicPlayer::shared()->GetPos(&(c->pos),0);
+	}
+
+	c->setPlayersVolume(CBasicPlayer::shared()->m_curVolume);
+
+}
+
+void ValidateCfg()
+{
+	MyConfigs *c=GetMyConfigs();
+	CBasicPlayer::shared()->SetVolumeByEar(c->getPlayersVolume());
+
+
+	
 }

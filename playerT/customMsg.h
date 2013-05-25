@@ -47,3 +47,7 @@ struct trackPosInfo
 
 //tell the playlist view to gain the focus
 #define WM_PLAYLISTVIEW_SETFOCUS (WM_USER+54)
+
+//the playlist view 's color need to change
+#define WM_PLAYLISTVIEW_COLOR_DEFAULT  (WM_USER+55)
+#define WM_PLAYLISTVIEW_COLOR_BLUE   (WM_USER+56)

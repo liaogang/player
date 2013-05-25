@@ -317,6 +317,8 @@ playerT/MSVCProj/player.vcxproj.filters -text
 playerT/MSVCProj/player.vcxproj.user -text
 playerT/Mp3File.h -text
 playerT/MusicFile.h -text
+playerT/MyConfigs.cpp -text
+playerT/MyConfigs.h -text
 playerT/MyControls.h -text
 playerT/MyLib.cpp -text
 playerT/MyLib.h -text

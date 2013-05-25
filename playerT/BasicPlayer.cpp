@@ -7,17 +7,10 @@
 #include "WaveFileEx.h"
 #include "mainfrm.h"
 #include "PlayList.h"
-
 #include <complex>
 using namespace std;
 
-/*
-static DWORD CALLBACK WaitPlayThread(LPVOID lpParameter)
-{
-	CBasicPlayer* p=(CBasicPlayer*)lpParameter;
-	p->WaitPlay();
-	return 0;
-}*/
+
 
  CBasicPlayer* CBasicPlayer::shared()
  {
@@ -39,6 +32,8 @@ static DWORD CALLBACK WaitPlayThread(LPVOID lpParameter)
 	InitSlowDownVolBuffer();
 	m_pPlayerThread=new CPlayerThread(this);
 	m_pSpectrumAnalyser=new CSpectrumAnalyser(this);
+
+
 }
 
 CBasicPlayer :: ~CBasicPlayer(void)
@@ -58,20 +53,19 @@ void CBasicPlayer::ResetFile()
 //100 by ,the max volume
 void CBasicPlayer:: SetVolumeByEar(int vol)
 {
+	m_curVolume=vol;
+
 	int index=vol/2;
 	if(index==50)index=49;
+	m_curDSBVolume=volBuffer[index];
 	
-	if (m_pPlayerThread && m_pPlayerThread->m_lpDSBuffer)
-		m_pPlayerThread->m_lpDSBuffer->SetVolume(volBuffer[index]);
-	
-	m_curVolume=index;
+	if(!m_bStopped && !m_bPaused)
+		m_pPlayerThread->m_lpDSBuffer->SetVolume(m_curDSBVolume);
 }
-/*
-void CBasicPlayer::OpenAfterSlowDown(FileTrack* item)
-{
-	itemWaitPlay=item;
-	::CreateThread(NULL,0,WaitPlayThread,(LPVOID)this,0,0);
-}*/
+
+
+
+
 
 BOOL CBasicPlayer::open( LPCTSTR filepath )
 {
@@ -133,17 +127,6 @@ void CBasicPlayer::play()
 }
 
 
-//这个函数放在线程里,有问题,声音出不来,???
-//所以改用消息通知主线程启动
-//等淡入淡出效果结果
-/*void CBasicPlayer::WaitPlay()
-{
-	DWORD waitResult=::WaitForSingleObject(m_eventSlowDown,1000);
-	if (waitResult==WAIT_TIMEOUT)
-		return;
-	else if (waitResult==WAIT_OBJECT_0)//slowdown ending sign
-		::SendMessage(m_pMainFrame->m_hWnd,WM_PLAY_DIRECTLY,(WPARAM)itemWaitPlay,NULL);
-}*/
 
 void CALLBACK SlowDownVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD dw2)
 {
@@ -189,15 +172,16 @@ void CBasicPlayer::GrowUpVol()
 
 	m_pPlayerThread->m_lpDSBuffer->SetVolume(volBuffer[curVolUp]);
 
-	if(curVolUp>=49)
+	if(curVolUp>=m_curVolume/2)
 	{
 		timeKillEvent(m_timerUpID);
 	}
 }
 
 void CBasicPlayer::TimerVolSlowDown()
-{
-	 curVolDown=49;
+{	
+	 curVolDown=m_curVolume/2;
+	 if(curVolDown==50)curVolDown=49;
 	m_timerDownID=::timeSetEvent(12,100,SlowDownVolFunc,(DWORD)this,TIME_PERIODIC|TIME_CALLBACK_FUNCTION); 
 }
 
@@ -269,17 +253,10 @@ void CBasicPlayer::stop()
 	{
 		m_bStopped=TRUE;
 
-		//if (!m_bPaused)
-		//{
-		//	m_bCloseFileInSlowDown=TRUE;
-		//	TimerVolSlowDown();
-		//}
-		//else
-		{
-			m_pPlayerThread->m_lpDSBuffer->Stop();
-			m_pPlayerThread->Teminate();
-			m_pFile->Close();
-		}
+		
+		m_pPlayerThread->m_lpDSBuffer->Stop();
+		m_pPlayerThread->Teminate();
+		m_pFile->Close();
 	}
 }
 
@@ -288,8 +265,16 @@ BOOL CBasicPlayer::open( FileTrack *track)
 	return open(track->url.c_str());
 }
 
-void CBasicPlayer:: SetPos(int cur,int max)
+void CBasicPlayer::SetPos(int cur,int max)
 {
 	if (!m_bStopped)
 		m_pFile->SetPos(cur,max);
+}
+
+void CBasicPlayer::GetPos(int *cur,int *max)
+{
+	*cur=m_pPlayerThread->pPosInfo->left;
+	
+	if(max)
+		*max=*cur+m_pPlayerThread->pPosInfo->used;
 }

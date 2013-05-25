@@ -34,8 +34,7 @@ public:
 
 
 public:
-	class CMainFrame *pMain;
-	void SetMain(class CMainFrame *pMain);
+
 	PlayListItem *m_pPlayTrack;
 
 	BOOL bAuto,bDeletable;
@@ -89,6 +88,8 @@ public:
 	BEGIN_MSG_MAP_EX(CPlayListView)
 		//user message
 		MESSAGE_HANDLER(WM_PLAYLISTVIEW_SETFOCUS,OnSetFocus)
+		MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_DEFAULT,OnChColorDefault);
+		MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_BLUE,OnChColorBlue);
 		//
 		MSG_WM_CREATE(OnCreate);
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
@@ -146,6 +147,18 @@ public:
 			SetFocus();
 			return 1;
 		}
+		LRESULT OnChColorDefault(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			ChangeColorDefault();
+			return 1;
+		}
+
+		LRESULT OnChColorBlue(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			ChangeColorBlue();
+			return 1;
+		}
+		
 
 		LRESULT OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
@@ -191,7 +204,7 @@ public:
 			return 1;
 		}
 
-		LRESULT OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
+		//LRESULT OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 
 
 		LRESULT OnNotifyCodeHandlerEX(LPNMHDR pnmh)
@@ -633,12 +646,21 @@ public:
 
 		COLORREF a=RGB(r+offset,g+offset,b+offset);
 
+		
 		ChangeColor(c,a);
+		//使用新式风格
+		SetWindowTheme(m_hWnd,_T("Explorer"),0);
+		//取消焦点状态
+		SetCallbackMask(LVIS_FOCUSED);
 	}
 
 	void ChangeColorBlue()
 	{
 		ChangeColor(RGB(230,244,255),RGB(145,200,255));
+		//使用旧式风格
+		SetWindowTheme(m_hWnd,_T(""),0);
+		//使用焦点状态
+		SetCallbackMask(NULL);
 	}
 
 	virtual void OnFinalMessage(_In_ HWND /*hWnd*/);

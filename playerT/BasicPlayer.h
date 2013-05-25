@@ -39,6 +39,7 @@ public:
 
 
 	INT m_curVolume;
+	double m_curDSBVolume;
 	BOOL m_bStopped;
 	BOOL m_bPaused;
 	BOOL m_bFileEnd;
@@ -60,6 +61,7 @@ public:
 	BOOL open(FileTrack * track);
 	void ResetFile();
 	void SetPos(int cur,int max);
+	void GetPos(int *cur,int *max);
 	void WaitPlay();
 	void OpenAfterSlowDown(FileTrack * item);
 	inline BOOL stoped(){return m_bStopped;}
