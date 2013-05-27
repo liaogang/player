@@ -65,11 +65,11 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	// attach menu
 	CMenu *pMenu=new CMenu;
 	pMenu->LoadMenu(IDR_MAINFRAME);
-	//m_CmdBar.AttachMenu(pMenu->m_hMenu);
+	m_CmdBar.AttachMenu(pMenu->m_hMenu);
 	// load command bar images
 	m_CmdBar.LoadImages(IDR_MAINFRAME);
 	// remove old menu
-	//SetMenu(NULL);
+	SetMenu(NULL);
 	//SetMenu(pMenu->m_hMenu);
 
 	//-----------------------------------------
@@ -83,7 +83,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_pRebar->SubclassWindow(m_hWndToolBar);
 
 
-	//AddSimpleReBarBand(hWndCmdBar);
+	AddSimpleReBarBand(hWndCmdBar);
 	AddSimpleReBarBand(hWndToolBar, NULL,TRUE,0,TRUE);
 	
 	
@@ -956,7 +956,8 @@ LRESULT CPlayListView::OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled)
 	return 1;
 }
 
-#ifdef playlistview_ondrawitem
+
+//#ifdef playlistview_ondrawitem
 LRESULT CPlayListView::OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
 	LPDRAWITEMSTRUCT lpDIS=(LPDRAWITEMSTRUCT)lParam;
@@ -1093,7 +1094,7 @@ LRESULT CPlayListView::OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPara
 
 	return 1;
 }
-#endif
+//#endif
 
 
 
@@ -1817,7 +1818,7 @@ void  CPlayListView::CreateIsWnd()
 {
 	Create(GetSplitter()->m_hWnd, 0 , _T("WtlSysListView32"), 
 		WS_CHILD | WS_VISIBLE  |WS_CLIPCHILDREN |WS_CLIPSIBLINGS 
-		|LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA 
+		|LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA | LVS_SORTASCENDING /*| LVS_OWNERDRAWFIXED |*/
 		,WS_EX_CLIENTEDGE);
 }
 
@@ -1979,14 +1980,13 @@ void CPlayListView::Init()
 
 	SetLVFont(20);
 
-	//pMain=GetMainFrame();
 
 	if(!m_bSearch)
 		AllPlayListViews()->AddItem(this);
 
 	ChangeColorDefault();
-	SetExtendedListViewStyle(GetExtendedListViewStyle()| LVS_EX_DOUBLEBUFFER |LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP);
 
+	SetExtendedListViewStyle(GetExtendedListViewStyle()| /*LVS_EX_DOUBLEBUFFER |*/LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP);
 
 
 
@@ -2017,6 +2017,14 @@ void CPlayListView::Init()
 	const int cxOffset = 15;
 	for (int i=0;i<sizeof(columnName)/sizeof(int);++i)
 		AddColumn(columnName[i],i,-1, LVCF_FMT| LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM ,alignment[i],GetStringWidth(columnNamePlaceHoder[i])+cxOffset);		
+
+
+	////取消焦点状态
+	//SetCallbackMask(LVIS_FOCUSED);
+	////使用新式风格
+	//SetWindowTheme(m_hWnd,_T("Explorer"),0);
+	
+	
 }
 
 

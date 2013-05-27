@@ -134,7 +134,7 @@ public:
 			track->img->Draw(ps.hdc,WIDTH(rc)/2-iw/2,HEIGHT(rc)/2-ih/2,iw,ih,0,0,iw,ih);
 
 
-			oldPen=(HPEN )::SelectObject(ps.hdc,newPen);
+			
 
 
 			rc.bottom+=1;
@@ -162,7 +162,6 @@ public:
 			::Rectangle(ps.hdc,rcLeft.left,rcLeft.top,rcLeft.right,rcLeft.bottom);
 			::Rectangle(ps.hdc,rcRight.left,rcRight.top,rcRight.right,rcRight.bottom);
 
-			::SelectObject(ps.hdc,oldPen);
 			
 			
 		}

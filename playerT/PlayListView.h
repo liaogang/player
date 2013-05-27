@@ -15,6 +15,7 @@ HMENU LoadPlaylistMenu(BOOL bDestroy=FALSE);
 #define TEXTALIGN__WIDTH 3
 
 class CPlayListView:
+	//public CSortListViewCtrl,
 	public CWindowImpl<CPlayListView,CListViewCtrl>,
 	public CMessageFilter
 {
@@ -90,8 +91,10 @@ public:
 		MESSAGE_HANDLER(WM_PLAYLISTVIEW_SETFOCUS,OnSetFocus)
 		MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_DEFAULT,OnChColorDefault);
 		MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_BLUE,OnChColorBlue);
-		//
+		
 		MSG_WM_CREATE(OnCreate);
+		//MESSAGE_HANDLER(WM_PAINT,OnPaint)
+		MSG_WM_ERASEBKGND(OnEraseBkgnd)
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
 		MSG_WM_CHAR(OnChar)
 		MESSAGE_HANDLER(WM_NCPAINT,OnNcPaint)
@@ -101,8 +104,47 @@ public:
 		REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_RCLICK ,OnNotifyCodeHandlerEX)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED,OnItemChanged)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO,OnGetdispInfo)
-		REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
+		//REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
+		//MESSAGE_HANDLER(OCM_DRAWITEM,OnDrawItem)
+
+		//CHAIN_MSG_MAP(CSortListViewCtrl)
 		END_MSG_MAP()
+
+		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			//An application returns zero if it processes this message. 
+
+			PAINTSTRUCT ps;
+			::BeginPaint(m_hWnd,&ps);
+			
+			{
+
+			CMemoryDC memdc(ps.hdc ,ps.rcPaint);
+
+			//CHeaderCtrl header= GetHeader();
+			//
+			//SendMessage(header.m_hWnd,WM_ERASEBKGND,0L,0L);
+			//SendMessage(header.m_hWnd,WM_PAINT,0L,0L);
+
+			//ValidateRect(&rc);
+
+			 ::DefWindowProc(m_hWnd,uMsg,(WPARAM)memdc.m_hDC,lParam);
+			}
+
+			::EndPaint(m_hWnd,&ps);
+
+			return 0;
+		}
+
+
+
+		BOOL OnEraseBkgnd(CDCHandle dc)
+		{
+			//no bkgnd repaint needed
+				return 1;
+		}
+
+		LRESULT OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 
 		LRESULT OnCustomDraw(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 		{
@@ -649,18 +691,18 @@ public:
 		
 		ChangeColor(c,a);
 		//使用新式风格
-		SetWindowTheme(m_hWnd,_T("Explorer"),0);
+		//SetWindowTheme(m_hWnd,_T("Explorer"),0);
 		//取消焦点状态
-		SetCallbackMask(LVIS_FOCUSED);
+		//SetCallbackMask(LVIS_FOCUSED);
 	}
 
 	void ChangeColorBlue()
 	{
 		ChangeColor(RGB(230,244,255),RGB(145,200,255));
 		//使用旧式风格
-		SetWindowTheme(m_hWnd,_T(""),0);
+		//SetWindowTheme(m_hWnd,_T(""),0);
 		//使用焦点状态
-		SetCallbackMask(NULL);
+		//SetCallbackMask(NULL);
 	}
 
 	virtual void OnFinalMessage(_In_ HWND /*hWnd*/);

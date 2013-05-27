@@ -43,4 +43,4 @@ playthread.cpp里mainframe代码移至mainframe.cpp里.
 恢复播放没做完。
 封面面板OnSize时，用什么风格不闪？？
 
-
+拖动时把手边上的区域卡的问题。

@@ -394,8 +394,8 @@ public:
 					}
 
 					MoveToNewRect(info.tree->parent);
-					InvalidateRect(&rcErase);
-					UpdateWindow();
+					//InvalidateRect(&rcErase);
+					//UpdateWindow();
 				}
 				else
 				{
