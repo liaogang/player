@@ -4,7 +4,7 @@
 #include "PlayListViewMng.h"
 #include "globalStuffs.h"
 #include "customMsg.h"
-
+#include "ListViewNoFlicker.h"
 #define INVALID_ITEM -1
 
 unsigned int BKDRHash(char *str);
@@ -15,8 +15,8 @@ HMENU LoadPlaylistMenu(BOOL bDestroy=FALSE);
 #define TEXTALIGN__WIDTH 3
 
 class CPlayListView:
-	//public CSortListViewCtrl,
-	public CWindowImpl<CPlayListView,CListViewCtrl>,
+	public CListViewNoFlicker,
+	//public CWindowImpl<CPlayListView,CListViewCtrl>,
 	public CMessageFilter
 {
 private:
@@ -107,7 +107,8 @@ public:
 		//REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
 		//MESSAGE_HANDLER(OCM_DRAWITEM,OnDrawItem)
 
-		//CHAIN_MSG_MAP(CSortListViewCtrl)
+		CHAIN_MSG_MAP(CListViewNoFlicker)
+
 		END_MSG_MAP()
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)

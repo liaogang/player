@@ -309,6 +309,7 @@ playerT/Lib/Debug/vc90.pdb -text
 playerT/Lib/Release/libmpg123.lib -text
 playerT/Lib/Release/vc90.idb -text
 playerT/Lib/Release/vc90.pdb -text
+playerT/ListViewNoFlicker.h -text
 playerT/LrcMng.cpp -text
 playerT/LrcMng.h -text
 playerT/MSVCProj/player.sln -text
@@ -704,6 +705,7 @@ playerT/wtl/Include/atldwm.h -text
 playerT/wtl/Include/atlfind.h -text
 playerT/wtl/Include/atlframe.h -text
 playerT/wtl/Include/atlgdi.h -text
+playerT/wtl/Include/atlgdix.h -text
 playerT/wtl/Include/atlmisc.h -text
 playerT/wtl/Include/atlprint.h -text
 playerT/wtl/Include/atlres.h -text

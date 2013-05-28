@@ -32,6 +32,7 @@ extern CAppModule _Module;
 #include <atlddx.h>
 #include <atlcrack.h>
 #include <atltheme.h>
+#include <atlgdix.h>
 
 //split file has changed something
 #include "atlsplit.h"
