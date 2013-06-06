@@ -110,9 +110,9 @@ private:
 class PlayListItem
  {
 public:
-	PlayListItem()
+	PlayListItem():index(-1)
 	{
-
+		
 	}
 
 	PlayListItem(PlayList *playlist,std::tstring url):

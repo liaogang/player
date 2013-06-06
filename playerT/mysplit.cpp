@@ -23,6 +23,18 @@ void MoveToNewRect(MYTREE *parent)
 
 
 
+void MYTree_DestroyFromRoot(MYTREE *tree)
+{
+	if (tree->hasChild())
+		for (MYTREE *cur=tree->child; cur ; )
+		{
+			MYTREE *next=cur->next;
+			MYTree_DestroyFromRoot(cur);
+			cur=next;
+		}
+	else
+		delete tree;
+}
 
 
 MYTREE * MYTree_RemoveFromRoot(MYTREE *tree)
@@ -63,7 +75,7 @@ MYTREE * MYTree_RemoveFromRoot(MYTREE *tree)
 
 		if(tree->next)
 			tree->next->prev=tree->prev;
-		delete tree;
+		MYTree_DestroyFromRoot(tree);
 		--parent->childs;
 	}
 

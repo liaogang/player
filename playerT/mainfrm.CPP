@@ -229,7 +229,11 @@ LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 {
 	MyLib::shared()->ClearPlayQueue();
 	//MyLib::stop();
-	MyLib::shared()->play(MyLib::shared()->GetWaitPlayItem()->GetFileTrack());
+
+	FileTrack *track=MyLib::shared()->GetWaitPlayItem()->GetFileTrack();
+	if(track)
+		MyLib::shared()->play(track);
+
 	//MyLib::shared()->playAfterSlowDown(MyLib::shared()->GetWaitPlayItem()->GetFileTrack());
 	return 0;
 }
@@ -659,12 +663,13 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 
 	//PlayList *curPl=MyLib::shared()->ActivePlaylist();
 
-	if (!MyLib::shared()->isPlaying())
-		return;
+	//if (!MyLib::shared()->isPlaying())
+	//	return;
 	
 	PlayListItem item=GetPlayingItem();
+	if(item.GetIndex() == -1) return;
 	FileTrack *track=item.GetFileTrack();
-
+	
 
 	WCHAR tmp[MAX_PATH]={};
 	wcscpy(tmp,track->artist.c_str());
@@ -673,12 +678,8 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 	GetMainFrame()->m_pStatus->SetText(0,tmp);
 
 
-	NotifyMsg(WM_PLAYLISTVIEW_SETFOCUS);
-
-
 	AllPlayListViews()->Reload(item.GetPlayList(),item.GetIndex());
-
-	
+	NotifyMsg(WM_PLAYLISTVIEW_SETFOCUS);
 }
 
 
@@ -923,14 +924,17 @@ LRESULT CPlayListView::OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled)
 
 	FileTrack *track=GetPlayList()->m_songList[iItemIndx].GetFileTrack();
 	if(!track) return 0;
-	TCHAR strIndex[5]={0};
+	
 	
 	if (pItem->mask & LVIF_TEXT) //valid text buffer?
 	{
 		switch(pItem->iSubItem){
 		case COLUMN_INDEX_INDEX:
-			wsprintf(strIndex,_T("%d"),iItemIndx+1);
-			lstrcpy(pItem->pszText,strIndex);
+			{
+				TCHAR strIndex[5]={0};
+				wsprintf(strIndex,_T("%d"),iItemIndx+1);
+				lstrcpy(pItem->pszText,strIndex);
+			}
 			break;
 		case COLUMN_INDEX_TITLE: //fill in main text
 			lstrcpy(pItem->pszText, 
@@ -1810,7 +1814,7 @@ void MYTREE_Add_EmptyWnd(MYTREE* tree)
 
 
 	tree->addChildNodeAfter(newTree);
-	tree->CalcChildsRect();
+	tree->ReCalcChildsRect();
 
 }
 
@@ -1841,7 +1845,7 @@ void MYTREE_Add_Playlist(MYTREE* tree)
 	wcscpy(newTree->data.nodeName,L"播放列表");
 
 	tree->addChildNodeAfter(newTree);
-	tree->CalcChildsRect();
+	tree->ReCalcChildsRect();
 }
 
 
@@ -1869,7 +1873,7 @@ void MYTREE_Add_AlbumView(MYTREE* tree)
 	wcscpy(newTree->data.nodeName,L"封面面板");
 
 	tree->addChildNodeAfter(newTree);
-	tree->CalcChildsRect();
+	tree->ReCalcChildsRect();
 }
 void MYTREE_Set_LyricView(MYTREE* tree)
 {
@@ -1885,7 +1889,7 @@ void MYTREE_Add_LyricView(MYTREE* tree)
 	wcscpy(newTree->data.nodeName,L"歌词面板");
 
 	tree->addChildNodeAfter(newTree);
-	tree->CalcChildsRect();
+	tree->ReCalcChildsRect();
 }
 
 
@@ -1902,7 +1906,7 @@ void MYTREE_Add_SpectrumView(MYTREE* tree)
 	MYTREE_Set_SpectrumView(newTree);
 	wcscpy(newTree->data.nodeName,L"频谱面板");
 	tree->addChildNodeAfter(newTree);
-	tree->CalcChildsRect();
+	tree->ReCalcChildsRect();
 }
 
 
@@ -1955,20 +1959,15 @@ void CreateHWNDbyName(MYTREE *tree)
 
 
 
-
-void CPlayListView::OnFinalMessage(_In_ HWND /*hWnd*/)
+void CPlayListView::OnDestroy()
 {
-	CMessageLoop* pLoop = _Module.GetMessageLoop();
-	ATLASSERT(pLoop != NULL);
-	pLoop->RemoveMessageFilter(this);
-
 	IDonotWantToReceiveMessage(WM_PLAYLISTVIEW_SETFOCUS);
 	IDonotWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_DEFAULT);
 	IDonotWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_BLUE);
 
-	if (!m_bSearch)
-		delete this;
+	SetMsgHandled(FALSE);
 }
+
 
 
 void CPlayListView::Init()

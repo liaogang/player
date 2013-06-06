@@ -124,15 +124,13 @@ public:
 	void UpdateTree(MYTREE *treeData);
 	LRESULT OnSize(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		RECT rc;
-		GetClientRect(&rc);
-		rootTree->setRect(rc);
-
- 		if(rootTree->hasChild())
- 			rootTree->CalcChildsRect();
- 
- 		MoveToNewRect(rootTree);
-
+		RECT newRC;
+		GetClientRect(&newRC);
+		if (WIDTH(newRC) && HEIGHT(newRC))
+		{
+			rootTree->CalcChildsRect(newRC);
+ 			MoveToNewRect(rootTree);
+		}
 
 		bHandled=FALSE;
 		return 1;
@@ -166,7 +164,7 @@ public:
 
 		rclickTree->addChildNodeAfter(newTree);
 
-		rclickTree->CalcChildsRect();
+		rclickTree->ReCalcChildsRect();
 
 		Invalidate();
 		UpdateTree(rclickTree);
@@ -186,7 +184,7 @@ public:
 
 		rclickTree->addChildNodeAfter(newTree);
 
-		rclickTree->CalcChildsRect();
+		rclickTree->ReCalcChildsRect();
 
 
 		Invalidate();
@@ -212,7 +210,7 @@ public:
 		else
 		{
 			MYTREE *parent= MYTree_RemoveFromRoot(rclickTree);
-			parent->CalcChildsRect();
+			parent->ReCalcChildsRect();
 
 			curHitPos=NULL;
 

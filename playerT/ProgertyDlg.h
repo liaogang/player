@@ -377,7 +377,7 @@ public:
 
 		mytree->AddChild(newSplit);
 
-		mytree->CalcChildsRect();
+		mytree->ReCalcChildsRect();
 		MoveToNewRect(mytree);
 		UpdateTree(mytree);
 
@@ -393,7 +393,7 @@ public:
 
 		mytree->AddChild(newSplit);
 
-		mytree->CalcChildsRect();
+		mytree->ReCalcChildsRect();
 		MoveToNewRect(mytree);
 		UpdateTree(mytree);
 
@@ -464,7 +464,7 @@ public:
 		MYTREE *mytree=(MYTREE*)GetItemData(rclickItem);
 		if(mytree->data.SetSplitType(left_right))
 		{
-			mytree->CalcChildsRect();
+			mytree->ReCalcChildsRect();
 			MoveToNewRect(mytree);
 			UpdateTree(mytree);
 			GetSplitter()->Invalidate();
@@ -479,7 +479,7 @@ public:
 
 		if(mytree->data.SetSplitType(up_down))
 		{
-			mytree->CalcChildsRect();
+			mytree->ReCalcChildsRect();
 			MoveToNewRect(mytree);
 			UpdateTree(mytree);
 			GetSplitter()->Invalidate();
@@ -494,7 +494,7 @@ public:
 
 		MYTREE *parent=MYTree_RemoveFromRoot(mytree);
 
-		parent->CalcChildsRect();
+		parent->ReCalcChildsRect();
 		MoveToNewRect(parent);
 		UpdateTree(parent);
 		GetSplitter()->Invalidate();

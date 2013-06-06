@@ -10,7 +10,7 @@ class CAlbumCoverView :
 	public CWindowImpl<CAlbumCoverView>
 {
 public:
-	CMainFrame *pMainFrame;
+	//CMainFrame *pMainFrame;
 	HPEN  newPen,oldPen; 
 	HBRUSH brush,oldBrush;
 	HMENU menu;
@@ -36,6 +36,7 @@ public:
 	DECLARE_WND_CLASS_EX(_T("AlbumCoverView"),  CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS , COLOR_BTNSHADOW)
 
 	BEGIN_MSG_MAP_EX(CAlbumCoverView)
+		MSG_WM_DESTROY(OnDestroy)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		MSG_WM_RBUTTONUP(OnRButtonUp)
 		COMMAND_ID_HANDLER(ID_MENU_PIC_SAVE, OnPicSave)
@@ -194,8 +195,18 @@ public:
 		bDisabledLast=bDisable;
 	}
 
+
+	void OnDestroy()
+	{
+		IDonotWantToReceiveMessage(WM_NEW_TRACK_STARTED);
+
+		SetMsgHandled(FALSE);
+	}
+
 	virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
 	{
+		
+
 		delete this;
 	}
 };

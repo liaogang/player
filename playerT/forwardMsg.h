@@ -71,7 +71,9 @@ public:
 		{
 			ListOfOneMsg* pList=it->second;
 			for (ListOfOneMsg::iterator it2=pList->begin();it2!=pList->end();++it2)
+			{
 				::SendMessage(*it2,uMsg,wParam,lParam);
+			}
 		}
 	}
 };

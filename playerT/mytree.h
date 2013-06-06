@@ -10,6 +10,8 @@
 class MYTREE;
 using namespace std;
 
+#define WIDTH(rc) ((rc).right-(rc.left))
+#define HEIGHT(rc) ((rc).bottom-(rc.top))
 
 //调用完calcrect之后,调用此函数,更新
 void MoveToNewRect(MYTREE *parent);
@@ -475,9 +477,107 @@ public:
 	dataNode data;
 	//paint stuffs
 public:
+	void RECTHOffset(RECT &rc ,int Offset )
+	{
+		rc.left+=Offset;
+		rc.right+=Offset;
+	}
+
+	void RECTVOffset(RECT &rc,int Offset )
+	{
+		rc.top+=Offset;
+		rc.bottom+=Offset;
+	}
+
 
 	//重新计算子结点的矩形区域
-	void CalcChildsRect()
+	//按原比例来分配
+	void CalcChildsRect(RECT &newRC)
+	{
+		RECT oldRC=getRect();
+		setRect(newRC);
+
+
+		int hOffset=newRC.left-oldRC.left;
+		int vOffset=newRC.top - oldRC.top;
+
+
+		if(!hasChild())
+			return;
+		
+		//拉长的话，加长最后一个子面板
+		//缩短的话，缩短最大的一个。
+		bool bLR=(data.type==left_right);
+		bool bEnlarge;
+		int  iEnlarge;
+		if (bLR)
+		{
+			iEnlarge=WIDTH(newRC)-WIDTH(oldRC);
+			bEnlarge=iEnlarge > 0;
+		}
+		else
+		{
+			iEnlarge=HEIGHT(newRC)-HEIGHT(oldRC) ;
+			bEnlarge=iEnlarge > 0;
+		}
+
+	
+		
+		MYTREE *cur=child;
+		//RECT last={0};
+		int maxWidth=0;
+		int maxOne;
+		//get max one
+		if(bEnlarge)//the last one
+			maxOne=childs-1;
+		else
+		{
+			for (int count=0;count<childs;cur=cur->next,++count)
+			{
+				RECT curRC=cur->getRect();
+
+				if(WIDTH(curRC) >= maxWidth )
+				{	
+					maxWidth=WIDTH(curRC);
+					maxOne=count;
+				}
+			}
+			
+		}
+
+		if(maxOne != childs -1 )
+			data.SplitterBarRects.clear();
+
+		cur=child;
+		for (int count=0;count<childs;cur=cur->next,++count)
+		{
+			RECT curRC=cur->getRect();
+			RECTHOffset(curRC,hOffset);
+			RECTVOffset(curRC,vOffset);
+
+			if(count == maxOne)
+			{
+				curRC.right+=iEnlarge;
+				hOffset+=iEnlarge;
+			}
+
+			if(maxOne != childs-1)
+			if(count!=childs-1)
+			{
+				RECT rcBar=curRC;
+				rcBar.left=curRC.right;
+				rcBar.right+=data.m_iSplitterBar;
+				data.SplitterBarRects.push_back(rcBar);
+			}
+			 
+			cur->CalcChildsRect(curRC);
+		}
+
+	}
+
+	//重新计算子结点的矩形区域
+		//重新分配相等的空间
+	void ReCalcChildsRect()
 	{
 		if(!hasChild())return;
 
@@ -486,7 +586,7 @@ public:
 		//clear all splitter bar
 		data.SplitterBarRects.clear();
 
-		
+
 		MYTREE *first=child;
 
 		if (childs==1)
@@ -494,13 +594,15 @@ public:
 			child->setRect(rc);
 
 			if (first->hasChild())
-				first->CalcChildsRect();
+				first->ReCalcChildsRect();
 		}
 		else
 		{
 			for (int count=0;first;first=first->next,++count)
 			{
 				int childLen=(bLR?(rc.right-rc.left):(rc.bottom-rc.top))/childs;
+
+
 
 				RECT childRC=rc;
 				if(bLR)
@@ -544,12 +646,11 @@ public:
 				first->setRect(childRC);
 
 				if (first->hasChild())
-					first->CalcChildsRect();
+					first->ReCalcChildsRect();
 			}
 
 		}
 	}
-
 
 
 	//非遍历

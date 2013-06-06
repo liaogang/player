@@ -93,6 +93,7 @@ public:
 		MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_BLUE,OnChColorBlue);
 		
 		MSG_WM_CREATE(OnCreate);
+		MSG_WM_DESTROY(OnDestroy)
 		//MESSAGE_HANDLER(WM_PAINT,OnPaint)
 		MSG_WM_ERASEBKGND(OnEraseBkgnd)
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
@@ -104,12 +105,17 @@ public:
 		REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_RCLICK ,OnNotifyCodeHandlerEX)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED,OnItemChanged)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO,OnGetdispInfo)
-		//REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
+		REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
 		//MESSAGE_HANDLER(OCM_DRAWITEM,OnDrawItem)
 
 		CHAIN_MSG_MAP(CListViewNoFlicker)
 
 		END_MSG_MAP()
+
+
+		void OnDestroy();
+
+		
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
@@ -706,7 +712,16 @@ public:
 		//SetCallbackMask(NULL);
 	}
 
-	virtual void OnFinalMessage(_In_ HWND /*hWnd*/);
+
+	void CPlayListView::OnFinalMessage(_In_ HWND /*hWnd*/)
+	{
+		CMessageLoop* pLoop = _Module.GetMessageLoop();
+		ATLASSERT(pLoop != NULL);
+		pLoop->RemoveMessageFilter(this);
+
+		if (!m_bSearch)
+			delete this;
+	}
 
 
 };

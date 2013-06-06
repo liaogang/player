@@ -59,11 +59,6 @@ public:
 	{
 		::DestroyMenu(menu);
 		DeleteObject(newPen);
-
-
-		IDonotWantToReceiveMessage(WM_TRACKPOS);
-		IDonotWantToReceiveMessage(WM_LYRIC_RELOAD);
-		IDonotWantToReceiveMessage(WM_NEW_TRACK_STARTED);
 	}
 
 public:
@@ -73,6 +68,7 @@ public:
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
 
 		MSG_WM_CREATE(OnCreate)
+		MSG_WM_DESTROY(OnDestroy)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		MSG_WM_ERASEBKGND(OnEraseBkgnd)
 		MSG_WM_PAINT(OnPaint)
@@ -86,7 +82,15 @@ public:
 		COMMAND_ID_HANDLER(ID_MENU_SEARCH_ONLINE,OnShowDlgLrcSearch)
 		COMMAND_ID_HANDLER(ID_SHOW_LRC_LIST,OnShowDlgLrcList)
 		END_MSG_MAP()
-		
+
+		void OnDestroy()
+		{
+			IDonotWantToReceiveMessage(WM_TRACKPOS);
+			IDonotWantToReceiveMessage(WM_LYRIC_RELOAD);
+			IDonotWantToReceiveMessage(WM_NEW_TRACK_STARTED);
+			SetMsgHandled(FALSE);
+		}
+
 		BOOL OnEraseBkgnd(CDCHandle dc)
 		{
 			//no bkgnd repaint needed
@@ -97,7 +101,6 @@ public:
 				SetMsgHandled(FALSE);
 				return 0;
 			}
-
 		}
 
 		int OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -534,6 +537,11 @@ public:
 		{
 			ShowWindow(SW_HIDE);
 			return 0;
+		}
+
+		virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
+		{
+			delete this;
 		}
 };
 

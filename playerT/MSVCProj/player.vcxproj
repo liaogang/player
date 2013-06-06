@@ -359,14 +359,14 @@
     <IntDir>Debug</IntDir>
     <OutDir>Debug</OutDir>
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>c:\openssl\include;$(IncludePath);..\Dx9SDK\Include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include</IncludePath>
+    <IncludePath>c:\openssl\include;$(IncludePath);..\Dx9SDK\Include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include;..\wtl\Include</IncludePath>
     <LibraryPath>..\Dx9SDK\Lib;..\mpg123\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>Release</IntDir>
     <OutDir>Release</OutDir>
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>c:\openssl\include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include;$(IncludePath);..\Dx9SDK\Include</IncludePath>
+    <IncludePath>c:\openssl\include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include;$(IncludePath);..\Dx9SDK\Include;..\wtl\Include</IncludePath>
     <LibraryPath>..\Dx9SDK\Lib;..\mpg123\Lib;C:\openssl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -442,4 +442,9 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="\Coding_stuffs\SourceCode1\player.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
