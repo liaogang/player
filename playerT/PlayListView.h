@@ -4,7 +4,7 @@
 #include "PlayListViewMng.h"
 #include "globalStuffs.h"
 #include "customMsg.h"
-#include "ListViewNoFlicker.h"
+
 #define INVALID_ITEM -1
 
 unsigned int BKDRHash(char *str);
@@ -14,9 +14,9 @@ HMENU LoadPlaylistMenu(BOOL bDestroy=FALSE);
 
 #define TEXTALIGN__WIDTH 3
 
+
 class CPlayListView:
-	public CListViewNoFlicker,
-	//public CWindowImpl<CPlayListView,CListViewCtrl>,
+	public CWindowImpl<CPlayListView,CListViewCtrl>,
 	public CMessageFilter
 {
 private:
@@ -92,9 +92,9 @@ public:
 		MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_DEFAULT,OnChColorDefault);
 		MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_BLUE,OnChColorBlue);
 		
-		MSG_WM_CREATE(OnCreate);
 		MSG_WM_DESTROY(OnDestroy)
-		//MESSAGE_HANDLER(WM_PAINT,OnPaint)
+		MSG_WM_CREATE(OnCreate);
+		MESSAGE_HANDLER(WM_PAINT,OnPaint)
 		MSG_WM_ERASEBKGND(OnEraseBkgnd)
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
 		MSG_WM_CHAR(OnChar)
@@ -106,39 +106,42 @@ public:
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED,OnItemChanged)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO,OnGetdispInfo)
 		REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
-		//MESSAGE_HANDLER(OCM_DRAWITEM,OnDrawItem)
-
-		CHAIN_MSG_MAP(CListViewNoFlicker)
-
 		END_MSG_MAP()
 
+		void FillSolidRect(HDC m_hDC,LPCRECT lpRect, COLORREF clr)
+		{
+			ATLASSERT(m_hDC != NULL);
 
-		void OnDestroy();
-
-		
+			COLORREF clrOld = ::SetBkColor(m_hDC, clr);
+			ATLASSERT(clrOld != CLR_INVALID);
+			if(clrOld != CLR_INVALID)
+			{
+				::ExtTextOut(m_hDC, 0, 0, ETO_OPAQUE, lpRect, NULL, 0, NULL);
+				::SetBkColor(m_hDC, clrOld);
+			}
+		}
 
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			//An application returns zero if it processes this message. 
+			CPaintDC dc(m_hWnd);
 
-			PAINTSTRUCT ps;
-			::BeginPaint(m_hWnd,&ps);
-			
-			{
+			RECT headerRect;
+			GetDlgItem(0).GetWindowRect(&headerRect);
+			ScreenToClient(&headerRect);
+			dc.ExcludeClipRect(&headerRect);
 
-			CMemoryDC memdc(ps.hdc ,ps.rcPaint);
+			// Paint to a memory device context to help
+			// eliminate screen flicker.
+			CMemDC memDC(dc.m_hDC,&dc.m_ps.rcPaint);
 
-			//CHeaderCtrl header= GetHeader();
-			//
-			//SendMessage(header.m_hWnd,WM_ERASEBKGND,0L,0L);
-			//SendMessage(header.m_hWnd,WM_PAINT,0L,0L);
+			RECT clip;
+			GetClipBox(memDC,&clip);
+			FillSolidRect(memDC, &clip ,GetSysColor(COLOR_WINDOW));		
 
-			//ValidateRect(&rc);
+			// Now let the window do its default painting...
+			DefWindowProc(WM_PAINT, (WPARAM)memDC.m_hDC, (LPARAM)0);
 
-			 ::DefWindowProc(m_hWnd,uMsg,(WPARAM)memdc.m_hDC,lParam);
-			}
-
-			::EndPaint(m_hWnd,&ps);
 
 			return 0;
 		}
@@ -151,31 +154,128 @@ public:
 				return 1;
 		}
 
-		LRESULT OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
+		void DrawLine(HDC dc,int nItem)
+		{
+			LVITEM item;
+			item.iItem = nItem;
+			item.iSubItem = 0;
+			item.mask = LVIF_STATE;
+			item.stateMask = 0XFFFF;
+
+			GetItem(&item);
+			BOOL selected = item.state & LVIS_SELECTED;
+			BOOL focused  = item.state & LVIS_FOCUSED;
+		   		
+			RECT rcCol;
+			ListView_GetItemRect(m_hWnd,nItem,&rcCol,LVIR_SELECTBOUNDS)	;
+
+			//ÆÕÍ¨
+			//°×µ×,ºÚ×Ö
+			int B=nItem%2?clText1 : clText2;
+			int T=COLOR_WINDOWTEXT ;
+			//À¶µ×,°××Ö
+			const int SFB=COLOR_HIGHLIGHT;
+			const int SFT=COLOR_WINDOW;
+			//»Òµ×,ºÚ×Ö
+			const int SB=COLOR_BTNFACE;
+			const int ST=COLOR_WINDOWTEXT;
+
+			COLORREF clBackgnd;
+			COLORREF clText;
+			if(selected)
+			{
+				clBackgnd=::GetSysColor(SFB);
+				clText=::GetSysColor(SFT);
+			}
+			else if(  focused )
+			{	
+				clBackgnd=::GetSysColor(SB);
+				clText=::GetSysColor(ST);
+			}
+			else
+			{
+				clBackgnd=B;
+				clText=::GetSysColor(T);
+			}
+
+
+			//ÐÐ±³¾°
+			HPEN hNewPen=::CreatePen(PS_SOLID,1, clBackgnd );
+			HBRUSH hNewBrush= ::CreateSolidBrush(clBackgnd);
+
+			HPEN hOldPen = (HPEN)::SelectObject(dc, hNewPen);
+			HBRUSH hOldBrush = (HBRUSH)::SelectObject(dc,hNewBrush );
+
+			::Rectangle(dc, rcCol.left, rcCol.top, rcCol.right, rcCol.bottom);
+
+			//Èç¹ûÑ¡ÖÐÏî¾ßÓÐ½¹µã,»­³öÐéÏß¾ØÐÎ½¹µã±ß¿ò
+			if(focused && GetFocus()==m_hWnd)
+			{
+				::DrawFocusRect(dc,&rcCol);	
+			}
+
+			//draw text
+			::DeleteObject(hNewPen);
+			hNewPen=::CreatePen(PS_SOLID,1,clText);
+			SelectObject(dc,hNewPen);
+
+			::SetTextColor(dc,clText);
+
+			LV_COLUMN lvc;
+			lvc.mask=LVCF_FMT;
+			for(int nOrder=0; GetColumn(nOrder,&lvc); ++nOrder)
+			{
+				int nSubItem=Header_OrderToIndex(ListView_GetHeader(m_hWnd),nOrder);
+
+				RECT rcSubItem;
+				ListView_GetSubItemRect(m_hWnd,nItem,nSubItem,LVIR_BOUNDS,&rcSubItem);
+
+				if ( !m_bSearch && nSubItem==COLUMN_INDEX_INDEX)
+				{
+					PlayList *curPl=ActivePlaylist();
+					if ( curPl && nItem == GetPlayingItem().GetIndex() )
+					{
+						DrawTriangleInRect(dc,rcSubItem);
+						continue;
+					}
+				}
+				
+
+				UINT DT_S=DT_LEFT;
+				if (lvc.fmt & HDF_CENTER)
+					DT_S=DT_CENTER;	
+				else if (lvc.fmt & HDF_RIGHT)
+					DT_S=DT_RIGHT;
+
+				WCHAR szText[MAX_PATH];
+				int strLen=GetItemText(nItem,nSubItem,szText,MAX_PATH);
+
+				DrawText(dc,szText, strLen, &rcSubItem, DT_S|DT_VCENTER|DT_SINGLELINE|DT_WORD_ELLIPSIS);
+			}
+
+			::SelectObject(dc, hOldBrush);
+			::DeleteObject(hNewBrush);
+
+			::SelectObject(dc,hOldPen);
+			::DeleteObject(hNewPen);
+		}
+
+		void OnDestroy();
 
 		LRESULT OnCustomDraw(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 		{
 			LPNMCUSTOMDRAW lpNMCustomDraw = (LPNMCUSTOMDRAW)pnmh;
 			NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>( lpNMCustomDraw );  
 
-			DWORD dwRet = CDRF_DODEFAULT;
+			DWORD dwRet;
 			switch(lpNMCustomDraw->dwDrawStage)
 			{
 			case CDDS_PREPAINT:
-				dwRet=CDRF_NOTIFYITEMDRAW;
+				dwRet= CDRF_NOTIFYITEMDRAW ;
 				break;
 			case CDDS_ITEMPREPAINT:
-				COLORREF crText;
-				if ( (pLVCD->nmcd.dwItemSpec % 2) == 0 )
-					crText = clText2; 
-				else 
-					crText = clText1; 
-
-				// Store the color back in the NMLVCUSTOMDRAW struct.
-				pLVCD->clrTextBk = crText;
-
-				// Tell Windows to paint the control itself.
-				dwRet= CDRF_DODEFAULT;
+				DrawLine(pLVCD->nmcd.hdc,pLVCD->nmcd.dwItemSpec);
+				dwRet= CDRF_SKIPDEFAULT ;
 				break;
 			}
 
@@ -298,7 +398,8 @@ public:
 		LRESULT OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled);
 
 		BOOL m_bC;
-
+		
+		LRESULT OnItemChanging(int /**/,LPNMHDR pnmh,BOOL bHandled);
 		LRESULT OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled);
 
 
@@ -712,8 +813,7 @@ public:
 		//SetCallbackMask(NULL);
 	}
 
-
-	void CPlayListView::OnFinalMessage(_In_ HWND /*hWnd*/)
+	void OnFinalMessage(_In_ HWND /*hWnd*/)
 	{
 		CMessageLoop* pLoop = _Module.GetMessageLoop();
 		ATLASSERT(pLoop != NULL);

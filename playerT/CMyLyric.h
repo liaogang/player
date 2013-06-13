@@ -88,6 +88,13 @@ public:
 			IDonotWantToReceiveMessage(WM_TRACKPOS);
 			IDonotWantToReceiveMessage(WM_LYRIC_RELOAD);
 			IDonotWantToReceiveMessage(WM_NEW_TRACK_STARTED);
+
+
+			IWantToReceiveMessage(WM_PAUSED);
+			IWantToReceiveMessage(WM_PAUSE_START);
+			IWantToReceiveMessage(WM_TRACKSTOPPED);
+
+
 			SetMsgHandled(FALSE);
 		}
 
@@ -449,6 +456,9 @@ public:
 
 				CreateBackDC(TRUE);
 
+
+				//SetTimer(m_hWnd,)
+
 				//del lyricfromlrcfile
 				//use global
 				nextLine=lrcs.begin();
@@ -480,7 +490,11 @@ public:
 
 			IWantToReceiveMessage(WM_TRACKPOS);
 			IWantToReceiveMessage(WM_LYRIC_RELOAD);
+			
 			IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
+			IWantToReceiveMessage(WM_PAUSED);
+			IWantToReceiveMessage(WM_PAUSE_START);
+			IWantToReceiveMessage(WM_TRACKSTOPPED);
 
 			TrackChanged();
 		}

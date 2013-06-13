@@ -99,17 +99,16 @@ void CPlayerThread::WriteDataToDSBuf()
 	}
 
 
-	m_pPlayer->m_pFile->GetPos(&(pPosInfo->used),&(pPosInfo->left));
-	NotifyMsg(WM_TRACKPOS,(WPARAM)pPosInfo,0);
+	//m_pPlayer->m_pFile->GetPos(&(pPosInfo->used),&(pPosInfo->left));
+	//NotifyMsg(WM_TRACKPOS,(WPARAM)pPosInfo,0);
 
 
 	DWORD playCursor;
 	if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return;
 	DWORD available=DS_GetAvailable(g_dwMaxDSBufferLen,playCursor,m_dwCurWritePos);
 
-	if (available<gDefaultBufferSize*2)
-		::Sleep(g_dwSleepTime);
-	
+	Sleep2WaitReadCursor(available);
+
 	//send data to spectrum analyser buffer
 	if (fftBufLen-playPosInFFt<m_dwSizeRead)
 	{

@@ -257,6 +257,7 @@ void CBasicPlayer::stop()
 		m_pPlayerThread->m_lpDSBuffer->Stop();
 		m_pPlayerThread->Teminate();
 		m_pFile->Close();
+		NotifyMsg(WM_TRACKSTOPPED);
 	}
 }
 

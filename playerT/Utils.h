@@ -45,7 +45,7 @@ LPDIRECTSOUNDBUFFER DSoundBufferCreate(LPDIRECTSOUND lpDSound,WAVEFORMATEX *pwfx
 	ZeroMemory(&dsBufferDesc,sizeof(dsBufferDesc) );
 	dsBufferDesc.dwSize=sizeof(DSBUFFERDESC);
 	dsBufferDesc.dwFlags=DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS |DSBCAPS_CTRLVOLUME ;
-	dsBufferDesc.dwBufferBytes=pwfx->nAvgBytesPerSec;   //1秒缓冲
+	dsBufferDesc.dwBufferBytes=6*pwfx->nAvgBytesPerSec;   //1秒缓冲
 	dsBufferDesc.lpwfxFormat=pwfx;
 
 	LPDIRECTSOUNDBUFFER lpDSBuffer=NULL;
@@ -53,7 +53,7 @@ LPDIRECTSOUNDBUFFER DSoundBufferCreate(LPDIRECTSOUND lpDSound,WAVEFORMATEX *pwfx
 
 	//-------------------
 	//ds缓冲区大小    1秒    11.025次读文件
-	g_dwMaxDSBufferLen=pwfx->nAvgBytesPerSec;
+	g_dwMaxDSBufferLen=6*pwfx->nAvgBytesPerSec;
 	g_dwSleepTime=(dsBufferDesc.dwBufferBytes/pwfx->nAvgBytesPerSec)*1000/10;//缓冲时间的1/12  <  1/11
 	//-------------------
 
@@ -72,7 +72,11 @@ DWORD DS_GetAvailable(int maxDSBufferLen , int playCursor, int curWritePos)
 
 
 
-
+void Sleep2WaitReadCursor(DWORD available)
+{
+	if (available<gDefaultBufferSize*2)
+		::Sleep(g_dwSleepTime);
+}
 
 
 
