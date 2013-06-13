@@ -209,7 +209,7 @@ public:
 			::Rectangle(dc, rcCol.left, rcCol.top, rcCol.right, rcCol.bottom);
 
 			//如果选中项具有焦点,画出虚线矩形焦点边框
-			if(focused && GetFocus()==m_hWnd)
+			if(focused )//&& GetFocus()==m_hWnd)
 			{
 				::DrawFocusRect(dc,&rcCol);	
 			}
@@ -219,6 +219,7 @@ public:
 			hNewPen=::CreatePen(PS_SOLID,1,clText);
 			SelectObject(dc,hNewPen);
 
+			::SetBkMode(dc,TRANSPARENT);
 			::SetTextColor(dc,clText);
 
 			LV_COLUMN lvc;
@@ -230,15 +231,15 @@ public:
 				RECT rcSubItem;
 				ListView_GetSubItemRect(m_hWnd,nItem,nSubItem,LVIR_BOUNDS,&rcSubItem);
 
-				if ( !m_bSearch && nSubItem==COLUMN_INDEX_INDEX)
-				{
-					PlayList *curPl=ActivePlaylist();
-					if ( curPl && nItem == GetPlayingItem().GetIndex() )
-					{
-						DrawTriangleInRect(dc,rcSubItem);
-						continue;
-					}
-				}
+// 				if ( !m_bSearch && nSubItem==COLUMN_INDEX_INDEX)
+// 				{
+// 					PlayList *curPl=ActivePlaylist();
+// 					if ( curPl && nItem == GetPlayingItem().GetIndex() )
+// 					{
+// 						DrawTriangleInRect(dc,rcSubItem);
+// 						continue;
+// 					}
+// 				}
 				
 
 				UINT DT_S=DT_LEFT;
@@ -250,7 +251,7 @@ public:
 				WCHAR szText[MAX_PATH];
 				int strLen=GetItemText(nItem,nSubItem,szText,MAX_PATH);
 
-				DrawText(dc,szText, strLen, &rcSubItem, DT_S|DT_VCENTER|DT_SINGLELINE|DT_WORD_ELLIPSIS);
+				DrawText(dc,szText, strLen, &rcSubItem, DT_S|DT_VCENTER|DT_SINGLELINE |DT_WORD_ELLIPSIS);
 			}
 
 			::SelectObject(dc, hOldBrush);

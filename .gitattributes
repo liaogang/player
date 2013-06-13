@@ -309,7 +309,6 @@ playerT/Lib/Debug/vc90.pdb -text
 playerT/Lib/Release/libmpg123.lib -text
 playerT/Lib/Release/vc90.idb -text
 playerT/Lib/Release/vc90.pdb -text
-playerT/ListViewNoFlicker.h -text
 playerT/LrcMng.cpp -text
 playerT/LrcMng.h -text
 playerT/MSVCProj/player.sln -text
