@@ -46,24 +46,38 @@ void CPlayerThread::Reset()
 	m_dwCurWritePos=0;
 }
 
-BOOL CPlayerThread::CleanDSBuffer()
+BOOL CPlayerThread::CleanDSBuffer(DWORD &writePos,DWORD writePos2)
 {
 	BOOL bRet=TRUE;
 	HRESULT result;
 	LPVOID buffer1;
 	DWORD buffer1Len;
 
-	result= m_lpDSBuffer->Lock(0,0,&buffer1,&buffer1Len,NULL,NULL,DSBLOCK_ENTIREBUFFER);
-	if (result==DS_OK){
-		WAVEFORMATEX* format=m_pPlayer->m_pFile->GetFormat();
-		if (format){
-			int emptyByte=(format->wBitsPerSample == 8)?128:0;
-			memset(buffer1, emptyByte, buffer1Len);
-			m_lpDSBuffer->Unlock(buffer1,buffer1Len,NULL,NULL);
-		}else bRet=FALSE;
+
+	if(writePos2==0)
+	{
+		if (FAILED(m_lpDSBuffer->GetCurrentPosition(0,&writePos)))
+			return FALSE;
+		m_dwCurWritePos=writePos;
+	}
+	else
+	{
+
+	
+// 	result= m_lpDSBuffer->Lock(0,0,&buffer1,&buffer1Len,NULL,NULL,DSBLOCK_ENTIREBUFFER);
+// 	if (result==DS_OK){
+// 		WAVEFORMATEX* format=m_pPlayer->m_pFile->GetFormat();
+// 		if (format){
+// 			int emptyByte=(format->wBitsPerSample == 8)?128:0;
+// 			memset(buffer1, emptyByte, buffer1Len);
+// 			m_lpDSBuffer->Unlock(buffer1,buffer1Len,NULL,NULL);
+// 		}else bRet=FALSE;
+// 	}
+
+	m_lpDSBuffer->SetCurrentPosition(writePos2);
+
 	}
 
-	//m_lpDSBuffer->SetCurrentPosition(0);
 	return bRet;
 }
 
@@ -97,10 +111,6 @@ void CPlayerThread::WriteDataToDSBuf()
 		m_bKeepPlaying=FALSE;
 		return;
 	}
-
-
-	//m_pPlayer->m_pFile->GetPos(&(pPosInfo->used),&(pPosInfo->left));
-	//NotifyMsg(WM_TRACKPOS,(WPARAM)pPosInfo,0);
 
 
 	DWORD playCursor;

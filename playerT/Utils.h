@@ -74,7 +74,10 @@ DWORD DS_GetAvailable(int maxDSBufferLen , int playCursor, int curWritePos)
 
 void Sleep2WaitReadCursor(DWORD available)
 {
-	if (available<gDefaultBufferSize*2)
+	//clear ed bufer
+	if(available==0)
+		return;
+	else if (available<gDefaultBufferSize*2)
 		::Sleep(g_dwSleepTime);
 }
 

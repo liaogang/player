@@ -63,10 +63,17 @@ public:
 
 public:
 	BEGIN_MSG_MAP_EX(CMyLyric)
-		MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
+		//MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
 		MESSAGE_HANDLER(WM_LYRIC_RELOAD,OnLyricReload)
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
 
+
+		MESSAGE_HANDLER(WM_PAUSED,OnPaused)
+		MESSAGE_HANDLER(WM_PAUSE_START,OnPauseStarted)
+		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
+
+
+		MSG_WM_TIMER(OnTimer)
 		MSG_WM_CREATE(OnCreate)
 		MSG_WM_DESTROY(OnDestroy)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
@@ -83,18 +90,48 @@ public:
 		COMMAND_ID_HANDLER(ID_SHOW_LRC_LIST,OnShowDlgLrcList)
 		END_MSG_MAP()
 
+
+		
+		void OnTimer(UINT_PTR /*nIDEvent*/)
+		{
+			if(m_bPaused || !bLrcReady)
+				return;
+
+			m_uCurrTime+=m_uElapse;
+			
+
+			LrcLine nextLrcLine=*nextLine;
+
+			if (m_uCurrTime <= nextLrcLine.time.GetTotalMillisec())
+				return;
+
+			++nextLine;
+			auto k=curLineInfo;
+			if(++k!=veclineinfo.end())
+			{
+				mydraw();
+				++curLineInfo;
+			}
+			else
+			{
+				mydraw();
+				bLrcReady=false;
+			}
+		}
+
 		void OnDestroy()
 		{
-			IDonotWantToReceiveMessage(WM_TRACKPOS);
 			IDonotWantToReceiveMessage(WM_LYRIC_RELOAD);
 			IDonotWantToReceiveMessage(WM_NEW_TRACK_STARTED);
 
 
-			IWantToReceiveMessage(WM_PAUSED);
-			IWantToReceiveMessage(WM_PAUSE_START);
-			IWantToReceiveMessage(WM_TRACKSTOPPED);
+			IDonotWantToReceiveMessage(WM_PAUSED);
+			IDonotWantToReceiveMessage(WM_PAUSE_START);
+			IDonotWantToReceiveMessage(WM_TRACKSTOPPED);
 
-
+			if(m_nIDEvent!=0)
+				KillTimer((UINT_PTR)&m_nIDEvent);	
+			
 			SetMsgHandled(FALSE);
 		}
 
@@ -117,9 +154,38 @@ public:
 			return 0;
 		}
 
-		LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+		UINT m_uTotalTime;
+		UINT m_uCurrTime;
+		LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 		{
+			trackPosInfo *pos;
+			pos=(trackPosInfo*)wParam;
+			m_uTotalTime=pos->left;
+
 			TrackChanged();
+			return 0;
+		}
+
+		LRESULT OnPaused(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+		{
+			m_bPaused=true;
+			return 0;
+		}
+
+		LRESULT OnPauseStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+		{
+			m_bPaused=false;
+			return 0;
+		}
+
+		LRESULT OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+		{
+			if(m_nIDEvent!=0)
+			{
+				KillTimer((UINT_PTR)&m_nIDEvent);
+				m_nIDEvent=0;
+			}
+			ResetTitle();
 			return 0;
 		}
 
@@ -138,6 +204,7 @@ public:
 			::BeginPaint(m_hWnd,&ps);
 			if(bLrcReady)
 				mydraw(ps.hdc);
+
 			::EndPaint(m_hWnd,&ps);	
 		}
 
@@ -229,44 +296,6 @@ public:
 			::ClientToScreen(m_hWnd,&point);
 			::TrackPopupMenu(trackMenu,TPM_LEFTALIGN,point.x,point.y,0,m_hWnd,0);
 		}
-
-
-
-		LRESULT OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-		{
-			if(!track /*|| !track->m_bLrcFromLrcFile*/)
-				return 0;
-
-			if (!bLrcReady)
-				return 0;
-
-			trackPosInfo *posInfo=(trackPosInfo*)wParam;
-			if (posInfo->left==0)
-				ResetTitle();
-			//-----------------------------------------
-			LrcLine nextLrcLine=*nextLine;
-			double totalsec=nextLrcLine.time.GetTotalMillisecond()/100;
-			if (posInfo->used > totalsec)
-			{
-				++nextLine;
-
-				auto k=curLineInfo;
-				if(++k!=veclineinfo.end())
-				{
-					mydraw();
-
-					++curLineInfo;
-				}
-				else
-				{
-					mydraw();
-					bLrcReady=false;
-				}
-			}
-
-			return 0;
-		}
-
 
 		HDC m_memDCNormal,m_memDCHighlight;
 		CFont m_Font;
@@ -439,6 +468,9 @@ public:
 
 
 
+		UINT m_nIDEvent;
+		bool m_bPaused;
+		static const int m_uElapse=500;
 		void TrackChanged()
 		{
 			bLrcReady=FALSE;
@@ -456,17 +488,19 @@ public:
 
 				CreateBackDC(TRUE);
 
+				
+				m_bPaused=false;
+				m_uCurrTime=0;
+				SetTimer((UINT_PTR)&m_nIDEvent,m_uElapse,NULL);
 
-				//SetTimer(m_hWnd,)
 
 				//del lyricfromlrcfile
 				//use global
 				nextLine=lrcs.begin();
 				bLrcReady=TRUE;
-
-				Invalidate();
 			}
 
+			Invalidate();
 
 			if(track->lycPath.empty())
 				ResetTitle();
@@ -488,7 +522,7 @@ public:
 			track=NULL;
 			bLrcReady=FALSE;
 
-			IWantToReceiveMessage(WM_TRACKPOS);
+	
 			IWantToReceiveMessage(WM_LYRIC_RELOAD);
 			
 			IWantToReceiveMessage(WM_NEW_TRACK_STARTED);

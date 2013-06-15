@@ -178,7 +178,7 @@ private:
 // 	}
 
 
-	virtual VOID  SetOutVolume(double vol)
+	VOID  SetOutVolume(double vol)
 	{
 		mpg123_volume(m_hmp3,vol);
 	}

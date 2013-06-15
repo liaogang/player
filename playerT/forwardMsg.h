@@ -64,7 +64,6 @@ public:
 	{
 #ifdef _DEBUG
 		//AtlTrace(L"message WM_USER+%d come in to msg center\n",uMsg-WM_USER);
-		return;
 #endif
 		
 		auto it=msgMap.find(uMsg);

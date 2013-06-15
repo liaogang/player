@@ -10,48 +10,117 @@ public:
 	BOOL m_bPressing;
 	CMyTrackBar():m_bPressing(FALSE)
 	{
-		
+
 	}
 public:
 	DECLARE_WND_SUPERCLASS(NULL,CTrackBarCtrl::GetWndClassName())
 
 	BEGIN_MSG_MAP_EX(CMyTrackBar)
+		MSG_WM_SETFOCUS(OnSetFocus)
 		MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLBtnDown)
 		MESSAGE_HANDLER(TB_BUTTONCOUNT,TBB)
 		MESSAGE_HANDLER(TB_GETITEMRECT,OnGetItemRect)
 		MESSAGE_HANDLER(WM_ERASEBKGND,OnEraseBkgnd)
-	END_MSG_MAP()
+		REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
 
+		END_MSG_MAP()
 
+		//we don't want a focus rect appear around
+		void OnSetFocus(CWindow wndOld)
+		{
+			::SetFocus(wndOld.m_hWnd);
+		}
 
-	LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
-	{
-		return 1;
-	}
+		LRESULT OnCustomDraw(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
+		{
+			LPNMCUSTOMDRAW lpNMCustomDraw = (LPNMCUSTOMDRAW)pnmh;
+			NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>( lpNMCustomDraw );  
 
-	LRESULT OnLBtnDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
-	{
-		bHandled=FALSE;
-		m_bPressing=TRUE;
-		return 1;
-	}
+			DWORD dwRet= CDRF_DODEFAULT;
+			switch(lpNMCustomDraw->dwDrawStage)
+			{
+			case CDDS_PREPAINT:
+				dwRet= CDRF_NOTIFYITEMDRAW;
+				break;
+			case CDDS_ITEMPREPAINT:
+				//if is not used , hide the thumb
+				if (pLVCD->nmcd.dwItemSpec==TBCD_THUMB 
+					&& !IsWindowEnabled())
+					dwRet=CDRF_SKIPDEFAULT;
+				break;
+			}
 
-	LRESULT OnGetItemRect(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
-	{
-		RECT *rc=(RECT*)lParam;
-		rc->left=0;
-		rc->right=24;
-		rc->bottom=24;
-		rc->top=0;
-		return 1;	  
-	}
+			return dwRet;
+		}
 
-	LRESULT TBB(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-	{
-		bHandled=TRUE;
-		return 1;
-	}
+		LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+		{
+			return 1;
+		}
 
+		LRESULT OnLBtnDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+		{
+			m_bPressing=TRUE;
+			RECT rc;
+			GetThumbRect(&rc);
+
+			int xPos = GET_X_LPARAM(lParam); 
+			int yPos = GET_Y_LPARAM(lParam); 
+
+			//is point in pos the thumb can move to?
+			if (yPos>rc.top && yPos < rc.bottom)
+			{
+				xPos=(rc.right-rc.left)/2+rc.left;
+				lParam&=0xFFFF0000;
+				lParam|=(short)xPos;
+
+				xPos = GET_X_LPARAM(lParam); 
+				yPos = GET_Y_LPARAM(lParam); 
+
+				::SendMessage(m_hWnd,WM_MOUSEMOVE,wParam,lParam);
+				//::DefWindowProc(m_hWnd,uMsg,wParam,lParam);
+			}
+
+			bHandled=FALSE;
+
+			//If an application processes this message, it should return zero. 
+			return 1;
+		}
+
+		LRESULT OnGetItemRect(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+		{
+			RECT *rc=(RECT*)lParam;
+			rc->left=0;
+			rc->right=24;
+			rc->bottom=24;
+			rc->top=0;
+
+			return 1;	  
+		}
+
+		LRESULT TBB(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+		{
+			bHandled=TRUE;
+			return 1;
+		}
+
+		HWND CreateIsWnd(HWND parent)
+		{
+			UINT style=WS_CHILD  | WS_VISIBLE /*| WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/;
+			style|=TBS_TOOLTIPS  |TBS_NOTICKS |TBS_AUTOTICKS  | TBS_BOTH ; 
+			UINT styleEx=0; 
+			Create( parent,NULL,NULL,style,styleEx);
+			SetPageSize(1);
+			SetLineSize(1);
+			SetThumbLength(30);
+
+			return m_hWnd;
+		}
+
+		void EnableWindow(BOOL bEnable)
+		{
+			::EnableWindow(m_hWnd,bEnable);
+		}
 };
 
 

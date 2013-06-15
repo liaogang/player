@@ -116,14 +116,28 @@ void CBasicPlayer::play()
 
 	m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
 
-	if(!m_pPlayerThread->CleanDSBuffer())return;
+	DWORD writePos,writePos2=0;
+	if(!m_pPlayerThread->CleanDSBuffer(writePos,writePos2))
+		return;
+	
 	m_pPlayerThread->WriteDataToDSBuf();
+	m_pPlayerThread->WriteDataToDSBuf();
+	m_pPlayerThread->WriteDataToDSBuf();
+
+	writePos2=writePos;
+	if(!m_pPlayerThread->CleanDSBuffer(writePos,writePos2))
+		return;
+
+
 	m_pPlayerThread->Init(FALSE);
 	
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
 	TimerVolGrowUp();
 
-	NotifyMsg(WM_NEW_TRACK_STARTED);
+
+	trackPosInfo posInfo;
+	m_pFile->GetPos(&(posInfo.used),&(posInfo.left));
+	NotifyMsg(WM_NEW_TRACK_STARTED,(WPARAM)&posInfo,0);
 }
 
 

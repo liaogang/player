@@ -68,10 +68,9 @@ public:
 
 	UINT minute;
 	UINT second;
-	UINT msec;   //豪秒=0.01秒
+	UINT msec;   //100分之一秒,不是毫秒
 
-	inline UINT GetTotalSec(){return minute*60+second;}
-	inline UINT GetTotalMillisecond(){return GetTotalSec()*100+msec;} 
+	inline UINT GetTotalMillisec(){return (minute*60 +second)*1000 + msec*10;}
 };
 
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "mpg123.h"
-
+#include "customMsg.h"
 class MusicFile
 {
 public:
