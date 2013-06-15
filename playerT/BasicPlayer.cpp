@@ -33,7 +33,7 @@ using namespace std;
 	m_pPlayerThread=new CPlayerThread(this);
 	m_pSpectrumAnalyser=new CSpectrumAnalyser(this);
 
-
+	
 }
 
 CBasicPlayer :: ~CBasicPlayer(void)
@@ -283,7 +283,29 @@ BOOL CBasicPlayer::open( FileTrack *track)
 void CBasicPlayer::SetPos(int cur,int max)
 {
 	if (!m_bStopped)
+	{
+		m_cs.Enter();
+
+		m_pPlayerThread->m_lpDSBuffer->Stop();
+
+		DWORD writePos,writePos2=0;
+		if(!m_pPlayerThread->CleanDSBuffer(writePos,writePos2))
+			return;
+
+
 		m_pFile->SetPos(cur,max);
+
+		m_pPlayerThread->WriteDataToDSBuf();
+		m_pPlayerThread->WriteDataToDSBuf();
+
+		writePos2=writePos;
+		if(!m_pPlayerThread->CleanDSBuffer(writePos,writePos2))
+			return;
+
+
+		m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
+		m_cs.Leave();
+	}
 }
 
 void CBasicPlayer::GetPos(int *cur,int *max)

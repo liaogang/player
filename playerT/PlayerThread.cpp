@@ -91,6 +91,7 @@ void CPlayerThread::Excute()
 void CPlayerThread::WriteDataToDSBuf()
 {
 	char *pFileBuffer=(char*)pBufFFT1;
+	m_pPlayer->m_cs.Enter();
 	if(!m_pPlayer->m_pFile->Read(pBufFFT1,gDefaultBufferSize,&m_dwSizeRead) ||
 		m_dwSizeRead==0 )
 	{
@@ -111,7 +112,7 @@ void CPlayerThread::WriteDataToDSBuf()
 		m_bKeepPlaying=FALSE;
 		return;
 	}
-
+	m_pPlayer->m_cs.Leave();
 
 	DWORD playCursor;
 	if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return;
