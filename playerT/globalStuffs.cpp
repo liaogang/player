@@ -77,3 +77,8 @@ void AddToLrcMatchList(LrcMatchItem &item){matchlist.push_back(item);}
 static LrcMatchItem highestmatchlrc;
 LrcMatchItem GetHighestMatchLrc(){return highestmatchlrc;}
 void SetHighestMatchLrc(LrcMatchItem &item){highestmatchlrc=item;}
+
+
+
+
+

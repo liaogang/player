@@ -230,18 +230,7 @@ public:
 
 				RECT rcSubItem;
 				ListView_GetSubItemRect(m_hWnd,nItem,nSubItem,LVIR_BOUNDS,&rcSubItem);
-
-// 				if ( !m_bSearch && nSubItem==COLUMN_INDEX_INDEX)
-// 				{
-// 					PlayList *curPl=ActivePlaylist();
-// 					if ( curPl && nItem == GetPlayingItem().GetIndex() )
-// 					{
-// 						DrawTriangleInRect(dc,rcSubItem);
-// 						continue;
-// 					}
-// 				}
 				
-
 				UINT DT_S=DT_LEFT;
 				if (lvc.fmt & HDF_CENTER)
 					DT_S=DT_CENTER;	

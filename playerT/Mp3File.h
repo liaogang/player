@@ -77,7 +77,7 @@ public:
 		long  rate; 	
 		if (mpg123_getformat(m_hmp3, &rate, &channels, &encode) != MPG123_OK)
 		{
-			mpg123_close(m_hmp3);
+			mpg123_tclose(m_hmp3);
 			return FALSE;
 		}
 

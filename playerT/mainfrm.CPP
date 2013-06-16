@@ -931,8 +931,13 @@ LRESULT CPlayListView::OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled)
 		switch(pItem->iSubItem){
 		case COLUMN_INDEX_INDEX:
 			{
-				TCHAR strIndex[5]={0};
-				wsprintf(strIndex,_T("%d"),iItemIndx+1);
+				TCHAR strIndex[8]=_T("playing");
+				PlayList *curPl=ActivePlaylist();
+				if ( curPl && iItemIndx == GetPlayingItem().GetIndex() )
+					;
+				else
+					wsprintf(strIndex,_T("%d"),iItemIndx+1);
+
 				lstrcpy(pItem->pszText,strIndex);
 			}
 			break;

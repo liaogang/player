@@ -265,6 +265,7 @@ void CBasicPlayer::stop()
 {
 	if(!m_bStopped )
 	{
+		m_cs.Enter();
 		m_bStopped=TRUE;
 
 		
@@ -272,6 +273,7 @@ void CBasicPlayer::stop()
 		m_pPlayerThread->Teminate();
 		m_pFile->Close();
 		NotifyMsg(WM_TRACKSTOPPED);
+		m_cs.Leave();
 	}
 }
 
@@ -295,6 +297,7 @@ void CBasicPlayer::SetPos(int cur,int max)
 
 		m_pFile->SetPos(cur,max);
 
+		m_pPlayerThread->WriteDataToDSBuf();
 		m_pPlayerThread->WriteDataToDSBuf();
 		m_pPlayerThread->WriteDataToDSBuf();
 

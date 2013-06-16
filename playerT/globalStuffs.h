@@ -72,18 +72,61 @@ public:
 	std::wstring path;
 	_match_type match_type;
 
-	const TCHAR* GetReason()
+	
+
+
+	const TCHAR* LrcMatchItem::GetReason()
 	{
-		const TCHAR* reason[]={_T("完全匹配"),_T("~艺术家"),
-			_T("~标题"),_T("~标题 ~艺术家"),
+		static const TCHAR* reason[]=
+		{
+			_T("完全匹配"),
+			_T("~艺术家"),
+			_T("~标题"),
+			_T("~标题 ~艺术家"),
 			_T("!艺术家"),
 			_T("!标题"),
 			_T("~标题!艺术家"),
 			_T("!标题 ~艺术家"),
 			_T("!标题 !艺术家"),
-			_T("程序出错!")};
+			_T("程序出错!")
+		};
 
-		return reason[match_type];
+		int iMatch;
+		switch (match_type)
+		{
+		case perfect:
+			iMatch=0;
+			break;
+		case without_artist:
+			iMatch=1;
+			break;
+		case without_title:
+			iMatch=2;
+			break;
+		case without_artist_title:
+			iMatch=3;
+			break;
+		case artist_mismatch:
+			iMatch=4;
+			break;
+		case title_mismatch:
+			iMatch=5;
+			break;
+		case artist_mismatch_no_title:
+			iMatch=6;
+			break;
+		case title_artist_mismatch_no_artist:
+			iMatch=7;
+			break;
+		case title_artist_mismatch:
+			iMatch=8;
+			break;
+		case invalide:
+			iMatch=9;
+			break;
+		}
+
+		return reason[iMatch];
 	}
 };
 
