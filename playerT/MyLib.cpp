@@ -60,6 +60,9 @@ void MyLib::playNext(BOOL scanID3)
 		track=ActivePlaylist()->GetNextTrackByOrder();
 	}
 
+	if(!track.isValide())
+		return;
+
 	ActivePlaylist()->SetCurPlaying(track);
 
 	//AllPlayListViews()->PlayingItemChanged();

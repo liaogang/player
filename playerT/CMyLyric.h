@@ -26,6 +26,7 @@ public:
 
 	CMyLyric():bLrcReady(FALSE),track(NULL),m_nFontHeight(20)
 	{
+		//brush=::GetSysColorBrush(COLOR_WINDOW);
 		brush=::GetSysColorBrush(/*COLOR_3DFACE*/COLOR_BTNSHADOW);
 		newPen=(HPEN)::CreatePen(PS_NULL,0,RGB(255,255,255));
 
@@ -306,7 +307,7 @@ public:
 		
 		int m_nFontHeight;//字高
 
-
+		int m_iESize;//歌词上方的空白区域
 		//We will Create two memory drawing context
 		//One is normal,another is highlighted
 		//Then,we will cut on line space from the true display draw context
@@ -319,7 +320,7 @@ public:
 			int lineWidth;//每一行的宽度
 			int lineWidthSpacing;//行与窗口的左右间隔
 			int totalHeight;
-
+			m_iESize=500;
 
 			HDC dc=GetDC();
 			
@@ -348,8 +349,8 @@ public:
 
 			HWND destop=GetDesktopWindow();
 			::GetClientRect(destop,&rcDesktop);
-			rcDesktop.bottom=HEIGHT(rcDesktop)*3;
-
+			rcDesktop.bottom=HEIGHT(rcDesktop)*5;
+			rcDesktop.top-=500;
 
 			if(m_memDCNormal!=NULL)::DeleteDC(m_memDCNormal);
 			if(m_memDCHighlight!=NULL)::DeleteDC(m_memDCHighlight);
@@ -393,6 +394,9 @@ public:
 
 			lineinfo info;
 			memset(&info,0,sizeof(info));
+			
+			info.yPos=m_iESize;
+
 			if(bNewTrack)
 				veclineinfo.clear();
 
@@ -441,15 +445,15 @@ public:
 			//if(curLineInfo!=veclineinfo.begin())
 			//	--kk;
 
-			y= kk->yPos - (m_rcClient.bottom-m_rcClient.top)/2;
+			y= kk->yPos - (m_rcClient.bottom-m_rcClient.top)/2 ;
 
 			//first draw the back ground
-			if(y<0)
-			{
-				HBRUSH hOldBrush1=(HBRUSH) ::SelectObject(dc,brush);	
-				Rectangle(dc,rcDest.left-1,rcDest.top-1,rcDest.right+1,0-y+2);
-				::SelectObject(dc,hOldBrush1);	
-			}
+// 			if(y<0)
+// 			{
+// 				HBRUSH hOldBrush1=(HBRUSH) ::SelectObject(dc,brush);	
+// 				Rectangle(dc,rcDest.left-1,rcDest.top-1,rcDest.right+1,0-y+2);
+// 				::SelectObject(dc,hOldBrush1);	
+// 			}
 
 			// bitblt the lyrics
 			RECT rcLine=rcDest;

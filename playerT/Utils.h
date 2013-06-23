@@ -11,7 +11,7 @@
 
 static DWORD g_dwMaxDSBufferLen;  //ds buffer length 
 static DWORD g_dwSleepTime;       //  1/4 of the ds buffer
-const int gDefaultBufferSize=16000;  //one time read from file
+int gDefaultBufferSize=16000;  //one time read from file
 
 inline int DSoundGetDistance(int maxDSBufferLen , int pos1 , int pos2)
 {

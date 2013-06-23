@@ -20,4 +20,6 @@ public:
 	virtual bool Open(LPCTSTR pszPath)=0;
 	virtual void  SetPos(int cur,int max)=0;
 	virtual int  Close()=0; 
+	virtual void  seek_sample(off_t offset , int whence){};
+	virtual void  seek_frame(off_t offset , int whence){};
 };

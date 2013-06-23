@@ -389,7 +389,7 @@ public:
 
 		BOOL m_bC;
 		
-		LRESULT OnItemChanging(int /**/,LPNMHDR pnmh,BOOL bHandled);
+		//LRESULT OnItemChanging(int /**/,LPNMHDR pnmh,BOOL bHandled);
 		LRESULT OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled);
 
 

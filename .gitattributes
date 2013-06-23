@@ -417,8 +417,6 @@ playerT/mpg123/include/true.h -text
 playerT/mpg123/include/wavhead.h -text
 playerT/mpg123/include/win32_support.h -text
 playerT/mpg123/include/xfermem.h -text
-playerT/music.cpp -text
-playerT/music.h -text
 playerT/mysplit.cpp -text
 playerT/mysplit.h -text
 playerT/mytree.h -text

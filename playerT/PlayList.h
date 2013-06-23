@@ -168,6 +168,7 @@ public:
 
 FileTrack* GetFileTrack(){return filetrack.get();}
 int GetIndex(){return index;}
+bool isValide(){return GetIndex()!=-1;}
 void SetIndex(int index){this->index=index;}
 private:
 	PlayList *pPL;

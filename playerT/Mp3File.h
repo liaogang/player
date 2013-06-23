@@ -50,6 +50,11 @@ public:
 		if (m_hmp3)
 		{
 			mpg123_seek(m_hmp3,0,SEEK_SET);
+			mpg123_frameinfo info;
+			mpg123_info(m_hmp3,&info);
+
+
+			int spf=mpg123_spf(m_hmp3);
 			return 0;
 		}
 		else
@@ -61,6 +66,27 @@ public:
 		long i=cur/(float)max * GetSize();
 		mpg123_seek(m_hmp3,i,SEEK_SET);
 	}
+
+
+
+	void seek_sample(off_t offset , int whence)
+	{
+		//SEEK_SET;
+		//SEEK_CUR;
+		//SEEK_END;
+
+		int err=mpg123_seek(m_hmp3,offset,whence);
+		err=0;
+	}
+
+
+	void seek_frame(off_t offset , int whence)
+	{
+
+		int err=mpg123_seek_frame(m_hmp3,offset,whence);
+		err=0;
+	}
+
 
 	virtual bool Open(LPCTSTR pszPath)
 	{

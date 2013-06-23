@@ -417,8 +417,9 @@ BOOL FileTrack::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 				m_bStatus=ID3V2;
 				album=id3v2tag->album().toWString();
 				genre=id3v2tag->genre().toWString();
-				TCHAR cYear[MAX_PATH]={0};
-				_itow(id3v2tag->year(),cYear,10);
+				TCHAR cYear[MAX_PATH]={_T("?")};
+				if(id3v2tag->year()!=0)
+					_itow(id3v2tag->year(),cYear,10);
 				year=cYear;
 
 				lyricInner=id3v2tag->lyric().toWString();
@@ -458,8 +459,9 @@ BOOL FileTrack::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 			album=id3v1tag->album().toWString();
 			genre=id3v1tag->genre().toWString();
 
-			TCHAR cYear[MAX_PATH]={0};
-			_itow(id3v1tag->year(),cYear,10);
+			TCHAR cYear[MAX_PATH]={_T("?")};
+			if(id3v2tag->year()!=0)
+				_itow(id3v2tag->year(),cYear,10);
 			year=cYear;
 
 			TrimRightByNull(title);

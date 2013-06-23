@@ -114,25 +114,25 @@ void CBasicPlayer::play()
 	m_pFile->ResetFile();
 	m_pPlayerThread->Reset();
 
-	m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
+	m_pPlayerThread->CleanDSBuffer();
 
-	DWORD writePos,writePos2=0;
-	if(!m_pPlayerThread->CleanDSBuffer(writePos,writePos2))
-		return;
+	//m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
+
+	m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MAX);
+
 	
-	m_pPlayerThread->WriteDataToDSBuf();
-	m_pPlayerThread->WriteDataToDSBuf();
-	m_pPlayerThread->WriteDataToDSBuf();
 
-	writePos2=writePos;
-	if(!m_pPlayerThread->CleanDSBuffer(writePos,writePos2))
-		return;
-
+// 	DWORD dwWrite=0;
+// 	int writed=0;
+// 	m_pPlayerThread->BeginChangeTrackPos(dwWrite,writed);
+// 
+// 	m_pPlayerThread->EndChangeTrackPos(dwWrite,writed);
 
 	m_pPlayerThread->Init(FALSE);
 	
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
-	TimerVolGrowUp();
+
+	//TimerVolGrowUp();
 
 
 	trackPosInfo posInfo;
@@ -177,7 +177,6 @@ void CBasicPlayer::SlowDownVol()
 			m_pPlayerThread->Suspend();
 		}
 	}
-	
 }
 
 void CBasicPlayer::GrowUpVol()
@@ -267,11 +266,12 @@ void CBasicPlayer::stop()
 	{
 		m_cs.Enter();
 		m_bStopped=TRUE;
-
 		
 		m_pPlayerThread->m_lpDSBuffer->Stop();
 		m_pPlayerThread->Teminate();
 		m_pFile->Close();
+		
+
 		NotifyMsg(WM_TRACKSTOPPED);
 		m_cs.Leave();
 	}
@@ -287,26 +287,22 @@ void CBasicPlayer::SetPos(int cur,int max)
 	if (!m_bStopped)
 	{
 		m_cs.Enter();
+		
+		//m_pPlayerThread->m_lpDSBuffer->Stop();
+		//m_pPlayerThread->CleanDSBuffer();
 
-		m_pPlayerThread->m_lpDSBuffer->Stop();
 
-		DWORD writePos,writePos2=0;
-		if(!m_pPlayerThread->CleanDSBuffer(writePos,writePos2))
-			return;
-
+		DWORD dwWrite=0;
+		int writed=0;
+		m_pPlayerThread->BeginChangeTrackPos(dwWrite,writed);
+		
 
 		m_pFile->SetPos(cur,max);
 
-		m_pPlayerThread->WriteDataToDSBuf();
-		m_pPlayerThread->WriteDataToDSBuf();
-		m_pPlayerThread->WriteDataToDSBuf();
+		m_pPlayerThread->EndChangeTrackPos(dwWrite,writed);
 
-		writePos2=writePos;
-		if(!m_pPlayerThread->CleanDSBuffer(writePos,writePos2))
-			return;
-
-
-		m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
+		//m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
+	
 		m_cs.Leave();
 	}
 }

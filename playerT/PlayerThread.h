@@ -34,8 +34,16 @@ public:
 	void Reset();
 
 	DWORD DSoundBufferWrite(void* pBuf , int len);
-	BOOL CleanDSBuffer(DWORD &writePos,DWORD writePos2);
+	BOOL CleanDSBuffer();
 	void WriteDataToDSBuf();
+
+
+
+	DWORD m_dwReadPos;
+	BOOL BeginChangeTrackPos(DWORD &dwWrite,int writed);
+	BOOL EndChangeTrackPos(DWORD dwWrite,int writed);
+
+
 	DWORD m_dwCurWritePos;
 	DWORD m_dwSilencedBytes;
 };

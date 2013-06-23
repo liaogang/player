@@ -230,11 +230,17 @@ LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 	MyLib::shared()->ClearPlayQueue();
 	//MyLib::stop();
 
-	FileTrack *track=MyLib::shared()->GetWaitPlayItem()->GetFileTrack();
+	auto *track=MyLib::shared()->GetWaitPlayItem();
 	if(track)
-		MyLib::shared()->play(track);
+		MyLib::shared()->play(track->GetFileTrack());
 
-	//MyLib::shared()->playAfterSlowDown(MyLib::shared()->GetWaitPlayItem()->GetFileTrack());
+
+
+	::SetPlayingItem(*track);
+	MyLib::shared()->play(track->GetFileTrack());
+
+	//RedrawItems(nItemPlaying,nItemPlaying);
+
 	return 0;
 }
 
@@ -931,13 +937,8 @@ LRESULT CPlayListView::OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled)
 		switch(pItem->iSubItem){
 		case COLUMN_INDEX_INDEX:
 			{
-				TCHAR strIndex[8]=_T("playing");
-				PlayList *curPl=ActivePlaylist();
-				if ( curPl && iItemIndx == GetPlayingItem().GetIndex() )
-					;
-				else
-					wsprintf(strIndex,_T("%d"),iItemIndx+1);
-
+				TCHAR strIndex[4]={0};
+				_itow(iItemIndx+1,strIndex,10);
 				lstrcpy(pItem->pszText,strIndex);
 			}
 			break;
