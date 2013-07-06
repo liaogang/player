@@ -122,8 +122,9 @@ public:
 
 
 	void UpdateTree(MYTREE *treeData);
-	LRESULT OnSize(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
+		
 		RECT newRC;
 		GetClientRect(&newRC);
 		if (WIDTH(newRC) && HEIGHT(newRC))

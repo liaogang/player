@@ -8,13 +8,13 @@ struct trackPosInfo
 	double left;
 };
 
-#define  WM_TRACKPOS          (WM_USER+22)  
+//#define  WM_TRACKPOS          (WM_USER+22)  
 
 #define  WM_TRACK_REACH_END   (WM_USER+53)//“ÙπÏµΩ¥Ôƒ©Œ≤
 #define  WM_TRACKSTOPPED      (WM_USER+34)//“ÙπÏ≤•∑≈Õ£÷π
 
 //ø™ º“ÙπÏ≤•∑≈
-//wparam pointer of trackPosInfo struct
+//wparam pointer of trackPosInfo struct  , abandoned now 
 #define  WM_NEW_TRACK_STARTED (WM_USER+37)
 
 #define  WM_PAUSED            (WM_USER+38)//‘›Õ£“ÙπÏ≤•∑≈

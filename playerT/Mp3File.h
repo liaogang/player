@@ -37,12 +37,24 @@ public:
 
 	int Close()
 	{
-		return	mpg123_tclose(m_hmp3);		
+		int err=mpg123_tclose(m_hmp3);
+		if(err==MPG123_OK)
+			m_hmp3 = NULL;
+		return err;
 	}
 
-	virtual DWORD GetSize()
+
+	//total frame size
+	virtual DWORD getFrameSize()
 	{
 		return mpg123_length(m_hmp3);
+	}
+
+
+	//tell the next frame will read
+	off_t tellframe()
+	{
+		return mpg123_tellframe(m_hmp3);
 	}
 
 	virtual HRESULT ResetFile()
@@ -50,20 +62,43 @@ public:
 		if (m_hmp3)
 		{
 			mpg123_seek(m_hmp3,0,SEEK_SET);
-			mpg123_frameinfo info;
-			mpg123_info(m_hmp3,&info);
+		
 
-
-			int spf=mpg123_spf(m_hmp3);
 			return 0;
 		}
 		else
 			return -1;
 	}
 
+	void GetFrameInfo(mpg123_frameinfo * pInfo)
+	{
+		mpg123_info(m_hmp3,pInfo);
+	}
+
+	int samplesPerFrame()
+	{
+		return mpg123_spf(m_hmp3);
+	}
+
+	int bytePerFrame()
+	{
+		mpg123_frameinfo info;
+		GetFrameInfo(&info);
+		info.framesize;
+		
+		int channels=2;
+		if(info.mode == MPG123_M_MONO )
+			channels=1;
+
+		WAVEFORMATEX* format=GetFormat();
+
+		return format->wBitsPerSample/8 * samplesPerFrame() * channels ;
+
+	}
+
 	virtual void  SetPos(int cur,int max)
 	{
-		long i=cur/(float)max * GetSize();
+		long i=cur/(float)max * getFrameSize();
 		mpg123_seek(m_hmp3,i,SEEK_SET);
 	}
 

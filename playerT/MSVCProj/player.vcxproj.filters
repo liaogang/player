@@ -111,9 +111,6 @@
     <ClInclude Include="..\Mp3File.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\music.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\MusicFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -675,9 +672,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\mainfrm.CPP">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\music.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\MyLib.cpp">

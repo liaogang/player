@@ -44,14 +44,22 @@ public:
 
 	virtual VOID  SetOutVolume(double vol)
 	{
+		ATLASSERT(FALSE);
 		return;
 	}
 
 	virtual void  SetPos(int cur,int max)
 	{
 		//to do
+		ATLASSERT(FALSE);
 	}
 
+	mpg123_frameinfo GetFrameInfo()
+	{
+		ATLASSERT(FALSE);
+		mpg123_frameinfo info;
+		return info;
+	}
 private:
 	CWaveFile m_wavefile;
 };

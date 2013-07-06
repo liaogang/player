@@ -55,10 +55,10 @@ public:
 	CDialogLyric *m_dlgLrc;
 	CProcessingDlg *pDlgProcess;
 
-	CMyTabBar *m_pTabBar;
+	//CMyTabBar *m_pTabBar;
 	CWndLyric *lyricView;
 	CMySplitterWindow *m_pSplit;
-	CHorSplitterWindow *leftPane;
+	//CHorSplitterWindow *leftPane;
 	CAlbumCoverView    *albumView1;
 	CMyStatusBar *m_pStatus;
 	DialogSearch *m_pDlgSearch;
@@ -110,7 +110,7 @@ public:
 		
 		//user message
 		MESSAGE_HANDLER(WM_ADDFOLDERED,OnAddFolder)
-		MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
+		//MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
 
 		MESSAGE_HANDLER(WM_TRACK_REACH_END,OnTrackReachEnd)
@@ -163,7 +163,7 @@ public:
 		return OnNotify2((int)wParam, (LPNMHDR)lParam); 
 	}
 
-	LRESULT OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	//LRESULT OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnCbnSelchanged(UINT,int id, HWND hWndCtl);
 	LRESULT OnTrackReachEnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);

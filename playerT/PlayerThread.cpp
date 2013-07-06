@@ -25,15 +25,23 @@ CPlayerThread::~CPlayerThread(void)
 	delete pPosInfo;
 }
 
+BOOL WFXIsEqual(WAVEFORMATEX * a, WAVEFORMATEX * b)
+{
+	return  a->wBitsPerSample == b->wBitsPerSample &&
+			a->nChannels == b->nChannels &&
+			a->nSamplesPerSec == b->nSamplesPerSec ;
+}
+
 void CPlayerThread::Reset()
 {
-	static DWORD lastAvgBytesPerSec=0;
+	static WAVEFORMATEX lastWfx={0};
 	WAVEFORMATEX *pwfx=0;
-	pwfx=m_pPlayer->m_pFile->GetFormat();
-	if (pwfx && pwfx->nAvgBytesPerSec!=lastAvgBytesPerSec){
-		m_lpDSBuffer=DSoundBufferCreate(m_lpDsound,pwfx);
-		lastAvgBytesPerSec=pwfx->nAvgBytesPerSec;
 
+	pwfx=m_pPlayer->m_pFile->GetFormat();
+	if ( pwfx &&  !WFXIsEqual(pwfx , &lastWfx ))
+	{
+		m_lpDSBuffer=DSoundBufferCreate(m_lpDsound,pwfx);
+		lastWfx = *pwfx ;
 
 		//anayser
 		//-----------------------------------------
@@ -44,50 +52,38 @@ void CPlayerThread::Reset()
 	
 	m_bNewTrack=TRUE;
 	m_dwCurWritePos=0;
+
+	gDefaultBufferSize = m_pPlayer ->m_pFile ->bytePerFrame() * 3 ;
+
 }
 
 
 
-
-BOOL CPlayerThread::BeginChangeTrackPos(DWORD &dwWrite,int writed)
+BOOL CPlayerThread:: ReadFileReduceVol(BOOL bReduce)
 {
-	DWORD dwPlay;
-	m_lpDSBuffer->GetCurrentPosition(&dwPlay,&dwWrite);
+	BOOL bFileEnd=FALSE;
 
-	int fileOffset=m_dwCurWritePos-dwWrite;
-	if(fileOffset<0)
-		fileOffset+=g_dwMaxDSBufferLen;
+	int  fileBufferLen= m_pPlayer ->m_pFile ->bytePerFrame() ;
 
-	WAVEFORMATEX* format=m_pPlayer->m_pFile->GetFormat();
-	
-
-	int bytePF= format->wBitsPerSample/8 * 1152 *format->nChannels ;
-	int frameOffset=fileOffset /(double) bytePF;
-	m_pPlayer->m_pFile->seek_frame(0-frameOffset ,SEEK_CUR);
-
-	m_dwCurWritePos=dwWrite;
-
-
-	
-	int  fileBufferLen=4800 ;
-	int times=16;
+	int times= bReduce ? 16 :  8 ;
 	int   totalBufferLen=fileBufferLen * times;
-	BYTE *fileBuffer=(BYTE*)malloc(totalBufferLen);
+	BYTE *fileBuffer=(BYTE*)pBufFFT1;
 
-	double vol=1;
-	
+	double vol=bReduce ? 1 : 0;
+
 	double step=1/(double)times;
 	int   bufferOffset=0;
 	while(times--)
 	{
-		vol-=step;
-		if(vol<0) vol=0;
+		vol = bReduce ? vol - step : vol + step ;
+		
 		m_pPlayer->m_pFile->SetOutVolume(vol);
 
 		if(!m_pPlayer->m_pFile->Read(fileBuffer + bufferOffset,fileBufferLen,&m_dwSizeRead) ||
 			m_dwSizeRead==0 )
 		{
-			return 0;
+			bFileEnd=TRUE;
+			break;
 		}
 		else
 		{
@@ -97,47 +93,40 @@ BOOL CPlayerThread::BeginChangeTrackPos(DWORD &dwWrite,int writed)
 
 	DSoundBufferWrite(fileBuffer,totalBufferLen);
 
-	free(fileBuffer);
+	m_pPlayer->m_pFile->SetOutVolume(bReduce ? 0 : 1);
+
+	return bFileEnd;
+}
+
+
+BOOL CPlayerThread::BeginChangeTrackPos()
+{
+	//Set our write pos to actually direct sound write cursor
+	DWORD dwWrite;
+	m_lpDSBuffer->GetCurrentPosition(NULL,&dwWrite);
+
+	//And The File Cursor Too!
+	int fileOffset=m_dwCurWritePos-dwWrite;
+	if(fileOffset<0)
+		fileOffset+=g_dwMaxDSBufferLen;
+
+	int frameOffset=fileOffset /(double) m_pPlayer->m_pFile->bytePerFrame();
+
+	m_pPlayer->m_pFile->seek_frame(0-frameOffset ,SEEK_CUR);
+	
+
+	
+	m_dwCurWritePos=dwWrite;
+	//read file . send to direct sound buffer .
+	ReadFileReduceVol(TRUE);
 
 	return dwWrite;
 }
 
 
-BOOL CPlayerThread::EndChangeTrackPos(DWORD dwWrite,int writed)
+BOOL CPlayerThread::EndChangeTrackPos()
 {
-	int  fileBufferLen=4800 ;
-	int times=16;
-	int   totalBufferLen=fileBufferLen * times;
-	BYTE *fileBuffer=(BYTE*)malloc(totalBufferLen);
-
-	double vol=0;
-
-	double step=1/(double)times;
-	int   bufferOffset=0;
-	while(times--)
-	{
-		vol+=step;
-		if(vol>1)vol=1;
-		m_pPlayer->m_pFile->SetOutVolume(vol);
-
-		if(!m_pPlayer->m_pFile->Read(fileBuffer + bufferOffset,fileBufferLen,&m_dwSizeRead) ||
-			m_dwSizeRead==0 )
-		{
-			return 0;
-		}
-		else
-		{
-			bufferOffset+=m_dwSizeRead;
-		}
-	}
-
-	DSoundBufferWrite(fileBuffer,totalBufferLen);
-
-	free(fileBuffer);
-
-
-
-	m_pPlayer->m_pFile->SetOutVolume(1);
+	ReadFileReduceVol(FALSE);
 
 	return TRUE;
 }
@@ -175,43 +164,40 @@ void CPlayerThread::Excute()
 
 void CPlayerThread::WriteDataToDSBuf()
 {
+
+	//if the direct sound buffer is about to over flow ,
+	//wait some times.
 	DWORD playCursor;
 	if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return;
 	DWORD available=DS_GetAvailable(g_dwMaxDSBufferLen,playCursor,m_dwCurWritePos);
 
 	Sleep2WaitReadCursor(available);
 
-
-
 	m_pPlayer->m_cs.Enter();
 
-
+	//Read data from file . 
 	char *pFileBuffer=(char*)pBufFFT1;
+	int nextFrame= m_pPlayer->m_pFile->tellframe();
+	int totalFrames=m_pPlayer->m_pFile->getFrameSize();
+	int bufferFrames=gDefaultBufferSize / m_pPlayer->m_pFile->bytePerFrame();
+
+	if(nextFrame + bufferFrames >= totalFrames)
+	{
+		if(ReadFileReduceVol())
+			goto fileEnd;
+		else
+			goto NormalEnd;
+	}
+
 	if(!m_pPlayer->m_pFile->Read(pBufFFT1,gDefaultBufferSize,&m_dwSizeRead) ||
 		m_dwSizeRead==0 )
 	{
-		m_pPlayer->m_cs.Leave();
-		if(m_pPlayer->m_bStopped)
-		{			
-			pPosInfo->used=0;
-			pPosInfo->left=100;
-			NotifyMsg(WM_TRACKPOS,(WPARAM)pPosInfo,0);
-		}
-		else
-		{		
-			NotifyMsg(WM_TRACK_REACH_END);
-		}
-
-		m_lpDSBuffer->Stop();
-		m_pPlayer->m_bFileEnd=TRUE;
-		m_pPlayer->m_bStopped=TRUE;
-		m_bKeepPlaying=FALSE;
-		return;
+		goto fileEnd;
 	}
 	
 
 	/*
-	//send data to spectrum analyser buffer
+	//send data to spectrum analysis  buffer
 	if (fftBufLen-playPosInFFt<m_dwSizeRead)
 	{
 		memcpy(pBufFft+playPosInFFt,pBufFFT1,fftBufLen-playPosInFFt);
@@ -241,7 +227,28 @@ void CPlayerThread::WriteDataToDSBuf()
 		pFileBuffer=pFileBuffer+written;
 	}
 
+NormalEnd:
 	m_pPlayer->m_cs.Leave();
+	return;
+
+fileEnd:
+	m_pPlayer->m_cs.Leave();
+	if(m_pPlayer->m_bStopped)
+	{			
+		pPosInfo->used=0;
+		pPosInfo->left=100;
+		//NotifyMsg(WM_TRACKPOS,(WPARAM)pPosInfo,0);
+	}
+	else
+	{		
+		NotifyMsg(WM_TRACK_REACH_END);
+	}
+
+	m_lpDSBuffer->Stop();
+	m_pPlayer->m_bFileEnd=TRUE;
+	m_pPlayer->m_bStopped=TRUE;
+	m_bKeepPlaying=FALSE;
+	return;
 }
 
 DWORD CPlayerThread::DSoundBufferWrite(void* pBuf , int len)

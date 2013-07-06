@@ -54,8 +54,9 @@ LPDIRECTSOUNDBUFFER DSoundBufferCreate(LPDIRECTSOUND lpDSound,WAVEFORMATEX *pwfx
 	//-------------------
 	//ds缓冲区大小    1秒    11.025次读文件
 	g_dwMaxDSBufferLen=6*pwfx->nAvgBytesPerSec;
-	g_dwSleepTime=(dsBufferDesc.dwBufferBytes/pwfx->nAvgBytesPerSec)*1000/10;//缓冲时间的1/12  <  1/11
+	g_dwSleepTime=(dsBufferDesc.dwBufferBytes/pwfx->nAvgBytesPerSec)*1000/30;//缓冲时间的1/12  <  1/11
 	//-------------------
+
 
 	return lpDSBuffer;
 }
@@ -74,7 +75,7 @@ DWORD DS_GetAvailable(int maxDSBufferLen , int playCursor, int curWritePos)
 
 void Sleep2WaitReadCursor(DWORD available)
 {
-	if (available<gDefaultBufferSize*2)
+	if (available<gDefaultBufferSize + 1)
 		::Sleep(g_dwSleepTime);
 }
 

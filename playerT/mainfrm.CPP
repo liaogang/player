@@ -93,10 +93,15 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	UINT style=WS_CHILD  | WS_VISIBLE /*| WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/;
 	style|=TBS_TOOLTIPS  |TBS_NOTICKS |TBS_AUTOTICKS  | TBS_BOTH ; 
 	UINT styleEx=0; 
-	HWND hWndProgressBar=m_pTrackBar->Create( m_hWndToolBar,NULL,NULL,style,styleEx);
-	m_pTrackBar->SetPageSize(1);
-	m_pTrackBar->SetLineSize(1);
-	m_pTrackBar->SetThumbLength(30);
+
+	HWND hWndProgressBar=m_pTrackBar->CreateIsWnd(m_hWndToolBar);
+
+
+	//HWND hWndProgressBar=m_pTrackBar->Create( m_hWndToolBar,NULL,NULL,style,styleEx);
+	//m_pTrackBar->SetPageSize(1);
+	//m_pTrackBar->SetLineSize(1);
+	//m_pTrackBar->SetThumbLength(30);
+
 	m_pRebar->pTrack=m_pTrackBar;
 
 
@@ -110,21 +115,22 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//combo box
 	HWND comboBar=m_wndComboBox.Create(m_hWndToolBar,NULL,NULL,WS_CHILD|WS_VISIBLE|WS_VSCROLL|CBS_DROPDOWNLIST);
 
-	for (int i=0;i<sizeof(gPlayOrderStr)/sizeof(int);++i)
+	m_wndComboBox.InitStorage(7,32);
+	for (int i=0;i<sizeof(gPlayOrderStr)/sizeof(gPlayOrderStr[0]);++i)
 		m_wndComboBox.AddString(gPlayOrderStr[i]);
 	m_wndComboBox.SetCurSel(0);
 
-	// 	CFont font;
-	// 	LOGFONT lf;
-	// 	memset(&lf, 0, sizeof(LOGFONT));       // zero out structure
-	// 	//lf.lfHeight = 20;                      // request a 12-pixel-height font
-	// 	lf.lfItalic=TRUE;
-	// 	//lf.lfCharSet=
-	// 	lf.lfUnderline=TRUE;
-	// 	_tcscpy((TCHAR*)lf.lfFaceName, _T("Arial"));        // request a face name "Arial"
-	// 	font.CreateFontIndirect(&lf);
-	// 	//m_wndComboBox.GetFont();
-	// 	m_wndComboBox.SetFont(font,TRUE);
+// 	 	CFont font;
+// 	 	LOGFONT lf;
+// 	 	memset(&lf, 0, sizeof(LOGFONT));       // zero out structure
+// 	 	//lf.lfHeight = 20;                      // request a 12-pixel-height font
+// 	 	lf.lfItalic=TRUE;
+// 	 	//lf.lfCharSet=
+// 	 	lf.lfUnderline=TRUE;
+// 	 	_tcscpy((TCHAR*)lf.lfFaceName, _T("Arial"));        // request a face name "Arial"
+// 	 	font.CreateFontIndirect(&lf);
+// 	 	//m_wndComboBox.GetFont();
+// 	 	m_wndComboBox.SetFont(font,TRUE);
 	AddSimpleReBarBand(comboBar,NULL,FALSE,100,TRUE);
 
 
@@ -519,8 +525,11 @@ LRESULT CMainFrame::OnPlayDirectly(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam
 	return 0;
 }
 
-LRESULT CMainFrame::OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-{
+
+
+//LRESULT CMainFrame::OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+/*{
+	ATLASSERT(FALSE);
 	trackPosInfo *posInfo=(trackPosInfo*)wParam;
 
 	if (!m_pTrackBar->m_bPressing)
@@ -540,7 +549,7 @@ LRESULT CMainFrame::OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHa
 	//delete posInfo;
 	return 1;
 }
-
+*/
 
 LRESULT CMainFrame::OnCbnSelchanged(UINT,int id, HWND hWndCtl)
 {
@@ -690,6 +699,7 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 
 
 //no used
+/*
 void CMainFrame::OnSelectionChanged()
 {
 	ATLASSERT(FALSE);
@@ -701,7 +711,7 @@ void CMainFrame::OnSelectionChanged()
 
 	SetActivePlaylist(pPl);
 	return;
-}
+}*/
 
 
 //void CPlayListView::InsertTrackItem(PlayListItem &track1,int item,BOOL SetIndex)
@@ -840,7 +850,7 @@ void CMainFrame::InitData()
 	
 	IWantToReceiveMessage(WM_TRACK_REACH_END);
 	IWantToReceiveMessage(WM_ADDFOLDERED);
-	IWantToReceiveMessage(WM_TRACKPOS);
+	//IWantToReceiveMessage(WM_TRACKPOS);
 	IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
 	IWantToReceiveMessage(WM_TRACKSTOPPED);
 	IWantToReceiveMessage(WM_PL_CHANGED);

@@ -697,12 +697,12 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "LG"
-            VALUE "FileDescription", "使用来播放您的数字音频文件"
+            VALUE "FileDescription", "使用Player来播放您的数字音频文件"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "player"
             VALUE "LegalCopyright", "Copyright 2012"
             VALUE "OriginalFilename", "Player.exe"
-            VALUE "ProductName", "Class Music Player"
+            VALUE "ProductName", "Simple Player"
             VALUE "ProductVersion", "1, 0, 0, 1"
         END
     END

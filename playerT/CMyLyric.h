@@ -159,8 +159,7 @@ public:
 		UINT m_uCurrTime;
 		LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 		{
-			trackPosInfo *pos;
-			pos=(trackPosInfo*)wParam;
+			trackPosInfo *pos=getTrackPosInfo();
 			m_uTotalTime=pos->left;
 
 			TrackChanged();

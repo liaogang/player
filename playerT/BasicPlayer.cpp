@@ -7,6 +7,7 @@
 #include "WaveFileEx.h"
 #include "mainfrm.h"
 #include "PlayList.h"
+#include "globalStuffs.h"
 #include <complex>
 using namespace std;
 
@@ -135,9 +136,14 @@ void CBasicPlayer::play()
 	//TimerVolGrowUp();
 
 
-	trackPosInfo posInfo;
-	m_pFile->GetPos(&(posInfo.used),&(posInfo.left));
-	NotifyMsg(WM_NEW_TRACK_STARTED,(WPARAM)&posInfo,0);
+	
+	
+	
+
+
+	trackPosInfo *posInfo=getTrackPosInfo();
+	m_pFile->GetPos(&(posInfo->used),&(posInfo->left));
+	NotifyMsg(WM_NEW_TRACK_STARTED,(WPARAM)NULL,0);
 }
 
 
@@ -169,12 +175,14 @@ void CBasicPlayer::SlowDownVol()
 		{
 			NotifyMsg(WM_TRACKSTOPPED);
 			m_pPlayerThread->Teminate();
-			m_pFile->Close();
+			m_pFile->Close();	
 		}
 		else
 		{
+			m_cs.Enter();
 			NotifyMsg(WM_PAUSED);
 			m_pPlayerThread->Suspend();
+			m_cs.Leave();
 		}
 	}
 }
@@ -253,6 +261,9 @@ void CBasicPlayer::pause()
 		m_bPaused=FALSE;
 		m_pPlayerThread->Resume();
 		m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
+		
+		trackPosInfo *posInfo=getTrackPosInfo();
+		m_pFile->GetPos(&(posInfo->used),&(posInfo->left));
 		NotifyMsg(WM_PAUSE_START);
 		TimerVolGrowUp();
 	}
@@ -268,11 +279,11 @@ void CBasicPlayer::stop()
 		m_bStopped=TRUE;
 		
 		m_pPlayerThread->m_lpDSBuffer->Stop();
-		m_pPlayerThread->Teminate();
-		m_pFile->Close();
-		
 
 		NotifyMsg(WM_TRACKSTOPPED);
+		m_pPlayerThread->Teminate();
+		m_pFile->Close();
+
 		m_cs.Leave();
 	}
 }
@@ -287,22 +298,13 @@ void CBasicPlayer::SetPos(int cur,int max)
 	if (!m_bStopped)
 	{
 		m_cs.Enter();
+	
+		m_pPlayerThread->BeginChangeTrackPos();
 		
-		//m_pPlayerThread->m_lpDSBuffer->Stop();
-		//m_pPlayerThread->CleanDSBuffer();
-
-
-		DWORD dwWrite=0;
-		int writed=0;
-		m_pPlayerThread->BeginChangeTrackPos(dwWrite,writed);
-		
-
 		m_pFile->SetPos(cur,max);
 
-		m_pPlayerThread->EndChangeTrackPos(dwWrite,writed);
+		m_pPlayerThread->EndChangeTrackPos();
 
-		//m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
-	
 		m_cs.Leave();
 	}
 }

@@ -1,20 +1,55 @@
 
 #include "WTLTabViewCtrl.h"
-
+#include "globalStuffs.h"
 //-----------------------------------------
 //progress pos track bar
 class CMyTrackBarBase
 	:public CWindowImpl<CMyTrackBarBase,CTrackBarCtrl>
 {
-
 public:
 	DECLARE_WND_SUPERCLASS(NULL,CTrackBarCtrl::GetWndClassName())
 
 	BEGIN_MSG_MAP_EX(CMyTrackBarBase)
 		MSG_WM_SETFOCUS(OnSetFocus)
 		MESSAGE_HANDLER(WM_ERASEBKGND,OnEraseBkgnd)
-		REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
+		MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLButtonDown)
 	END_MSG_MAP()
+
+	LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		bHandled=FALSE;
+
+		POINT point;
+		point.x=GET_X_LPARAM(lParam);
+		point.y=GET_Y_LPARAM(lParam); 
+		
+
+		RECT r;
+		GetChannelRect(&r);
+
+		if(r.left >= r.right) return 1;
+
+		int start, stop;
+		GetRange(start, stop);
+
+		int pos = GetPos();
+
+		r.left += 3;
+		r.right -= 4;
+		
+		if(point.x < r.left) SetPos(start);
+		else if(point.x >= r.right) SetPos(stop);
+		else
+		{
+			int w = r.right - r.left;
+			if(start < stop)
+				SetPosInternal(start + ((stop - start) * (point.x - r.left) + (w/2)) / w);
+		}
+
+
+		return 0;
+	}
+
 
 	//we don't want a focus rect appear around
 	void OnSetFocus(CWindow wndOld)
@@ -22,27 +57,14 @@ public:
 		::SetFocus(wndOld.m_hWnd);
 	}
 
-	LRESULT OnCustomDraw(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
+
+	void SetPosInternal(int pos)
 	{
-		LPNMCUSTOMDRAW lpNMCustomDraw = (LPNMCUSTOMDRAW)pnmh;
-		NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>( lpNMCustomDraw );  
-
-		DWORD dwRet= CDRF_DODEFAULT;
-		switch(lpNMCustomDraw->dwDrawStage)
-		{
-		case CDDS_PREPAINT:
-			dwRet= CDRF_NOTIFYITEMDRAW;
-			break;
-		case CDDS_ITEMPREPAINT:
-			//if is not used , hide the thumb
-			if (pLVCD->nmcd.dwItemSpec==TBCD_THUMB 
-				&& !IsWindowEnabled())
-				dwRet=CDRF_SKIPDEFAULT;
-			break;
-		}
-
-		return dwRet;
+		SetPos(pos);
+		GetParent().PostMessage(WM_HSCROLL, MAKEWPARAM((short)pos, SB_THUMBPOSITION), (LPARAM)m_hWnd); // this will be reflected back on us
 	}
+
+
 
 	LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
@@ -53,12 +75,18 @@ public:
 	HWND CreateIsWnd(HWND parent)
 	{
 		UINT style=WS_CHILD  | WS_VISIBLE /*| WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/;
-		style|=TBS_TOOLTIPS  |TBS_NOTICKS |TBS_AUTOTICKS  | TBS_BOTH ; 
+		style|=/*TBS_TOOLTIPS  |*/TBS_NOTICKS /*|TBS_AUTOTICKS */ | TBS_BOTH ; 
 		UINT styleEx=0; 
 		Create( parent,NULL,NULL,style,styleEx);
+
 		SetPageSize(1);
 		SetLineSize(1);
 		SetThumbLength(30);
+
+		EnableWindow(FALSE);
+
+		IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
+		IWantToReceiveMessage(WM_TRACKSTOPPED);
 
 		return m_hWnd;
 	}
@@ -73,6 +101,7 @@ public:
 
 class CMyTrackBar
 	:public CMyTrackBarBase
+	,public CCustomDraw<CMyTrackBar>
 {
 public:
 	BOOL m_bPressing;
@@ -84,15 +113,92 @@ public:
 	DECLARE_WND_SUPERCLASS(NULL,CMyTrackBarBase::GetWndClassName())
 
 	BEGIN_MSG_MAP_EX(CMyTrackBar)
-		MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLBtnDown)
+		MSG_WM_DESTROY(OnDestroy)
+		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
+		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
+		//MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLBtnDown)
 		MESSAGE_HANDLER(TB_BUTTONCOUNT,TBB)
 		MESSAGE_HANDLER(TB_GETITEMRECT,OnGetItemRect)
 		CHAIN_MSG_MAP(CMyTrackBarBase)
+		CHAIN_MSG_MAP_ALT(CCustomDraw<CMyTrackBar>, 1)
 	END_MSG_MAP()
 
+	DWORD OnPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW lpNMCustomDraw)
+	{
+		return CDRF_NOTIFYITEMDRAW;
+	}
+
+
+	DWORD OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW lpNMCustomDraw)
+	{
+		DWORD dwRet=CDRF_DODEFAULT;
+		NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>( lpNMCustomDraw );  
+
+		if (pLVCD->nmcd.dwItemSpec==TBCD_THUMB 
+			&& !IsWindowEnabled())
+			dwRet=CDRF_SKIPDEFAULT;
+
+		return dwRet;
+	}
+
+	CToolTipCtrl tip;
+	LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+	{
+		EnableWindow(TRUE);
+
+		int totalSec=getTrackPosInfo()->used+getTrackPosInfo()->left;
+		int totalMinute=300;//totalSec%60;
+
+		SetRange(0,totalSec);
+		SetPos((int)0);
+
+		if(!tip.IsWindow())
+			{
+				tip.Create(m_hWnd);
+			
+			SetToolTips(tip);
+
+			RECT rc;
+			GetClientRect(&rc);
+			tip.AddTool(m_hWnd , GetDlgCtrlID() ,  &rc , GetDlgCtrlID() );
+
+
+			tip.Activate(TRUE);
+		}
+		return 0;
+	}
+
+	LRESULT OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+	{
+		EnableWindow(FALSE);
+		return 0;
+	}
+
+	void OnDestroy()
+	{
+		IDonotWantToReceiveMessage(WM_NEW_TRACK_STARTED);
+		IDonotWantToReceiveMessage(WM_TRACKSTOPPED);
+	}
 
 	LRESULT OnLBtnDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
+		
+		int  totalSec=GetPos();
+		
+		TCHAR strTotalMinute[10]={0};
+		
+		_itow(totalSec/60 , strTotalMinute , 10);
+		_tcscat(strTotalMinute,_T(":"));
+		//_itow(totalSec%60 , strTotalMinute + _tcslen(strTotalMinute) , 10);
+
+		TCHAR *p=strTotalMinute + _tcslen(strTotalMinute);
+
+		swprintf(p,_T("%02d"),totalSec%60);
+		
+		tip.SetWindowText(strTotalMinute);
+		
+		
+
 		m_bPressing=TRUE;
 		RECT rc;
 		GetThumbRect(&rc);
@@ -122,7 +228,11 @@ public:
 
 	LRESULT OnGetItemRect(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
+		if(lParam==NULL)
+			return 0;
+
 		RECT *rc=(RECT*)lParam;
+		
 		rc->left=0;
 		rc->right=24;
 		rc->bottom=24;
@@ -144,6 +254,7 @@ public:
 
 class CMyVolumeBar:
 	public CMyTrackBarBase
+	,public CCustomDraw<CMyVolumeBar>
 {
 public:
 	CMainFrame *pMain;
@@ -157,13 +268,78 @@ public:
 
 	BEGIN_MSG_MAP(CMyVolumeBar)
 		MESSAGE_HANDLER(WM_CREATE,OnCreate)
-		MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLBtnDown)
+		//MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLBtnDown)
 		MESSAGE_HANDLER(WM_MOUSEMOVE,OnMouseMove)
-		MESSAGE_HANDLER(WM_LBUTTONUP,OnReleaseLB)
+		//MESSAGE_HANDLER(WM_LBUTTONUP,OnReleaseLB)
 		MESSAGE_HANDLER(TB_BUTTONCOUNT,TBB)
 		MESSAGE_HANDLER(TB_GETITEMRECT,OnGetItemRect)
-		CHAIN_MSG_MAP(CMyTrackBarBase)
+		CHAIN_MSG_MAP( CMyTrackBarBase)
+		CHAIN_MSG_MAP_ALT(CCustomDraw<CMyVolumeBar>, 1)
 	END_MSG_MAP()
+
+	DWORD OnPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW lpNMCustomDraw)
+	{
+		return CDRF_NOTIFYITEMDRAW;
+	}
+
+	DWORD OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW pNMCD)
+	{
+		LRESULT lr = CDRF_DODEFAULT;
+
+
+		if(pNMCD->dwItemSpec == TBCD_CHANNEL)
+		{
+			CDC dc;
+			dc.Attach(pNMCD->hdc);
+			
+			CRect r;
+			GetClientRect(r);
+			r.DeflateRect(8, 4, 10, 6);
+			CopyRect(&pNMCD->rc, &r);
+			
+			CPen shadow;
+				shadow.CreatePen(PS_SOLID, 1, GetSysColor(COLOR_3DSHADOW));
+			CPen light;
+				light.CreatePen(PS_SOLID, 1, GetSysColor(COLOR_3DHILIGHT));
+			CPen old= dc.SelectPen(light);
+
+			dc.MoveTo(pNMCD->rc.right, pNMCD->rc.top);
+			dc.LineTo(pNMCD->rc.right, pNMCD->rc.bottom);
+			dc.LineTo(pNMCD->rc.left, pNMCD->rc.bottom);
+			dc.SelectPen(shadow);
+			dc.LineTo(pNMCD->rc.right, pNMCD->rc.top);
+			dc.SelectPen(old);
+
+			dc.Detach();
+			lr = CDRF_SKIPDEFAULT;
+		}
+		/*
+		else if(pNMCD->dwItemSpec == TBCD_THUMB)
+		{
+			CDC dc;
+			dc.Attach(pNMCD->hdc);
+			pNMCD->rc.bottom--;
+			CRect r(pNMCD->rc);
+			r.DeflateRect(0, 0, 1, 0);
+
+			COLORREF shadow = GetSysColor(COLOR_3DSHADOW);
+			COLORREF light = GetSysColor(COLOR_3DHILIGHT);
+			dc.Draw3dRect(&r, light, 0);
+			r.DeflateRect(0, 0, 1, 1);
+			dc.Draw3dRect(&r, light, shadow);
+			r.DeflateRect(1, 1, 1, 1);
+			dc.FillSolidRect(&r, GetSysColor(COLOR_BTNFACE));
+			dc.SetPixel(r.left+7, r.top-1, GetSysColor(COLOR_BTNFACE));
+
+			dc.Detach();
+			lr = CDRF_SKIPDEFAULT;
+		}
+		*/
+
+		pNMCD->uItemState &= ~CDIS_FOCUS;
+
+		return lr;
+	}
 
 
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
@@ -206,10 +382,10 @@ public:
 
 	LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{    
-		if (GetCapture()==m_hWnd){
+		//if (GetCapture()==m_hWnd){
 			int pos=GetPos();
 			OnPos(pos);
-		}
+		//}
 
 		bHandled=FALSE;
 		return 1;
@@ -326,6 +502,7 @@ public:
 		MESSAGE_HANDLER(WM_CTLCOLORSTATIC,OnCtrlColorStatic)
 		//MSG_WM_ERASEBKGND(OnEraseBkgnd)
 		//MSG_WM_CREATE()
+		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 
 	int OnCreate(LPCREATESTRUCT lpCreateStruct)

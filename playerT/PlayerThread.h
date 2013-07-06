@@ -38,12 +38,14 @@ public:
 	void WriteDataToDSBuf();
 
 
-
-	DWORD m_dwReadPos;
-	BOOL BeginChangeTrackPos(DWORD &dwWrite,int writed);
-	BOOL EndChangeTrackPos(DWORD dwWrite,int writed);
+	//return TRUE if file reached end .
+	BOOL ReadFileReduceVol(BOOL bReduce=TRUE);
+	
+	
+	BOOL BeginChangeTrackPos();
+	BOOL EndChangeTrackPos();
 
 
 	DWORD m_dwCurWritePos;
-	DWORD m_dwSilencedBytes;
+	//DWORD m_dwSilencedBytes;
 };

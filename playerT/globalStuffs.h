@@ -137,3 +137,20 @@ void AddToLrcMatchList(LrcMatchItem &item);
 
 LrcMatchItem GetHighestMatchLrc();
 void SetHighestMatchLrc(LrcMatchItem &item);
+
+
+
+struct trackPosInfo;
+trackPosInfo *getTrackPosInfo();
+
+
+
+
+
+struct TrackFormatInfo
+{
+	int type;
+	int rate;
+	DWORD  nSamplesPerSec;
+	int mode; 
+};
