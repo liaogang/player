@@ -54,27 +54,23 @@ public:
 	CComboBox m_wndComboBox;
 	CDialogLyric *m_dlgLrc;
 	CProcessingDlg *pDlgProcess;
-
-	//CMyTabBar *m_pTabBar;
 	CWndLyric *lyricView;
-	CMySplitterWindow *m_pSplit;
-	//CHorSplitterWindow *leftPane;
-	CAlbumCoverView    *albumView1;
+	//CMySplitterWindow *m_pSplit;
 	CMyStatusBar *m_pStatus;
 	DialogSearch *m_pDlgSearch;
 	DialogFFT *m_pDlgFFT;
 	DialogFFTOutline *m_pDlgFFTOutline;
 	DialogPLManager *m_pDlgPLMng;
 	CDialogConsole  *m_pDlgConsole;
-	CMultiSpliltWnd *m_pDlgMultiSplitter;
+	CMultiSpliltWnd *m_pWndMultiSplitter;
 public:
 	CMainFrame():m_dlgLrc(NULL),
 		m_pTrackBar(NULL),m_pVolumeBar(NULL),
 		m_pDlgSearch(NULL),pDlgProcess(NULL),
-		lyricView(NULL),m_pSplit(NULL),
+		lyricView(NULL),
 		m_pDlgFFT(NULL),m_pDlgFFTOutline(NULL),
 		m_pDlgPLMng(NULL),m_pDlgConsole(NULL),
-		m_pDlgConfig(NULL),albumView1(NULL)
+		m_pDlgConfig(NULL)
 	{
 	}
 
@@ -101,7 +97,9 @@ public:
 		MESSAGE_HANDLER(WM_CLOSE,OnExit)
 		COMMAND_CODE_HANDLER_EX(CBN_SELCHANGE,OnCbnSelchanged)
 
-		
+		MESSAGE_HANDLER(WM_SIZING,OnSizing)
+		MESSAGE_HANDLER(WM_NCLBUTTONDOWN,OnNcLButtonDown)
+
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		MESSAGE_HANDLER(WM_PLAY_DIRECTLY,OnPlayDirectly)
@@ -110,9 +108,7 @@ public:
 		
 		//user message
 		MESSAGE_HANDLER(WM_ADDFOLDERED,OnAddFolder)
-		//MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
-
 		MESSAGE_HANDLER(WM_TRACK_REACH_END,OnTrackReachEnd)
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
 		MESSAGE_HANDLER(WM_PL_CHANGED,OnPLChanged)
@@ -163,7 +159,12 @@ public:
 		return OnNotify2((int)wParam, (LPNMHDR)lParam); 
 	}
 
-	//LRESULT OnPos(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	
+	LRESULT OnSizing(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+
+	LRESULT OnNcLButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+
+	
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnCbnSelchanged(UINT,int id, HWND hWndCtl);
 	LRESULT OnTrackReachEnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);

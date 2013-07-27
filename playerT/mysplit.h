@@ -43,6 +43,7 @@ public:
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
+
 		//MSG_WM_RBUTTONUP(OnRButtonDblClk)
 		MSG_WM_ERASEBKGND(OnEraseBkgnd)
 
@@ -122,19 +123,29 @@ public:
 
 
 	void UpdateTree(MYTREE *treeData);
+
+	void BeginSize()
+	{
+		rootTree->BeginSize();
+	}
+	
 	LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		
+
+
+		bHandled=FALSE;
+		return 1;
+	}
+
+	void OnSizing()
+	{
 		RECT newRC;
 		GetClientRect(&newRC);
 		if (WIDTH(newRC) && HEIGHT(newRC))
 		{
 			rootTree->CalcChildsRect(newRC);
- 			MoveToNewRect(rootTree);
+			MoveToNewRect(rootTree);
 		}
-
-		bHandled=FALSE;
-		return 1;
 	}
 
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)

@@ -127,6 +127,8 @@ public:
 	RECT getRect(){return rc;}
 	void setRect(RECT &rc){this->rc=rc;}
 
+
+
 	//return set succeed
 	bool SetSplitType(split_type type,TCHAR *nodeName=NULL)
 	{
@@ -152,17 +154,15 @@ public:
 	RECT rc;
 	split_type type;
 	long  m_iSplitterBar;//把手的长度或宽度
-
-	//TCHAR windowtype[max_node_name];
-
 	list<RECT> SplitterBarRects;//把手区域列表
-
 
 	//no ....
 	HWND hWnd;	
 	
 	HTREEITEM treeItem;
-
+	
+	//vector<int> bl;//比例
+	RECT rcBeforeSize;
 };
 
 
@@ -223,9 +223,9 @@ public:
 	RECT getRect(){return data.getRect();}
 	void setRect(RECT &rc){data.setRect(rc);}
 
+	RECT getRectBeforeSize(){return data.rcBeforeSize;}
+	void setRectBeforeSzie(RECT &rc){data.rcBeforeSize=rc;}
 
-
-	
 	void AdjustSplitterBar(LONG offset,MY_DIRECTION direction)
 	{
 		MYTREE *c=getFirstSibling();
@@ -490,78 +490,66 @@ public:
 	}
 
 
+	void BeginSize()
+	{
+		MYTREE *cur=this;
+		cur->setRectBeforeSzie(cur->getRect());
+		if(cur->hasChild())
+		{
+			cur=cur->child;
+			for (int count=0;count<childs;cur=cur->next,++count)
+			{
+				cur->setRectBeforeSzie(cur->getRect());
+				if(cur->hasChild())
+					cur->BeginSize();
+			}
+		}
+	}
+
+
 	//重新计算子结点的矩形区域
 	//按原比例来分配
 	void CalcChildsRect(RECT &newRC)
 	{
-		RECT oldRC=getRect();
 		setRect(newRC);
-
-
-		int hOffset=newRC.left-oldRC.left;
-		int vOffset=newRC.top - oldRC.top;
-
-
 		if(!hasChild())
 			return;
 		
-		//拉长的话，加长最后一个子面板
-		//缩短的话，缩短最大的一个。
-		bool bLR=(data.type==left_right);
-		bool bEnlarge;
-		int  iEnlarge;
-		if (bLR)
-		{
-			iEnlarge=WIDTH(newRC)-WIDTH(oldRC);
-			bEnlarge=iEnlarge > 0;
-		}
-		else
-		{
-			iEnlarge=HEIGHT(newRC)-HEIGHT(oldRC) ;
-			bEnlarge=iEnlarge > 0;
-		}
 
-	
+		RECT oldRC=getRectBeforeSize();
+		
+		
+		bool bLR=(data.type==left_right);
+		float times=bLR?WIDTH(newRC)/(float)WIDTH(oldRC) :
+			HEIGHT(newRC)/(float)HEIGHT(oldRC);
+		
+		data.SplitterBarRects.clear();
 		
 		MYTREE *cur=child;
-		//RECT last={0};
-		int maxWidth=0;
-		int maxOne;
-		//get max one
-		if(bEnlarge)//the last one
-			maxOne=childs-1;
-		else
-		{
-			for (int count=0;count<childs;cur=cur->next,++count)
-			{
-				RECT curRC=cur->getRect();
-
-				if(WIDTH(curRC) >= maxWidth )
-				{	
-					maxWidth=WIDTH(curRC);
-					maxOne=count;
-				}
-			}
-			
-		}
-
-		if(maxOne != childs -1 )
-			data.SplitterBarRects.clear();
-
-		cur=child;
+		LONG lastV=cur->getRect().left;
 		for (int count=0;count<childs;cur=cur->next,++count)
 		{
 			RECT curRC=cur->getRect();
-			RECTHOffset(curRC,hOffset);
-			RECTVOffset(curRC,vOffset);
 
-			if(count == maxOne)
+			oldRC=cur->getRectBeforeSize();
+			
+			int curW=WIDTH(oldRC) * times;
+			
+			if(count!=childs-1)
 			{
-				curRC.right+=iEnlarge;
-				hOffset+=iEnlarge;
+				curRC.left=lastV;
+				curRC.right=curRC.left + curW ;
+				lastV=curRC.right+1;
+				curRC.right-=data.m_iSplitterBar;
+			}
+			else
+			{
+				curRC.left=lastV;
+				curRC.right=getRect().right;
 			}
 
-			if(maxOne != childs-1)
+			cur->setRect(curRC);
+
 			if(count!=childs-1)
 			{
 				RECT rcBar=curRC;
@@ -569,9 +557,12 @@ public:
 				rcBar.right+=data.m_iSplitterBar;
 				data.SplitterBarRects.push_back(rcBar);
 			}
-			 
-			cur->CalcChildsRect(curRC);
+
+
+			if (cur->hasChild())
+				cur->CalcChildsRect(curRC);
 		}
+			
 
 	}
 

@@ -36,7 +36,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 		if(nChar==VK_F3)
 			ShowSearchDialog();
 		if(nChar=='f' ||nChar=='F')
-			if (GetKeyState(VK_CONTROL) &0x80)
+			if (GetKeyState(VK_CONTROL) & 0x80)
 				ShowSearchDialog();
 	}
 
@@ -115,7 +115,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//combo box
 	HWND comboBar=m_wndComboBox.Create(m_hWndToolBar,NULL,NULL,WS_CHILD|WS_VISIBLE|WS_VSCROLL|CBS_DROPDOWNLIST);
 
-	m_wndComboBox.InitStorage(7,32);
+	//m_wndComboBox.InitStorage(7,32);
 	for (int i=0;i<sizeof(gPlayOrderStr)/sizeof(gPlayOrderStr[0]);++i)
 		m_wndComboBox.AddString(gPlayOrderStr[i]);
 	m_wndComboBox.SetCurSel(0);
@@ -175,8 +175,8 @@ void CMainFrame::InitUILayout()
 	const DWORD dwSplitStyle = WS_CHILD|WS_VISIBLE | WS_CLIPCHILDREN |WS_CLIPSIBLINGS  ;
 	const DWORD dwSplitExStyle =WS_EX_CLIENTEDGE;
 
-	m_pDlgMultiSplitter=new CMultiSpliltWnd;
-	m_hWndClient=m_pDlgMultiSplitter->Create(m_hWnd,rcDefault,NULL,dwSplitStyle,0);
+	m_pWndMultiSplitter=new CMultiSpliltWnd;
+	m_hWndClient=m_pWndMultiSplitter->Create(m_hWnd,rcDefault,NULL,dwSplitStyle,0);
 }
 
 
@@ -215,6 +215,26 @@ LRESULT CMainFrame::OnNotify2(int idCtrl, LPNMHDR pnmh)
 	return 0;
 } 
 
+
+LRESULT CMySimpleRebar::OnNotify(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	int idCtrl;
+	LPNMHDR pnmh;
+	pnmh= (LPNMHDR)lParam;
+
+	//track bar  mouse released
+	if (pnmh->code==NM_RELEASEDCAPTURE && pnmh->hwndFrom==GetMainFrame()->m_pTrackBar->m_hWnd){
+		int pos=GetMainFrame()->m_pTrackBar->GetPos();
+		int posMax=GetMainFrame()->m_pTrackBar->GetRangeMax();
+
+		CBasicPlayer::shared()->SetPos(pos,posMax);
+		GetMainFrame()->m_pTrackBar->m_bPressing=FALSE;
+	}
+
+
+	bHandled=FALSE;
+	return 0;
+}
 
 
  LRESULT CMainFrame::OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -559,6 +579,24 @@ LRESULT CMainFrame::OnCbnSelchanged(UINT,int id, HWND hWndCtl)
 	}
 
 	return 0;
+}
+
+
+
+LRESULT CMainFrame::OnSizing(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	m_pWndMultiSplitter->OnSizing();
+	bHandled=FALSE;
+	
+	return 0;
+}
+
+LRESULT CMainFrame::OnNcLButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	m_pWndMultiSplitter->BeginSize();
+	bHandled=FALSE;
+	//If an application processes this message, it should return zero. 
+	return 1;
 }
 
 
@@ -1275,12 +1313,21 @@ void CDlgLrcSearch::DownLoad()
 			else
 				::SetWindowText(GetDlgItem(IDC_EDIT_INFO),L"ÏÂÔØ³É¹¦");
 
+
+
+			/*
 			std::tstring pszpath(savePath);
 			if(ActivePlaylist() && MyLib::shared()->isPlaying())
 			{
 				GetPlayingItem().TryLoadLrcFile(pszpath,TRUE);
 				NotifyMsg(WM_LYRIC_RELOAD);
 			}
+			*/
+
+
+			MyLib::shared()->InitLrcLib();
+			NotifyMsg(WM_LYRIC_RELOAD);
+
 		}
 	}
 
@@ -1670,7 +1717,7 @@ BOOL CPropertyDlgUILayout::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 
 CMultiSpliltWnd* GetSplitter()
 {
-	return GetMainFrame()->m_pDlgMultiSplitter;
+	return GetMainFrame()->m_pWndMultiSplitter;
 }
 
 

@@ -511,7 +511,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "参数选项",                        ID_32850
         MENUITEM SEPARATOR
-        MENUITEM "歌词搜索",                        ID_MENU_SEARCH_ONLINE
+        MENUITEM "歌词搜索\tS",                     ID_MENU_SEARCH_ONLINE
         MENUITEM "关于当前歌词",                      ID_32852
         MENUITEM SEPARATOR
         MENUITEM "编辑歌词",                        ID_LRC_EDIT

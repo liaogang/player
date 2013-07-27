@@ -75,7 +75,7 @@ public:
 	HWND CreateIsWnd(HWND parent)
 	{
 		UINT style=WS_CHILD  | WS_VISIBLE /*| WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/;
-		style|=/*TBS_TOOLTIPS  |*/TBS_NOTICKS /*|TBS_AUTOTICKS */ | TBS_BOTH ; 
+		style|=TBS_TOOLTIPS  |TBS_NOTICKS /*|TBS_AUTOTICKS */ | TBS_BOTH ; 
 		UINT styleEx=0; 
 		Create( parent,NULL,NULL,style,styleEx);
 
@@ -85,8 +85,10 @@ public:
 
 		EnableWindow(FALSE);
 
-		IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
-		IWantToReceiveMessage(WM_TRACKSTOPPED);
+
+
+
+
 
 		return m_hWnd;
 	}
@@ -104,6 +106,7 @@ class CMyTrackBar
 	,public CCustomDraw<CMyTrackBar>
 {
 public:
+	typedef  CMyTrackBarBase baseclass;
 	BOOL m_bPressing;
 	CMyTrackBar():m_bPressing(FALSE)
 	{
@@ -114,14 +117,57 @@ public:
 
 	BEGIN_MSG_MAP_EX(CMyTrackBar)
 		MSG_WM_DESTROY(OnDestroy)
+
+		//user message
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
+		MESSAGE_HANDLER(WM_PAUSE_START,OnPaused)
+		MESSAGE_HANDLER(WM_PAUSE_START,OnPauseStarted)
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
-		//MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLBtnDown)
+		//
+
 		MESSAGE_HANDLER(TB_BUTTONCOUNT,TBB)
 		MESSAGE_HANDLER(TB_GETITEMRECT,OnGetItemRect)
+		NOTIFY_CODE_HANDLER(TTN_NEEDTEXT,OnNeedText)
+		MESSAGE_HANDLER(WM_HSCROLL,OnHscroll)
 		CHAIN_MSG_MAP(CMyTrackBarBase)
 		CHAIN_MSG_MAP_ALT(CCustomDraw<CMyTrackBar>, 1)
 	END_MSG_MAP()
+
+	CToolTipCtrl m_CtrlTooltip;
+	HWND CreateIsWnd(HWND parent)
+	{
+		HWND hWnd=baseclass::CreateIsWnd(parent);
+
+		m_CtrlTooltip.Create(hWnd);
+		m_CtrlTooltip.AddTool(hWnd, LPSTR_TEXTCALLBACK); 
+
+
+		IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
+		IWantToReceiveMessage(WM_PAUSED);
+		IWantToReceiveMessage(WM_PAUSE_START);
+		IWantToReceiveMessage(WM_TRACKSTOPPED);
+
+		return hWnd;
+	}
+	
+	LRESULT OnHscroll(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+	{
+		m_CtrlTooltip.Update();
+		return 0;
+	}
+
+	LRESULT OnNeedText(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+	{
+		TOOLTIPTEXT* pttt = (TOOLTIPTEXT*) pnmh;
+
+		int curSec=GetPos();
+		int minute=curSec / 60;
+		int sec=curSec - minute*60 ;
+
+		_stprintf(pttt->szText,_T("%d:%d"),minute,sec);
+		
+		return 0;
+	}
 
 	DWORD OnPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW lpNMCustomDraw)
 	{
@@ -141,32 +187,29 @@ public:
 		return dwRet;
 	}
 
-	CToolTipCtrl tip;
 	LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
 		EnableWindow(TRUE);
 
 		int totalSec=getTrackPosInfo()->used+getTrackPosInfo()->left;
-		int totalMinute=300;//totalSec%60;
 
 		SetRange(0,totalSec);
 		SetPos((int)0);
 
-		if(!tip.IsWindow())
-			{
-				tip.Create(m_hWnd);
-			
-			SetToolTips(tip);
-
-			RECT rc;
-			GetClientRect(&rc);
-			tip.AddTool(m_hWnd , GetDlgCtrlID() ,  &rc , GetDlgCtrlID() );
-
-
-			tip.Activate(TRUE);
-		}
 		return 0;
 	}
+
+
+	LRESULT OnPaused(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+	{
+		return 0;
+	}
+
+	LRESULT OnPauseStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+	{
+		return 0;
+	}
+	
 
 	LRESULT OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
@@ -180,52 +223,7 @@ public:
 		IDonotWantToReceiveMessage(WM_TRACKSTOPPED);
 	}
 
-	LRESULT OnLBtnDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-	{
-		
-		int  totalSec=GetPos();
-		
-		TCHAR strTotalMinute[10]={0};
-		
-		_itow(totalSec/60 , strTotalMinute , 10);
-		_tcscat(strTotalMinute,_T(":"));
-		//_itow(totalSec%60 , strTotalMinute + _tcslen(strTotalMinute) , 10);
-
-		TCHAR *p=strTotalMinute + _tcslen(strTotalMinute);
-
-		swprintf(p,_T("%02d"),totalSec%60);
-		
-		tip.SetWindowText(strTotalMinute);
-		
-		
-
-		m_bPressing=TRUE;
-		RECT rc;
-		GetThumbRect(&rc);
-
-		int xPos = GET_X_LPARAM(lParam); 
-		int yPos = GET_Y_LPARAM(lParam); 
-
-		//is point in pos the thumb can move to?
-		if (yPos>rc.top && yPos < rc.bottom)
-		{
-			xPos=(rc.right-rc.left)/2+rc.left;
-			lParam&=0xFFFF0000;
-			lParam|=(short)xPos;
-
-			xPos = GET_X_LPARAM(lParam); 
-			yPos = GET_Y_LPARAM(lParam); 
-
-			::SendMessage(m_hWnd,WM_MOUSEMOVE,wParam,lParam);
-			//::DefWindowProc(m_hWnd,uMsg,wParam,lParam);
-		}
-
-		bHandled=FALSE;
-
-		//If an application processes this message, it should return zero. 
-		return 1;
-	}
-
+	
 	LRESULT OnGetItemRect(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
 		if(lParam==NULL)
@@ -268,9 +266,7 @@ public:
 
 	BEGIN_MSG_MAP(CMyVolumeBar)
 		MESSAGE_HANDLER(WM_CREATE,OnCreate)
-		//MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLBtnDown)
 		MESSAGE_HANDLER(WM_MOUSEMOVE,OnMouseMove)
-		//MESSAGE_HANDLER(WM_LBUTTONUP,OnReleaseLB)
 		MESSAGE_HANDLER(TB_BUTTONCOUNT,TBB)
 		MESSAGE_HANDLER(TB_GETITEMRECT,OnGetItemRect)
 		CHAIN_MSG_MAP( CMyTrackBarBase)
@@ -287,6 +283,7 @@ public:
 		LRESULT lr = CDRF_DODEFAULT;
 
 
+		//draw a triangle channel bar
 		if(pNMCD->dwItemSpec == TBCD_CHANNEL)
 		{
 			CDC dc;
@@ -311,30 +308,49 @@ public:
 			dc.SelectPen(old);
 
 			dc.Detach();
+			
+			
+
+			/*
+			RECT rc=pNMCD->rc;
+			HDC  hdc=pNMCD->hdc;
+			DWORD clrLight=GetSysColor(COLOR_3DFACE);
+
+			TRIVERTEX vertex[3];
+			vertex[0].x=rc.left;
+			vertex[0].y=rc.bottom;
+			vertex[0].Red=GetRValue(clrLight);
+			vertex[0].Green=GetGValue(clrLight);
+			vertex[0].Blue=GetBValue(clrLight);
+			vertex[0].Alpha = 0x0000;
+
+			vertex[1].x=rc.right;
+			vertex[1].y=rc.top;
+			vertex[1].Alpha = 0x0000;
+			vertex[1].Red=GetRValue(clrLight);
+			vertex[1].Green=GetGValue(clrLight);
+			vertex[1].Blue=GetBValue(clrLight);
+
+
+			vertex[2].x=rc.right;
+			vertex[2].y=rc.bottom;
+			vertex[2].Red=GetRValue(clrLight);
+			vertex[2].Green=GetGValue(clrLight);
+			vertex[2].Blue=GetBValue(clrLight);
+			vertex[2].Alpha = 0x0000;
+
+			GRADIENT_TRIANGLE gTriangle;
+			gTriangle.Vertex1 = 0;
+			gTriangle.Vertex2 = 1;
+			gTriangle.Vertex3 = 2;
+			GradientFill(hdc, vertex, 3, &gTriangle, 1, GRADIENT_FILL_TRIANGLE);
+			*/
+
+
+
 			lr = CDRF_SKIPDEFAULT;
 		}
-		/*
-		else if(pNMCD->dwItemSpec == TBCD_THUMB)
-		{
-			CDC dc;
-			dc.Attach(pNMCD->hdc);
-			pNMCD->rc.bottom--;
-			CRect r(pNMCD->rc);
-			r.DeflateRect(0, 0, 1, 0);
 
-			COLORREF shadow = GetSysColor(COLOR_3DSHADOW);
-			COLORREF light = GetSysColor(COLOR_3DHILIGHT);
-			dc.Draw3dRect(&r, light, 0);
-			r.DeflateRect(0, 0, 1, 1);
-			dc.Draw3dRect(&r, light, shadow);
-			r.DeflateRect(1, 1, 1, 1);
-			dc.FillSolidRect(&r, GetSysColor(COLOR_BTNFACE));
-			dc.SetPixel(r.left+7, r.top-1, GetSysColor(COLOR_BTNFACE));
-
-			dc.Detach();
-			lr = CDRF_SKIPDEFAULT;
-		}
-		*/
 
 		pNMCD->uItemState &= ~CDIS_FOCUS;
 
@@ -353,54 +369,14 @@ public:
 		return 1;
 	}
 
-	LRESULT OnLBtnDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
-	{
-		//RECT rc;
-		//GetChannelRect(&rc);
-		//RECT rcThumb;
-		//GetThumbRect(&rcThumb);
-		//int xPos = GET_X_LPARAM(lParam); 
-		//int yPos = GET_Y_LPARAM(lParam); 
-		//if (rcThumb.left<=xPos &&xPos <=rcThumb.right && rcThumb.top<=yPos && yPos <= rcThumb.bottom)
-		//{
-		//	int max,min;
-		//	GetRange(min,max);
 
-		//	int pos=((long)(max-min))/(rc.right-rc.left) *((long)xPos-rc.left);
-		//	SetPos(pos);
-		//}
-		// 
-		// 
-		// 
-		// 		//TO DO ,SET POS
-		SetCapture();
-
-		bHandled=FALSE;
-		m_bPressing=TRUE;
-		return 1;
-	}
 
 	LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{    
-		//if (GetCapture()==m_hWnd){
-			int pos=GetPos();
-			OnPos(pos);
-		//}
+		int pos=GetPos();
+		OnPos(pos);
 
 		bHandled=FALSE;
-		return 1;
-	}
-
-	LRESULT OnReleaseLB(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
-	{	
-
-		if (GetCapture()==m_hWnd){
-			int pos=GetPos();
-			OnPos(pos);
-		}
-		ReleaseCapture();
-
-		m_bPressing=FALSE;
 		return 1;
 	}
 
@@ -499,23 +475,23 @@ public:
 	DECLARE_WND_SUPERCLASS(NULL,CReBarCtrl::GetWndClassName())
 
 	BEGIN_MSG_MAP_EX(CMySimpleRebar)
+		MESSAGE_HANDLER(WM_NOTIFY,OnNotify)
 		MESSAGE_HANDLER(WM_CTLCOLORSTATIC,OnCtrlColorStatic)
-		//MSG_WM_ERASEBKGND(OnEraseBkgnd)
-		//MSG_WM_CREATE()
+		MESSAGE_HANDLER(WM_HSCROLL,OnHscroll)//Reflect Scroll Message 
 		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 
-	int OnCreate(LPCREATESTRUCT lpCreateStruct)
+	LRESULT OnHscroll(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		SetMsgHandled(FALSE);
-		SetWindowTheme(_T("Explorer"));
+		::SendMessage((HWND)lParam,WM_HSCROLL,wParam,NULL);
+		bHandled=FALSE;
 		return 0;
 	}
 
-	BOOL OnEraseBkgnd(CDCHandle dc)
-	{
-		return 1;
-	}
+
+	LRESULT OnNotify(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+
+
 
 	CMyTrackBar *pTrack;
 	CMyVolumeBar *pVolume;

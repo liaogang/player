@@ -39,6 +39,7 @@ using namespace std;
 
 CBasicPlayer :: ~CBasicPlayer(void)
 {
+	stop();
 	delete[] volBuffer;
 	if(!m_pPlayerThread) delete m_pPlayerThread;
 	if (!m_pSpectrumAnalyser) delete m_pSpectrumAnalyser; 

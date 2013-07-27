@@ -90,6 +90,7 @@ trackPosInfo *getTrackPosInfo()
 }
 
 
+
 //  Only the mono mode has 1 channel, the others have 2 channels.
 TCHAR * mp3_mode[] = {
 	_T("MPG123_M_STEREO"),	/**< Standard Stereo. */
