@@ -15,8 +15,14 @@ public:
 		MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLButtonDown)
 	END_MSG_MAP()
 
+
+
+
+	BOOL m_bPressing;
 	LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
+		m_bPressing=true;
+
 		bHandled=FALSE;
 
 		POINT point;
@@ -107,8 +113,8 @@ class CMyTrackBar
 {
 public:
 	typedef  CMyTrackBarBase baseclass;
-	BOOL m_bPressing;
-	CMyTrackBar():m_bPressing(FALSE)
+	
+	CMyTrackBar()
 	{
 
 	}
@@ -124,14 +130,37 @@ public:
 		MESSAGE_HANDLER(WM_PAUSE_START,OnPauseStarted)
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
 		//
-
+		
+		MSG_WM_TIMER(OnTimer)
 		MESSAGE_HANDLER(TB_BUTTONCOUNT,TBB)
 		MESSAGE_HANDLER(TB_GETITEMRECT,OnGetItemRect)
 		NOTIFY_CODE_HANDLER(TTN_NEEDTEXT,OnNeedText)
 		MESSAGE_HANDLER(WM_HSCROLL,OnHscroll)
+		REFLECTED_NOTIFY_CODE_HANDLER(NM_RELEASEDCAPTURE,OnMouseReleased)
+
 		CHAIN_MSG_MAP(CMyTrackBarBase)
 		CHAIN_MSG_MAP_ALT(CCustomDraw<CMyTrackBar>, 1)
 	END_MSG_MAP()
+
+	LRESULT OnMouseReleased(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/);
+
+
+
+
+
+	bool m_bPaused;
+	bool m_bStopped;
+
+	UINT m_uCurrTime;
+	void OnTimer(UINT_PTR /*nIDEvent*/)
+	{
+		if(!m_bPaused)
+			m_uCurrTime+=m_uElapse;
+		
+		if(!m_bPaused)
+			SetPos(m_uCurrTime/1000);
+		
+	}
 
 	CToolTipCtrl m_CtrlTooltip;
 	HWND CreateIsWnd(HWND parent)
@@ -187,6 +216,8 @@ public:
 		return dwRet;
 	}
 
+	UINT m_nIDEvent;
+	static const int m_uElapse=500;
 	LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
 		EnableWindow(TRUE);
@@ -196,30 +227,43 @@ public:
 		SetRange(0,totalSec);
 		SetPos((int)0);
 
+
+		SetTimer((UINT_PTR)&m_nIDEvent,m_uElapse,NULL);
+
+		m_bPaused=false;
+		m_bStopped=false;
+		m_uCurrTime=0;
+
 		return 0;
 	}
 
 
 	LRESULT OnPaused(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
+		m_bPaused=true;
 		return 0;
 	}
 
 	LRESULT OnPauseStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
+		m_bPaused=false;
 		return 0;
 	}
 	
 
 	LRESULT OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
+		m_bStopped=true;
 		EnableWindow(FALSE);
+		KillTimer(m_nIDEvent);
 		return 0;
 	}
 
 	void OnDestroy()
 	{
 		IDonotWantToReceiveMessage(WM_NEW_TRACK_STARTED);
+		IDonotWantToReceiveMessage(WM_PAUSED);
+		IDonotWantToReceiveMessage(WM_PAUSE_START);
 		IDonotWantToReceiveMessage(WM_TRACKSTOPPED);
 	}
 

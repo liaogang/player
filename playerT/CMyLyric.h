@@ -180,12 +180,19 @@ public:
 
 		LRESULT OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 		{
+			bLrcReady=FALSE;
+
 			if(m_nIDEvent!=0)
 			{
 				KillTimer((UINT_PTR)&m_nIDEvent);
 				m_nIDEvent=0;
 			}
+
+
 			ResetTitle();
+
+			Invalidate(TRUE);
+
 			return 0;
 		}
 

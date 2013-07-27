@@ -565,6 +565,7 @@ BOOL FileTrack::GetLrcFileFromLib(BOOL forceResearch)
 	{
 		lycPath=highest.path;
 		m_bLrcFromLrcFile=TRUE;
+		TryLoadLrcFile(lycPath);
 		//lyricFromLrcFile=LrcMng::Get()->lib;
 		return TRUE;
 	}
@@ -606,7 +607,12 @@ UINT LrcMng::MatchTrackAndLrcTags(FileTrack *track,std::tstring &lrcpath)
 {
 	UINT matchFlag=perfect;
 
-	Open((LPTSTR)lrcpath.c_str());
+	if(! Open((LPTSTR)lrcpath.c_str()) )
+	{
+		matchFlag=invalide;
+		return matchFlag;
+	}
+		
 
 	if (ti.empty())
 		matchFlag|=without_title;

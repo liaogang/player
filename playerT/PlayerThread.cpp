@@ -242,6 +242,7 @@ fileEnd:
 	else
 	{		
 		NotifyMsg(WM_TRACK_REACH_END);
+		NotifyMsg(WM_TRACKSTOPPED);
 	}
 
 	m_lpDSBuffer->Stop();

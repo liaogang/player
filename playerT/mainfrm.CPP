@@ -199,6 +199,7 @@ LRESULT CMainFrame::OnNotify2(int idCtrl, LPNMHDR pnmh)
 	}
 	
 	//track bar  mouse released
+	/*
 	if (pnmh->code==NM_RELEASEDCAPTURE && pnmh->hwndFrom==m_pTrackBar->m_hWnd){
 		int pos=m_pTrackBar->GetPos();
 		int posMax=m_pTrackBar->GetRangeMax();
@@ -206,7 +207,7 @@ LRESULT CMainFrame::OnNotify2(int idCtrl, LPNMHDR pnmh)
 		CBasicPlayer::shared()->SetPos(pos,posMax);
 		m_pTrackBar->m_bPressing=FALSE;
 	}
-
+	*/
 
 	//when rebar height changed ,we update the layout
 	if(pnmh->code==RBN_HEIGHTCHANGE && pnmh->hwndFrom==m_hWndToolBar)
@@ -215,6 +216,19 @@ LRESULT CMainFrame::OnNotify2(int idCtrl, LPNMHDR pnmh)
 	return 0;
 } 
 
+
+LRESULT CMyTrackBar::OnMouseReleased(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+{
+	int pos=GetPos();
+	int posMax=GetRangeMax();
+
+	CBasicPlayer::shared()->SetPos(pos,posMax);
+	m_bPressing=FALSE;
+
+	m_uCurrTime=pos * 1000 ;
+
+	return 0;
+}
 
 LRESULT CMySimpleRebar::OnNotify(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {

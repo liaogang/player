@@ -42,6 +42,7 @@ public:
 		COMMAND_ID_HANDLER(ID_MENU_PIC_SAVE, OnPicSave)
 		MSG_WM_SIZE(OnSize)
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
+		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnStopped)
 		MSG_WM_ERASEBKGND(OnEraseBkgnd)
 	END_MSG_MAP()
 
@@ -120,15 +121,25 @@ public:
 		return 0;
 	}
 
+	LRESULT OnStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		bHasPic=FALSE;
+		Invalidate(TRUE);
+		return 0;
+	}
+	
+
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		PAINTSTRUCT ps;
 		::BeginPaint(m_hWnd,&ps);
-		oldBrush=(HBRUSH)::SelectObject(ps.hdc,brush);
-		oldPen=(HPEN )::SelectObject(ps.hdc,newPen);
+
 
 		if (bHasPic)
 		{
+			oldBrush=(HBRUSH)::SelectObject(ps.hdc,brush);
+			oldPen=(HPEN )::SelectObject(ps.hdc,newPen);
+
 			int iw=track->img->GetWidth();
 			int ih=track->img->GetHeight();
 			
@@ -163,8 +174,8 @@ public:
 			::Rectangle(ps.hdc,rcLeft.left,rcLeft.top,rcLeft.right,rcLeft.bottom);
 			::Rectangle(ps.hdc,rcRight.left,rcRight.top,rcRight.right,rcRight.bottom);
 
-			
-			
+			::SelectObject(ps.hdc,oldBrush);
+			::SelectObject(ps.hdc,oldPen);
 		}
 		//else
 		//{
@@ -173,8 +184,8 @@ public:
 		//	::SelectObject(ps.hdc,oldPen);
 		//}
 
-		::SelectObject(ps.hdc,oldBrush);
-		::SelectObject(ps.hdc,oldPen);
+		
+
 		::EndPaint(m_hWnd,&ps);	
 
 		return 0;

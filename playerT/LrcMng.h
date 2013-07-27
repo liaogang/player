@@ -138,7 +138,7 @@ public:
 		id.clear();
 	}
 
-	void Open(LPTSTR pstrPath)
+	BOOL Open(LPTSTR pstrPath)
 	{ 
 		Clear();
 		
@@ -150,7 +150,7 @@ public:
 		
 		if (!pFile)
 		{
-			return;
+			return FALSE;
 		}
 		else
 		{
@@ -181,6 +181,9 @@ public:
 		
 		CleanAfterFileCovert(pBuf,(BYTE*)pBufU);
 		SortLrcLib();
+
+
+		return lib.size()>0;
 	}
 
 
