@@ -651,6 +651,9 @@
     <ClInclude Include="..\MyConfigs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\WuLines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\BasicPlayer.cpp">

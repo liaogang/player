@@ -220,6 +220,7 @@
     <ClInclude Include="..\WaveFile.h" />
     <ClInclude Include="..\WaveFileEx.h" />
     <ClInclude Include="..\WTLTabViewCtrl.h" />
+    <ClInclude Include="..\WuLines.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\BasicPlayer.cpp" />

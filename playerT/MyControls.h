@@ -1,6 +1,7 @@
 
 #include "WTLTabViewCtrl.h"
 #include "globalStuffs.h"
+#include "WuLines.h"
 //-----------------------------------------
 //progress pos track bar
 class CMyTrackBarBase
@@ -348,7 +349,10 @@ public:
 			dc.LineTo(pNMCD->rc.right, pNMCD->rc.bottom);
 			dc.LineTo(pNMCD->rc.left, pNMCD->rc.bottom);
 			dc.SelectPen(shadow);
-			dc.LineTo(pNMCD->rc.right, pNMCD->rc.top);
+			//dc.LineTo(pNMCD->rc.right, pNMCD->rc.top);
+
+			DrawWuLine(&dc,pNMCD->rc.left,pNMCD->rc.bottom,pNMCD->rc.right,pNMCD->rc.top,GetSysColor(COLOR_3DSHADOW));
+
 			dc.SelectPen(old);
 
 			dc.Detach();

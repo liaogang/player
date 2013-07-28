@@ -63,7 +63,7 @@ public:
 	void Init()
 	{
 		IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
-		//IWantToReceiveMessage
+		IWantToReceiveMessage(WM_TRACKSTOPPED);
 
 		TrackChanged();
 	}
@@ -210,7 +210,7 @@ public:
 	void OnDestroy()
 	{
 		IDonotWantToReceiveMessage(WM_NEW_TRACK_STARTED);
-
+		IDonotWantToReceiveMessage(WM_TRACKSTOPPED);
 		SetMsgHandled(FALSE);
 	}
 
