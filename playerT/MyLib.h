@@ -175,7 +175,7 @@ public:
 	}
 };
 
-//count=sizeof(gPlayOrderStr)/sizeof(int)
+//count=sizeof(gPlayOrderStr)/sizeof(gPlayOrderStr[0])
 static const TCHAR *gPlayOrderStr[] =
 {
 	_T("Default"),

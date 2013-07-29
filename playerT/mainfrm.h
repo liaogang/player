@@ -32,6 +32,7 @@ class DialogPLManager;
 class CDialogConsole;
 class CMultiSpliltWnd;
 class MYTREE;
+class CMyComboBox;
 //-----------------------------------------
 
 
@@ -51,11 +52,10 @@ public:
 
 	CCommandBarCtrl m_CmdBar;
 	CDialogConfig   *m_pDlgConfig;
-	CComboBox m_wndComboBox;
+	CMyComboBox *m_pComboBox;
 	CDialogLyric *m_dlgLrc;
 	CProcessingDlg *pDlgProcess;
 	CWndLyric *lyricView;
-	//CMySplitterWindow *m_pSplit;
 	CMyStatusBar *m_pStatus;
 	DialogSearch *m_pDlgSearch;
 	DialogFFT *m_pDlgFFT;
@@ -70,7 +70,7 @@ public:
 		lyricView(NULL),
 		m_pDlgFFT(NULL),m_pDlgFFTOutline(NULL),
 		m_pDlgPLMng(NULL),m_pDlgConsole(NULL),
-		m_pDlgConfig(NULL)
+		m_pDlgConfig(NULL),m_pComboBox(NULL)
 	{
 	}
 
@@ -95,7 +95,7 @@ public:
 		
 		MESSAGE_HANDLER(WM_NOTIFY,OnNotify)
 		MESSAGE_HANDLER(WM_CLOSE,OnExit)
-		COMMAND_CODE_HANDLER_EX(CBN_SELCHANGE,OnCbnSelchanged)
+		
 
 		MESSAGE_HANDLER(WM_SIZING,OnSizing)
 		MESSAGE_HANDLER(WM_NCLBUTTONDOWN,OnNcLButtonDown)
@@ -166,7 +166,6 @@ public:
 
 	
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-	LRESULT OnCbnSelchanged(UINT,int id, HWND hWndCtl);
 	LRESULT OnTrackReachEnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnPLChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);

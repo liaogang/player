@@ -95,7 +95,7 @@ public:
 
 
 
-
+		m_bPressing=FALSE;
 
 		return m_hWnd;
 	}
@@ -127,7 +127,7 @@ public:
 
 		//user message
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
-		MESSAGE_HANDLER(WM_PAUSE_START,OnPaused)
+		MESSAGE_HANDLER(WM_PAUSED,OnPaused)
 		MESSAGE_HANDLER(WM_PAUSE_START,OnPauseStarted)
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
 		//
@@ -156,11 +156,12 @@ public:
 	void OnTimer(UINT_PTR /*nIDEvent*/)
 	{
 		if(!m_bPaused)
+		{
 			m_uCurrTime+=m_uElapse;
 		
-		if(!m_bPaused)
-			SetPos(m_uCurrTime/1000);
-		
+			if(!m_bPressing)
+				SetPos(m_uCurrTime/1000);
+		}
 	}
 
 	CToolTipCtrl m_CtrlTooltip;
@@ -517,17 +518,50 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 
 
 
+class CMyComboBox:public CWindowImpl<CMyComboBox,CComboBox>
+{
+public:
+	DECLARE_WND_SUPERCLASS(_T("MyComboBox"),CComboBox::GetWndClassName())
+
+	BEGIN_MSG_MAP(CMyComboBox)
+		REFLECTED_COMMAND_CODE_HANDLER_EX(CBN_SELCHANGE,OnCbnSelchanged)
+	END_MSG_MAP()
+
+public:
+	LRESULT OnCbnSelchanged(UINT,int id, HWND hWndCtl);
+	HWND CreateIsWnd(HWND parent);
+};
+
 class CMySimpleRebar:public CWindowImpl<CMySimpleRebar,CReBarCtrl>
 {   
 public:
+	typedef CWindowImpl<CMySimpleRebar,CReBarCtrl> thebase;
 	DECLARE_WND_SUPERCLASS(NULL,CReBarCtrl::GetWndClassName())
 
 	BEGIN_MSG_MAP_EX(CMySimpleRebar)
-		MESSAGE_HANDLER(WM_NOTIFY,OnNotify)
+		//MESSAGE_HANDLER(WM_NOTIFY,OnNotify)
 		MESSAGE_HANDLER(WM_CTLCOLORSTATIC,OnCtrlColorStatic)
-		MESSAGE_HANDLER(WM_HSCROLL,OnHscroll)//Reflect Scroll Message 
+		MESSAGE_HANDLER(WM_HSCROLL,OnHscroll)//Reflect Scroll Message
+		
 		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
+
+	LRESULT ReflectNotifications(
+		_In_ UINT uMsg,
+		_In_ WPARAM wParam,
+		_In_ LPARAM lParam,
+		_Inout_ BOOL& bHandled)
+	{
+		//filter the Wm_CtrlColorStatic message , because the combobox will not display fine.
+		if(uMsg == WM_CTLCOLORLISTBOX)
+		{
+			bHandled=TRUE;
+			return ::DefWindowProc(m_hWnd,uMsg,wParam,lParam);
+		}
+		else
+			return thebase::ReflectNotifications(uMsg,wParam,lParam,bHandled);
+	}
+
 
 	LRESULT OnHscroll(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{

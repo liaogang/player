@@ -13,7 +13,6 @@
 #include "CAlbumCoverView.h"
 #include "CMyTabBar.h"
 #include "DlgProcessing.h"
-//#include "PlayListView.h"
 #include "PlayListViewMng.h"
 #include "DialogSearch.h"
 #include "DialogLyric.h"
@@ -33,11 +32,34 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 	if (pMsg->message==WM_KEYDOWN)
 	{
 		UINT nChar=(TCHAR)pMsg->wParam;
+		BOOL bHandled=FALSE;
+
+		//F3 or Ctrl + F 
 		if(nChar==VK_F3)
 			ShowSearchDialog();
 		if(nChar=='f' ||nChar=='F')
 			if (GetKeyState(VK_CONTROL) & 0x80)
 				ShowSearchDialog();
+
+		//Next Tract
+		if(nChar == VK_MEDIA_NEXT_TRACK)
+			OnPlayNext(0,0,0,bHandled);
+
+		//Prev track
+		//if(nChar == VK_MEDIA_PREV_TRACK)
+
+		//Stop
+		if(nChar == VK_MEDIA_STOP)
+			OnStop(0,0,0,bHandled);
+
+		//Play or Pause
+		if(nChar == VK_MEDIA_PLAY_PAUSE    )
+			OnPause(0,0,0,bHandled);
+
+			//Ctrl + P
+		if(nChar == 'P' || nChar =='p')
+			if (GetKeyState(VK_CONTROL) & 0x80)
+				OnConfig(0,0,0,bHandled);
 	}
 
 	return CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg);
@@ -95,13 +117,6 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	UINT styleEx=0; 
 
 	HWND hWndProgressBar=m_pTrackBar->CreateIsWnd(m_hWndToolBar);
-
-
-	//HWND hWndProgressBar=m_pTrackBar->Create( m_hWndToolBar,NULL,NULL,style,styleEx);
-	//m_pTrackBar->SetPageSize(1);
-	//m_pTrackBar->SetLineSize(1);
-	//m_pTrackBar->SetThumbLength(30);
-
 	m_pRebar->pTrack=m_pTrackBar;
 
 
@@ -111,15 +126,12 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	AddSimpleReBarBand(hWndProgressBar,NULL,FALSE,150,TRUE);
 
-	//-------------------------------------------------
+	
 	//combo box
-	HWND comboBar=m_wndComboBox.Create(m_hWndToolBar,NULL,NULL,WS_CHILD|WS_VISIBLE|WS_VSCROLL|CBS_DROPDOWNLIST);
+	m_pComboBox=new CMyComboBox;
+	HWND comboBar=m_pComboBox->CreateIsWnd(m_hWndToolBar);
 
-	//m_wndComboBox.InitStorage(7,32);
-	for (int i=0;i<sizeof(gPlayOrderStr)/sizeof(gPlayOrderStr[0]);++i)
-		m_wndComboBox.AddString(gPlayOrderStr[i]);
-	m_wndComboBox.SetCurSel(0);
-
+	
 // 	 	CFont font;
 // 	 	LOGFONT lf;
 // 	 	memset(&lf, 0, sizeof(LOGFONT));       // zero out structure
@@ -134,7 +146,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	AddSimpleReBarBand(comboBar,NULL,FALSE,100,TRUE);
 
 
-	//-----------------------------------------
+	
 	//volume track bar
 	m_pVolumeBar=new CMyVolumeBar;
 	HWND hWndVolumeBar=m_pVolumeBar->Create(m_hWndToolBar,NULL,NULL,style,styleEx);
@@ -144,7 +156,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	AddSimpleReBarBand(hWndVolumeBar,NULL,FALSE,50,TRUE);
 
 
-	//-------------------------------------------------
+	
 	//status bar  
 	//add it all
 	CreateSimpleStatusBar();
@@ -180,23 +192,31 @@ void CMainFrame::InitUILayout()
 }
 
 
+HWND CMyComboBox::CreateIsWnd(HWND parent)
+{
+	Create(parent,NULL,NULL,WS_CHILD|WS_VISIBLE|WS_HSCROLL | WS_VSCROLL|CBS_DROPDOWNLIST);
 
+
+	for (int i=0;i<sizeof(gPlayOrderStr)/sizeof(gPlayOrderStr[0]);++i)
+		AddString(gPlayOrderStr[i]);
+
+	SetCurSel(0);
+
+	return m_hWnd;
+}
 
 
 
 LRESULT CMainFrame::OnNotify2(int idCtrl, LPNMHDR pnmh)
 {
-	if (pnmh->code==TCN_SELCHANGE){
-		//drop list combo box , changed
-		if (pnmh->hwndFrom==m_wndComboBox.m_hWnd){
-// 			int sel=m_pTabBar->GetCurSel();
-// 			OnTabChanged(sel);
-		}
-
-// 		if (pnmh->hwndFrom==m_pTabBar->m_hWnd){
-// 			OnSelectionChanged();
+// 	if (pnmh->code==TCN_SELCHANGE){
+// 		//drop list combo box , changed
+// 		if (pnmh->hwndFrom==m_wndComboBox.m_hWnd){
+// // 			int sel=m_pTabBar->GetCurSel();
+// // 			OnTabChanged(sel);
 // 		}
-	}
+// 
+// 	}
 	
 	//track bar  mouse released
 	/*
@@ -230,7 +250,9 @@ LRESULT CMyTrackBar::OnMouseReleased(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHand
 	return 0;
 }
 
-LRESULT CMySimpleRebar::OnNotify(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+
+/*
+LRESULT CMySimpleRebar::OnNotify(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	int idCtrl;
 	LPNMHDR pnmh;
@@ -249,7 +271,7 @@ LRESULT CMySimpleRebar::OnNotify(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BO
 	bHandled=FALSE;
 	return 0;
 }
-
+*/
 
  LRESULT CMainFrame::OnFftDialog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
  {
@@ -341,6 +363,7 @@ LRESULT CMainFrame::OnPlayNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 	MyLib::shared()->playNext();
 	return 0;
 }
+
 LRESULT CMainFrame::OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	if (!m_pDlgConfig)
@@ -585,13 +608,12 @@ LRESULT CMainFrame::OnPlayDirectly(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam
 }
 */
 
-LRESULT CMainFrame::OnCbnSelchanged(UINT,int id, HWND hWndCtl)
+LRESULT CMyComboBox::OnCbnSelchanged(UINT,int id, HWND hWndCtl)
 {
-	if (::IsWindow(m_wndComboBox.m_hWnd) && hWndCtl==m_wndComboBox.m_hWnd){
-		int i=m_wndComboBox.GetCurSel();
-		MyLib::shared()->SetPlayOrder(static_cast<MyLib::PlayOrder>( i ));
-	}
+	MyLib::shared()->SetPlayOrder(static_cast<MyLib::PlayOrder>( GetCurSel() ));
+	
 
+	SetMsgHandled(FALSE);
 	return 0;
 }
 
@@ -1029,7 +1051,7 @@ LRESULT CPlayListView::OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled)
 }
 
 
-
+/*
 LRESULT CMyTabBar::OnSelectionChanged( LPNMHDR )
 {
 	int curSel=GetCurSel( );
@@ -1042,7 +1064,8 @@ LRESULT CMyTabBar::OnSelectionChanged( LPNMHDR )
 	//pMain->m_pPlaylistView->SetFocus();
 	return 0;
 }
-
+*/
+/*
 void CMyTabBar::SetCurSel(PlayList* ppl,int index)
 {
 	int nItem;
@@ -1058,6 +1081,7 @@ void CMyTabBar::SetCurSel(PlayList* ppl,int index)
 		}
 	}
 }
+*/
 
 
 	LRESULT  CPlayListManager::OnDbClicked(UINT i,CPoint pt)
@@ -1743,7 +1767,7 @@ void MYTREE_Add_EmptyWnd(MYTREE* tree)
 
 	CPlaceHolderWnd *w=new CPlaceHolderWnd;
 
-	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
+	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN |WS_CLIPSIBLINGS,WS_EX_CLIENTEDGE);
 	
 
 	newTree->setWnd(w->m_hWnd);
