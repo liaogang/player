@@ -469,6 +469,7 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 		MSG_WM_LBUTTONDBLCLK(OnLButtonDblClk)
 
 		//user message
+		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnPlay)
 		MESSAGE_HANDLER(WM_PAUSED,OnPaused)
 		MESSAGE_HANDLER(WM_PAUSE_START,OnResume)
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnStopped)
@@ -485,9 +486,32 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 		bInit=1;
 #endif
 
+		RECT rc;
+		GetClientRect(&rc);
+
+		int width[]={60,-1};
+		SetParts(sizeof(width)/sizeof(width[0]),width);
+
+
+		IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
 		IWantToReceiveMessage(WM_PAUSED);
 		IWantToReceiveMessage(WM_TRACKSTOPPED);
 		IWantToReceiveMessage(WM_PAUSE_START);
+	}
+
+	
+
+	LRESULT OnPlay(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		SetText(0,_T("正在播放"));
+		
+		TrackFormatInfo *info=GetTrackFormatInfo();
+		TCHAR format[256]={0};
+		_stprintf(format,_T("MP3 | %dkpps| %dHz | %s| 0:00 /3:41|"),info->rate,info->nSamplesPerSec ,info->getModeString());
+		
+
+		SetText(1,format);
+		return 0;
 	}
 
 	LRESULT OnPaused(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
@@ -498,18 +522,20 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 
 	LRESULT OnResume(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		SetText(0,_T("正在播放..."));
+		SetText(0,_T("正在播放"));
 		return 0;
 	}
 
 	LRESULT OnStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		SetText(0,_T("已停止.."));
+		SetText(0,_T("已停止"));
+		SetText(1,NULL);
 		return 0;
 	}
 
 	virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
 	{
+		IDonotWantToReceiveMessage(WM_NEW_TRACK_STARTED);	
 		IDonotWantToReceiveMessage(WM_PAUSED);	
 		IDonotWantToReceiveMessage(WM_PAUSE_START);	
 		IDonotWantToReceiveMessage(WM_TRACKSTOPPED);	
@@ -524,12 +550,30 @@ public:
 	DECLARE_WND_SUPERCLASS(_T("MyComboBox"),CComboBox::GetWndClassName())
 
 	BEGIN_MSG_MAP(CMyComboBox)
+		MSG_WM_SETFOCUS(OnSetFocus)
+		REFLECTED_COMMAND_CODE_HANDLER_EX(CBN_CLOSEUP,OnCloseUp)
 		REFLECTED_COMMAND_CODE_HANDLER_EX(CBN_SELCHANGE,OnCbnSelchanged)
 	END_MSG_MAP()
 
 public:
 	LRESULT OnCbnSelchanged(UINT,int id, HWND hWndCtl);
 	HWND CreateIsWnd(HWND parent);
+
+	LRESULT OnCloseUp(UINT uNotifyCode, int nID, CWindow wndCtl)
+	{
+		::SetFocus(m_hWndOld);
+		return 0;
+	}
+
+	//we don't want a focus rect appear around
+	HWND m_hWndOld;
+	void OnSetFocus(CWindow wndOld)
+	{
+		m_hWndOld=wndOld;
+		//::SetFocus(GetMainFrame()->m_hWnd);
+		
+		SetMsgHandled(FALSE);
+	}
 };
 
 class CMySimpleRebar:public CWindowImpl<CMySimpleRebar,CReBarCtrl>

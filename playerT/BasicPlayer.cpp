@@ -120,7 +120,7 @@ void CBasicPlayer::play()
 
 	//m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
 
-	m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MAX);
+	//m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MAX);
 
 	
 
@@ -144,6 +144,13 @@ void CBasicPlayer::play()
 
 	trackPosInfo *posInfo=getTrackPosInfo();
 	m_pFile->GetPos(&(posInfo->used),&(posInfo->left));
+	
+
+	mpg123_frameinfo info;
+	m_pFile->GetFrameInfo(&info);
+	SetTrackFormatInfo(1,info.bitrate,info.rate,info.mode);
+
+
 	NotifyMsg(WM_NEW_TRACK_STARTED,(WPARAM)NULL,0);
 }
 

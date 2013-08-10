@@ -48,15 +48,16 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 	//lastPlayingItem(NULL),
 	//curPlayingItem(NULL),
 	//nextPlayingItem(NULL),
-	//topVisibleIndex(0),
-	//selectedIndex(-1)
+	,topVisibleIndex(0),
+	selectedIndex(-1)
 {
 	m_bMonitor=true;
 	//SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
 }
 
 PlayList::PlayList(std::tstring &name,bool bMonitor):m_bMonitor(bMonitor)
-	,m_fileMonitor(this),m_playlistName(name),pPLV(NULL)
+	,m_fileMonitor(this),m_playlistName(name),pPLV(NULL),	topVisibleIndex(0),
+	selectedIndex(-1)
 {
 	//SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
 }
@@ -316,8 +317,19 @@ _songContainerItem PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 	_songContainer::iterator cur,next;
 
 	_songContainerItem item=GetPlayingItem();
-	cur = m_songList.begin()+item.GetIndex();
-	
+	if(item.isValide())
+		cur = m_songList.begin()+item.GetIndex();
+	else
+	{
+		if(selectedIndex==-1)
+		{
+			if(m_songList.size()>0)
+			return m_songList[0];
+		}
+		else
+			return m_songList[selectedIndex] ;
+	}
+
 // 	for (cur=m_songList.begin();cur!=m_songList.end();++cur)
 // 	{
 // 		if (*cur==MyLib::shared()->GetPlayingItem())break;
@@ -328,7 +340,7 @@ _songContainerItem PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 	if ( cur==m_songList.end()|| ++cur==m_songList.end())
 		return NULL;
 
-	next=MyLib::shared()->GetNextByOrder(--cur);
+	next=MyLib::shared()->GetNextByOrder(m_songList.begin(), --cur ,m_songList.end());
 
 	//if(bMoveCur)curPlayingItem=*next;
 	return *next;

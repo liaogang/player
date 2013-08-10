@@ -1,4 +1,5 @@
 #include "PlayList.h"
+#include "math.h"
 #pragma once
 
 
@@ -138,7 +139,7 @@ public:
 	void SetPlayOrder(enum PlayOrder index){playorder=index;}
 
 	template<class _InIt> inline
-	_InIt GetNextByOrder(_InIt _cur)
+	_InIt GetNextByOrder(_InIt _beg , _InIt _cur ,_InIt _end)
 	{
 		_InIt next;
 
@@ -148,7 +149,9 @@ public:
 		}
 		else if (playorder==Repeat_playlist)
 		{
-			next=++(++_cur);
+			next=++_cur;
+			if(next==_end)
+				next=_beg;
 		}
 		else if (playorder==Repeat_track)
 		{
@@ -156,7 +159,9 @@ public:
 		}
 		else if (playorder==Random)
 		{
-			next=++_cur;
+			srand(time(NULL));
+			int n=rand() % (_end - _beg) - 1;
+			next=_beg + n;
 		}
 		else if (playorder==Shuffle_tracks)
 		{

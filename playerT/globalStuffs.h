@@ -150,7 +150,11 @@ trackPosInfo *getTrackPosInfo();
 struct TrackFormatInfo
 {
 	int type;
-	int rate;
-	DWORD  nSamplesPerSec;
+	int rate;//kpbs
+	DWORD  nSamplesPerSec;//Hz
 	int mode; 
+	const TCHAR* getModeString();
 };
+
+void SetTrackFormatInfo(int type,int rate,int samplesps,int mode);
+TrackFormatInfo* GetTrackFormatInfo();

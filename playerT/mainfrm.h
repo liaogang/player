@@ -105,7 +105,9 @@ public:
 		MESSAGE_HANDLER(WM_PLAY_DIRECTLY,OnPlayDirectly)
 		MESSAGE_HANDLER(WM_FILE_FINDED,OnFileFinded)
 		MESSAGE_HANDLER(WM_DRAWSPECTRUM,OnDrawSpectrum)
-		
+		MESSAGE_HANDLER(WM_HOTKEY,OnHotKey)
+
+
 		//user message
 		MESSAGE_HANDLER(WM_ADDFOLDERED,OnAddFolder)
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
@@ -246,6 +248,10 @@ public:
 		return 0;
 	}
 
+	LRESULT OnHotKey(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+
+
+
 public:
 
 	LRESULT OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -299,7 +305,9 @@ public:
 	//when  player booted
 	void InitData();
 	void InitUILayout();
-	
+
+	int HotKeyId;
+	void RegisterMyHotKeys();
 	
 
 	//when player is shuting down

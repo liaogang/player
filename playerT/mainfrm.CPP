@@ -26,6 +26,46 @@
 using namespace std;
 
 
+void CMainFrame::RegisterMyHotKeys()
+{
+	// 获取当前窗口句柄 
+	HWND handle = m_hWnd;
+	//得到热键的唯一标识
+	HotKeyId = GlobalAddAtom(_T("Player_LG_HotKey")); 
+	//注册全局热键Alt + F8
+	RegisterHotKey(handle,HotKeyId,NULL, VK_MEDIA_NEXT_TRACK);
+	RegisterHotKey(handle,HotKeyId,NULL, VK_MEDIA_STOP);
+	RegisterHotKey(handle,HotKeyId,NULL, VK_MEDIA_PLAY_PAUSE);
+}
+
+
+LRESULT CMainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+
+	UINT fuModifiers = (UINT) LOWORD(lParam);  // key-modifier flags   
+	UINT uVirtKey = (UINT) HIWORD(lParam);     // virtual-key code    
+	UINT nChar=uVirtKey;
+
+	//Next Tract
+	if(nChar == VK_MEDIA_NEXT_TRACK)
+		OnPlayNext(0,0,0,bHandled);
+
+	//Prev track
+	//if(nChar == VK_MEDIA_PREV_TRACK)
+
+	//Stop
+	if(nChar == VK_MEDIA_STOP)
+		OnStop(0,0,0,bHandled);
+
+	//Play or Pause
+	if(nChar == VK_MEDIA_PLAY_PAUSE    )
+		OnPause(0,0,0,bHandled);
+
+
+	bHandled=TRUE;
+
+	return 0;
+}
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
@@ -40,22 +80,6 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 		if(nChar=='f' ||nChar=='F')
 			if (GetKeyState(VK_CONTROL) & 0x80)
 				ShowSearchDialog();
-
-		//Next Tract
-		if(nChar == VK_MEDIA_NEXT_TRACK)
-			OnPlayNext(0,0,0,bHandled);
-
-		//Prev track
-		//if(nChar == VK_MEDIA_PREV_TRACK)
-
-		//Stop
-		if(nChar == VK_MEDIA_STOP)
-			OnStop(0,0,0,bHandled);
-
-		//Play or Pause
-		if(nChar == VK_MEDIA_PLAY_PAUSE    )
-			OnPause(0,0,0,bHandled);
-
 			//Ctrl + P
 		if(nChar == 'P' || nChar =='p')
 			if (GetKeyState(VK_CONTROL) & 0x80)
@@ -178,9 +202,13 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	ValidateCfg();
 
+	RegisterMyHotKeys();
+
 	SetMsgHandled(FALSE);
 	return 0;
 }
+
+
 
 void CMainFrame::InitUILayout()
 {
@@ -764,6 +792,8 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 	wcscpy(tmp,track->artist.c_str());
 	wcscat(tmp,L" - ");
 	wcscat(tmp,track->title.c_str());
+	
+	//todo
 	GetMainFrame()->m_pStatus->SetText(0,tmp);
 
 
@@ -1881,10 +1911,12 @@ CMainFrame::~CMainFrame()
 void CMainFrame::OnFinalMessage(_In_ HWND /*hWnd*/)
 {
 	CollectInfo();
-
-
 	//save to file 
 	SaveCoreCfg();
+
+	UnregisterHotKey(m_hWnd, HotKeyId); 
+
+	GlobalDeleteAtom(HotKeyId);
 }
 
 

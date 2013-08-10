@@ -92,9 +92,35 @@ trackPosInfo *getTrackPosInfo()
 
 
 //  Only the mono mode has 1 channel, the others have 2 channels.
-TCHAR * mp3_mode[] = {
-	_T("MPG123_M_STEREO"),	/**< Standard Stereo. */
-	_T("MPG123_M_JOINT"),		/**< Joint Stereo. */
-	_T("MPG123_M_DUAL"),		/**< Dual Channel. */
-	_T("MPG123_M_MONO")/**< Single Channel. */
+const TCHAR * mp3_mode[] = {
+	_T("stereo"),	/**< Standard Stereo. */
+	_T("joint"),		/**< Joint Stereo. */
+	_T("dual"),		/**< Dual Channel. */
+	_T("mono")/**< Single Channel. */
 };
+
+const TCHAR* TrackFormatInfo::getModeString()
+{
+	return mp3_mode[mode];
+}
+
+
+
+
+static TrackFormatInfo *gTrackFormatInfo;
+void SetTrackFormatInfo(int type,int rate,int samplesps,int mode)
+{
+	if(gTrackFormatInfo==nullptr)
+		gTrackFormatInfo=new TrackFormatInfo;
+
+	gTrackFormatInfo->type=type;
+	gTrackFormatInfo->rate=rate;
+	gTrackFormatInfo->nSamplesPerSec=samplesps;
+	gTrackFormatInfo->mode=mode;
+	
+}
+
+TrackFormatInfo* GetTrackFormatInfo()
+{
+	return gTrackFormatInfo;
+}
