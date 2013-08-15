@@ -55,6 +55,8 @@ void CBasicPlayer::ResetFile()
 //100 by ,the max volume
 void CBasicPlayer:: SetVolumeByEar(int vol)
 {
+	if(vol>50)return;
+
 	m_curVolume=vol;
 
 	int index=vol/2;

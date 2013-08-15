@@ -27,15 +27,18 @@ public:
 
 		const TCHAR * columnName[]={
 			_T("播放列表名称"),
-			_T("项目")};
+			_T("项目"),
+			_T("属性")};
 
 		const UINT alignment[]={
-			LVCFMT_RIGHT,
-			LVCFMT_LEFT};
+			LVCFMT_LEFT,
+			LVCFMT_LEFT,
+			LVCFMT_RIGHT};
 
 		const TCHAR* columnNamePlaceHoder[]={
 			_T("                                   "),
-			_T("Artist")};
+			_T("Artist"),
+			_T("属性")};
 
 		const int cxOffset = 15;
 

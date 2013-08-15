@@ -121,7 +121,7 @@ public:
 
 	
 	static	BOOL SavePlaylist(PlayList *pl,LPTSTR filepath);
-	PlayList* LoadPlaylist(LPTSTR filepath);
+	PlayList* LoadPlaylist(LPTSTR filepath,TCHAR* PlName=NULL);
 
 
 	//-----------------------------------------

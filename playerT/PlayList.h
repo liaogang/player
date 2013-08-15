@@ -210,7 +210,7 @@ public:
 
 	std::tstring       m_playlistName;
 	void Rename(TCHAR *newName){m_playlistName=newName;}
-	std::tstring       m_saveLocation;
+	//std::tstring       m_saveLocation;
 
 public:
 	//void SetSelectedItem(int index){curSelectedItem=m_songList[index];}
@@ -225,7 +225,7 @@ public:
 	_songContainerItem nextTrack();
 public:
 	PlayList(void);
-	PlayList(std::tstring &name);
+	//PlayList(std::tstring &name);
 	PlayList(std::tstring &name,bool bMonitor=false);
 	~PlayList(void);
 

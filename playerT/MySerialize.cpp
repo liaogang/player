@@ -278,14 +278,13 @@ BOOL MyLib::SavePlaylist(PlayList *pl,LPTSTR filepath)
 	pFile = _tfopen((LPCTSTR)filepath , _T("wb") );
 	if (pFile!=NULL){
 		result=pl->Serialize(pFile);
-		pl->m_saveLocation=filepath;
 		fclose (pFile);
 	}
 
 	return result;
 }
 
-PlayList* MyLib::LoadPlaylist(LPTSTR filepath)
+PlayList* MyLib::LoadPlaylist(LPTSTR filepath,TCHAR* PlName)
 {
 	PlayList *playlist=NULL;
 	BOOL result=FALSE;
@@ -294,8 +293,13 @@ PlayList* MyLib::LoadPlaylist(LPTSTR filepath)
 	pFile = _tfopen ((LPCTSTR)filepath, _T("rb") );
 	if (pFile)
 	{
-		playlist=new PlayList;
-		playlist->m_saveLocation=filepath;
+		playlist=new PlayList();
+		if(PlName!=NULL)
+		{
+			tstring PLName2=PlName;
+			playlist->m_playlistName=PlName;
+		}
+
 		result=playlist->ReSerialize(pFile);
 		m_playLists.push_back(playlist);
 		SetActivePlaylist(playlist);
@@ -310,6 +314,71 @@ PlayList* MyLib::LoadPlaylist(LPTSTR filepath)
 	return playlist;
 }
 
+bool LoadAllPlayList()
+{
+	if(!ChangeCurDir2PlaylistPath())
+		return false;
+
+	FILE * pFile=NULL;
+	BOOL   bLoaded=TRUE;
+	pFile = _tfopen( PLAYLISTINDEXFILE , _T("rb") );
+	if (pFile!=NULL)
+	{	
+		int totalNum=0;
+		::ReSerialize(pFile,&totalNum);
+
+		for (int i=0;i<totalNum;++i)
+		{
+			int nIndex;
+			tstring name;
+			TCHAR path[MAX_PATH];
+			::ReSerialize(pFile,&nIndex);
+			::ReSerialize(pFile,&name);
+
+			wsprintf(path,_T("%08d.pl"),nIndex);
+			
+			MyLib::shared()->LoadPlaylist((LPTSTR)path,(TCHAR*)name.c_str());
+		}
+	}
+
+	return bLoaded;
+}
+
+bool SaveAllPlayList()
+{
+	if(!ChangeCurDir2PlaylistPath(true))
+		return false;
+	
+
+	FILE * pFile=NULL;
+	
+	pFile = _tfopen( PLAYLISTINDEXFILE , _T("wb") );
+	if (pFile!=NULL)
+	{	
+		int totalNum=MyLib::shared()->m_playLists.size();
+		::Serialize(pFile,totalNum);
+
+		for (int i=0;i<totalNum;++i)
+		{
+			int nIndex=i+1;
+			auto i2=MyLib::shared()->m_playLists[i];
+			tstring name=(*i2).m_playlistName;
+
+			::Serialize(pFile,nIndex);
+			::Serialize(pFile,name);
+
+
+			TCHAR path[MAX_PATH];
+
+			wsprintf(path,_T("%08d.pl"),nIndex);
+
+			MyLib::shared()->SavePlaylist(&(*i2),(LPTSTR)path);
+		}
+	}
+
+	return true;
+}
+
 bool SaveCoreCfg()
 {
 	FILE * pFile;
@@ -317,15 +386,18 @@ bool SaveCoreCfg()
 	pFile = _tfopen( CFGFILENAME , _T("wb") );
 	if (pFile!=NULL)
 	{	
+		int len;
 		/*******************************************/
 		//playlist section
-		int len=MyLib::shared()->m_playLists.size();
-		::Serialize(pFile,len);
+// 		int len=MyLib::shared()->m_playLists.size();
+// 		::Serialize(pFile,len);
+// 		
+// 		
+// 		for (auto i=MyLib::shared()->m_playLists.begin();i!=MyLib::shared()->m_playLists.end();++i)
+// 			::Serialize(pFile,(*i)->m_saveLocation);
 		
-		
-		for (auto i=MyLib::shared()->m_playLists.begin();i!=MyLib::shared()->m_playLists.end();++i)
-			::Serialize(pFile,(*i)->m_saveLocation);
-		
+
+		SaveAllPlayList();
 
 		/*******************************************/
 		//lrc section
@@ -363,15 +435,17 @@ bool LoadCoreCfg()
 		//playlists
 		int size=0;
 
-		::ReSerialize(pFile,&size);
-		while (size) 
-		{
-			std::tstring playlistLocation;
-			::ReSerialize(pFile,&playlistLocation);
-			MyLib::shared()->LoadPlaylist(const_cast<LPTSTR>(playlistLocation.c_str()));
-			
-			size--;
-		} 
+// 		::ReSerialize(pFile,&size);
+// 		while (size) 
+// 		{
+// 			std::tstring playlistLocation;
+// 			::ReSerialize(pFile,&playlistLocation);
+// 			MyLib::shared()->LoadPlaylist(const_cast<LPTSTR>(playlistLocation.c_str()));
+// 			
+// 			size--;
+// 		} 
+		
+		LoadAllPlayList();
 
 		/*******************************************/
 		//lrc dir list

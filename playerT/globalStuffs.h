@@ -29,6 +29,7 @@ MYTREE *UISplitterTreeRoot();
 
 #define CFGFILENAME _T("Cfg")
 #define UIFILENAME  _T("UsrInterfaceCfg")
+#define PLAYLISTINDEXFILE _T("index.dat")
 bool LoadCoreCfg();
 bool SaveCoreCfg();
 

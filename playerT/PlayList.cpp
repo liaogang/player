@@ -51,7 +51,7 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 	,topVisibleIndex(0),
 	selectedIndex(-1)
 {
-	m_bMonitor=true;
+	//m_bMonitor=true;
 	//SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
 }
 
@@ -59,25 +59,32 @@ PlayList::PlayList(std::tstring &name,bool bMonitor):m_bMonitor(bMonitor)
 	,m_fileMonitor(this),m_playlistName(name),pPLV(NULL),	topVisibleIndex(0),
 	selectedIndex(-1)
 {
-	//SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
-}
 
- PlayList::PlayList(std::tstring &name):
-	//lastPlayingItem(NULL),
-	//curPlayingItem(NULL),
-	//nextPlayingItem(NULL),
-	topVisibleIndex(0),
-	selectedIndex(-1),m_fileMonitor(this),m_playlistName(name)
-	,pPLV(NULL)
- {
 	m_playlistName=name;
-	m_saveLocation=m_playlistName+_T(".pl");
+	//m_saveLocation=m_playlistName+_T(".pl");
 
 
-	m_bMonitor=true;
+	//m_bMonitor=true;
 
 	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
- }
+}
+
+//  PlayList::PlayList(std::tstring &name):
+// 	//lastPlayingItem(NULL),
+// 	//curPlayingItem(NULL),
+// 	//nextPlayingItem(NULL),
+// 	topVisibleIndex(0),
+// 	selectedIndex(-1),m_fileMonitor(this),m_playlistName(name)
+// 	,pPLV(NULL)
+//  {
+// 	m_playlistName=name;
+// 	//m_saveLocation=m_playlistName+_T(".pl");
+// 
+// 
+// 	m_bMonitor=true;
+// 
+// 	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
+//  }
 
 
 PlayList::~PlayList(void)

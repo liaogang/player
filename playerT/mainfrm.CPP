@@ -479,9 +479,9 @@ void CPlayListManager::AddPlayList(PlayList *pPL)
 
 	InsertItem(item,pPL->m_playlistName.c_str());
 	SetItemText(item,1,strCount);
+	SetItemText(item,2,pPL->m_bMonitor?_T("自动列表"):_T("普通列表"));
 	SetItemData(item,(DWORD_PTR)pPL);
-	++item;
-
+	//++item;
 }
 
 void CPlayListManager::DelPlayList(PlayList *pPL)
@@ -1186,16 +1186,16 @@ LRESULT CMyTabBar::OnPlOpenFolder(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl
 	PlayList* pl= GetTabPlayList(RtBtnTab);
 	if(pl)
 	{
-		std::tstring parameters(_T("/select,"));
-		parameters+=pl->m_saveLocation;
-
-		ShellExecute(NULL,
-			_T("open"),
-			_T("explorer"),
-			parameters.c_str(),
-			0,
-			SW_SHOWNORMAL
-			);
+// 		std::tstring parameters(_T("/select,"));
+// 		parameters+=pl->m_saveLocation;
+// 
+// 		ShellExecute(NULL,
+// 			_T("open"),
+// 			_T("explorer"),
+// 			parameters.c_str(),
+// 			0,
+// 			SW_SHOWNORMAL
+// 			);
 	}
 
 	return 0;

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-void ChangeCurDir2ModulePath(HINSTANCE hInstance)
+const TCHAR* ChangeCurDir2ModulePath(HINSTANCE hInstance)
 {
 	static BOOL modulePathGetted=FALSE;
 	static TCHAR moduleFileName[MAX_PATH]={0};
@@ -15,4 +15,28 @@ void ChangeCurDir2ModulePath(HINSTANCE hInstance)
 	}
 
 	_tchdir(moduleFileName);
+	return moduleFileName;
+}
+
+
+bool ChangeCurDir2PlaylistPath(bool bCreate)
+{
+	static TCHAR PlayListPath[MAX_PATH]={0};
+	const TCHAR *modulePath=ChangeCurDir2ModulePath(NULL);
+
+	if(PlayListPath[0]=='\0')
+	{
+		_tcscpy(PlayListPath,modulePath);
+		_tcscat(PlayListPath,_T("\\playlists"));
+	}
+
+	if(_tchdir(PlayListPath)==0)
+		return true;
+	else
+	{
+		if(bCreate)
+			//if the path not exist, create a new directory.
+			_wmkdir(_T("playlists"));
+		return _tchdir(PlayListPath)==0;
+	}
 }
