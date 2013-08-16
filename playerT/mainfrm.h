@@ -63,6 +63,9 @@ public:
 	DialogPLManager *m_pDlgPLMng;
 	CDialogConsole  *m_pDlgConsole;
 	CMultiSpliltWnd *m_pWndMultiSplitter;
+
+	UINT m_nIDEvent;
+	static const int m_uElapse=500;
 public:
 	CMainFrame():m_dlgLrc(NULL),
 		m_pTrackBar(NULL),m_pVolumeBar(NULL),
@@ -117,6 +120,8 @@ public:
 		MESSAGE_HANDLER(WM_PL_TRACKNUM_CHANGED,OnPLTrackNumChanged)
 		//user message
 
+		MSG_WM_TIMER(OnTimer)
+
 		COMMAND_ID_HANDLER(ID_EDIT_SEARCH, OnEditSearch)
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_NEW, OnFileNew)
@@ -152,7 +157,10 @@ public:
 	END_MSG_MAP()
 
 
-
+	void OnTimer(UINT_PTR /*nIDEvent*/)
+	{
+		NotifyMsg(WM_USER_TIMER);
+	}
 
 	LRESULT OnNotify2(int idCtrl, LPNMHDR pnmh);
 	

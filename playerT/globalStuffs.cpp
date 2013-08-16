@@ -83,11 +83,7 @@ void SetHighestMatchLrc(LrcMatchItem &item){highestmatchlrc=item;}
 
 
 
-static trackPosInfo curPosInfo;
-trackPosInfo *getTrackPosInfo()
-{
-	return &curPosInfo;
-}
+
 
 
 
@@ -107,20 +103,8 @@ const TCHAR* TrackFormatInfo::getModeString()
 
 
 
-static TrackFormatInfo *gTrackFormatInfo;
-void SetTrackFormatInfo(int type,int rate,int samplesps,int mode)
-{
-	if(gTrackFormatInfo==nullptr)
-		gTrackFormatInfo=new TrackFormatInfo;
 
-	gTrackFormatInfo->type=type;
-	gTrackFormatInfo->rate=rate;
-	gTrackFormatInfo->nSamplesPerSec=samplesps;
-	gTrackFormatInfo->mode=mode;
-	
-}
 
-TrackFormatInfo* GetTrackFormatInfo()
-{
-	return gTrackFormatInfo;
-}
+
+
+

@@ -12,6 +12,41 @@
 using namespace std;
 
 
+static TrackFormatInfo *gTrackFormatInfo;
+void SetTrackFormatInfo(int type,int rate,int samplesps,int mode)
+{
+	if(gTrackFormatInfo==nullptr)
+		gTrackFormatInfo=new TrackFormatInfo;
+
+	gTrackFormatInfo->type=type;
+	gTrackFormatInfo->rate=rate;
+	gTrackFormatInfo->nSamplesPerSec=samplesps;
+	gTrackFormatInfo->mode=mode;
+}
+
+
+TrackFormatInfo* GetTrackFormatInfo()
+{
+	mpg123_frameinfo info;
+	CBasicPlayer::shared()->m_pFile->GetFrameInfo(&info);
+	SetTrackFormatInfo(1,info.bitrate,info.rate,info.mode);
+
+
+	return gTrackFormatInfo;
+}
+
+
+static trackPosInfo curPosInfo;
+trackPosInfo *getTrackPosInfo()
+{
+	CBasicPlayer::shared()->m_pFile->GetPos(&(curPosInfo.used),&(curPosInfo.left));
+
+	return &curPosInfo;
+}
+
+
+
+///////////////////////////////////////
 
  CBasicPlayer* CBasicPlayer::shared()
  {
@@ -138,23 +173,9 @@ void CBasicPlayer::play()
 
 	//TimerVolGrowUp();
 
-
-	
-	
-	
-
-
-	trackPosInfo *posInfo=getTrackPosInfo();
-	m_pFile->GetPos(&(posInfo->used),&(posInfo->left));
-	
-
-	mpg123_frameinfo info;
-	m_pFile->GetFrameInfo(&info);
-	SetTrackFormatInfo(1,info.bitrate,info.rate,info.mode);
-
-
 	NotifyMsg(WM_NEW_TRACK_STARTED,(WPARAM)NULL,0);
 }
+
 
 
 

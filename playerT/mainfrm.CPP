@@ -106,6 +106,9 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	SetWindowText(GetAppName());
 
+	SetTimer((UINT_PTR)&m_nIDEvent,m_uElapse,NULL);
+
+
 	// create command bar window
 	HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
 	// attach menu
@@ -1900,7 +1903,26 @@ void MYTREE_Add_SpectrumView(MYTREE* tree)
 	tree->ReCalcChildsRect();
 }
 
+void CMyStatusBar::UpdateTrackInfoText()
+{
+	if(!MyLib::shared()->isPlaying())
+		return;
 
+	int totalSec=getTrackPosInfo()->used+getTrackPosInfo()->left;
+	int minute=totalSec / 60;
+	int sec=totalSec - minute*60 ;
+
+	int usedtotalSec=getTrackPosInfo()->used;
+	int usedMinute=usedtotalSec/60;
+	int usedSec=usedtotalSec - usedMinute*60;
+
+	TrackFormatInfo *info=GetTrackFormatInfo();
+	TCHAR format[256]={0};
+	_stprintf(format,_T("MP3 | %d kbps | %d Hz | %s | %d:%02d / %d:%02d"),info->rate,info->nSamplesPerSec ,info->getModeString(),usedMinute,usedSec,minute,sec);
+
+
+	SetText(0,format);
+}
 
 CMainFrame::~CMainFrame()
 {
@@ -1910,6 +1932,9 @@ CMainFrame::~CMainFrame()
 
 void CMainFrame::OnFinalMessage(_In_ HWND /*hWnd*/)
 {
+
+	KillTimer(m_nIDEvent);
+
 	CollectInfo();
 	//save to file 
 	SaveCoreCfg();

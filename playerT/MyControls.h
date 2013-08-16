@@ -469,10 +469,11 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 		MSG_WM_LBUTTONDBLCLK(OnLButtonDblClk)
 
 		//user message
-		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnPlay)
-		MESSAGE_HANDLER(WM_PAUSED,OnPaused)
-		MESSAGE_HANDLER(WM_PAUSE_START,OnResume)
-		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnStopped)
+// 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnPlay)
+// 		MESSAGE_HANDLER(WM_PAUSED,OnPaused)
+// 		MESSAGE_HANDLER(WM_PAUSE_START,OnResume)
+// 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnStopped)
+		MESSAGE_HANDLER(WM_USER_TIMER,OnTimer)
 	END_MSG_MAP()
 
 	//双击状态栏,激活当前播放音轨
@@ -486,59 +487,62 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 		bInit=1;
 #endif
 
-		RECT rc;
-		GetClientRect(&rc);
+// 		RECT rc;
+// 		GetClientRect(&rc);
+// 
+// 		int width[]={rc.right-rc.left-260,-1};
+// 		SetParts(sizeof(width)/sizeof(width[0]),width);
 
-		int width[]={60,-1};
-		SetParts(sizeof(width)/sizeof(width[0]),width);
 
+// 		IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
+// 		IWantToReceiveMessage(WM_PAUSED);
+// 		IWantToReceiveMessage(WM_TRACKSTOPPED);
+// 		IWantToReceiveMessage(WM_PAUSE_START);
 
-		IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
-		IWantToReceiveMessage(WM_PAUSED);
-		IWantToReceiveMessage(WM_TRACKSTOPPED);
-		IWantToReceiveMessage(WM_PAUSE_START);
+		IWantToReceiveMessage(WM_USER_TIMER);
 	}
+
+	void UpdateTrackInfoText();
 
 	
 
 	LRESULT OnPlay(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		SetText(0,_T("正在播放"));
-		
-		TrackFormatInfo *info=GetTrackFormatInfo();
-		TCHAR format[256]={0};
-		_stprintf(format,_T("MP3 | %dkpps| %dHz | %s| 0:00 /3:41|"),info->rate,info->nSamplesPerSec ,info->getModeString());
-		
+		//UpdateTrackInfoText();
 
-		SetText(1,format);
 		return 0;
 	}
 
 	LRESULT OnPaused(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		SetText(0,_T("已暂停"));
 		return 0;
 	}
 
 	LRESULT OnResume(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		SetText(0,_T("正在播放"));
 		return 0;
 	}
 
 	LRESULT OnStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		SetText(0,_T("已停止"));
-		SetText(1,NULL);
+		return 0;
+	}
+
+	
+	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		UpdateTrackInfoText();
 		return 0;
 	}
 
 	virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
 	{
-		IDonotWantToReceiveMessage(WM_NEW_TRACK_STARTED);	
-		IDonotWantToReceiveMessage(WM_PAUSED);	
-		IDonotWantToReceiveMessage(WM_PAUSE_START);	
-		IDonotWantToReceiveMessage(WM_TRACKSTOPPED);	
+// 		IDonotWantToReceiveMessage(WM_NEW_TRACK_STARTED);	
+// 		IDonotWantToReceiveMessage(WM_PAUSED);	
+// 		IDonotWantToReceiveMessage(WM_PAUSE_START);	
+// 		IDonotWantToReceiveMessage(WM_TRACKSTOPPED);
+
+		IDonotWantToReceiveMessage(WM_USER_TIMER);
 	}
 };
 

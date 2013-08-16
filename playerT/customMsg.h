@@ -55,3 +55,6 @@ struct trackPosInfo
 //the playlist view 's color need to change
 #define WM_PLAYLISTVIEW_COLOR_DEFAULT  (WM_USER+55)
 #define WM_PLAYLISTVIEW_COLOR_BLUE   (WM_USER+56)
+
+
+#define WM_USER_TIMER (WM_USER+57)

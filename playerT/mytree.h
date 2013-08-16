@@ -539,7 +539,7 @@ public:
 			{
 				curRC.left=lastV;
 				curRC.right=curRC.left + curW ;
-				lastV=curRC.right+1;
+				lastV=curRC.right;
 				curRC.right-=data.m_iSplitterBar;
 			}
 			else

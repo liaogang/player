@@ -397,7 +397,7 @@ bool SaveCoreCfg()
 // 			::Serialize(pFile,(*i)->m_saveLocation);
 		
 
-		SaveAllPlayList();
+		
 
 		/*******************************************/
 		//lrc section
@@ -416,6 +416,8 @@ bool SaveCoreCfg()
 
 		fclose (pFile);
 	}
+
+	SaveAllPlayList();
 
 	SaveUICfg();
 
@@ -445,7 +447,7 @@ bool LoadCoreCfg()
 // 			size--;
 // 		} 
 		
-		LoadAllPlayList();
+	
 
 		/*******************************************/
 		//lrc dir list
@@ -473,8 +475,10 @@ bool LoadCoreCfg()
 		fclose (pFile);
 	}
 
-	LoadUICfg();
+	LoadAllPlayList();
 
+	LoadUICfg();
+	
 	return TRUE;
 }
 
