@@ -26,17 +26,13 @@ protected:
 public:
 	inline int GetPlayingIdx(){return nItemPlaying;}
 	inline void SetPlayingIdx(int i){nItemPlaying=i;}
-	inline void SetPlayList(PlayList * pPlayList){
-		m_pPlayList=pPlayList;
-		if (m_pPlayList)
-			m_pPlayList->pPLV=this;
-	}
+	inline void SetPlayList(PlayList * pPlayList){m_pPlayList=pPlayList;}
 	inline PlayList * GetPlayList(){return m_pPlayList;}
 
 
 public:
 
-	PlayListItem *m_pPlayTrack;
+	//PlayListItem *m_pPlayTrack;
 
 	BOOL bAuto,bDeletable;
 	HMENU menu;
@@ -48,7 +44,7 @@ public:
 	m_bSearch(bSearch),
 		bAuto(FALSE),
 		bDeletable(!bAuto),
-		m_pPlayTrack(NULL),m_bC(TRUE),nItemPlaying(-1)
+		m_bC(TRUE),nItemPlaying(-1)//m_pPlayTrack(NULL),
 	{
 		SetPlayList(NULL);
 		menu=LoadPlaylistMenu();
@@ -408,7 +404,7 @@ public:
 				return;
 
 			//从vector删除某项,需要重新搬家,很费时.
-			int blockBeg=0,blockLast;
+			int blockBeg,blockLast;
 
 
 			int nCount=GetItemCount();
@@ -417,16 +413,13 @@ public:
 			bool *itemDel=new bool[nCount];
 			memset(itemDel,0,nCount*sizeof(bool));
 
-			int nItem=-1;
+			int nItem=blockBeg=GetNextItem(-1,LVIS_SELECTED);
 			while(-1!=(nItem=GetNextItem(nItem,LVIS_SELECTED)) )
 			{
-				if(!blockBeg)blockBeg=nItem;
 				itemDel[nItem]=true;
 				blockLast=nItem;
 				++countToDel;
 			}
-
-
 
 			//isEntireBlock?			
 			if ((blockLast-blockBeg+1)==countToDel)
@@ -635,8 +628,8 @@ public:
 
 	void LoadPlayList(PlayList *pPlayList)
 	{
-		if (GetPlayList())
-			GetPlayList()->pPLV=NULL;
+// 		if (GetPlayList())
+// 			GetPlayList()->pPLV=NULL;
 
 		SetItemCount(pPlayList->m_songList.size());
 		SetPlayList(pPlayList);
@@ -645,7 +638,8 @@ public:
 
 	void ClearAllItem()
 	{
-		SetItemCount(0);
+		DeleteAllItems();
+		//SetItemCount(0);
 	}
 
 	void SelectAndFocusItem(int item)

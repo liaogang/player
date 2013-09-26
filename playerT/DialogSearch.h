@@ -62,8 +62,11 @@ public:
 		if (!searchPl)
 			searchPl=new PlayList;
 		else
+		{
+			m_list.ClearAllItem();
+			m_list.SetPlayingIdx(0);
 			searchPl->m_songList.clear();
-
+		}
 
 		TCHAR buf[MAX_PATH];
 		::GetWindowText(::GetDlgItem(m_hWnd,IDC_EDIT),buf,MAX_PATH);
@@ -71,7 +74,7 @@ public:
 		//空格分开的字符,当成多个字符
 		if (buf[0]=='\0')
 		{
-			m_list.SetItemCount(0);
+			m_list.ClearAllItem();
 			return 0;
 		}
 
@@ -79,12 +82,12 @@ public:
 		int a,b;
 		a=strBuf.find_first_not_of(' ');
 		if (a==std::tstring::npos){
-			m_list.SetItemCount(0);
+			m_list.ClearAllItem();
 			return 0;
 		}
 		b=strBuf.find_last_not_of(' ');
 		
-		if (b<a) {m_list.SetItemCount(0);return 0;}
+		if (b<a) {m_list.ClearAllItem();return 0;}
 		strBuf=strBuf.substr(a,b+1-a);
 
 
@@ -98,17 +101,11 @@ public:
 		}
 
 		if (searchPl->m_songList.size()>0)
-		{
 			m_list.Reload(searchPl,-1);
-			m_list.SetItemState(0,LVIS_FOCUSED|
-				LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);	
-		}
 		else
-		{
-			m_list.SetItemCount(0);
-		}
+			m_list.ClearAllItem();
 		
-		
+
 		return 0;
 	}
 

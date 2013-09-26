@@ -3,7 +3,7 @@
 class MyConfigs:public SerializeObj
 {
 public:
-	MyConfigs():bResumeOnReboot(1),playersVolume(100)
+	MyConfigs():bResumeOnReboot(1),playersVolume(100),playorder(0)
 	{
 
 	}
@@ -32,6 +32,8 @@ public:
 	//播放器的音量
 	int playersVolume;
 
+	//播放次序
+	int playorder;
 };
 
 MyConfigs* GetMyConfigs();

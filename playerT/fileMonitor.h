@@ -65,7 +65,7 @@ public:
 
 
 public:
-	OverlappedEx myOverLapped;
+	OverlappedEx myOverLapped;   
 	HANDLE hDir;
 	HANDLE hWatch;
 	bool bShouldWatch;

@@ -26,21 +26,37 @@ MYTREE *UISplitterTreeRoot();
 
 
 
-
-#define CFGFILENAME _T("Cfg")
-#define UIFILENAME  _T("UsrInterfaceCfg")
+/************************************************************************/
+/*                                                                      */
+/************************************************************************/
 #define PLAYLISTINDEXFILE _T("index.dat")
-bool LoadCoreCfg();
+bool SaveAllPlayList();
+bool LoadAllPlayList();
+
+#define CFGFILENAME _T("core.cfg")
+
+//Lrc and global configs
 bool SaveCoreCfg();
-
-bool LoadUICfg();
-bool SaveUICfg();
-
+bool LoadCoreCfg();
 
 void CollectInfo();
 void ValidateCfg();
 
 
+//Splitter window info
+#define UIFILENAME  _T("ui.cfg")
+bool LoadUICfg();
+bool SaveUICfg();
+
+
+void SaveAll();
+bool LoadAll();
+
+
+
+/************************************************************************/
+/*                                                                      */
+/************************************************************************/
 
 //保存当前播放项目的序号
 // int GetPlayingIndex();

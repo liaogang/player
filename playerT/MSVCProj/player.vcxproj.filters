@@ -27,9 +27,6 @@
     <ClInclude Include="..\aboutdlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\atlsplit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\BasicPlayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -46,9 +43,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\CMyTabBar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\CPropertyDlgs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\CriticalSection.h">
@@ -145,9 +139,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\PlayListViewMng.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ProgertyDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\resource.h">
@@ -652,6 +643,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\WuLines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DlgProgerty.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -12,14 +12,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\aboutdlg.h" />
-    <ClInclude Include="..\atlsplit.h" />
     <ClInclude Include="..\BasicPlayer.h" />
     <ClInclude Include="..\CAlbumCoverView.h" />
     <ClInclude Include="..\CCtrlViewBase.h" />
     <ClInclude Include="..\CImg.h" />
     <ClInclude Include="..\CMyLyric.h" />
     <ClInclude Include="..\CMyTabBar.h" />
-    <ClInclude Include="..\CPropertyDlgs.h" />
     <ClInclude Include="..\CriticalSection.h" />
     <ClInclude Include="..\customMsg.h" />
     <ClInclude Include="..\DialogConfig.h" />
@@ -53,7 +51,7 @@
     <ClInclude Include="..\PlayListManager.h" />
     <ClInclude Include="..\PlayListView.h" />
     <ClInclude Include="..\PlayListViewMng.h" />
-    <ClInclude Include="..\ProgertyDlg.h" />
+    <ClInclude Include="..\DlgProgerty.h" />
     <ClInclude Include="..\resource.h" />
     <ClInclude Include="..\SearchLyric.h" />
     <ClInclude Include="..\SpectrumAnalyser.h" />

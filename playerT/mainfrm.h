@@ -7,6 +7,7 @@
 #include "customMsg.h"
 #include "AboutDlg.h"
 #include "forwardMsg.h"
+#include "MySerialize.h"
 
 #ifndef _MAINFRAME_H
 #define _MAINFRAME_H
@@ -41,40 +42,66 @@ class CMainFrame :
 	public CFrameWindowImpl<CMainFrame>, 
 	public CUpdateUI<CMainFrame>,
 	public CMessageFilter, 
-	public CIdleHandler
+	public CIdleHandler,
+	public SerializeObj
 {
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 public:
+	//周边窗口
+	CMySimpleRebar *m_pRebar;
 	CMyTrackBar *m_pTrackBar;
 	CMyVolumeBar *m_pVolumeBar;
-	CMySimpleRebar *m_pRebar;
-
-	CCommandBarCtrl m_CmdBar;
-	CDialogConfig   *m_pDlgConfig;
 	CMyComboBox *m_pComboBox;
+	CCommandBarCtrl m_CmdBar;
+	CMyStatusBar *m_pStatus;
+
+	//主视图
+	CMultiSpliltWnd *m_pWndMultiSplitter;
+
+	//弹出窗口
+	CDialogConfig   *m_pDlgConfig;
 	CDialogLyric *m_dlgLrc;
 	CProcessingDlg *pDlgProcess;
-	CWndLyric *lyricView;
-	CMyStatusBar *m_pStatus;
 	DialogSearch *m_pDlgSearch;
 	DialogFFT *m_pDlgFFT;
 	DialogFFTOutline *m_pDlgFFTOutline;
 	DialogPLManager *m_pDlgPLMng;
 	CDialogConsole  *m_pDlgConsole;
-	CMultiSpliltWnd *m_pWndMultiSplitter;
+	
+
+	RECT m_rcMain;
+	RECT m_rcConfig;
+	RECT m_rcLrc;
+	RECT m_rcProcess;
+	RECT m_rcSearch;
+	RECT m_rcFFT;
+	RECT m_rcPLMng;
+	RECT m_rcPLConsole;
+	
+
+
 
 	UINT m_nIDEvent;
 	static const int m_uElapse=500;
+
+
 public:
 	CMainFrame():m_dlgLrc(NULL),
 		m_pTrackBar(NULL),m_pVolumeBar(NULL),
 		m_pDlgSearch(NULL),pDlgProcess(NULL),
-		lyricView(NULL),
 		m_pDlgFFT(NULL),m_pDlgFFTOutline(NULL),
 		m_pDlgPLMng(NULL),m_pDlgConsole(NULL),
 		m_pDlgConfig(NULL),m_pComboBox(NULL)
 	{
+		RECT_INIT(m_rcMain)
+		RECT_INIT(m_rcConfig)
+		RECT_INIT(m_rcLrc)
+		RECT_INIT(m_rcProcess)
+		RECT_INIT(m_rcSearch)
+		RECT_INIT(m_rcFFT)
+		RECT_INIT(m_rcPLMng)
+		RECT_INIT(m_rcPLConsole)
 	}
 
 	~CMainFrame();
@@ -106,12 +133,13 @@ public:
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		MESSAGE_HANDLER(WM_PLAY_DIRECTLY,OnPlayDirectly)
-		MESSAGE_HANDLER(WM_FILE_FINDED,OnFileFinded)
+		
 		MESSAGE_HANDLER(WM_DRAWSPECTRUM,OnDrawSpectrum)
 		MESSAGE_HANDLER(WM_HOTKEY,OnHotKey)
 
 
 		//user message
+		MESSAGE_HANDLER(WM_FILE_FINDED,OnFileFinded)
 		MESSAGE_HANDLER(WM_ADDFOLDERED,OnAddFolder)
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
 		MESSAGE_HANDLER(WM_TRACK_REACH_END,OnTrackReachEnd)
@@ -157,6 +185,11 @@ public:
 	END_MSG_MAP()
 
 
+
+	int SerializeB(FILE *pFile);
+	int ReSerialize(FILE *pFile);
+
+
 	void OnTimer(UINT_PTR /*nIDEvent*/)
 	{
 		NotifyMsg(WM_USER_TIMER);
@@ -190,19 +223,8 @@ public:
 	LRESULT OnChangePLColorBlue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnViewPlaylistManager(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);	
 	LRESULT OnExit(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
-		
-	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-	{
-		// unregister message filtering and idle updates
-		CMessageLoop* pLoop = _Module.GetMessageLoop();
-		ATLASSERT(pLoop != NULL);
-		pLoop->RemoveMessageFilter(this);
-		pLoop->RemoveIdleHandler(this);
-		bHandled = FALSE;
-		return 1;
-	}
+	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 
-	
 	LRESULT OnEditSearch(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		ShowSearchDialog();
@@ -226,7 +248,7 @@ public:
 		bVisible = !bVisible;
 		CReBarCtrl rebar = m_hWndToolBar;
 
-		for(int i=0;i<4;++i)
+		for(int i=1;i<=4;++i)
 		rebar.ShowBand(rebar.IdToIndex(ATL_IDW_BAND_FIRST + i), bVisible);
 
 		UISetCheck(ID_VIEW_TOOLBAR, bVisible);

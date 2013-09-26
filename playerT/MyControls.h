@@ -2,6 +2,7 @@
 #include "WTLTabViewCtrl.h"
 #include "globalStuffs.h"
 #include "WuLines.h"
+#include "BasicPlayer.h"
 //-----------------------------------------
 //progress pos track bar
 class CMyTrackBarBase
@@ -455,7 +456,7 @@ public:
 		SetLineSize(1);
 		SetThumbLength(2);
 		SetRange(0,100);
-		SetPos(100);
+		SetPos(CBasicPlayer::shared()->m_curVolume);
 	}
 
 };

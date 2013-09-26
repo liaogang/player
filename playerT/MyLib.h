@@ -40,10 +40,6 @@ public:
 
 	~MyLib();
 	static MyLib* shared();
-public:
-	HWND hMain;
-	static void SetMain(HWND hMain);
-	static HWND GetMain();
 
 public:
 	//data member

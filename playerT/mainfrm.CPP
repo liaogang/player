@@ -102,7 +102,12 @@ BOOL CMainFrame::OnIdle()
 
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	LoadAll();
+
 	InitData();
+
+	if(m_rcMain.right!=0)
+	::SetWindowPos(m_hWnd, NULL, m_rcMain.left, m_rcMain.top, m_rcMain.right - m_rcMain.left, m_rcMain.bottom - m_rcMain.top,SWP_NOZORDER);
 
 	SetWindowText(GetAppName());
 
@@ -192,6 +197,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_pStatus->Init();
 
 	UIAddToolBar(hWndToolBar);
+	UIAddStatusBar(m_hWndStatusBar);
+
 	UISetCheck(ID_VIEW_TOOLBAR, 1);
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
 
@@ -203,7 +210,9 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	pLoop->AddMessageFilter(this);
 	pLoop->AddIdleHandler(this);
 
-	ValidateCfg();
+	
+
+	
 
 	RegisterMyHotKeys();
 
@@ -231,7 +240,7 @@ HWND CMyComboBox::CreateIsWnd(HWND parent)
 	for (int i=0;i<sizeof(gPlayOrderStr)/sizeof(gPlayOrderStr[0]);++i)
 		AddString(gPlayOrderStr[i]);
 
-	SetCurSel(0);
+	SetCurSel(MyLib::shared()->playorder);
 
 	return m_hWnd;
 }
@@ -324,14 +333,11 @@ LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 	//MyLib::stop();
 
 	auto *track=MyLib::shared()->GetWaitPlayItem();
-	if(track)
+	if(track->isValide())
+	{
+		::SetPlayingItem(*track);
 		MyLib::shared()->play(track->GetFileTrack());
-
-
-
-	::SetPlayingItem(*track);
-	MyLib::shared()->play(track->GetFileTrack());
-
+	}
 	//RedrawItems(nItemPlaying,nItemPlaying);
 
 	return 0;
@@ -436,7 +442,7 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 		LPCTSTR path=dlg.GetFolderPath();
 		TCHAR *tmp=new TCHAR[MAX_PATH];
 		_tcscpy(tmp,path);
-		MyLib::SetMain(m_hWnd);
+		
 		PlayList* pList=MyLib::AddFolderToCurrentPlayList(tmp);
 		pDlgProcess->pList=pList;
 	}
@@ -791,13 +797,13 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 	FileTrack *track=item.GetFileTrack();
 	
 
-	WCHAR tmp[MAX_PATH]={};
-	wcscpy(tmp,track->artist.c_str());
-	wcscat(tmp,L" - ");
-	wcscat(tmp,track->title.c_str());
-	
-	//todo
-	GetMainFrame()->m_pStatus->SetText(0,tmp);
+// 	WCHAR tmp[MAX_PATH]={};
+// 	wcscpy(tmp,track->artist.c_str());
+// 	wcscat(tmp,L" - ");
+// 	wcscat(tmp,track->title.c_str());
+// 	
+// 	//todo
+// 	GetMainFrame()->m_pStatus->SetText(0,tmp);
 
 
 	AllPlayListViews()->Reload(item.GetPlayList(),item.GetIndex());
@@ -888,8 +894,6 @@ void CPlayListView::PlayItem(int nItem)
 }
 
 
-void MyLib::SetMain(HWND hMain){shared()->hMain=hMain;};
-HWND MyLib::GetMain(){return shared()->hMain;};
 
 LRESULT CMainFrame::OnExit(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
@@ -897,7 +901,12 @@ LRESULT CMainFrame::OnExit(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 	return 0;
 }
 
-
+void PlayList::TerminateAddDirThread()
+{
+	::TerminateThread(hAddDir,-1);
+	NotifyMsg(WM_FILE_FINDED,NULL,(LPARAM)0);
+	::PostMessage(GetMainFrame()->m_hWnd,WM_ADDFOLDERED,NULL,NULL);
+}
 
 void CMainFrame::ChangeTitle()
 {
@@ -951,13 +960,11 @@ void CMainFrame::InitData()
 	RegisterCreateWndFuns(_T("频谱面板"),MYTREE_Set_SpectrumView);
 
 
-	LoadCoreCfg();
-
 	::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
 	
+	IWantToReceiveMessage(WM_FILE_FINDED);
 	IWantToReceiveMessage(WM_TRACK_REACH_END);
 	IWantToReceiveMessage(WM_ADDFOLDERED);
-	//IWantToReceiveMessage(WM_TRACKPOS);
 	IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
 	IWantToReceiveMessage(WM_TRACKSTOPPED);
 	IWantToReceiveMessage(WM_PL_CHANGED);
@@ -1414,6 +1421,9 @@ void CDlgLrcSearch::DownLoad()
 
 void MyLib::play(FileTrack  *track)
 {
+
+	ATLASSERT(track);
+
 	track->ScanId3Info(TRUE,TRUE);
 
 	CBasicPlayer* s=CBasicPlayer::shared();
@@ -1926,24 +1936,43 @@ void CMyStatusBar::UpdateTrackInfoText()
 
 CMainFrame::~CMainFrame()
 {
-	
+
 }
 
 
 void CMainFrame::OnFinalMessage(_In_ HWND /*hWnd*/)
 {
 
+
+}
+
+
+LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	// unregister message filtering and idle updates
+	CMessageLoop* pLoop = _Module.GetMessageLoop();
+	ATLASSERT(pLoop != NULL);
+	pLoop->RemoveMessageFilter(this);
+	pLoop->RemoveIdleHandler(this);
+
+
 	KillTimer(m_nIDEvent);
 
-	CollectInfo();
-	//save to file 
-	SaveCoreCfg();
+	GetWindowRect(&m_rcMain);
+
+	SaveAll();
+
+
 
 	UnregisterHotKey(m_hWnd, HotKeyId); 
 
 	GlobalDeleteAtom(HotKeyId);
-}
 
+
+
+	bHandled = FALSE;
+	return 1;
+}
 
 static map<TCHAR*,CreateWindowFun> createWndFuns;
 void RegisterCreateWndFuns(TCHAR* panename,CreateWindowFun func)
@@ -2062,14 +2091,30 @@ void CollectInfo()
 	}
 
 	c->setPlayersVolume(CBasicPlayer::shared()->m_curVolume);
-
+	c->playorder=MyLib::shared()->playorder;
 }
 
 void ValidateCfg()
 {
 	MyConfigs *c=GetMyConfigs();
 	CBasicPlayer::shared()->SetVolumeByEar(c->getPlayersVolume());
-
+	MyLib::shared()->SetPlayOrder(static_cast<MyLib::PlayOrder>(c->playorder));
 
 	
+}
+
+
+
+LPDIRECTSOUND DSoundDeviceCreate(LPGUID lpGuid  )
+{
+	LPDIRECTSOUND lpDSound;
+	if(FAILED(DirectSoundCreate(lpGuid,&lpDSound,NULL) ))return NULL;
+
+	//可以设置主缓冲的播放模式的级别
+	// 	HWND hWnd=GetForegroundWindow();
+	// 	if (!hWnd)
+	// 		hWnd=GetDesktopWindow();
+
+	if(FAILED(lpDSound->SetCooperativeLevel( GetMainFrame()->m_hWnd, DSSCL_NORMAL) ))return NULL;
+	return lpDSound;
 }

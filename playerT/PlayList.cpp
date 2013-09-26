@@ -8,8 +8,10 @@
 #include "CImg.h"
 #include "StringConvertions.h"
 #include "globalStuffs.h"
+#include "forwardMsg.h"
 using namespace TagLib;
 
+UINT PlayListItem::m_globalid  = 0;
 
 struct PLANDPATH
 {
@@ -20,15 +22,15 @@ struct PLANDPATH
 static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 {
 	PLANDPATH* p=(PLANDPATH*)lpParameter;
-	::SendMessage(MyLib::GetMain(),WM_FILE_FINDED,NULL,(LPARAM)1);
+	
+	NotifyMsg(WM_FILE_FINDED,(WPARAM)NULL,(LPARAM)1);
+	
 	BOOL result=p->pPlaylist->AddFolder(p->pszFolder,TRUE);
-	::SendMessage(MyLib::GetMain(),WM_FILE_FINDED,NULL,(LPARAM)0);
+	NotifyMsg(WM_FILE_FINDED,NULL,(LPARAM)0);
 
-	//::PostMessage(MyLib::GetMain(),WM_ADDFOLDERED,NULL,NULL);
 	SdMsg(WM_PL_TRACKNUM_CHANGED,TRUE,(WPARAM)p->pPlaylist,(LPARAM)result);
 
 
-	
 	if(p->pPlaylist->m_bMonitor)
 	{	
 		p->pPlaylist->m_fileMonitor.AddDirectory(p->pszFolder);
@@ -44,19 +46,20 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 
 //-----------------------------------------
 //PlayList
- PlayList::PlayList(void):m_fileMonitor(this),pPLV(NULL)
+ PlayList::PlayList(void):m_fileMonitor(this)//,pPLV(NULL)
 	//lastPlayingItem(NULL),
 	//curPlayingItem(NULL),
 	//nextPlayingItem(NULL),
 	,topVisibleIndex(0),
-	selectedIndex(-1)
+	selectedIndex(-1),
+	m_bMonitor(FALSE)
 {
 	//m_bMonitor=true;
 	//SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
 }
 
 PlayList::PlayList(std::tstring &name,bool bMonitor):m_bMonitor(bMonitor)
-	,m_fileMonitor(this),m_playlistName(name),pPLV(NULL),	topVisibleIndex(0),
+	,m_fileMonitor(this),m_playlistName(name),	topVisibleIndex(0),
 	selectedIndex(-1)
 {
 
@@ -89,7 +92,7 @@ PlayList::PlayList(std::tstring &name,bool bMonitor):m_bMonitor(bMonitor)
 
 PlayList::~PlayList(void)
 {	
-	m_songList.clear();
+	//m_songList.clear();
 
 	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)-1);
 }
@@ -148,12 +151,7 @@ BOOL PlayList::AddFolderByThread(LPCTSTR pszFolder)
 	return 0;
 }
 
-void PlayList::TerminateAddDirThread()
-{
-	::TerminateThread(hAddDir,-1);
-	::SendMessage(MyLib::GetMain(),WM_FILE_FINDED,NULL,(LPARAM)0);
-	::PostMessage(MyLib::GetMain(),WM_ADDFOLDERED,NULL,NULL);
-}
+
 
 //ignore case
 BOOL StrIsEndedWith(TCHAR *_str,TCHAR *_end)
@@ -227,7 +225,8 @@ BOOL PlayList::AddFile(TCHAR *filepath)
 		item.SetIndex(m_songList.size());
 		m_songList.push_back(item);
 
-		::SendMessage(MyLib::GetMain(),WM_FILE_FINDED,(WPARAM)filepath,(LPARAM)2);
+		NotifyMsg(WM_FILE_FINDED,(WPARAM)filepath,(LPARAM)2);
+
 		return TRUE;
 	}
 

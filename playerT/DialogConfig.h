@@ -1,5 +1,5 @@
 #pragma once
-#include "ProgertyDlg.h"
+#include "DlgProgerty.h"
 #include "customMsg.h"
 
 #include <vector>

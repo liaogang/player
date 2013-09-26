@@ -1,4 +1,7 @@
 #include "MyConfigs.h"
+#include "MyLib.h"
+#include "CCtrlViewBase.h"
+
 MyConfigs* GetMyConfigs()
 {
 	static MyConfigs *p=NULL;
@@ -18,6 +21,8 @@ int MyConfigs::SerializeB(FILE *pFile)
 
 	size+=::Serialize(pFile,playersVolume);
 
+	size+=::Serialize(pFile,playorder);
+
 	return size;
 }
 
@@ -33,5 +38,7 @@ int MyConfigs::ReSerialize(FILE *pFile)
 	
 	size+=::ReSerialize(pFile,&playersVolume);
 	
+	size+=::ReSerialize(pFile,&playorder);
+
 	return size;
 }

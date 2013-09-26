@@ -31,7 +31,6 @@ TrackFormatInfo* GetTrackFormatInfo()
 	CBasicPlayer::shared()->m_pFile->GetFrameInfo(&info);
 	SetTrackFormatInfo(1,info.bitrate,info.rate,info.mode);
 
-
 	return gTrackFormatInfo;
 }
 
@@ -90,7 +89,7 @@ void CBasicPlayer::ResetFile()
 //100 by ,the max volume
 void CBasicPlayer:: SetVolumeByEar(int vol)
 {
-	if(vol>50)return;
+	if(vol>100)return;
 
 	m_curVolume=vol;
 
@@ -155,23 +154,9 @@ void CBasicPlayer::play()
 
 	m_pPlayerThread->CleanDSBuffer();
 
-	//m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
-
-	//m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MAX);
-
-	
-
-// 	DWORD dwWrite=0;
-// 	int writed=0;
-// 	m_pPlayerThread->BeginChangeTrackPos(dwWrite,writed);
-// 
-// 	m_pPlayerThread->EndChangeTrackPos(dwWrite,writed);
-
 	m_pPlayerThread->Init(FALSE);
 	
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
-
-	//TimerVolGrowUp();
 
 	NotifyMsg(WM_NEW_TRACK_STARTED,(WPARAM)NULL,0);
 }

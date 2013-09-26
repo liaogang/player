@@ -107,4 +107,23 @@ const TCHAR* TrackFormatInfo::getModeString()
 
 
 
+void SaveAll()
+{
+	SaveCoreCfg();
+
+	SaveAllPlayList();
+
+	SaveUICfg();
+}
+
+bool LoadAll()
+{
+	LoadUICfg();
+
+	LoadAllPlayList();
+
+	LoadCoreCfg();
+
+	return true;
+}
 

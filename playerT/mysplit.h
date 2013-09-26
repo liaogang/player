@@ -131,8 +131,6 @@ public:
 	
 	LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-
-
 		bHandled=FALSE;
 		return 1;
 	}
@@ -144,7 +142,7 @@ public:
 		if (WIDTH(newRC) && HEIGHT(newRC))
 		{
 			rootTree->CalcChildsRect(newRC);
-			MoveToNewRect(rootTree);
+			MoveToNewRect(rootTree,GetDC());
 		}
 	}
 

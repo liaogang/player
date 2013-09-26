@@ -37,8 +37,8 @@ public:
 
 		const TCHAR* columnNamePlaceHoder[]={
 			_T("                                   "),
-			_T("Artist"),
-			_T(" Ù–‘")};
+			_T("        Artist"),
+			_T("         Ù–‘")};
 
 		const int cxOffset = 15;
 

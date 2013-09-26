@@ -59,8 +59,9 @@ void fileMonitor::Watch()
 			if (w==WAIT_OBJECT_0){
 				FILE_NOTIFY_INFORMATION *pNotify=(FILE_NOTIFY_INFORMATION*)myOverLapped.notify;
 				HandleNotify(pNotify);
-				if (pPL->pPLV)
-					pPL->pPLV->Reload(pPL);	
+// 				if (pPL->pPLV)
+// 					pPL->pPLV->Reload(pPL);	
+				AllPlayListViews()->Reload(pPL);
 				}
 		}
 	}

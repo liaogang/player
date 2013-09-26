@@ -90,7 +90,8 @@ public:
 	int cmp(LrcLine &r)
 	{
 		int ret=0;
-		if (time.minute==r.time.minute){
+		if (time.minute==r.time.minute)
+		{
 			if (time.second==r.time.second)
 			{
 				if (time.msec!=r.time.msec)

@@ -21,20 +21,9 @@ inline int DSoundGetDistance(int maxDSBufferLen , int pos1 , int pos2)
 	return distance;
 }
 
+LPDIRECTSOUND DSoundDeviceCreate(LPGUID lpGuid =NULL );
 
-LPDIRECTSOUND DSoundDeviceCreate(LPGUID lpGuid =NULL )
-{
-	LPDIRECTSOUND lpDSound;
-	if(FAILED(DirectSoundCreate(lpGuid,&lpDSound,NULL) ))return NULL;
 
-	//可以设置主缓冲的播放模式的级别
-	HWND hWnd=GetForegroundWindow();
-	if (!hWnd)
-		hWnd=GetDesktopWindow();
-
-	if(FAILED(lpDSound->SetCooperativeLevel( hWnd, DSSCL_NORMAL) ))return NULL;
-	return lpDSound;
-}
 
 
 LPDIRECTSOUNDBUFFER DSoundBufferCreate(LPDIRECTSOUND lpDSound,WAVEFORMATEX *pwfx)

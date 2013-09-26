@@ -1,6 +1,9 @@
 #pragma once 
 
+#define  RECT_INIT(rc) 	rc.left=0;rc.right=0;rc.top=0;rc.bottom=0;
+
 void SdMsg(UINT msg,BOOL bPost=TRUE,WPARAM wparam=NULL,LPARAM lparam=NULL);
+
 
 struct trackPosInfo
 {
@@ -27,7 +30,9 @@ struct trackPosInfo
 //lParam BOOL , 2 -->file ,1-->started : 0 -->ended
 #define  WM_FILE_FINDED  (WM_USER+40) 
 #define  WM_DRAWSPECTRUM (WM_PAINT+913)
-#define  WM_ADDFOLDERED  (WM_USER+35)     //playlistView will reload playlists
+
+ //playlistView will reload playlists
+#define  WM_ADDFOLDERED  (WM_USER+35)    
 
 //配置需要生效和保存
 #define  WM_CONFIGTOSAVE (WM_USER+36)
@@ -58,3 +63,7 @@ struct trackPosInfo
 
 
 #define WM_USER_TIMER (WM_USER+57)
+
+
+
+

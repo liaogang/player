@@ -1,11 +1,11 @@
 
 #include "mysplit.h"
-#include "ProgertyDlg.h"
+#include "DlgProgerty.h"
 #include "globalStuffs.h"
 
 
 
-void MoveToNewRect(MYTREE *parent)
+void MoveToNewRect(MYTREE *parent,HDC dc)
 {
 	for (MYTREE *cur=parent->getFirstSibling();cur;cur=cur->next)
 	{
@@ -13,12 +13,22 @@ void MoveToNewRect(MYTREE *parent)
 		{
 			MoveToNewRect(cur->child);
 		}
-		else if (IsWindow(cur->data.hWnd))
+		else 
 		{
-			RECT rect=cur->getRect();
-			::SetWindowPos(cur->data.hWnd, NULL, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,SWP_NOZORDER);
+			if (IsWindow(cur->data.hWnd))
+			{
+				RECT rect=cur->getRect();
+				::SetWindowPos(cur->data.hWnd, NULL, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,SWP_NOZORDER);
+			}
+			if(dc!=NULL && cur->wndEmpty())
+				cur->DrawEmptyPane(dc);
 		}
 	}
+
+	if(dc==NULL)
+		return;
+	for (auto i=parent->data.SplitterBarRects.begin();i!=parent->data.SplitterBarRects.end();++i)
+		parent->DrawSplitterBar(dc,*i);
 }
 
 

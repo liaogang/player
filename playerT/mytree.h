@@ -14,7 +14,7 @@ using namespace std;
 #define HEIGHT(rc) ((rc).bottom-(rc.top))
 
 //调用完calcrect之后,调用此函数,更新
-void MoveToNewRect(MYTREE *parent);
+void MoveToNewRect(MYTREE *parent,HDC dc=NULL);
 
 void MYTREE_Set_Playlist(MYTREE* tree);
 void MYTREE_Set_AlbumView(MYTREE* tree);
@@ -158,9 +158,9 @@ public:
 
 	//no ....
 	HWND hWnd;	
-	
+
 	HTREEITEM treeItem;
-	
+
 	//vector<int> bl;//比例
 	RECT rcBeforeSize;
 };
@@ -209,7 +209,7 @@ public:
 	virtual int SerializeB(FILE *pFile);
 	virtual int ReSerialize(FILE *pFile);
 
-	
+
 	bool wndEmpty()
 	{
 		return data.hWnd==NULL;
@@ -230,9 +230,9 @@ public:
 	{
 		MYTREE *c=getFirstSibling();
 
-// 		for (auto it=parent->data.SplitterBarRects.begin();)
-// 		{
-// 		}
+		// 		for (auto it=parent->data.SplitterBarRects.begin();)
+		// 		{
+		// 		}
 
 
 		//splitter
@@ -360,24 +360,24 @@ public:
 
 	int getSiblingNumber()
 	{
-// 		int i=0;
-// 		for (auto *after=getFirstSibling();after;after=after->next)
-// 			++i;
-// 
-// 		return i;
+		// 		int i=0;
+		// 		for (auto *after=getFirstSibling();after;after=after->next)
+		// 			++i;
+		// 
+		// 		return i;
 
 		return isroot()? 1 : parent->childs;
 	}
 
-// 	//计算当前之后的兄弟个数,包含自身
-// 	int getSiblingNumberBehind()
-// 	{
-// 		int count=0;
-// 		for (auto i=this;i;i=i->next)
-// 			++count;
-// 
-// 		return count;
-// 	}
+	// 	//计算当前之后的兄弟个数,包含自身
+	// 	int getSiblingNumberBehind()
+	// 	{
+	// 		int count=0;
+	// 		for (auto i=this;i;i=i->next)
+	// 			++count;
+	// 
+	// 		return count;
+	// 	}
 
 public:
 	void setNode(HWND hWnd)
@@ -466,7 +466,7 @@ public:
 	bool HasSplitter(){return !data.SplitterBarRects.empty();}
 public:
 	MYTREE *parent;//parent item
-	
+
 	MYTREE *prev;
 	MYTREE *next;
 	MYTREE *child;//first child item
@@ -514,38 +514,105 @@ public:
 		setRect(newRC);
 		if(!hasChild())
 			return;
-		
+
+		static int idebug=0;
+		if(idebug++)
+			if(idebug==5)
+				idebug=0;
+			else
+				return;
 
 		RECT oldRC=getRectBeforeSize();
-		
-		
+
+
 		bool bLR=(data.type==left_right);
+
+		int  bEnlarge=bLR?(WIDTH(newRC)-WIDTH(oldRC)) :(HEIGHT(newRC)-HEIGHT(oldRC));
+		int  bEnlarge2=(!bLR)?(WIDTH(newRC)-WIDTH(oldRC)) :(HEIGHT(newRC)-HEIGHT(oldRC));
+		if(bEnlarge==0 && bEnlarge2==0)
+			return;
+		if(bEnlarge2!=0)
+		{
+			list<RECT> bars;
+			auto i=data.SplitterBarRects.begin();
+			int count=0;
+			for (MYTREE *cur=child;cur;cur=cur->next,++count)
+			{
+				RECT rc=cur->getRect();
+				if(bLR)
+				{
+					rc.bottom=newRC.bottom;
+					rc.top=newRC.top;
+				}
+				else
+				{
+					rc.right=newRC.right;
+					rc.left=newRC.left;
+				}
+				cur->setRect(rc);
+
+				if(count!=childs-1)
+				{
+					RECT rcBar=*i;
+					if(bLR)
+						rcBar.bottom=newRC.bottom;
+					else
+						rc.right=newRC.right;
+
+					bars.push_back(rcBar);
+
+					i++;
+				}
+			}
+
+			data.SplitterBarRects=bars;
+		}
+
 		float times=bLR?WIDTH(newRC)/(float)WIDTH(oldRC) :
 			HEIGHT(newRC)/(float)HEIGHT(oldRC);
-		
+
 		data.SplitterBarRects.clear();
-		
+
 		MYTREE *cur=child;
-		LONG lastV=cur->getRect().left;
+		LONG lastV=bLR?cur->getRect().left:cur->getRect().top;
 		for (int count=0;count<childs;cur=cur->next,++count)
 		{
 			RECT curRC=cur->getRect();
 
 			oldRC=cur->getRectBeforeSize();
-			
-			int curW=WIDTH(oldRC) * times;
-			
+
+			int curW=(bLR?WIDTH(oldRC):HEIGHT(oldRC)) * times;
+
 			if(count!=childs-1)
 			{
-				curRC.left=lastV;
-				curRC.right=curRC.left + curW ;
-				lastV=curRC.right;
-				curRC.right-=data.m_iSplitterBar;
+				if(bLR)
+				{
+					curRC.left=lastV;
+					curRC.right=curRC.left + curW ;
+					lastV=curRC.right+data.m_iSplitterBar;
+					//curRC.right-=data.m_iSplitterBar;
+				}
+				else
+				{
+					curRC.top=lastV;
+					curRC.bottom=curRC.top + curW ;
+					lastV=curRC.bottom+data.m_iSplitterBar;
+					//curRC.bottom-=data.m_iSplitterBar;
+				}
 			}
 			else
 			{
-				curRC.left=lastV;
-				curRC.right=getRect().right;
+				if(bLR)
+				{
+
+					curRC.left=lastV;
+					curRC.right=getRect().right;
+				}
+				else
+				{
+					curRC.top=lastV;
+					curRC.bottom=getRect().bottom;
+				}
 			}
 
 			cur->setRect(curRC);
@@ -553,8 +620,16 @@ public:
 			if(count!=childs-1)
 			{
 				RECT rcBar=curRC;
-				rcBar.left=curRC.right;
-				rcBar.right+=data.m_iSplitterBar;
+				if(bLR)
+				{
+					rcBar.left=curRC.right;
+					rcBar.right+=data.m_iSplitterBar;
+				}
+				else
+				{
+					rcBar.top=curRC.bottom;
+					rcBar.bottom+=data.m_iSplitterBar;
+				}
 				data.SplitterBarRects.push_back(rcBar);
 			}
 
@@ -562,12 +637,10 @@ public:
 			if (cur->hasChild())
 				cur->CalcChildsRect(curRC);
 		}
-			
-
 	}
 
 	//重新计算子结点的矩形区域
-		//重新分配相等的空间
+	//重新分配相等的空间
 	void ReCalcChildsRect()
 	{
 		if(!hasChild())return;
@@ -701,7 +774,7 @@ public:
 	void DrawSplitterBar(HDC dc,RECT &rect)
 	{
 		FillRect(dc,&rect, (HBRUSH)LongToPtr(COLOR_3DFACE+ 1));
-		
+
 		// draw 3D edge if needed
 		//if((WS_EX_CLIENTEDGE & WS_EX_CLIENTEDGE) != 0)
 		//	dc.DrawEdge(&rect, EDGE_RAISED, data.type==left_right ? (BF_LEFT | BF_RIGHT) : (BF_TOP | BF_BOTTOM));

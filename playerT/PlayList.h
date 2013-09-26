@@ -109,10 +109,13 @@ private:
 
 class PlayListItem
  {
+	 static UINT m_globalid;
+public:
+	 UINT m_id;
 public:
 	PlayListItem():index(-1)
 	{
-		
+		m_id=m_globalid++;
 	}
 
 	PlayListItem(PlayList *playlist,std::tstring url):
@@ -120,12 +123,15 @@ public:
 	  {
 		  //pfiletrack=&filetrack;
 		  //filetrack->SetParent(this);
+		  m_id=m_globalid++;
 	  }
+
 	  PlayListItem(PlayList *playlist):
 	  pPL(playlist),filetrack(new FileTrack()),index(-1)
 	  {
 		  // pfiletrack=&filetrack;
 		  //filetrack->SetParent(this);
+		  m_id=m_globalid++;
 	  }
 
 	  ~PlayListItem()
@@ -148,7 +154,7 @@ public:
 
 	  bool operator==(const PlayListItem &other)
 	  {
-		  if(&other == this )
+		  if(other.m_id == m_id)
 			  return true;
 		  return false;
 	  }
@@ -190,6 +196,10 @@ class PlayList:
 	public SerializeObj
 {
 public:
+	PlayList(void);
+	PlayList(std::tstring &name,bool bMonitor=false);
+	~PlayList(void);
+public:
 	virtual int SerializeB(FILE* pFile);
 	virtual int ReSerialize(FILE* pFile);
 
@@ -198,36 +208,17 @@ public:
 	_songContainer m_songList;
 	int GetItemCount(){return m_songList.size();}
 
-	_songContainerItem GetItem(int nItem){
-		return m_songList[nItem];
-	}
-	// 	int  GetItem(_songContainerItem item)
-	// 	{
-	// 		int i;
-	// 		for (i=0;i<m_songList.size() && m_songList[i]!=item;++i);
-	// 		return i;
-	// 	}
+	_songContainerItem GetItem(int nItem){return m_songList[nItem];}
 
 	std::tstring       m_playlistName;
 	void Rename(TCHAR *newName){m_playlistName=newName;}
-	//std::tstring       m_saveLocation;
+
 
 public:
-	//void SetSelectedItem(int index){curSelectedItem=m_songList[index];}
-	//void SetSelectedItem(_songContainerItem _item){curSelectedItem=_item;}
-	//_songContainerItem SelectedItem(){return curSelectedItem;}
-
 	void SetCurPlaying(_songContainerItem item,BOOL scanID3=FALSE);
 
-	//_songContainerItem lastTrack(){return lastPlayingItem;}
-	//PlayListItem* curTrack(){return curPlayingItem;};
-	//void          setCurTrack(PlayListItem* _item){curPlayingItem=_item;}
 	_songContainerItem nextTrack();
-public:
-	PlayList(void);
-	//PlayList(std::tstring &name);
-	PlayList(std::tstring &name,bool bMonitor=false);
-	~PlayList(void);
+
 
 public:
 	//operation
@@ -257,10 +248,6 @@ public:
 	int topVisibleIndex;
 	int selectedIndex;
 
-	bool m_bMonitor;
+	BOOL m_bMonitor;
 	fileMonitors m_fileMonitor;
-
-	
-
-	CPlayListView *pPLV;
 };

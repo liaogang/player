@@ -5,7 +5,7 @@
 #include "globalStuffs.h"
 #include "mytree.h"
 #include "MyConfigs.h"
-
+#include "mainfrm.h"
 
 template <class T>
 int Serialize(FILE *pFile,T t)
@@ -206,6 +206,9 @@ int PlayList::SerializeB(FILE *pFile)
 	//m_playlistName Serialize
 	size+=::Serialize(pFile,m_playlistName);
 
+	//bMonitor  
+	size+=::Serialize(pFile,m_bMonitor);
+
 	//m_songList Serialize
 	_songContainer::iterator i;
 	for (i=m_songList.begin();i!=m_songList.end();++i){
@@ -225,7 +228,11 @@ int PlayList::ReSerialize(FILE *pFile)
 	playlistnameSize=::ReSerialize(pFile,&m_playlistName);
 	size+=playlistnameSize;
 
-	while(size<totalSize-playlistnameSize){
+
+	//4 byte  
+	::ReSerialize(pFile,&m_bMonitor);
+
+	while(size<totalSize-playlistnameSize-4){
 		PlayListItem item(this);
 		size+=item.ReSerialize(pFile);
 		item.SetIndex(m_songList.size());
@@ -381,24 +388,14 @@ bool SaveAllPlayList()
 
 bool SaveCoreCfg()
 {
+	CollectInfo();
+
 	FILE * pFile;
 	ChangeCurDir2ModulePath();
 	pFile = _tfopen( CFGFILENAME , _T("wb") );
 	if (pFile!=NULL)
 	{	
 		int len;
-		/*******************************************/
-		//playlist section
-// 		int len=MyLib::shared()->m_playLists.size();
-// 		::Serialize(pFile,len);
-// 		
-// 		
-// 		for (auto i=MyLib::shared()->m_playLists.begin();i!=MyLib::shared()->m_playLists.end();++i)
-// 			::Serialize(pFile,(*i)->m_saveLocation);
-		
-
-		
-
 		/*******************************************/
 		//lrc section
 		len=MyLib::shared()->lrcDirs.size();
@@ -412,14 +409,11 @@ bool SaveCoreCfg()
 		//***************************************//
 		//MyConfigs
 		GetMyConfigs()->Serialize(pFile);
-
+		
 
 		fclose (pFile);
 	}
 
-	SaveAllPlayList();
-
-	SaveUICfg();
 
 	return TRUE;
 }
@@ -433,22 +427,7 @@ bool LoadCoreCfg()
 	pFile = _tfopen( CFGFILENAME, _T("rb") );
 	if (pFile!=NULL)
 	{
-		/*******************************************/
-		//playlists
 		int size=0;
-
-// 		::ReSerialize(pFile,&size);
-// 		while (size) 
-// 		{
-// 			std::tstring playlistLocation;
-// 			::ReSerialize(pFile,&playlistLocation);
-// 			MyLib::shared()->LoadPlaylist(const_cast<LPTSTR>(playlistLocation.c_str()));
-// 			
-// 			size--;
-// 		} 
-		
-	
-
 		/*******************************************/
 		//lrc dir list
 		size=0;
@@ -469,15 +448,12 @@ bool LoadCoreCfg()
 		 //***************************************//
 		 //MyConfigs
 		 GetMyConfigs()->ReSerialize(pFile);
-
-
+		
 
 		fclose (pFile);
 	}
 
-	LoadAllPlayList();
-
-	LoadUICfg();
+	ValidateCfg();
 	
 	return TRUE;
 }
@@ -644,6 +620,10 @@ bool SaveUICfg()
 	FILE * pFile = _tfopen( UIFILENAME , _T("wb") );
 	if (pFile)
 	{	
+		/***************   Main Window ******************/
+		GetMainFrame()->Serialize(pFile);
+
+
 		/**********user interface split windows's section************/
 		MYTREE* root=UISplitterTreeRoot();
 		
@@ -666,6 +646,11 @@ bool LoadUICfg()
 	FILE * pFile = _tfopen( UIFILENAME , _T("rb") );
 	if (pFile)
 	{
+
+		/***************   Main Window ******************/
+		GetMainFrame()->ReSerialize(pFile);
+
+
 		/**********user interface split windows's section************/
 		MYTREE *root=new MYTREE(_T(""));
 		root->data.SplitterBarRects.clear();
@@ -681,4 +666,40 @@ bool LoadUICfg()
 	}
 
 	return TRUE;
+}
+
+
+int CMainFrame::SerializeB(FILE *pFile)
+{
+	int size=0;
+
+	size+=::Serialize(pFile,m_rcMain);
+	size+=::Serialize(pFile,m_rcConfig);
+	size+=::Serialize(pFile,m_rcLrc);
+	size+=::Serialize(pFile,m_rcProcess);
+	size+=::Serialize(pFile,m_rcFFT);
+	size+=::Serialize(pFile,m_rcPLMng);
+	size+=::Serialize(pFile,m_rcPLConsole);
+
+
+	return size;
+}
+
+int CMainFrame::ReSerialize(FILE *pFile)
+{
+	int size=0;
+
+	int totalSize=0;
+	fread(&totalSize,1,4,pFile);
+	size+=4;
+
+	size+=::ReSerialize(pFile,m_rcMain);
+	size+=::ReSerialize(pFile,m_rcConfig);
+	size+=::ReSerialize(pFile,m_rcLrc);
+	size+=::ReSerialize(pFile,m_rcProcess);
+	size+=::ReSerialize(pFile,m_rcFFT);
+	size+=::ReSerialize(pFile,m_rcPLMng);
+	size+=::ReSerialize(pFile,m_rcPLConsole);
+	
+	return size;
 }
