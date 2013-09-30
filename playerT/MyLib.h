@@ -34,7 +34,7 @@ public:
 
 
 public:
-	MyLib():playorder(Default)
+	MyLib():playorder(Default),m_pFileMonitor(NULL)
 	{
 	};
 
@@ -67,11 +67,15 @@ public:
 
 
 	//自动播放列表,媒体库专用.
+	void SetAutoPlayList(PlayList *pl);
 	PlayList* GetAutoPlaylist();
-	vector<std::tstring> mediaPaths;
+	list<std::tstring> mediaPaths;
 	void ClearMediaPath();
 	void AddMediaPath(std::tstring &path);
 	void DelMediaPath(std::tstring &path);
+	fileMonitors * m_pFileMonitor;
+
+
 
 	//播放列队
 	typedef list<_songContainerItem> PlayQueueContainer;

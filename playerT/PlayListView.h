@@ -22,29 +22,20 @@ class CPlayListView:
 private:
 	PlayList *  m_pPlayList;
 protected:
-	int nItemPlaying;//正在播放的项目
+	
 public:
-	inline int GetPlayingIdx(){return nItemPlaying;}
-	inline void SetPlayingIdx(int i){nItemPlaying=i;}
+	inline int GetPlayingIdx(){return GetPlayList()->GetPlayingIndex();}
+	inline void SetPlayingIdx(int i){GetPlayList()->SetPlayingIndex(i);}
 	inline void SetPlayList(PlayList * pPlayList){m_pPlayList=pPlayList;}
 	inline PlayList * GetPlayList(){return m_pPlayList;}
 
 
 public:
-
-	//PlayListItem *m_pPlayTrack;
-
-	BOOL bAuto,bDeletable;
 	HMENU menu;
-	BOOL m_bSearch;                  //是否为搜索列表
 	COLORREF clText1,clText2;
 	bool bClientEdge;
 
-	CPlayListView(BOOL bSearch=FALSE):
-	m_bSearch(bSearch),
-		bAuto(FALSE),
-		bDeletable(!bAuto),
-		m_bC(TRUE),nItemPlaying(-1)//m_pPlayTrack(NULL),
+	CPlayListView():m_bC(TRUE)
 	{
 		SetPlayList(NULL);
 		menu=LoadPlaylistMenu();
@@ -400,7 +391,7 @@ public:
 			// 						DeleteItem(i);
 			// 			}
 			//CListCtrl ctrl;ctrl.GetNextSelectedItem()GetNextItem((UINT)nOldPos, LVIS_SELECTED)
-			if (!bDeletable)
+			if (GetPlayList()->m_bAuto)
 				return;
 
 			//从vector删除某项,需要重新搬家,很费时.
@@ -575,7 +566,7 @@ public:
 
 		void CreateIsWnd();
 
-		void Init();
+		void Init(bool bSearch=false);
 		
 
 		int AddColumn(LPCTSTR strItem, int nItem, int nSubItem = -1,
@@ -610,9 +601,10 @@ public:
 public:
 	void SetPlayingItem(int nItem)
 	{
+		int nItemPlaying=GetPlayingIdx();
 		RedrawItems(nItemPlaying,nItemPlaying);
-		nItemPlaying=nItem;
-		RedrawItems(nItemPlaying,nItemPlaying);
+		SetPlayingIdx(nItem);
+		RedrawItems(nItem,nItem);
 	}
 
 	void ClearAllSel()
@@ -803,7 +795,7 @@ public:
 		ATLASSERT(pLoop != NULL);
 		pLoop->RemoveMessageFilter(this);
 
-		if (!m_bSearch)
+		if (!GetPlayList()->m_bSearch)
 			delete this;
 	}
 

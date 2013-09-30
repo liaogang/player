@@ -23,18 +23,12 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 {
 	PLANDPATH* p=(PLANDPATH*)lpParameter;
 	
-	NotifyMsg(WM_FILE_FINDED,(WPARAM)NULL,(LPARAM)1);
+	NotifyMsg(WM_FILE_FINDED,(WPARAM)p->pPlaylist,(LPARAM)1);
 	
 	BOOL result=p->pPlaylist->AddFolder(p->pszFolder,TRUE);
 	NotifyMsg(WM_FILE_FINDED,NULL,(LPARAM)0);
 
 	SdMsg(WM_PL_TRACKNUM_CHANGED,TRUE,(WPARAM)p->pPlaylist,(LPARAM)result);
-
-
-	if(p->pPlaylist->m_bMonitor)
-	{	
-		p->pPlaylist->m_fileMonitor.AddDirectory(p->pszFolder);
-	}
 
 	delete p;
 
@@ -46,54 +40,24 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 
 //-----------------------------------------
 //PlayList
- PlayList::PlayList(void):m_fileMonitor(this)//,pPLV(NULL)
-	//lastPlayingItem(NULL),
-	//curPlayingItem(NULL),
-	//nextPlayingItem(NULL),
-	,topVisibleIndex(0),
-	selectedIndex(-1),
-	m_bMonitor(FALSE)
+ PlayList::PlayList(void):
+	topVisibleIndex(0),
+	selectedIndex(-1),m_bSearch(FALSE),m_bAuto(FALSE),nItemPlaying(-1)
 {
-	//m_bMonitor=true;
-	//SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
 }
 
-PlayList::PlayList(std::tstring &name,bool bMonitor):m_bMonitor(bMonitor)
-	,m_fileMonitor(this),m_playlistName(name),	topVisibleIndex(0),
-	selectedIndex(-1)
+
+	PlayList::PlayList(std::tstring &name):m_playlistName(name),topVisibleIndex(0),
+		selectedIndex(-1),m_bSearch(FALSE),m_bAuto(FALSE),nItemPlaying(-1)
 {
-
 	m_playlistName=name;
-	//m_saveLocation=m_playlistName+_T(".pl");
-
-
-	//m_bMonitor=true;
-
 	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
 }
 
-//  PlayList::PlayList(std::tstring &name):
-// 	//lastPlayingItem(NULL),
-// 	//curPlayingItem(NULL),
-// 	//nextPlayingItem(NULL),
-// 	topVisibleIndex(0),
-// 	selectedIndex(-1),m_fileMonitor(this),m_playlistName(name)
-// 	,pPLV(NULL)
-//  {
-// 	m_playlistName=name;
-// 	//m_saveLocation=m_playlistName+_T(".pl");
-// 
-// 
-// 	m_bMonitor=true;
-// 
-// 	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
-//  }
 
 
 PlayList::~PlayList(void)
 {	
-	//m_songList.clear();
-
 	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)-1);
 }
 
@@ -117,7 +81,8 @@ void PlayList::DeleteTrackByPath(TCHAR *path)
 		PlayListItem item=*i;
 		if (_tcscmp(path,item.GetFileTrack()->url.c_str())==0)
 		{
-			delete item.GetFileTrack();
+			//先删除视图里的显视,再删除数据
+			NotifyMsg(WM_PL_TRACKNUM_CHANGED,(WPARAM)this,(LPARAM)-1);
 			m_songList.erase(i);
 			break;
 		}
@@ -220,16 +185,21 @@ BOOL PlayList::AddFile(TCHAR *filepath)
 {
 	std::tstring str(filepath);
 	PlayListItem item(this,str);
+	
+	ATLTRACE2(filepath);
+
 	if(item.ScanId3Info())
 	{	
+		ATLTRACE2(L"added");
+		ATLTRACE2(L"%d",m_songList.size());
 		item.SetIndex(m_songList.size());
 		m_songList.push_back(item);
-
+		ATLTRACE2(L"%d\n",m_songList.size());
 		NotifyMsg(WM_FILE_FINDED,(WPARAM)filepath,(LPARAM)2);
 
 		return TRUE;
 	}
-
+	ATLTRACE2(L"not added");
 	return FALSE;
 }
 

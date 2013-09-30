@@ -43,6 +43,7 @@ public:
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
+		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		NOTIFY_HANDLER(IDC_TREE, TVN_SELCHANGED, OnTvnSelchangedTree)
 		COMMAND_ID_HANDLER(ID_PLAY,OnCfgToSave)		//cus msg
 	END_MSG_MAP()
@@ -64,6 +65,16 @@ public:
 
 		return TRUE;
 	}
+
+
+	RECT m_rc;
+	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		bHandled=FALSE;
+		GetWindowRect(&m_rc);
+		return 0;
+	}
+
 
 	LRESULT OnCfgToSave(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{

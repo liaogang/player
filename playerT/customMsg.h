@@ -25,10 +25,15 @@ struct trackPosInfo
 
 #define  WM_PLAY_DIRECTLY     (WM_USER+41)
 
-//正在添加文件内容  
-//wParam TCHAR *filename;
-//lParam BOOL , 2 -->file ,1-->started : 0 -->ended
+
+//向播放列表添加多个文件时用消息  
+//if lParam is 1 , started .the wParam is the pointer to the player list
+//if lParam is 2 ,the player list has added a file ,the wParam is TCHAR *filename
+//if lParam is 0 ,the adding is ended. the wParam is the number total added.
 #define  WM_FILE_FINDED  (WM_USER+40) 
+
+
+
 #define  WM_DRAWSPECTRUM (WM_PAINT+913)
 
  //playlistView will reload playlists
@@ -48,8 +53,8 @@ struct trackPosInfo
 //PlayList *pl=(PlayList*)wParam;
 #define  WM_PL_CHANGED    (WM_USER+51)
 
-//PlayList
-//track number added
+//wparam , the PlayList pointer
+//lparam , the this is -1 , thus the one track of player list will be deleted
 #define  WM_PL_TRACKNUM_CHANGED (WM_USER+52)
 
 

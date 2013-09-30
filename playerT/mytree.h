@@ -581,7 +581,7 @@ public:
 
 			oldRC=cur->getRectBeforeSize();
 
-			int curW=(bLR?WIDTH(oldRC):HEIGHT(oldRC)) * times;
+			float curW=(bLR?WIDTH(oldRC):HEIGHT(oldRC)) * times;
 
 			if(count!=childs-1)
 			{

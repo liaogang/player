@@ -33,6 +33,8 @@ public:
 		
 		::ShowWindow(GetDlgItem(IDC_STATIC1),SW_HIDE);
 
+		pList=NULL;
+
 		return TRUE;
 	}
 
@@ -50,6 +52,7 @@ public:
 	{
 		if (started==1)
 		{
+			pList=(PlayList*)filename;
 			::ShowWindow(GetDlgItem(IDC_STATIC1),SW_SHOW);
 		}
 		else if (started==0)

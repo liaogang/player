@@ -40,6 +40,19 @@ void PlayListViewMng::EnlargeLVFont(int value)
 		(*i)->EnlargeLVFont(value);
 }
 
+void PlayListViewMng::DeleteOneTrackFirst(PlayList *pPL)
+{
+	for (auto it=dataCollection.begin();it!=dataCollection.end();++it)
+	{
+		CPlayListView* playlistview=*it;
+		if (playlistview->GetPlayList()==pPL)
+		{
+			playlistview->SetItemCount(pPL->GetItemCount()-1);
+			break;
+		}
+	}
+}
+
 PlayListViewMng * AllPlayListViews()
 {
 	static PlayListViewMng* p=NULL;

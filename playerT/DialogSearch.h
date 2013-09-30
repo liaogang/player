@@ -19,6 +19,7 @@ public:
 
 	BEGIN_MSG_MAP(DialogSearch)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 		COMMAND_CODE_HANDLER(EN_CHANGE, OnSearch )
@@ -34,19 +35,21 @@ public:
 
 	CMainFrame *pM;
 	CPlayListView m_list;
-	
-	
+	PlayList *searchPl;
+	RECT m_rc;
+
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		DlgResize_Init(FALSE,FALSE);
 		CenterWindow(GetParent());
 		m_list.SubclassWindow(::GetDlgItem(m_hWnd,IDC_LIST));
-		m_list.m_bSearch=TRUE;
-		m_list.Init();
 		
+		searchPl=new PlayList;
+		searchPl->m_bSearch=TRUE;
+		m_list.SetPlayList(searchPl);
 
-		searchPl=NULL;
-
+		m_list.Init(true);
+		
 		// register object for message filtering and idle updates
 		CMessageLoop* pLoop = _Module.GetMessageLoop();
 		ATLASSERT(pLoop != NULL);
@@ -55,18 +58,22 @@ public:
 	}
 
 
-	PlayList *searchPl;
+	
+	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		bHandled=FALSE;
+		GetWindowRect(&m_rc);
+		return 0;
+	}
+
+
+	
 
 	LRESULT OnSearch(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		if (!searchPl)
-			searchPl=new PlayList;
-		else
-		{
-			m_list.ClearAllItem();
-			m_list.SetPlayingIdx(0);
-			searchPl->m_songList.clear();
-		}
+		m_list.ClearAllItem();
+		m_list.SetPlayingIdx(0);
+		searchPl->m_songList.clear();
 
 		TCHAR buf[MAX_PATH];
 		::GetWindowText(::GetDlgItem(m_hWnd,IDC_EDIT),buf,MAX_PATH);
@@ -135,27 +142,3 @@ public:
 	}
 
 };
-
-
-//ctrl+c,v,x被上层截获.
-//收不到
-
-// 
-// void CMyEdit::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
-// {
-// 	//AtlTrace(L"%u",nChar);
-// 
-// 	if(nChar==VK_ESCAPE)
-// 	{
-// 		m_pDlgSearch->HideSelf();
-// 	}
-// 	else if (nChar==VK_RETURN )//播放列表选中项
-// 	{
-// 		::SetFocus(m_pDlgSearch->m_list.m_hWnd);
-// 		::SendMessage(m_pDlgSearch->m_list.m_hWnd,WM_CHAR,(WPARAM)VK_RETURN,NULL);	
-// 	}
-// 	else
-// 	{
-// 		SetMsgHandled(FALSE);
-// 	}
-// }

@@ -7,8 +7,11 @@
 
 PlayList*  MyLib::NewPlaylist(std::tstring playlistname,bool bAutoPL)
 {
-	PlayList *l=new PlayList(playlistname,bAutoPL);
+	PlayList *l=new PlayList(playlistname);
 	m_playLists.push_back(l);
+
+	if(bAutoPL)
+		l->m_bAuto=bAutoPL;
 
 	return l;
 }
@@ -86,35 +89,43 @@ void MyLib::playNext(BOOL scanID3)
 	//}
 }
 
-//
+
+
+static PlayList *pPlayListAuto=NULL;
 PlayList* MyLib::GetAutoPlaylist()
 {
-	static PlayList *p=NULL;
-	if (!p)
+	if (!pPlayListAuto)
 	{
-		p=NewPlaylist(_T("自动播放列表"),true);
+		pPlayListAuto=NewPlaylist(_T("自动播放列表"),true);
+		m_pFileMonitor=new fileMonitors(pPlayListAuto);
 	}
 	
-	return p;
+	return pPlayListAuto;
+}
+
+void MyLib::SetAutoPlayList(PlayList *pl)
+{
+	pPlayListAuto=pl;
+	m_pFileMonitor=new fileMonitors(pPlayListAuto);
 }
 
 
 void MyLib::ClearMediaPath()
 {
 	mediaPaths.clear();
-	GetAutoPlaylist()->m_fileMonitor.Reset();
+	m_pFileMonitor->Reset();
 }
 
 void MyLib::AddMediaPath(std::tstring &path)
 {
 	mediaPaths.push_back(path);
-	GetAutoPlaylist()->m_fileMonitor.DelDirectory(path.c_str());
-
+	m_pFileMonitor->AddDirectory(path.c_str());
 }
 
 void MyLib::DelMediaPath(std::tstring &path)
 {
-	GetAutoPlaylist()->m_fileMonitor.DelDirectory(path.c_str());
+	m_pFileMonitor->DelDirectory(path.c_str());
+	mediaPaths.erase( find(mediaPaths.begin(),mediaPaths.end(),path) );	
 }
 
 

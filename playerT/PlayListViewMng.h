@@ -39,6 +39,8 @@ public:
 	 void PlayingItemChanged();
 
 	 void EnlargeLVFont(int value);
+
+	 void DeleteOneTrackFirst(PlayList *pPL);
 };
 
 PlayListViewMng * AllPlayListViews();

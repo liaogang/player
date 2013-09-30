@@ -20,9 +20,10 @@ public:
 
 
 
-	BOOL m_bPressing;
+	bool m_bPressing;
 	LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
+		SetCapture();
 		m_bPressing=true;
 
 		bHandled=FALSE;
@@ -58,6 +59,7 @@ public:
 		return 0;
 	}
 
+	
 
 	//we don't want a focus rect appear around
 	void OnSetFocus(CWindow wndOld)
@@ -96,7 +98,7 @@ public:
 
 
 
-		m_bPressing=FALSE;
+		m_bPressing=false;
 
 		return m_hWnd;
 	}
@@ -302,9 +304,7 @@ class CMyVolumeBar:
 	,public CCustomDraw<CMyVolumeBar>
 {
 public:
-	CMainFrame *pMain;
-	BOOL m_bPressing;
-	CMyVolumeBar():m_bPressing(FALSE)
+	CMyVolumeBar()
 	{
 
 	}
@@ -313,6 +313,7 @@ public:
 
 	BEGIN_MSG_MAP(CMyVolumeBar)
 		MESSAGE_HANDLER(WM_CREATE,OnCreate)
+		MESSAGE_HANDLER(WM_LBUTTONUP,OnLButtonUp)
 		MESSAGE_HANDLER(WM_MOUSEMOVE,OnMouseMove)
 		MESSAGE_HANDLER(TB_BUTTONCOUNT,TBB)
 		MESSAGE_HANDLER(TB_GETITEMRECT,OnGetItemRect)
@@ -423,11 +424,20 @@ public:
 
 	LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{    
-		int pos=GetPos();
-		OnPos(pos);
+		if(m_bPressing)
+			OnPos(GetPos());
 
 		bHandled=FALSE;
 		return 1;
+	}
+
+
+	LRESULT OnLButtonUp(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		bHandled=FALSE;
+		m_bPressing=false;
+		ReleaseCapture();
+		return 0;
 	}
 
 

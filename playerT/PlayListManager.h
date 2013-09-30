@@ -1,4 +1,11 @@
 #pragma once
+
+//IDR_MENU_PL_MNG
+HMENU LoadPlaylistManagerMenu(BOOL bDestroy=FALSE);
+
+
+
+
 class CMainFrame;
 class CPlayListManager:
 	public CWindowImpl<CPlayListManager,CListViewCtrl>
@@ -6,13 +13,14 @@ class CPlayListManager:
 public:
 	BEGIN_MSG_MAP_EX(CPlayListManager)
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
+		REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_RCLICK ,OnNotifyCodeHandlerEX)
 	END_MSG_MAP()
 
 	CMainFrame *pMain;
     void ReFillPlaylist();
 	void AddPlayList(PlayList *pPL);
 	void DelPlayList(PlayList *pPL);
-	void UpdateByPLTrack(PlayList *pPL,int trackNum);
+	void UpdateByPLTrack(PlayList *pPL);
 
 	void ClearAllSel()
 	{
@@ -72,8 +80,26 @@ public:
 
 	LRESULT OnDbClicked(UINT i,CPoint pt);
 	
-};
 
+
+
+
+	
+	LRESULT OnNotifyCodeHandlerEX(LPNMHDR pnmh)
+	{
+		static HMENU menu=NULL;
+		if(menu==NULL)
+			menu=LoadPlaylistManagerMenu();
+
+		POINT pt;
+		GetCursorPos(&pt);
+
+		if(GetNextItem(-1,LVIS_FOCUSED|LVIS_SELECTED)!=-1)
+			::TrackPopupMenu(menu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
+
+		return 1;
+	}
+};
 
 
 class DialogPLManager :
@@ -84,6 +110,7 @@ public:
 	enum { IDD = IDD_DLG_PL_MNG };
 	BEGIN_MSG_MAP(DialogPLManager)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 		CHAIN_MSG_MAP(CDialogResize<DialogPLManager>)
@@ -122,5 +149,14 @@ public:
 	void ShowSelf()
 	{	
 		ShowWindow(SW_SHOW);
+	}
+
+
+	RECT m_rc;
+	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		bHandled=FALSE;
+		GetWindowRect(&m_rc);
+		return 0;
 	}
 };

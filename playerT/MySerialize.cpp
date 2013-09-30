@@ -207,7 +207,7 @@ int PlayList::SerializeB(FILE *pFile)
 	size+=::Serialize(pFile,m_playlistName);
 
 	//bMonitor  
-	size+=::Serialize(pFile,m_bMonitor);
+	size+=::Serialize(pFile,m_bAuto);
 
 	//m_songList Serialize
 	_songContainer::iterator i;
@@ -230,7 +230,7 @@ int PlayList::ReSerialize(FILE *pFile)
 
 
 	//4 byte  
-	::ReSerialize(pFile,&m_bMonitor);
+	::ReSerialize(pFile,&m_bAuto);
 
 	while(size<totalSize-playlistnameSize-4){
 		PlayListItem item(this);
@@ -311,6 +311,10 @@ PlayList* MyLib::LoadPlaylist(LPTSTR filepath,TCHAR* PlName)
 		m_playLists.push_back(playlist);
 		SetActivePlaylist(playlist);
 
+
+		if(playlist->m_bAuto)
+			MyLib::shared()->SetAutoPlayList(playlist);
+
 		SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)playlist,1);
 
 		fclose (pFile);
@@ -346,6 +350,8 @@ bool LoadAllPlayList()
 			
 			MyLib::shared()->LoadPlaylist((LPTSTR)path,(TCHAR*)name.c_str());
 		}
+
+		fclose(pFile);
 	}
 
 	return bLoaded;
@@ -381,6 +387,8 @@ bool SaveAllPlayList()
 
 			MyLib::shared()->SavePlaylist(&(*i2),(LPTSTR)path);
 		}
+
+		fclose(pFile);
 	}
 
 	return true;
@@ -677,6 +685,7 @@ int CMainFrame::SerializeB(FILE *pFile)
 	size+=::Serialize(pFile,m_rcConfig);
 	size+=::Serialize(pFile,m_rcLrc);
 	size+=::Serialize(pFile,m_rcProcess);
+	size+=::Serialize(pFile,m_rcSearch);
 	size+=::Serialize(pFile,m_rcFFT);
 	size+=::Serialize(pFile,m_rcPLMng);
 	size+=::Serialize(pFile,m_rcPLConsole);
@@ -697,9 +706,12 @@ int CMainFrame::ReSerialize(FILE *pFile)
 	size+=::ReSerialize(pFile,m_rcConfig);
 	size+=::ReSerialize(pFile,m_rcLrc);
 	size+=::ReSerialize(pFile,m_rcProcess);
+	size+=::ReSerialize(pFile,m_rcSearch);
 	size+=::ReSerialize(pFile,m_rcFFT);
 	size+=::ReSerialize(pFile,m_rcPLMng);
 	size+=::ReSerialize(pFile,m_rcPLConsole);
 	
+
+
 	return size;
 }

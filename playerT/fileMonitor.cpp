@@ -3,6 +3,7 @@
 #include "PlayList.h"
 #include "StringConvertions.h"
 #include "PlayListView.h"
+#include "forwardMsg.h"
 DWORD WINAPI ThreadProc(LPVOID lpParameter)
 {
 	auto p=(fileMonitor*)lpParameter;
@@ -18,11 +19,12 @@ void fileMonitor::HandleNotify(FILE_NOTIFY_INFORMATION *pNotify)
 	pathTo[len++]='\\';
 	while(1)
 	{
-		wcsncpy(pathTo+len,pNotify->FileName,pNotify->FileNameLength);
+		wcsncpy(pathTo+len,pNotify->FileName,pNotify->FileNameLength/sizeof(TCHAR));
 
 		switch(pNotify->Action)
 		{
 		case FILE_ACTION_ADDED:
+			::Sleep(250);
 			pPL->AddFile(pathTo);
 			break;
 		case FILE_ACTION_REMOVED:
@@ -59,9 +61,7 @@ void fileMonitor::Watch()
 			if (w==WAIT_OBJECT_0){
 				FILE_NOTIFY_INFORMATION *pNotify=(FILE_NOTIFY_INFORMATION*)myOverLapped.notify;
 				HandleNotify(pNotify);
-// 				if (pPL->pPLV)
-// 					pPL->pPLV->Reload(pPL);	
-				AllPlayListViews()->Reload(pPL);
+				NotifyMsg(WM_PL_TRACKNUM_CHANGED,(WPARAM)pPL,NULL);
 				}
 		}
 	}

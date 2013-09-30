@@ -22,6 +22,7 @@
 #include "glassWnd.h"
 #include <mpg123.h>
 #include "MyConfigs.h"
+#include "Util1.h"
 
 using namespace std;
 
@@ -106,7 +107,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	InitData();
 
-	if(m_rcMain.right!=0)
+	if(m_rcMain.right>0 && m_rcMain.bottom > 0)
 	::SetWindowPos(m_hWnd, NULL, m_rcMain.left, m_rcMain.top, m_rcMain.right - m_rcMain.left, m_rcMain.bottom - m_rcMain.top,SWP_NOZORDER);
 
 	SetWindowText(GetAppName());
@@ -277,8 +278,12 @@ LRESULT CMainFrame::OnNotify2(int idCtrl, LPNMHDR pnmh)
 } 
 
 
-LRESULT CMyTrackBar::OnMouseReleased(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+LRESULT CMyTrackBar::OnMouseReleased(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 {
+	bHandled=FALSE;
+	m_bPressing=false;
+	ReleaseCapture();
+
 	int pos=GetPos();
 	int posMax=GetRangeMax();
 
@@ -406,7 +411,12 @@ LRESULT CMainFrame::OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
 	if (!m_pDlgConfig)
 	{
 		m_pDlgConfig=new CDialogConfig;
-		m_pDlgConfig->Create(m_hWnd);
+
+		m_pDlgConfig->Create(m_hWnd,m_rcConfig);
+
+		if(m_rcConfig.right>0 && m_rcConfig.bottom > 0)
+			::SetWindowPos(m_pDlgConfig->m_hWnd, NULL, m_rcConfig.left, m_rcConfig.top, m_rcConfig.right - m_rcConfig.left, m_rcConfig.bottom - m_rcConfig.top,SWP_NOZORDER);
+
 	}
 	
 
@@ -437,14 +447,11 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 	CFolderDialog dlg(m_hWnd,_T("请选择要添加的文件夹"),uFlags);
 	if (dlg.DoModal()==IDOK)
 	{
-		ShowDlgProcessFile();
-
 		LPCTSTR path=dlg.GetFolderPath();
 		TCHAR *tmp=new TCHAR[MAX_PATH];
 		_tcscpy(tmp,path);
 		
-		PlayList* pList=MyLib::AddFolderToCurrentPlayList(tmp);
-		pDlgProcess->pList=pList;
+		MyLib::AddFolderToCurrentPlayList(tmp);
 	}
 	return 0;
 }
@@ -488,7 +495,7 @@ void CPlayListManager::AddPlayList(PlayList *pPL)
 
 	InsertItem(item,pPL->m_playlistName.c_str());
 	SetItemText(item,1,strCount);
-	SetItemText(item,2,pPL->m_bMonitor?_T("自动列表"):_T("普通列表"));
+	SetItemText(item,2,pPL->m_bAuto?_T("自动列表"):_T("普通列表"));
 	SetItemData(item,(DWORD_PTR)pPL);
 	//++item;
 }
@@ -506,7 +513,7 @@ void CPlayListManager::DelPlayList(PlayList *pPL)
 	}
 }
 
-void CPlayListManager::UpdateByPLTrack(PlayList *pPL,int trackNum)
+void CPlayListManager::UpdateByPLTrack(PlayList *pPL)
 {
 	int c=GetItemCount();
 	for (int i=0;i<c;++i)
@@ -516,9 +523,8 @@ void CPlayListManager::UpdateByPLTrack(PlayList *pPL,int trackNum)
 			SetItemText(i,0,pPL->m_playlistName.c_str());
 
 			TCHAR strCount[256];
-			_itow(pPL->m_songList.size()+trackNum,strCount,10);
+			_itow(pPL->m_songList.size(),strCount,10);
 			SetItemText(i,1,strCount);
-			
 			break;
 			}
 	}
@@ -577,6 +583,9 @@ LRESULT CMainFrame::OnShowConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 	{
 		m_pDlgConsole=new CDialogConsole;
 		m_pDlgConsole->Create(m_hWnd);
+
+		if(m_rcPLConsole.right>0 && m_rcPLConsole.bottom > 0)
+			::SetWindowPos(m_pDlgConsole->m_hWnd, NULL, m_rcPLConsole.left, m_rcPLConsole.top, m_rcPLConsole.right - m_rcPLConsole.left, m_rcPLConsole.bottom - m_rcPLConsole.top,SWP_NOZORDER);
 	}
 
 	::ShowWindow(m_pDlgConsole->m_hWnd,SW_SHOW);
@@ -714,23 +723,25 @@ LRESULT CMainFrame::OnPLChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOO
 
 LRESULT CMainFrame::OnPLTrackNumChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	int tracknum=(int)lParam;
 	PlayList *pl=(PlayList*)wParam;
-	
+		
+	int numberChanged=(int)lParam;
+	if(numberChanged==-1)
+	{
+		AllPlayListViews()->DeleteOneTrackFirst(pl);
+		return 0;
+	}
 
-	//m_pTabBar->AddPlaylistTab(playlist,TRUE,-1);
-	
 	AllPlayListViews()->Reload(pl);
 
 	if (m_pDlgPLMng && m_pDlgPLMng->IsWindow())
 	{
-		m_pDlgPLMng->m_list.UpdateByPLTrack(pl,tracknum);
+		m_pDlgPLMng->m_list.UpdateByPLTrack(pl);
 	}
 	
-	
-
 	return 0;
 }
+
 
 LRESULT CMainFrame::OnFileNewPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
@@ -750,13 +761,15 @@ LRESULT CMainFrame::OnOpenPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 {
 	const TCHAR szFilter[]=_T("playlist files(*.pl)\0*.pl\0");
 	const TCHAR szDefaultExt[]=_T("pl");
+
+	const TCHAR *strInitPath=ChangeCurDir2PlaylistPath();
+
 	CFileDialog dlg(TRUE,szDefaultExt,NULL,OFN_FILEMUSTEXIST|OFN_DONTADDTORECENT,szFilter,m_hWnd);
+	dlg.m_ofn.lpstrInitialDir=strInitPath;
+
 	if(dlg.DoModal()==IDOK)
 	{
 		PlayList* playlist =MyLib::shared()->LoadPlaylist(dlg.m_ofn.lpstrFile);
-		//m_pTabBar->AddPlaylistTab(playlist ,TRUE,-1);
-		////tell the play list view to add this
-		
 		::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
 	}
 
@@ -874,23 +887,17 @@ void CPlayListView::PlayItem(int nItem)
 // 		//	RedrawItems(lastTrack,lastTrack);
 // 	}
 
-
-	//搜索列表,实际上是用的tab某个列表的数据
 	PlayListItem track;
 	if(nItem==-1)return;
 
-	track=GetPlayList()->m_songList[nItem];	
+	track=GetPlayList()->GetItem(nItem);
 
-	nItemPlaying=nItem;
-// 	s->SetActivePlaylist(track.GetPlayList());
-// 	s->ActivePlaylist()->SetCurPlaying(track,FALSE);
-
-
+	GetPlayList()->SetPlayingIndex(nItem);
 
 	::SetPlayingItem(track);
 	MyLib::shared()->play(track.GetFileTrack());
 
-	RedrawItems(nItemPlaying,nItemPlaying);
+	RedrawItems(GetPlayList()->GetPlayingIndex(),GetPlayList()->GetPlayingIndex());
 }
 
 
@@ -947,6 +954,9 @@ void CMainFrame::ShowSearchDialog()
 		m_pDlgSearch=new DialogSearch;
 		m_pDlgSearch->pM=this;
 		m_pDlgSearch->Create(m_hWnd);
+
+		if(m_rcSearch.right>0 && m_rcSearch.bottom > 0)
+			::SetWindowPos(m_pDlgSearch->m_hWnd, NULL, m_rcSearch.left, m_rcSearch.top, m_rcSearch.right - m_rcSearch.left, m_rcSearch.bottom - m_rcSearch.top,SWP_NOZORDER);
 	}
 	
 	m_pDlgSearch->ShowSelf();
@@ -986,6 +996,9 @@ void CMainFrame::ShowDlgProcessFile()
 
 LRESULT CMainFrame::OnFileFinded(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
+	if(!pDlgProcess)
+		ShowDlgProcessFile();
+
 	pDlgProcess->ShowFileName((TCHAR*)wParam,(BOOL)lParam);
 	return 0;
 }
@@ -1008,6 +1021,9 @@ LRESULT CMainFrame::OnViewPlaylistManager(WORD /*wNotifyCode*/, WORD /*wID*/, HW
 	m_pDlgPLMng=new DialogPLManager;
 	m_pDlgPLMng->m_list.pMain=this;
 	m_pDlgPLMng->Create(m_hWnd);
+
+	if(m_rcPLMng.right>0 && m_rcPLMng.bottom > 0)
+		::SetWindowPos(m_pDlgPLMng->m_hWnd, NULL, m_rcPLMng.left, m_rcPLMng.top, m_rcPLMng.right - m_rcPLMng.left, m_rcPLMng.bottom - m_rcPLMng.top,SWP_NOZORDER);
 	}
 
 	m_pDlgPLMng->ShowSelf();	
@@ -1304,7 +1320,29 @@ HMENU LoadPlaylistMenu(BOOL bDestroy)
 	return subMenu;
 }
 
+HMENU LoadPlaylistManagerMenu(BOOL bDestroy)
+{
+	static HMENU menu=NULL;
+	static HMENU subMenu=NULL;
+	if (!bDestroy)
+	{
+		if (!menu)
+		{	
+			menu=::LoadMenu(NULL,MAKEINTRESOURCE(IDR_MENU_PL_MNG));
+			subMenu=::GetSubMenu(menu,0);
+		}
+	}
+	else
+	{
+		if(menu)
+		{
+			::DestroyMenu(menu);
+			menu=NULL;
+		}
+	}
 
+	return subMenu;
+}
 
 
 
@@ -1665,9 +1703,9 @@ LRESULT CPropertyDlgMediaLib::OnBtnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 		m_list.SetItemText(count,1,_T("正在扫描"));
 
 		std::tstring *strPath=new std::tstring(path);
-		MyLib::shared()->AddMediaPath(*strPath);
 		MyLib::shared()->GetAutoPlaylist()->AddFolderByThread(strPath->c_str());
-
+		MyLib::shared()->AddMediaPath(*strPath);
+		
 		m_list.SetItemData(count,(DWORD)strPath);
 	}
 
@@ -1958,10 +1996,28 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 	KillTimer(m_nIDEvent);
 
+
+	//save the windows position
 	GetWindowRect(&m_rcMain);
+	
+	if(m_pDlgConfig)
+		m_rcConfig=m_pDlgConfig->m_rc;
+// 	if(m_dlgLrc)
+// 		m_dlgLrc->GetWindowRect(&m_rcLrc);
+// 	if(pDlgProcess)
+// 		pDlgProcess->GetWindowRect(&m_rcProcess);
+	if(m_pDlgSearch)
+		m_rcSearch=m_pDlgSearch->m_rc;
+// 	if(m_pDlgFFT)
+// 		m_pDlgFFT->GetWindowRect(&m_rcFFT);
+	if(m_pDlgPLMng)
+		m_rcPLMng=m_pDlgPLMng->m_rc;
+
+// 	if(m_pDlgConsole)
+// 		m_pDlgConsole->GetWindowRect(&m_rcPLConsole);
+
 
 	SaveAll();
-
 
 
 	UnregisterHotKey(m_hWnd, HotKeyId); 
@@ -2017,7 +2073,7 @@ void CPlayListView::OnDestroy()
 
 
 
-void CPlayListView::Init()
+void CPlayListView::Init(bool bSearch)
 {	
 	IWantToReceiveMessage(WM_PLAYLISTVIEW_SETFOCUS);
 	IWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_DEFAULT);
@@ -2026,8 +2082,7 @@ void CPlayListView::Init()
 
 	SetLVFont(20);
 
-
-	if(!m_bSearch)
+	if(!bSearch)
 		AllPlayListViews()->AddItem(this);
 
 	ChangeColorDefault();

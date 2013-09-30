@@ -197,7 +197,7 @@ class PlayList:
 {
 public:
 	PlayList(void);
-	PlayList(std::tstring &name,bool bMonitor=false);
+	PlayList(std::tstring &name);
 	~PlayList(void);
 public:
 	virtual int SerializeB(FILE* pFile);
@@ -242,12 +242,16 @@ public:
 public:
 	_songContainerItem GetNextTrackByOrder(BOOL bMoveCur=TRUE);
 
+public:
 
+	//自动播放列表？
+	BOOL m_bAuto,m_bSearch;//是否为搜索列表
+	inline int GetPlayingIndex(){return nItemPlaying;}
+	inline void SetPlayingIndex(int nItem){nItemPlaying=nItem;}
+private:
+	int nItemPlaying;//正在播放的项目
 public:
 	//this data will used in list view when display
 	int topVisibleIndex;
 	int selectedIndex;
-
-	BOOL m_bMonitor;
-	fileMonitors m_fileMonitor;
 };

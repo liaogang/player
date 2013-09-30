@@ -19,7 +19,7 @@ const TCHAR* ChangeCurDir2ModulePath(HINSTANCE hInstance)
 }
 
 
-bool ChangeCurDir2PlaylistPath(bool bCreate)
+const TCHAR* ChangeCurDir2PlaylistPath(bool bCreate)
 {
 	static TCHAR PlayListPath[MAX_PATH]={0};
 	const TCHAR *modulePath=ChangeCurDir2ModulePath(NULL);
@@ -31,12 +31,12 @@ bool ChangeCurDir2PlaylistPath(bool bCreate)
 	}
 
 	if(_tchdir(PlayListPath)==0)
-		return true;
+		return PlayListPath;
 	else
 	{
 		if(bCreate)
 			//if the path not exist, create a new directory.
 			_wmkdir(_T("playlists"));
-		return _tchdir(PlayListPath)==0;
+		return _tchdir(PlayListPath)==0?PlayListPath:NULL;
 	}
 }
