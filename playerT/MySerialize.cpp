@@ -327,7 +327,7 @@ PlayList* MyLib::LoadPlaylist(LPTSTR filepath,TCHAR* PlName)
 
 bool LoadAllPlayList()
 {
-	if(!ChangeCurDir2PlaylistPath())
+	if(!ChangeCurDir2PlaylistPath(true))
 		return false;
 
 	FILE * pFile=NULL;

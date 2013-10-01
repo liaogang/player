@@ -13,10 +13,14 @@ DWORD WINAPI ThreadProc(LPVOID lpParameter)
 
 void fileMonitor::HandleNotify(FILE_NOTIFY_INFORMATION *pNotify)
 {
-	int len=_tcslen(szPath);     
 	memset(pathTo,0,sizeof(pathTo));
-	_tcscpy(pathTo,szPath);
-	pathTo[len++]='\\';
+
+// 	int len=_tcslen(szPath);     
+// 	_tcscpy(pathTo,szPath);
+// 	pathTo[len++]='\\';
+
+	INT len=0;
+
 	while(1)
 	{
 		wcsncpy(pathTo+len,pNotify->FileName,pNotify->FileNameLength/sizeof(TCHAR));
@@ -53,7 +57,7 @@ void fileMonitor::Watch()
 	{
 		if(::ReadDirectoryChangesW(hDir,
 			myOverLapped.notify,sizeof(myOverLapped.notify),
-			FALSE,
+			TRUE,
 			FILE_NOTIFY_CHANGE_FILE_NAME|FILE_NOTIFY_CHANGE_DIR_NAME,
 			0,&(myOverLapped.overlapped),0))
 		{

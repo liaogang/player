@@ -112,6 +112,8 @@ public:
 
 		MoveToNewRect(rootTree);
 
+		BeginSize();
+
 		if(m_hCursorLeftRight == NULL)
 			m_hCursorLeftRight = ::LoadCursor(NULL, IDC_SIZEWE);
 		if(m_hCursorUpDown == NULL)

@@ -91,6 +91,7 @@ playerT/DialogSearch.h -text
 playerT/DirectSoundController.h -text
 playerT/DlgConsole.h -text
 playerT/DlgProcessing.h -text
+playerT/DlgProgerty.h -text
 playerT/Dx9SDK/Include/Amvideo.h -text
 playerT/Dx9SDK/Include/Bdatif.h -text
 playerT/Dx9SDK/Include/DShow.h -text

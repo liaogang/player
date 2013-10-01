@@ -795,8 +795,8 @@ public:
 		ATLASSERT(pLoop != NULL);
 		pLoop->RemoveMessageFilter(this);
 
-		if (!GetPlayList()->m_bSearch)
-			delete this;
+		
+		delete this;
 	}
 
 

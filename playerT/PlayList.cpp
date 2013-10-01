@@ -183,23 +183,27 @@ BOOL IsDots(TCHAR* fn)
 
 BOOL PlayList::AddFile(TCHAR *filepath)
 {
+	//if 'filepath' not include the dir name , added it. 
+	if(!_tcschr(filepath,'\\'))
+	{
+		TCHAR szPath[MAX_PATH]={0};
+		_tgetcwd(szPath,MAX_PATH);
+		_tcscpy(szPath,filepath);
+		filepath=szPath;
+	}
+
 	std::tstring str(filepath);
 	PlayListItem item(this,str);
 	
-	ATLTRACE2(filepath);
-
 	if(item.ScanId3Info())
 	{	
-		ATLTRACE2(L"added");
-		ATLTRACE2(L"%d",m_songList.size());
 		item.SetIndex(m_songList.size());
 		m_songList.push_back(item);
-		ATLTRACE2(L"%d\n",m_songList.size());
 		NotifyMsg(WM_FILE_FINDED,(WPARAM)filepath,(LPARAM)2);
 
 		return TRUE;
 	}
-	ATLTRACE2(L"not added");
+
 	return FALSE;
 }
 

@@ -280,18 +280,18 @@ LRESULT CMainFrame::OnNotify2(int idCtrl, LPNMHDR pnmh)
 
 LRESULT CMyTrackBar::OnMouseReleased(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 {
-	bHandled=FALSE;
 	m_bPressing=false;
 	ReleaseCapture();
 
 	int pos=GetPos();
 	int posMax=GetRangeMax();
-
+	::MessageBox(m_hWnd,L"released",NULL,MB_OK);
 	CBasicPlayer::shared()->SetPos(pos,posMax);
-	m_bPressing=FALSE;
+	::MessageBox(m_hWnd,L"releasedDD",NULL,MB_OK);
 
 	m_uCurrTime=pos * 1000 ;
 
+	
 	return 0;
 }
 
@@ -763,6 +763,8 @@ LRESULT CMainFrame::OnOpenPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 	const TCHAR szDefaultExt[]=_T("pl");
 
 	const TCHAR *strInitPath=ChangeCurDir2PlaylistPath();
+	if(!strInitPath)
+		strInitPath=ChangeCurDir2ModulePath(NULL);
 
 	CFileDialog dlg(TRUE,szDefaultExt,NULL,OFN_FILEMUSTEXIST|OFN_DONTADDTORECENT,szFilter,m_hWnd);
 	dlg.m_ofn.lpstrInitialDir=strInitPath;
