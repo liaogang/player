@@ -41,6 +41,9 @@ public:
 	 void EnlargeLVFont(int value);
 
 	 void DeleteOneTrackFirst(PlayList *pPL);
+
+
+	 void SelectItems(std::vector<int> &items);
 };
 
 PlayListViewMng * AllPlayListViews();

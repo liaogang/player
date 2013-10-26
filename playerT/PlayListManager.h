@@ -1,5 +1,7 @@
 #pragma once
-
+#include "stdafx.h"
+#include "resource.h"
+#include "MyLib.h"
 //IDR_MENU_PL_MNG
 HMENU LoadPlaylistManagerMenu(BOOL bDestroy=FALSE);
 
@@ -13,7 +15,12 @@ class CPlayListManager:
 public:
 	BEGIN_MSG_MAP_EX(CPlayListManager)
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
+		COMMAND_ID_HANDLER(ID_PLAYLISTMNG_DEL,OnDeletePlaylist)
+		COMMAND_ID_HANDLER(ID_PLAYLISTMNG_ACTIVE,OnActivePlaylist)
+		COMMAND_ID_HANDLER(ID_PLAYLISTMNG_NEW,OnNewPlaylist)
+		COMMAND_ID_HANDLER(ID_PLAYLISTMNG_RENAME,OnRenamePlaylist)
 		REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_RCLICK ,OnNotifyCodeHandlerEX)
+		REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ENDLABELEDIT,OnEndLabelEdit)
 	END_MSG_MAP()
 
 	CMainFrame *pMain;
@@ -69,6 +76,7 @@ public:
 			lvc.iSubItem = (nSubItem != -1) ? nSubItem : nItem;
 		return InsertColumn(nItem, &lvc);
 	}
+
 	BOOL GetFirstSelItem()
 	{
 		int nItem=-1;
@@ -82,22 +90,86 @@ public:
 	
 
 
-
-
 	
+	LRESULT OnEndLabelEdit(LPNMHDR pnmh)
+	{
+		NMLVDISPINFO *p=(NMLVDISPINFO *)pnmh;
+		int item=p->item.iItem;
+		int iSubItem=p->item.iSubItem;
+		TCHAR *pszTest=p->item.pszText;
+
+		PlayList * pPl=(PlayList *)GetItemData(GetFirstSelItem());
+		pPl->Rename(pszTest);
+		UpdateByPLTrack(pPl);
+		return TRUE;
+	}
+
 	LRESULT OnNotifyCodeHandlerEX(LPNMHDR pnmh)
 	{
 		static HMENU menu=NULL;
 		if(menu==NULL)
 			menu=LoadPlaylistManagerMenu();
 
-		POINT pt;
-		GetCursorPos(&pt);
 
-		if(GetNextItem(-1,LVIS_FOCUSED|LVIS_SELECTED)!=-1)
+		int count=GetSelectedCount();
+		if(count>0)
+		{
+			POINT pt;
+			GetCursorPos(&pt);
+
+			::EnableMenuItem(menu,ID_PLAYLISTMNG_ACTIVE,MF_BYCOMMAND|count==1?MF_ENABLED:(MF_DISABLED | MF_GRAYED));
+			::EnableMenuItem(menu,ID_PLAYLISTMNG_RENAME,MF_BYCOMMAND|count==1?MF_ENABLED:(MF_DISABLED | MF_GRAYED));
 			::TrackPopupMenu(menu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
+		}
 
 		return 1;
+	}
+
+
+	LRESULT OnDeletePlaylist(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		vector<int> items;
+
+		int nItem=-1;
+		while((nItem=GetNextItem(nItem,LVNI_SELECTED))!=-1)
+			items.push_back(nItem);
+		
+		//µ¹Ðò
+		reverse(items.begin(),items.end());
+
+		for (auto i=items.begin();i!=items.end();i++)
+		{
+			DeleteItem(*i);
+			MyLib::shared()->DeletePlayList(*i);
+		}
+
+		
+		return 0;
+	}
+
+	LRESULT OnActivePlaylist(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		PlayList *l=(PlayList*)GetItemData(GetFirstSelItem());
+
+		SetActivePlaylist(l);
+
+		AllPlayListViews()->Reload(l);
+
+		return 0;
+	}
+	
+	LRESULT OnNewPlaylist(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		PlayList *pPl=MyLib::shared()->NewPlaylist();
+		AllPlayListViews()->Reload(pPl);
+		SetActivePlaylist(pPl);
+		return 0;
+	}
+
+	LRESULT OnRenamePlaylist(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+
+		return 0;
 	}
 };
 
@@ -140,6 +212,8 @@ public:
 		HideSelf();
 		return 0;
 	}
+	
+	
 
 	void HideSelf()
 	{

@@ -4,18 +4,16 @@
 #include "mysplit.h"
 #include "customMsg.h"
 
-static PlayList *pActivePlaylist=0;
-PlayList* ActivePlaylist(){return pActivePlaylist;}
-void SetActivePlaylist(PlayList* p){pActivePlaylist=p;}
 
 
 //file track 是NEW出来的一块随机内存
-static PlayListItem playingItem=0;
-PlayListItem  GetPlayingItem()
+PlayListItem* playingItem=nullptr;
+PlayListItem* GetPlayingItem()
 {
 	return playingItem;
 }
-void  SetPlayingItem(PlayListItem item)
+
+void  SetPlayingItem(PlayListItem * item)
 {
 	playingItem=item;
 }

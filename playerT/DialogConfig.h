@@ -67,6 +67,7 @@ public:
 	}
 
 
+	BOOL m_show;
 	RECT m_rc;
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
@@ -223,8 +224,20 @@ public:
 				::PostMessage(hWnd,WM_CONFIGTOSAVE,NULL,NULL);	
 		}
 
-		ShowWindow(SW_HIDE);
+		 HideSelf();
 		return 0;
+	}
+
+	void ShowSelf()
+	{
+		ShowWindow(SW_HIDE);
+		m_show-TRUE;
+	}
+
+	void HideSelf()
+	{
+		ShowWindow(SW_HIDE);
+		m_show=FALSE;
 	}
 
 	~CDialogConfig()

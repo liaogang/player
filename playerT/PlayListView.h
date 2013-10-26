@@ -15,6 +15,14 @@ HMENU LoadPlaylistMenu(BOOL bDestroy=FALSE);
 #define TEXTALIGN__WIDTH 3
 
 
+
+
+//for compare function
+static  CPlayListView* pListCtrl;
+static int columnIndexClicked;
+
+
+
 class CPlayListView:
 	public CWindowImpl<CPlayListView,CListViewCtrl>,
 	public CMessageFilter
@@ -35,7 +43,7 @@ public:
 	COLORREF clText1,clText2;
 	bool bClientEdge;
 
-	CPlayListView():m_bC(TRUE)
+	CPlayListView():m_bC(TRUE),m_Order(0)
 	{
 		SetPlayList(NULL);
 		menu=LoadPlaylistMenu();
@@ -93,7 +101,8 @@ public:
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED,OnItemChanged)
 		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO,OnGetdispInfo)
 		REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
-		END_MSG_MAP()
+		REFLECTED_NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK,OnColumnClick)
+	END_MSG_MAP()
 
 		void FillSolidRect(HDC m_hDC,LPCRECT lpRect, COLORREF clr)
 		{
@@ -374,13 +383,100 @@ public:
 
 		LRESULT OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled);
 
+		UINT m_Order;
+		static bool CALLBACK CompareProc(PlayListItem *item1, PlayListItem *item2)
+		{
+			bool result;
+
+			const TCHAR  * str1;
+			const TCHAR  * str2;
+
+			FileTrack *track1=item1->GetFileTrack();
+			FileTrack *track2=item2->GetFileTrack();
+
+			switch(columnIndexClicked)
+			{
+			case COLUMN_INDEX_TITLE:
+				str1=track1->title.c_str();
+				str2=track2->title.c_str();
+				break;
+			case COLUMN_INDEX_ARTIST:
+				str1=track1->artist.c_str();
+				str2=track2->artist.c_str();
+				break;
+			case COLUMN_INDEX_ALBUM:
+				str1=track1->album.c_str();
+				str2=track2->album.c_str();
+				break;
+			case COLUMN_INDEX_YEAR:
+				{
+					UINT uYear1,uYear2;
+					str1=track1->year.c_str();
+					str2=track2->year.c_str();
+					if(str1==_T("?"))
+						uYear1=0;
+					else if(str2==_T("?"))
+						uYear2=0;
+					else
+					{
+						uYear1=_wtoi(str1);
+						uYear2=_wtoi(str2);
+					}
+					result= uYear1>uYear2;
+					goto theEnd;
+				}
+			case COLUMN_INDEX_GENRE:
+				str1=track1->genre.c_str();
+				str2=track2->genre.c_str();
+				break;
+			}
+		
+			
+			result = _tcscmp(str1, str2) > 0;
+
+			theEnd:
+			return (pListCtrl->m_Order & (1<<columnIndexClicked))?result:!result;
+		}
+
+		void SortItems();
+
+		LRESULT OnColumnClick(int /**/,NMHDR *pNMHDR,BOOL bHandled)
+		{
+			LPNMLISTVIEW pnmv = (LPNMLISTVIEW) pNMHDR;
+			int columnOrder=pnmv->iSubItem;
+			columnIndexClicked=Header_OrderToIndex(ListView_GetHeader(m_hWnd),columnOrder);
+			
+			if(columnIndexClicked!=COLUMN_INDEX_INDEX)
+			{
+				pListCtrl=this;
+				SortItems();
+				Invalidate();		
+			}
+
+			return 0;
+		}
+
 		BOOL m_bC;
 		
+
+	
+
 		//LRESULT OnItemChanging(int /**/,LPNMHDR pnmh,BOOL bHandled);
 		LRESULT OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled);
 
 
 		inline void SelectAll(){SetItemState(-1, LVIS_SELECTED , LVIS_SELECTED );}
+
+
+		void SelectItems(vector<int> &items)
+		{
+			ClearAllSel();
+			
+			for (auto i=items.begin();i!=items.end();i++)
+				SetItemState(*i, LVIS_SELECTED , LVIS_SELECTED );
+
+			EnsureVisibleAndCentrePos(*(items.begin()));
+		}
 
 		void DelSelectedItem(BOOL bDelFile=FALSE)
 		{
@@ -530,6 +626,7 @@ public:
 			COLUMN_INDEX_YEAR,
 			COLUMN_INDEX_GENRE
 		};
+
 
 		CFont m_Font;
 		int   m_nFontHeight;
@@ -693,7 +790,7 @@ public:
 		// 			}
 
 		//isVisible?
-		if (index >= top && index  <= top+countPerPage)
+		if (index >= top +1  && index  <= top+countPerPage -1 )
 		{
 			return;
 		}
@@ -721,7 +818,7 @@ public:
 
 		if(nItem!=-1)
 		{
-			FileTrack *track=GetPlayList()->m_songList[nItem].GetFileTrack();
+			FileTrack *track=GetPlayList()->GetItem(nItem)->GetFileTrack();
 
 			std::tstring parameters=_T("/select,");
 			parameters+=track->url;
@@ -796,7 +893,10 @@ public:
 		pLoop->RemoveMessageFilter(this);
 
 		
-		delete this;
+		if(GetPlayList() && GetPlayList()->m_bSearch)
+			;
+		else
+			delete this;
 	}
 
 

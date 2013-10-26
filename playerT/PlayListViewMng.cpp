@@ -1,6 +1,6 @@
 #include "PlayListViewMng.h"
 #include "PlayListView.h"
-
+#include "MyLib.h"
 void PlayListViewMng::AddItem(CPlayListView* playlistview)
 {
 	dataCollection.push_back(playlistview);
@@ -52,6 +52,17 @@ void PlayListViewMng::DeleteOneTrackFirst(PlayList *pPL)
 		}
 	}
 }
+
+
+void PlayListViewMng::SelectItems(std::vector<int> &items)
+{
+	for (auto it=dataCollection.begin();it!=dataCollection.end();++it)
+	{
+		CPlayListView* playlistview=*it;
+		playlistview->SelectItems(items);
+	}
+}
+
 
 PlayListViewMng * AllPlayListViews()
 {

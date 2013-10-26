@@ -71,7 +71,7 @@ public:
 	
 
 	RECT m_rcMain;
-	RECT m_rcConfig;
+	RECT m_rcConfig; 
 	RECT m_rcLrc;
 	RECT m_rcProcess;
 	RECT m_rcSearch;
@@ -79,6 +79,13 @@ public:
 	RECT m_rcPLMng;
 	RECT m_rcPLConsole;
 	
+	BOOL m_dlgConfigShow;
+	RECT m_dlgLrcShow;
+	RECT m_dlgProcessShow;
+	RECT m_dlgSearchShow;
+	RECT m_dlgFFTShow;
+	RECT m_dlgPLMngShow;
+	RECT m_dlgPLConsoleShow;
 
 
 
@@ -170,6 +177,7 @@ public:
 		COMMAND_ID_HANDLER(ID_STOP, OnStop)
 		COMMAND_ID_HANDLER(ID_PLAY_NEXT, OnPlayNext)
 		COMMAND_ID_HANDLER(ID_CONFIG, OnConfig)
+		COMMAND_ID_HANDLER(ID_SAVE_CONFIG, OnSaveConfig)
 		COMMAND_ID_HANDLER(ID_FILE_OPENDIRECTORY, OnFileOpendirectory)
 		COMMAND_ID_HANDLER(ID_FILE_NEWPLAYLIST,OnFileNewPlaylist)
 		COMMAND_ID_HANDLER(ID_OPENPLAYLIST,OnOpenPlaylist)
@@ -290,6 +298,7 @@ public:
 	LRESULT OnStop(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnPlayNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnSaveConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnConfigLayout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnConfigLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnConfigMediaLib(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

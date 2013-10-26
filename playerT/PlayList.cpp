@@ -51,24 +51,24 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 		selectedIndex(-1),m_bSearch(FALSE),m_bAuto(FALSE),nItemPlaying(-1)
 {
 	m_playlistName=name;
-	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)1);
+	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)TRUE);
 }
 
 
 
 PlayList::~PlayList(void)
 {	
-	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)-1);
+	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)FALSE);
 }
 
 void PlayList::ChangeTrackPath(TCHAR *from,TCHAR *to)
 {
 	for (auto i=m_songList.begin();i!=m_songList.end();++i)
 	{
-		PlayListItem item=*i;
-		if (_tcscmp(from,item.GetFileTrack()->url.c_str())==0)
+		PlayListItem *item=*i;
+		if (_tcscmp(from,item->GetFileTrack()->url.c_str())==0)
 		{
-			item.GetFileTrack()->url=to;
+			item->GetFileTrack()->url=to;
 			break;
 		}
 	}
@@ -78,8 +78,8 @@ void PlayList::DeleteTrackByPath(TCHAR *path)
 {
 	for (auto i=m_songList.begin();i!=m_songList.end();++i)
 	{
-		PlayListItem item=*i;
-		if (_tcscmp(path,item.GetFileTrack()->url.c_str())==0)
+		PlayListItem *item=*i;
+		if (_tcscmp(path,item->GetFileTrack()->url.c_str())==0)
 		{
 			//先删除视图里的显视,再删除数据
 			NotifyMsg(WM_PL_TRACKNUM_CHANGED,(WPARAM)this,(LPARAM)-1);
@@ -193,12 +193,12 @@ BOOL PlayList::AddFile(TCHAR *filepath)
 	}
 
 	std::tstring str(filepath);
-	PlayListItem item(this,str);
+	PlayListItem * pItem=new PlayListItem(this,str);
 	
-	if(item.ScanId3Info())
+	if(pItem->ScanId3Info())
 	{	
-		item.SetIndex(m_songList.size());
-		m_songList.push_back(item);
+		pItem->SetIndex(m_songList.size());
+		m_songList.push_back(pItem);
 		NotifyMsg(WM_FILE_FINDED,(WPARAM)filepath,(LPARAM)2);
 
 		return TRUE;
@@ -288,7 +288,7 @@ void PlayList::SetCurPlaying(_songContainerItem item,BOOL scanID3)
 {
 	//curPlayingItem=item;
 	SetPlayingItem(item);
-	if (scanID3) item.ScanId3Info(TRUE);
+	if (scanID3) item->ScanId3Info(TRUE);
 }
 
 _songContainerItem PlayList::GetNextTrackByOrder(BOOL bMoveCur)
@@ -297,8 +297,8 @@ _songContainerItem PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 	_songContainer::iterator cur,next;
 
 	_songContainerItem item=GetPlayingItem();
-	if(item.isValide())
-		cur = m_songList.begin()+item.GetIndex();
+	if(item->isValide())
+		cur = m_songList.begin()+item->GetIndex();
 	else
 	{
 		if(selectedIndex==-1)
@@ -310,17 +310,9 @@ _songContainerItem PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 			return m_songList[selectedIndex] ;
 	}
 
-// 	for (cur=m_songList.begin();cur!=m_songList.end();++cur)
-// 	{
-// 		if (*cur==MyLib::shared()->GetPlayingItem())break;
-// 	}
-
 	MyLib::shared()->lastPlayingItem=GetPlayingItem();
 
-	if ( cur==m_songList.end()|| ++cur==m_songList.end())
-		return NULL;
-
-	next=MyLib::shared()->GetNextByOrder(m_songList.begin(), --cur ,m_songList.end());
+	next=MyLib::shared()->GetNextByOrder(m_songList.begin(), cur ,m_songList.end());
 
 	//if(bMoveCur)curPlayingItem=*next;
 	return *next;
@@ -409,10 +401,14 @@ BOOL FileTrack::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 				m_bStatus=ID3V2;
 				album=id3v2tag->album().toWString();
 				genre=id3v2tag->genre().toWString();
+				
 				TCHAR cYear[MAX_PATH]={_T("?")};
-				if(id3v2tag->year()!=0)
+				uYear=id3v2tag->year();
+
+				if(uYear!=0)
 					_itow(id3v2tag->year(),cYear,10);
 				year=cYear;
+				
 
 				lyricInner=id3v2tag->lyric().toWString();
 
@@ -452,8 +448,9 @@ BOOL FileTrack::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 			genre=id3v1tag->genre().toWString();
 
 			TCHAR cYear[MAX_PATH]={_T("?")};
-			if(id3v2tag->year()!=0)
-				_itow(id3v2tag->year(),cYear,10);
+			uYear=id3v1tag->year();
+			if(uYear!=0)
+				_itow(id3v1tag->year(),cYear,10);
 			year=cYear;
 
 			TrimRightByNull(title);

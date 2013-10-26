@@ -126,5 +126,4 @@ public:
 	PlayList *pPL;
 private:
 	std::vector<fileMonitor*> m_fileMonitors;
-	
 };

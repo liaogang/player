@@ -45,7 +45,7 @@ public:
 	FileTrack():playCount(0),starLvl(0)
 		,pPicBuf(NULL),img(NULL)
 		,m_bLrcInner(FALSE),m_bLrcFromLrcFile(FALSE)
-		,bUnsynLyc(FALSE),m_bStatus(UNKNOWN),year(_T("???"))
+		,bUnsynLyc(FALSE),m_bStatus(UNKNOWN),year(_T("???")),uYear(0)
 	{
 
 	}
@@ -55,7 +55,7 @@ public:
 		playCount(0),starLvl(0)
 		,pPicBuf(NULL),img(NULL)
 		,m_bLrcInner(FALSE),m_bLrcFromLrcFile(FALSE)
-		,bUnsynLyc(FALSE),m_bStatus(UNKNOWN),year(_T("???"))
+		,bUnsynLyc(FALSE),m_bStatus(UNKNOWN),year(_T("???")),uYear(0)
 	{
 
 	}
@@ -67,8 +67,9 @@ public:
 	std::tstring url;
 	UINT          playCount;
 	UINT		  starLvl;
+	
 	std::tstring  title,artist,album,genre,year,comment;
-
+	UINT                                   uYear;
 	TagLib::ByteVector *pPicBuf;
 	CImage *img;
 	//cimg_library_suffixed::CImg   *img;
@@ -140,16 +141,16 @@ public:
 	  };
 
 	  //Move赋值拷贝
-// 	  PlayListItem& operator=(PlayListItem&& b)
-// 	  {
-// 		  if (this!=&b)
-// 		  {
-// 			  this->SetPlayList(b.GetPlayList());
-// 			  this->filetrack=b.filetrack;
-// 		  }
-// 
-// 		  return *this;
-// 	  }
+	  PlayListItem& operator=(PlayListItem&& b)
+	  {
+		  if (this!=&b)
+		  {
+			  this->SetPlayList(b.GetPlayList());
+			  this->filetrack=b.filetrack;
+		  }
+
+		  return *this;
+	  }
 
 
 	  bool operator==(const PlayListItem &other)
@@ -183,13 +184,16 @@ private:
 	
 	//debug
 	//shared_ptr<FileTrack>* pfiletrack;
+
+	
+
 	//index in playlist
 	int index;
 };
 
 
 
-typedef PlayListItem _songContainerItem;
+typedef PlayListItem*  _songContainerItem;
 
 
 class PlayList:
@@ -216,7 +220,6 @@ public:
 
 public:
 	void SetCurPlaying(_songContainerItem item,BOOL scanID3=FALSE);
-
 	_songContainerItem nextTrack();
 
 
@@ -236,10 +239,8 @@ public:
 
 	//return file added
 	int AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir=FALSE);
-	
-public:
 	BOOL AddFile(TCHAR *filepath);
-public:
+
 	_songContainerItem GetNextTrackByOrder(BOOL bMoveCur=TRUE);
 
 public:
@@ -252,6 +253,7 @@ private:
 	int nItemPlaying;//正在播放的项目
 public:
 	//this data will used in list view when display
+	int scrollpos;
 	int topVisibleIndex;
 	int selectedIndex;
 };

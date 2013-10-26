@@ -258,7 +258,7 @@ public:
 			if(MyLib::shared()->isPlaying())
 			{
 				_songContainerItem playlistitem=GetPlayingItem();
-				FileTrack* track=playlistitem.GetFileTrack();
+				FileTrack* track=playlistitem->GetFileTrack();
 				if (track)
 				{
 					if(MyLib::shared()->lrcDirs.size()>0)
@@ -488,7 +488,7 @@ public:
 			if(!MyLib::shared()->isPlaying())
 				return;
 
-			track=GetPlayingItem().GetFileTrack();
+			track=GetPlayingItem()->GetFileTrack();
 
 			LrcMng *sLM=LrcMng::Get();
 			if( track->GetLrcFileFromLib(TRUE) )

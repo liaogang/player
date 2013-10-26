@@ -16,7 +16,7 @@ class CBasicPlayer
 public:
 	CBasicPlayer(void);
 	~CBasicPlayer(void);
-	static CBasicPlayer* shared();
+	static  CBasicPlayer* const shared();
 
 public:
 	HANDLE m_eventSlowDown;
@@ -64,7 +64,10 @@ public:
 	void GetPos(int *cur,int *max);
 	void WaitPlay();
 	void OpenAfterSlowDown(FileTrack * item);
-	inline BOOL stoped(){return m_bStopped;}
+	BOOL stoped()
+	{
+		return m_bStopped;
+	}
 protected:
 	void play();
 	void pause();//pause or resume play

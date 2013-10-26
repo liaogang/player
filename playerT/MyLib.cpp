@@ -5,6 +5,16 @@
 //-----------------------------------------
 //
 
+PlayList* ActivePlaylist()
+{
+	return MyLib::shared()->GetSelectedPL();
+}
+
+void SetActivePlaylist(PlayList* pl)
+{
+	MyLib::shared()->SetSelectedIndex(pl);
+}
+
 PlayList*  MyLib::NewPlaylist(std::tstring playlistname,bool bAutoPL)
 {
 	PlayList *l=new PlayList(playlistname);
@@ -52,18 +62,18 @@ void MyLib::playAfterSlowDown(FileTrack  *item)
 
 void MyLib::playNext(BOOL scanID3)
 {	
-	PlayListItem track;
+	PlayListItem *track;
  	if (!playQueue.empty())
 	{
 		track=PopTrackFromPlayQueue();
-		SetActivePlaylist(track.GetPlayList());
+		SetActivePlaylist(track->GetPlayList());
 	}
 	else
 	{
 		track=ActivePlaylist()->GetNextTrackByOrder();
 	}
 
-	if(!track.isValide())
+	if(!track->isValide())
 		return;
 
 	ActivePlaylist()->SetCurPlaying(track);
@@ -82,7 +92,7 @@ void MyLib::playNext(BOOL scanID3)
 	//else
 	//{
 		::SetPlayingItem(track);
-		play(track.GetFileTrack());
+		play(track->GetFileTrack());
 
 		//sbp->open(track.GetFileTrack());
 		//sbp->play();
@@ -135,10 +145,10 @@ void MyLib::PushPlayQueue(_songContainerItem item)
 	playQueue.push_back(item);
 }
 
-PlayListItem MyLib::PopTrackFromPlayQueue()
+_songContainerItem MyLib::PopTrackFromPlayQueue()
 {
 	PlayQueueContainer::iterator i=playQueue.begin();
-	PlayListItem item=*i;
+	_songContainerItem item=*i;
 	playQueue.erase(i);
 
 	return item;
@@ -150,7 +160,7 @@ vector<int> MyLib::GetIndexInPlayQueue(_songContainerItem item)
 	int idx=0;
 	for(PlayQueueContainer::iterator i=playQueue.begin();
 		i!=playQueue.end();++i,++idx)
-		if( (void*)((*i).GetFileTrack()) == (void*)(item.GetFileTrack()))
+		if( *i == item)
 			v.push_back(idx);
 	
 	return v;
@@ -225,9 +235,17 @@ void MyLib::ImportLycByPath(std::tstring path)
 void MyLib::DeletePlayList(PlayList *pl)
 {
 	auto i= find(m_playLists.begin(),m_playLists.end(),pl);
-	m_playLists.erase(i);
-	delete pl;
+	if(i!=m_playLists.end())
+	{	
+		m_playLists.erase(i);
+		delete pl;
+	}
 	//todo 
 	//if pl == active pl
 	//active = select pl
+}
+
+void MyLib::DeletePlayList(int nIndex)
+{
+	DeletePlayList(Index2Playlist(nIndex));
 }

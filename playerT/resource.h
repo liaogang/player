@@ -21,6 +21,7 @@
 #define IDD_DIALOG_LYRICS               209
 #define IDD_DIALOG_SEARCH               210
 #define IDD_DIALOG4                     211
+#define IDD_DIALOG                      211
 #define IDR_MENU1                       212
 #define IDR_MENU_SPECTRUM               212
 #define IDR_MENU_PLAYLIST               214
@@ -246,13 +247,19 @@
 #define ID_Menu32943                    32943
 #define ID_32944                        32944
 #define ID_CONFIG_LAYOUT                32945
+#define ID_32946                        32946
+#define ID_SAVE_CONFIG                  32947
+#define ID_PLAYLISTMNG_DEL              32948
+#define ID_PLAYLISTMNG_ACTIVE           32949
+#define ID_PLAYLISTMNG_NEW              32950
+#define ID_PLAYLISTMNG_RENAME           32951
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        229
-#define _APS_NEXT_COMMAND_VALUE         32946
+#define _APS_NEXT_COMMAND_VALUE         32952
 #define _APS_NEXT_CONTROL_VALUE         1040
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

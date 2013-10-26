@@ -62,7 +62,7 @@ void CPlayerThread::Reset()
 BOOL CPlayerThread:: ReadFileReduceVol(BOOL bReduce)
 {
 	BOOL bFileEnd=FALSE;
-
+	
 	int  fileBufferLen= m_pPlayer ->m_pFile ->bytePerFrame() ;
 
 	int times= bReduce ? 16 :  8 ;
@@ -76,7 +76,7 @@ BOOL CPlayerThread:: ReadFileReduceVol(BOOL bReduce)
 	while(times--)
 	{
 		vol = bReduce ? vol - step : vol + step ;
-		
+
 		m_pPlayer->m_pFile->SetOutVolume(vol);
 
 		if(!m_pPlayer->m_pFile->Read(fileBuffer + bufferOffset,fileBufferLen,&m_dwSizeRead) ||
@@ -113,9 +113,7 @@ BOOL CPlayerThread::BeginChangeTrackPos()
 	int frameOffset=fileOffset /(double) m_pPlayer->m_pFile->bytePerFrame();
 
 	m_pPlayer->m_pFile->seek_frame(0-frameOffset ,SEEK_CUR);
-	
 
-	
 	m_dwCurWritePos=dwWrite;
 	//read file . send to direct sound buffer .
 	ReadFileReduceVol(TRUE);

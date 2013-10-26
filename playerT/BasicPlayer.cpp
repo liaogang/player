@@ -46,12 +46,11 @@ trackPosInfo *getTrackPosInfo()
 
 
 ///////////////////////////////////////
-
- CBasicPlayer* CBasicPlayer::shared()
+ static CBasicPlayer *pGlobalBasePlayer=NULL;
+  CBasicPlayer* const CBasicPlayer::shared()
  {
-	 static CBasicPlayer *pGlobalBasePlayer=NULL;
 	 if(!pGlobalBasePlayer)
-		 pGlobalBasePlayer=new CBasicPlayer;
+		 pGlobalBasePlayer=new CBasicPlayer();
 	 return pGlobalBasePlayer;
  }
 

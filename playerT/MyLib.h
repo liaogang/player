@@ -43,7 +43,8 @@ public:
 
 public:
 	//data member
-	typedef vector<PlayList*> PLList;
+	typedef  PlayList*  PLListItem;
+	typedef vector<PLListItem> PLList;
 	PLList m_playLists;
 	int  Playlist2Index(PlayList *pl)
 	{
@@ -63,6 +64,7 @@ public:
 		PlayList *pl=NULL;
 		if(index < m_playLists.size() && index>= 0 )
 			return m_playLists[index];
+		return nullptr;
 	}
 
 
@@ -76,12 +78,34 @@ public:
 	fileMonitors * m_pFileMonitor;
 
 
+	/////////////////////////////////////
+private:
+	int m_IndexPlaying;
+	int m_IndexSelecting;
+	_songContainerItem WaitPlayItem;
+public:
+	void SetWaitPlayItem(_songContainerItem item)
+	{
+		WaitPlayItem=item;
+	}
+	_songContainerItem GetWaitPlayItem(){
+		return WaitPlayItem;}
+
+	void SetPlayingIndex(int i){m_IndexPlaying=i;}
+	int  GetPlayingIndex(){return m_IndexPlaying;}
+	PLListItem GetPlayingPL(){return Index2Playlist(GetPlayingIndex());}	
+
+	void SetSelectedIndex(int i){m_IndexSelecting=i;}
+	void SetSelectedIndex(PlayList *pl){SetSelectedIndex(Playlist2Index(pl));}
+	int  GetSelectedIndex(){return m_IndexSelecting;}
+	PLListItem GetSelectedPL(){return Index2Playlist(GetSelectedIndex());}
+
 
 	//播放列队
 	typedef list<_songContainerItem> PlayQueueContainer;
 	PlayQueueContainer playQueue;
 	void PushPlayQueue(_songContainerItem item);
-	PlayListItem PopTrackFromPlayQueue();
+	_songContainerItem PopTrackFromPlayQueue();
 
 	//to test track weather in the queue
 	//use return value 's empty funtion
@@ -93,21 +117,14 @@ public:
 
 public:
 	_songContainerItem lastPlayingItem;
-	_songContainerItem nextPlayingItem;
+	//_songContainerItem nextPlayingItem;
 	_songContainerItem curSelectedItem;
-private:
-	_songContainerItem WaitPlayItem;
-public:
-	void SetWaitPlayItem(_songContainerItem item)
-	{
-		WaitPlayItem=item;
-	}
 
-	_songContainerItem *GetWaitPlayItem(){
-		return &WaitPlayItem;}
 public:
 	PlayList* NewPlaylist(std::tstring playlistname=_T("新建播放列表1"),bool bAutoPL=false);
 	void DeletePlayList(PlayList *pl);
+	void DeletePlayList(int nIndex);
+
 
 	bool isPlaying();
 
@@ -191,3 +208,8 @@ static const TCHAR *gPlayOrderStr[] =
 	_T("Shuffle (albums)"),
 	_T("Shuffle (folders)"),
 };
+
+
+
+PlayList* ActivePlaylist();
+void SetActivePlaylist(PlayList*);

@@ -23,6 +23,7 @@ public:
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 		COMMAND_CODE_HANDLER(EN_CHANGE, OnSearch )
+		NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED,OnItemChanged)
 		CHAIN_MSG_MAP(CDialogResize<DialogSearch>)
 		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
@@ -67,6 +68,24 @@ public:
 	}
 
 
+	LRESULT OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled)
+	{
+		bHandled=FALSE;
+
+		vector<int> items;
+
+		
+		int nItem=-1;
+		while((nItem=m_list.GetNextItem(nItem,LVNI_SELECTED))!=-1)
+			items.push_back(searchPl->GetItem(nItem)->GetIndex());
+		
+		if(items.size()>0)
+			AllPlayListViews()->SelectItems(items);
+		
+		m_list.OnItemChanged(0,pnmh,bHandled);
+
+		return 1;
+	}
 	
 
 	LRESULT OnSearch(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -97,12 +116,12 @@ public:
 		if (b<a) {m_list.ClearAllItem();return 0;}
 		strBuf=strBuf.substr(a,b+1-a);
 
-
-		int count=ActivePlaylist()->GetItemCount();
+		PlayList *pSelectedPl=ActivePlaylist();
+		int count=pSelectedPl->GetItemCount();
 		for (int i=0;i<count;++i)
 		{
-			_songContainerItem item=ActivePlaylist()->m_songList[i];
-			FileTrack *track=item.GetFileTrack();
+			_songContainerItem item=pSelectedPl->m_songList[i];
+			FileTrack *track=item->GetFileTrack();
 			if (track->HaveKeywords(const_cast<TCHAR*>( strBuf.c_str()) ))
 				searchPl->m_songList.push_back(item);
 		}
@@ -112,6 +131,8 @@ public:
 		else
 			m_list.ClearAllItem();
 		
+
+		::SetFocus(GetDlgItem(IDC_EDIT));
 
 		return 0;
 	}
@@ -140,5 +161,4 @@ public:
 		ShowWindow(SW_SHOW);
 		::SetFocus(GetDlgItem(IDC_EDIT));
 	}
-
 };

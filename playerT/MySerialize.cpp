@@ -212,7 +212,7 @@ int PlayList::SerializeB(FILE *pFile)
 	//m_songList Serialize
 	_songContainer::iterator i;
 	for (i=m_songList.begin();i!=m_songList.end();++i){
-		size+=(*i).GetFileTrack()->Serialize(pFile);
+		size+=(*i)->GetFileTrack()->Serialize(pFile);
 	}
 
 	return size;
@@ -233,9 +233,9 @@ int PlayList::ReSerialize(FILE *pFile)
 	::ReSerialize(pFile,&m_bAuto);
 
 	while(size<totalSize-playlistnameSize-4){
-		PlayListItem item(this);
-		size+=item.ReSerialize(pFile);
-		item.SetIndex(m_songList.size());
+		PlayListItem *item=new PlayListItem(this);
+		size+=item->ReSerialize(pFile);
+		item->SetIndex(m_songList.size());
 		m_songList.push_back(item);
 	}
 

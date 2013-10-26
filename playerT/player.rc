@@ -151,7 +151,7 @@ STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFR
 CAPTION "播放列表管理"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_TABSTOP,0,0,249,118
+    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_EDITLABELS | LVS_ALIGNLEFT | WS_TABSTOP,0,0,249,118
 END
 
 IDD_DLG_LRC_SEARCH DIALOGEX 0, 0, 232, 141
@@ -406,6 +406,7 @@ BEGIN
         MENUITEM "保存播放列表",                      ID_FILE_SAVEPLAYLIST
         MENUITEM SEPARATOR
         MENUITEM "参数选项\tCtrl+P",                ID_CONFIG
+        MENUITEM "保存参数配置",                      ID_SAVE_CONFIG
         MENUITEM SEPARATOR
         MENUITEM "退出",                          ID_APP_EXIT
     END
@@ -542,10 +543,10 @@ IDR_MENU_PL_MNG MENU
 BEGIN
     POPUP "PlayListMng"
     BEGIN
-        MENUITEM "激活\tEnter",                   ID_PLAYLISTMNG_D
-        MENUITEM "重命名\tF2",                     ID_PLAYLISTMNG_32878
-        MENUITEM "删除\tDel",                     ID_PLAYLISTMNG_32879
-        MENUITEM "新建\tCtrl+N",                  ID_PLAYLISTMNG_32880
+        MENUITEM "激活\tEnter",                   ID_PLAYLISTMNG_ACTIVE
+        MENUITEM "重命名\tF2",                     ID_PLAYLISTMNG_RENAME
+        MENUITEM "删除\tDel",                     ID_PLAYLISTMNG_DEL
+        MENUITEM "新建\tCtrl+N",                  ID_PLAYLISTMNG_NEW
         MENUITEM SEPARATOR
         MENUITEM "剪切\tCtrl+X",                  ID_PLAYLISTMNG_32881
         MENUITEM "复制\tCtrl+C",                  ID_PLAYLISTMNG_32882
@@ -805,6 +806,16 @@ END
 STRINGTABLE
 BEGIN
     ATL_IDS_MRU_FILE        "Open this document"
+END
+
+STRINGTABLE
+BEGIN
+    ID_SAVE_CONFIG          "保存当前的参数配置到文件"
+END
+
+STRINGTABLE
+BEGIN
+    ID_CONFIG               "弹出参数选项配置对话框"
 END
 
 #endif    // 中文(简体，中国) resources
