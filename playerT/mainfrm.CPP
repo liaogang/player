@@ -94,7 +94,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 BOOL CMainFrame::OnIdle()
 {
 	UIUpdateToolBar();
-	BOOL flag=ActivePlaylist()!=NULL;
+	BOOL flag=SelectedPlaylist()!=NULL;
 	UIEnable(ID_FILE_OPENDIRECTORY,flag);
 	UIEnable(ID_FILE_OPEN,flag);
 	UIEnable(ID_FILE_SAVEPLAYLIST,flag);
@@ -157,7 +157,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	//result=EnableThemeDialogTexture(hWndToolBar,ETDT_ENABLE);
 
-	AddSimpleReBarBand(hWndProgressBar,NULL,FALSE,150,TRUE);
+	AddSimpleReBarBand(hWndProgressBar,NULL,FALSE,280,TRUE);
 
 	
 	//combo box
@@ -176,7 +176,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 // 	 	font.CreateFontIndirect(&lf);
 // 	 	//m_wndComboBox.GetFont();
 // 	 	m_wndComboBox.SetFont(font,TRUE);
-	AddSimpleReBarBand(comboBar,NULL,FALSE,100,TRUE);
+	AddSimpleReBarBand(comboBar,NULL,FALSE,140,TRUE);
 
 
 	
@@ -186,7 +186,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_pVolumeBar->Init();
 	
 	m_pRebar->pVolume=m_pVolumeBar;
-	AddSimpleReBarBand(hWndVolumeBar,NULL,FALSE,50,TRUE);
+	AddSimpleReBarBand(hWndVolumeBar,NULL,FALSE,70,TRUE);
 
 
 	
@@ -338,8 +338,7 @@ LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 	_songContainerItem track=MyLib::shared()->GetWaitPlayItem();
 	if(track->isValide())
 	{
-		::SetPlayingItem(track);
-		MyLib::shared()->play(track->GetFileTrack());
+		MyLib::shared()->play(track);
 	}
 	//RedrawItems(nItemPlaying,nItemPlaying);
 
@@ -618,23 +617,27 @@ LRESULT CMainFrame::OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 {
 	ChangeTitle();
 
-	//lrcChanged();
 
-	return 0;
-}
-
-LRESULT CMainFrame::OnPlayDirectly(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
-{
-	MyLib::stop();
+	//refresh the active playlist item. 
+	if(m_pDlgPLMng && m_pDlgPLMng->IsWindow())
+		m_pDlgPLMng->m_list.Invalidate();
 	
-	_songContainerItem item=MyLib::shared()->GetWaitPlayItem();
-	//SetPlayingItem(*item);
-	//SetActivePlaylist(item->GetPlayList());
-
-	MyLib::shared()->play((FileTrack*)wParam);
-
 	return 0;
 }
+
+//
+//LRESULT CMainFrame::OnPlayDirectly(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
+//{
+//	MyLib::stop();
+//	
+//	_songContainerItem item=MyLib::shared()->GetWaitPlayItem();
+//	//SetPlayingItem(*item);
+//	//SetActivePlaylist(item->GetPlayList());
+//
+//	MyLib::shared()->play((FileTrack*)wParam);
+//
+//	return 0;
+//}
 
 
 
@@ -720,10 +723,20 @@ LRESULT CMainFrame::OnPLChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOO
 			m_pDlgPLMng->m_list.AddPlayList(pl);
 		else
 			m_pDlgPLMng->m_list.DelPlayList(pl);
+		
 	}
 
 	if (bAdd)
 		AllPlayListViews()->Reload(pl);
+	else
+	{
+		int size=MyLib::shared()->m_playLists.size();
+
+		if(size==0)
+			AllPlayListViews()->Reload(nullptr);
+		else
+			AllPlayListViews()->Reload(* MyLib::shared()->m_playLists.begin());
+	}
 
 	return 0;
 }
@@ -756,7 +769,7 @@ LRESULT CMainFrame::OnFileNewPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /
 	PlayList *pPl=MyLib::shared()->NewPlaylist();
 	
 	AllPlayListViews()->Reload(pPl);
-	SetActivePlaylist(pPl);
+	SetSelectedPlaylist(pPl);
 
 	return 0;
 }
@@ -786,7 +799,7 @@ LRESULT CMainFrame::OnOpenPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 LRESULT CMainFrame::OnSavePlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	PlayList* pl=ActivePlaylist();
+	PlayList* pl=SelectedPlaylist();
 	if(pl)
 	{
 		const TCHAR szFilter[]=_T("playlist files(*.pl)\0*.pl\0");
@@ -812,7 +825,7 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 	//if (!MyLib::shared()->isPlaying())
 	//	return;
 	
-	PlayListItem *item=GetPlayingItem();
+	PlayListItem *item=MyLib::shared()->GetPlayingPL()->GetPlayingItem();
 	if(item->GetIndex() == -1) return;
 	FileTrack *track=item->GetFileTrack();
 	
@@ -899,10 +912,8 @@ void CPlayListView::PlayItem(int nItem)
 
 	track=GetPlayList()->GetItem(nItem);
 
-	GetPlayList()->SetPlayingIndex(nItem);
 
-	::SetPlayingItem(track);
-	MyLib::shared()->play(track->GetFileTrack());
+	MyLib::shared()->play(track);
 
 	RedrawItems(GetPlayList()->GetPlayingIndex(),GetPlayList()->GetPlayingIndex());
 }
@@ -923,13 +934,8 @@ void PlayList::TerminateAddDirThread()
 }
 
 void CMainFrame::ChangeTitle()
-{
-// 	PlayList *ppl=MyLib::shared()->ActivePlaylist();
-// 	if(!ppl)return;
-	//if (!MyLib::shared()->isPlaying())
-	//	return;
-
-	PlayListItem *item = GetPlayingItem();
+{						 
+	PlayListItem *item = MyLib::shared()->GetPlayingPL()->GetPlayingItem();
 	FileTrack *track = item->GetFileTrack();
 	
 		
@@ -1154,7 +1160,7 @@ void CMyTabBar::SetCurSel(PlayList* ppl,int index)
 		{
 			PlayList *l=(PlayList*)GetItemData(k);
 
-			SetActivePlaylist(l);
+			SetSelectedPlaylist(l);
 
 			AllPlayListViews()->Reload(l);
 
@@ -1465,7 +1471,6 @@ void CDlgLrcSearch::DownLoad()
 
 void MyLib::play(FileTrack  *track)
 {
-
 	ATLASSERT(track);
 
 	track->ScanId3Info(TRUE,TRUE);
@@ -1558,21 +1563,22 @@ void PlayListViewMng::PlayingItemChanged()
 
 
 
-void PlayListViewMng::Reload(PlayList *pPL,int index)
+void PlayListViewMng::Reload(PlayList *pPL,bool activeplaying)
 {
 	for (container::iterator i=dataCollection.begin();
 		i!=dataCollection.end();++i)
 	{
-		(*i)->Reload(pPL);
+		(*i)->Reload(pPL,activeplaying);
 
 		//int centerItem=(*i)->GetPlayList()->selectedIndex;
 
 		//if(centerItem==INVALID_ITEM)
 			//centerItem=(*i)->GetPlayList()->selectedIndex;
 
-		(*i)->ClearAllSel();
-		(*i)->EnsureVisibleAndCentrePos(index);
-		(*i)->SelectAndFocusItem(index);
+		//todo
+		//(*i)->ClearAllSel();
+		//(*i)->EnsureVisibleAndCentrePos(index);
+		//(*i)->SelectAndFocusItem(index);
 	}
 }
 
@@ -1598,6 +1604,7 @@ LRESULT CPlayListView::OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled)
 
 void CPlayListView::SortItems()
 {
+	PlayListItem *curr=MyLib::shared()->GetPlayingPL()->GetPlayingItem();
 
 	//两项相等的情况下,STL的DEBUG检验会失败.
 #ifdef _DEBUG
@@ -1622,9 +1629,8 @@ void CPlayListView::SortItems()
 	//如果是正在播放的列表,定位至播放的音轨.
 	if(GetPlayList()==MyLib::shared()->GetPlayingPL())
 	{
-		PlayListItem *curr=GetPlayingItem();
 		GetPlayList()->SetPlayingIndex(curr->GetIndex());
-		Reload(GetPlayList());
+		Reload(GetPlayList(),false);
 	}
 	else
 	{
@@ -2197,11 +2203,15 @@ void CollectInfo()
 
 	if(c->getResumeOnReboot())
 	{
-		PlayListItem *track=GetPlayingItem();
-		if(track)
-		{		
-			c->playlistIndex=MyLib::shared()->Playlist2Index(track->GetPlayList());
-			c->trackIndex=track->GetIndex();
+		PlayList *pl=MyLib::shared()->GetPlayingPL();
+		if(pl)
+		{
+			PlayListItem *track=pl->GetPlayingItem();
+			if(track)
+			{		
+				c->playlistIndex=MyLib::shared()->Playlist2Index(track->GetPlayList());
+				c->trackIndex=track->GetIndex();
+			}
 		}
 		CBasicPlayer::shared()->GetPos(&(c->pos),0);
 	}

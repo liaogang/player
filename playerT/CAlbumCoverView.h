@@ -105,7 +105,7 @@ public:
 		
 		if (MyLib::shared()->isPlaying())
 		{
-			track=GetPlayingItem()->GetFileTrack();
+			track=MyLib::shared()->GetPlayingPL()->GetPlayingItem()->GetFileTrack();
 			if (track->img)
 			   bHasPic=TRUE;
 		}

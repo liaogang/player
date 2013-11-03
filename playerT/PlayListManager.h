@@ -21,6 +21,7 @@ public:
 		COMMAND_ID_HANDLER(ID_PLAYLISTMNG_RENAME,OnRenamePlaylist)
 		REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_RCLICK ,OnNotifyCodeHandlerEX)
 		REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ENDLABELEDIT,OnEndLabelEdit)
+		REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
 	END_MSG_MAP()
 
 	CMainFrame *pMain;
@@ -28,6 +29,31 @@ public:
 	void AddPlayList(PlayList *pPL);
 	void DelPlayList(PlayList *pPL);
 	void UpdateByPLTrack(PlayList *pPL);
+
+	LRESULT OnCustomDraw(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
+	{
+		LPNMCUSTOMDRAW lpNMCustomDraw = (LPNMCUSTOMDRAW)pnmh;
+		NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>( lpNMCustomDraw );  
+		int nItem=pLVCD->nmcd.dwItemSpec;
+		
+		DWORD dwRet;
+		switch(lpNMCustomDraw->dwDrawStage)
+		{
+		case CDDS_PREPAINT:
+			dwRet= CDRF_NOTIFYITEMDRAW ;
+			break;
+		case CDDS_ITEMPREPAINT:
+			{
+				int i=MyLib::shared()->GetPlayingIndex();
+				if(nItem==i)
+				pLVCD->clrTextBk=RGB(230,244,255);
+			}
+			dwRet= CDRF_NEWFONT ;
+			break;
+		}
+
+		return dwRet;
+	}
 
 	void ClearAllSel()
 	{
@@ -96,11 +122,15 @@ public:
 		NMLVDISPINFO *p=(NMLVDISPINFO *)pnmh;
 		int item=p->item.iItem;
 		int iSubItem=p->item.iSubItem;
-		TCHAR *pszTest=p->item.pszText;
+		TCHAR *pszText=p->item.pszText;
 
-		PlayList * pPl=(PlayList *)GetItemData(GetFirstSelItem());
-		pPl->Rename(pszTest);
-		UpdateByPLTrack(pPl);
+		if(pszText)
+		{
+			PlayList * pPl=(PlayList *)GetItemData(GetFirstSelItem());
+			pPl->Rename(pszText);
+			UpdateByPLTrack(pPl);
+		}
+
 		return TRUE;
 	}
 
@@ -151,7 +181,7 @@ public:
 	{
 		PlayList *l=(PlayList*)GetItemData(GetFirstSelItem());
 
-		SetActivePlaylist(l);
+		SetPlayingPlaylist(l);
 
 		AllPlayListViews()->Reload(l);
 
@@ -162,7 +192,7 @@ public:
 	{
 		PlayList *pPl=MyLib::shared()->NewPlaylist();
 		AllPlayListViews()->Reload(pPl);
-		SetActivePlaylist(pPl);
+		SetSelectedPlaylist(pPl);
 		return 0;
 	}
 

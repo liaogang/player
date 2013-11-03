@@ -116,7 +116,7 @@ public:
 		if (b<a) {m_list.ClearAllItem();return 0;}
 		strBuf=strBuf.substr(a,b+1-a);
 
-		PlayList *pSelectedPl=ActivePlaylist();
+		PlayList *pSelectedPl=SelectedPlaylist();
 		int count=pSelectedPl->GetItemCount();
 		for (int i=0;i<count;++i)
 		{
@@ -131,9 +131,6 @@ public:
 		else
 			m_list.ClearAllItem();
 		
-
-		::SetFocus(GetDlgItem(IDC_EDIT));
-
 		return 0;
 	}
 

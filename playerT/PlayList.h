@@ -185,7 +185,6 @@ private:
 	//debug
 	//shared_ptr<FileTrack>* pfiletrack;
 
-	
 
 	//index in playlist
 	int index;
@@ -212,14 +211,16 @@ public:
 	_songContainer m_songList;
 	int GetItemCount(){return m_songList.size();}
 
-	_songContainerItem GetItem(int nItem){return m_songList[nItem];}
+	_songContainerItem GetItem(int nItem)
+	{
+		return m_songList[nItem];
+	}
 
 	std::tstring       m_playlistName;
 	void Rename(TCHAR *newName){m_playlistName=newName;}
 
 
 public:
-	void SetCurPlaying(_songContainerItem item,BOOL scanID3=FALSE);
 	_songContainerItem nextTrack();
 
 
@@ -234,7 +235,6 @@ public:
 public:
 	HANDLE hAddDir;
 	BOOL AddFolderByThread(LPCTSTR pszFolder);
-	void scanAllId3Info();
 	void TerminateAddDirThread();
 
 	//return file added
@@ -249,11 +249,11 @@ public:
 	BOOL m_bAuto,m_bSearch;//是否为搜索列表
 	inline int GetPlayingIndex(){return nItemPlaying;}
 	inline void SetPlayingIndex(int nItem){nItemPlaying=nItem;}
+	PlayListItem *GetPlayingItem(){return GetItem(GetPlayingIndex());}
 private:
 	int nItemPlaying;//正在播放的项目
 public:
 	//this data will used in list view when display
-	int scrollpos;
 	int topVisibleIndex;
 	int selectedIndex;
 };

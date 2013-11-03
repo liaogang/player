@@ -257,7 +257,7 @@ public:
 
 			if(MyLib::shared()->isPlaying())
 			{
-				_songContainerItem playlistitem=GetPlayingItem();
+				_songContainerItem playlistitem=MyLib::shared()->GetPlayingPL()->GetPlayingItem();
 				FileTrack* track=playlistitem->GetFileTrack();
 				if (track)
 				{
@@ -488,7 +488,7 @@ public:
 			if(!MyLib::shared()->isPlaying())
 				return;
 
-			track=GetPlayingItem()->GetFileTrack();
+			track=MyLib::shared()->GetPlayingPL()->GetPlayingItem()->GetFileTrack();
 
 			LrcMng *sLM=LrcMng::Get();
 			if( track->GetLrcFileFromLib(TRUE) )

@@ -5,8 +5,8 @@ void PlayListViewMng::AddItem(CPlayListView* playlistview)
 {
 	dataCollection.push_back(playlistview);
 	
-	if (ActivePlaylist())
-		playlistview->Reload(ActivePlaylist());
+	if (SelectedPlaylist())
+		playlistview->Reload(SelectedPlaylist(),false);
 }
 
 void PlayListViewMng::ClearAllItem()
@@ -22,7 +22,7 @@ void PlayListViewMng::Reload(PlayList *pPL)
 		i!=dataCollection.end();++i)
 	{
 		CPlayListView* plv=*i;
-		plv->Reload(pPL);
+		plv->Reload(pPL,false);
 	}
 }
 

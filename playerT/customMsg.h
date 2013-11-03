@@ -23,7 +23,7 @@ struct trackPosInfo
 #define  WM_PAUSED            (WM_USER+38)//暂停音轨播放
 #define  WM_PAUSE_START            (WM_USER+39)//开始暂停的音轨播放
 
-#define  WM_PLAY_DIRECTLY     (WM_USER+41)
+//#define  WM_PLAY_DIRECTLY     (WM_USER+41)
 
 
 //向播放列表添加多个文件时用消息  

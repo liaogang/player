@@ -58,7 +58,7 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 
 PlayList::~PlayList(void)
 {	
-	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)FALSE);
+	SdMsg(WM_PL_CHANGED,FALSE,(WPARAM)this,(LPARAM)FALSE);
 }
 
 void PlayList::ChangeTrackPath(TCHAR *from,TCHAR *to)
@@ -276,27 +276,13 @@ int PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 	return fileAdded;
 }
 
-// PlayListItem* PlayList::nextTrack()
-// {
-// 	PlayListItem*tmp=nextPlayingItem; 
-// 	nextPlayingItem=NULL;
-// 	return tmp;
-// }
-
-
-void PlayList::SetCurPlaying(_songContainerItem item,BOOL scanID3)
-{
-	//curPlayingItem=item;
-	SetPlayingItem(item);
-	if (scanID3) item->ScanId3Info(TRUE);
-}
 
 _songContainerItem PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 {
 	//_songContainerItem item;
 	_songContainer::iterator cur,next;
 
-	_songContainerItem item=GetPlayingItem();
+	_songContainerItem item=GetItem(GetPlayingIndex());
 	if(item->isValide())
 		cur = m_songList.begin()+item->GetIndex();
 	else
@@ -310,7 +296,7 @@ _songContainerItem PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 			return m_songList[selectedIndex] ;
 	}
 
-	MyLib::shared()->lastPlayingItem=GetPlayingItem();
+	//MyLib::shared()->lastPlayingItem=GetPlayingItem();
 
 	next=MyLib::shared()->GetNextByOrder(m_songList.begin(), cur ,m_songList.end());
 

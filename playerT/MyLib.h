@@ -3,6 +3,22 @@
 #pragma once
 
 
+
+//count=sizeof(gPlayOrderStr)/sizeof(gPlayOrderStr[0])
+static const TCHAR *gPlayOrderStr[] =
+{
+	_T("Default"),
+	_T("Repeat (playlist)"),
+	_T("Repeat (track)"),
+	_T("Random"),
+	_T("Shuffle (tracks)"),
+	_T("Shuffle (albums)"),
+	_T("Shuffle (folders)"),
+};
+
+
+
+
 class MyLib:
 	public SerializeObj
 {
@@ -34,7 +50,7 @@ public:
 
 
 public:
-	MyLib():playorder(Default),m_pFileMonitor(NULL)
+	MyLib():playorder(Default),m_pFileMonitor(NULL),m_IndexPlaying(-1),m_IndexSelecting(-1)
 	{
 	};
 
@@ -92,6 +108,7 @@ public:
 		return WaitPlayItem;}
 
 	void SetPlayingIndex(int i){m_IndexPlaying=i;}
+	void SetPlayingIndex(PlayList *pl){SetPlayingIndex(Playlist2Index(pl));}
 	int  GetPlayingIndex(){return m_IndexPlaying;}
 	PLListItem GetPlayingPL(){return Index2Playlist(GetPlayingIndex());}	
 
@@ -100,6 +117,7 @@ public:
 	int  GetSelectedIndex(){return m_IndexSelecting;}
 	PLListItem GetSelectedPL(){return Index2Playlist(GetSelectedIndex());}
 
+	bool IsValidePlayList(PlayList *pPl){return Playlist2Index(pPl) < m_playLists.size() ;}
 
 	//播放列队
 	typedef list<_songContainerItem> PlayQueueContainer;
@@ -116,11 +134,6 @@ public:
 
 
 public:
-	_songContainerItem lastPlayingItem;
-	//_songContainerItem nextPlayingItem;
-	_songContainerItem curSelectedItem;
-
-public:
 	PlayList* NewPlaylist(std::tstring playlistname=_T("新建播放列表1"),bool bAutoPL=false);
 	void DeletePlayList(PlayList *pl);
 	void DeletePlayList(int nIndex);
@@ -129,8 +142,10 @@ public:
 	bool isPlaying();
 
 	static PlayList* AddFolderToCurrentPlayList(LPCTSTR pszFolder);
-	void playAfterSlowDown(FileTrack * item);
+	void play(PlayListItem *item);//set active track, play 
+private:
 	void play(FileTrack  *item);//set active track, play 
+public:
 	static void pause();
 	static void stop();
 	void playNext(BOOL scanID3=TRUE);
@@ -141,6 +156,7 @@ public:
 	PlayList* LoadPlaylist(LPTSTR filepath,TCHAR* PlName=NULL);
 
 
+	
 	//-----------------------------------------
 	enum PlayOrder
 	{
@@ -152,11 +168,9 @@ public:
 		Shuffle_albums,
 		Shuffle_folders,
 	};
-	PlayOrder playorder;
-	void SetPlayOrder(enum PlayOrder index){playorder=index;}
 
 	template<class _InIt> inline
-	_InIt GetNextByOrder(_InIt _beg , _InIt _cur ,_InIt _end)
+		_InIt GetNextByOrder(_InIt _beg , _InIt _cur ,_InIt _end)
 	{
 		_InIt next;
 
@@ -195,21 +209,14 @@ public:
 
 		return next;
 	}
-};
 
-//count=sizeof(gPlayOrderStr)/sizeof(gPlayOrderStr[0])
-static const TCHAR *gPlayOrderStr[] =
-{
-	_T("Default"),
-	_T("Repeat (playlist)"),
-	_T("Repeat (track)"),
-	_T("Random"),
-	_T("Shuffle (tracks)"),
-	_T("Shuffle (albums)"),
-	_T("Shuffle (folders)"),
+	PlayOrder playorder;
+	void SetPlayOrder(enum PlayOrder index){playorder=index;}
 };
 
 
 
-PlayList* ActivePlaylist();
-void SetActivePlaylist(PlayList*);
+PlayList* PlayingPlaylist();
+PlayList* SelectedPlaylist();
+void SetPlayingPlaylist(PlayList*);
+void SetSelectedPlaylist(PlayList*);

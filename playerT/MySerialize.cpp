@@ -185,7 +185,7 @@ int MyLib::SerializeB(FILE *pFile)
 	// 	{
 	// 		size+=(*i).Serialize(out);
 	// 	}
-	size+=ActivePlaylist()->Serialize(pFile);
+	size+=SelectedPlaylist()->Serialize(pFile);
 	return size;
 }
 
@@ -194,7 +194,7 @@ int MyLib::ReSerialize(FILE *pFile)
 	int totalSize=0;
 	fread(&totalSize,1,4,pFile);
 
-	int size=ActivePlaylist()->ReSerialize(pFile);
+	int size=SelectedPlaylist()->ReSerialize(pFile);
 
 	return size;
 }
@@ -309,7 +309,7 @@ PlayList* MyLib::LoadPlaylist(LPTSTR filepath,TCHAR* PlName)
 
 		result=playlist->ReSerialize(pFile);
 		m_playLists.push_back(playlist);
-		SetActivePlaylist(playlist);
+		SetSelectedPlaylist(playlist);
 
 
 		if(playlist->m_bAuto)

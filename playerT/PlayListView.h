@@ -5,7 +5,6 @@
 #include "globalStuffs.h"
 #include "customMsg.h"
 
-#define INVALID_ITEM -1
 
 unsigned int BKDRHash(char *str);
 
@@ -719,8 +718,8 @@ public:
 	{
 // 		if (GetPlayList())
 // 			GetPlayList()->pPLV=NULL;
-
-		SetItemCount(pPlayList->m_songList.size());
+		if(pPlayList)
+			SetItemCount(pPlayList->m_songList.size());
 		SetPlayList(pPlayList);
 		EnsureVisible(0,0);
 	}
@@ -740,9 +739,22 @@ public:
 
 
 
-	void Reload(PlayList* pPlayList,int SetIndex=INVALID_ITEM)
+	void Reload(PlayList* pPlayList,bool ActivePlaying)
 	{
+		//resotre the curr croll bar's pos
+		if(GetPlayList())
+			GetPlayList()->topVisibleIndex=GetTopIndex();
+		
+		
+
 		m_bC=FALSE;
+
+		//if some play list is deleted.
+		if(!pPlayList)
+		{
+			LoadPlayList(pPlayList);
+			return;
+		}
 
 		if ( /*m_bSearch ||*/1 || GetPlayList()!=pPlayList)
 		{
@@ -750,8 +762,17 @@ public:
 			LoadPlayList(pPlayList);
 		}
 
-		if(SetIndex==INVALID_ITEM)//so we highlight last selected item
+		if(ActivePlaying)
 		{
+			int index=GetPlayList()->GetPlayingIndex();
+			EnsureVisibleAndCentrePos(index);
+			SetItemState(index,LVIS_FOCUSED|
+				LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
+		}
+		else
+		{
+			//so we resotre the last scroll pos and,
+			//highlight last selected item
 			int selItem;
 
 			if(GetPlayingIdx()==-1)
@@ -760,45 +781,49 @@ public:
 			}
 			else
 			{
-				selItem=GetPlayingIdx();;
+				selItem=GetPlayingIdx();
 				SelectAndFocusItem(selItem);
 			}
 
-			EnsureVisibleAndCentrePos(selItem);
+
+			ScrollByTop(GetPlayList()->topVisibleIndex);
 		}
-		else
-		{
-			EnsureVisibleAndCentrePos(SetIndex);
-			SetItemState(SetIndex,LVIS_FOCUSED|
-				LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
-		}//if(!SetIndex)
 
 
 		m_bC=TRUE;
 	}
 
 
+	void ScrollByTop(int topIndex)
+	{
+		int top=GetTopIndex();
+
+		EnsureVisible(topIndex,FALSE);
+
+		top=GetTopIndex();
+
+		RECT rc;
+		GetItemRect(top,&rc,LVIR_BOUNDS);
+
+		SIZE sz;
+		sz.cx=0;
+		sz.cy=(topIndex-top)*(rc.bottom-rc.top);
+		Scroll(sz);
+
+	}
+
 	void EnsureVisibleAndCentrePos(int index)
 	{
 		int top=GetTopIndex();
 		int countPerPage=GetCountPerPage();
 
-		// 			if ( (index> top && index-top < countPerPage) || 
-		// 				 ( index<top && top-index > 0-countPerPage))
-		// 			{
-		// 				return;
-		// 			}
-
 		//isVisible?
 		if (index >= top +1  && index  <= top+countPerPage -1 )
-		{
 			return;
-		}
 
 		EnsureVisible(index,FALSE);
 
 		top=GetTopIndex();
-
 
 		RECT rc;
 		GetItemRect(top,&rc,LVIR_BOUNDS);

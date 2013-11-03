@@ -63,7 +63,6 @@ public:
 	void SetPos(int cur,int max);
 	void GetPos(int *cur,int *max);
 	void WaitPlay();
-	void OpenAfterSlowDown(FileTrack * item);
 	BOOL stoped()
 	{
 		return m_bStopped;

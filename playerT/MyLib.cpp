@@ -5,14 +5,24 @@
 //-----------------------------------------
 //
 
-PlayList* ActivePlaylist()
+PlayList* SelectedPlaylist()
 {
 	return MyLib::shared()->GetSelectedPL();
 }
 
-void SetActivePlaylist(PlayList* pl)
+void SetSelectedPlaylist(PlayList* pl)
 {
 	MyLib::shared()->SetSelectedIndex(pl);
+}
+
+PlayList* PlayingPlaylist()
+{
+	return MyLib::shared()->GetPlayingPL();
+}
+
+void SetPlayingPlaylist(PlayList* pl)
+{
+	MyLib::shared()->SetPlayingIndex(pl);
 }
 
 PlayList*  MyLib::NewPlaylist(std::tstring playlistname,bool bAutoPL)
@@ -28,7 +38,7 @@ PlayList*  MyLib::NewPlaylist(std::tstring playlistname,bool bAutoPL)
 
 PlayList* MyLib::AddFolderToCurrentPlayList(LPCTSTR pszFolder)
 {
-	PlayList *p=ActivePlaylist();
+	PlayList *p=SelectedPlaylist();
 	p->AddFolderByThread(pszFolder);
 	return p;
 }
@@ -51,52 +61,66 @@ MyLib::~MyLib()
 		delete *i;
 }
 
-/*
-void MyLib::playAfterSlowDown(FileTrack  *item)
-{
-	//CBasicPlayer::shared()->OpenAfterSlowDown(item);
-}*/
 
 
 //-----------------------------------------
 
+void MyLib::play(PlayListItem *item)
+{	
+	if(item->isValide());
+	{
+		PlayList *pl=item->GetPlayList();
+		SetPlayingPlaylist(pl);
+		pl->SetPlayingIndex(item->GetIndex());
+		item->ScanId3Info(TRUE,TRUE);
+		play(item->GetFileTrack());
+	}
+}
+
 void MyLib::playNext(BOOL scanID3)
 {	
-	PlayListItem *track;
+	PlayListItem *nextItem;
+	PlayListItem *currItem=NULL;
+
+	PlayList *pl=GetPlayingPL();
+	if(pl)
+		currItem=pl->GetItem(pl->GetPlayingIndex());
+
+	if(!currItem || !currItem->isValide())
+	{
+		PlayList *spl=SelectedPlaylist();
+		if(spl && spl->GetItemCount()>0)
+		{	
+			int np=spl->GetPlayingIndex();
+			if(np==-1)
+				np=spl->selectedIndex;
+			if(np==-1)
+				np=0;
+
+			currItem=spl->GetItem(np);
+		}
+	}
+
+	if(!currItem || !currItem->isValide())
+		return;
+
+	PlayList *pPl=currItem->GetPlayList();
  	if (!playQueue.empty())
 	{
-		track=PopTrackFromPlayQueue();
-		SetActivePlaylist(track->GetPlayList());
+		nextItem=PopTrackFromPlayQueue();
 	}
 	else
 	{
-		track=ActivePlaylist()->GetNextTrackByOrder();
+		if(IsValidePlayList(pPl))
+			nextItem=pPl->GetNextTrackByOrder();
+		else
+			return;
 	}
 
-	if(!track->isValide())
-		return;
-
-	ActivePlaylist()->SetCurPlaying(track);
-
-	//AllPlayListViews()->PlayingItemChanged();
-
-	//todo update listview's item
-	//track.ScanId3Info(TRUE);
-
-	//CBasicPlayer *sbp=CBasicPlayer::shared();
-	//if (0)//todo track==ActivePlaylist()->lastTrack())
-	//{
-	//	sbp->m_bFileEnd=FALSE;
-	//	sbp->play();
-	//}
-	//else
-	//{
-		::SetPlayingItem(track);
-		play(track->GetFileTrack());
-
-		//sbp->open(track.GetFileTrack());
-		//sbp->play();
-	//}
+	
+	
+	play(nextItem);
+	
 }
 
 
@@ -236,10 +260,12 @@ void MyLib::DeletePlayList(PlayList *pl)
 {
 	auto i= find(m_playLists.begin(),m_playLists.end(),pl);
 	if(i!=m_playLists.end())
-	{	
+	{
 		m_playLists.erase(i);
 		delete pl;
 	}
+
+	
 	//todo 
 	//if pl == active pl
 	//active = select pl

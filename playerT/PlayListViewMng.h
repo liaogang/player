@@ -30,7 +30,7 @@ public:
 
 	 void Reload(PlayList *pPL);
 
-	 void Reload(PlayList *pPL,int index);
+	 void Reload(PlayList *pPL,bool activeplaying);
 
 	 void EnsureVisibleAndCentrePos(int index);
 

@@ -13,8 +13,8 @@ CMultiSpliltWnd* GetSplitter();
 
 
 
-PlayListItem *  GetPlayingItem();
-void  SetPlayingItem(PlayListItem * item);
+//PlayListItem *  GetPlayingItem();
+//void  SetPlayingItem(PlayListItem * item);
 
 
 class MYTREE;
