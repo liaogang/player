@@ -197,7 +197,7 @@ class CPlaceHolderWnd :
 public:
 	HWND child;	
 public:
-	DECLARE_WND_CLASS_EX(NULL,NULL,NULL)
+	DECLARE_WND_CLASS_EX(NULL,CS_DBLCLKS,NULL)
 		
 	BEGIN_MSG_MAP_EX(CPlaceHolderWnd)
 		MSG_WM_NCPAINT(OnNcPaint)

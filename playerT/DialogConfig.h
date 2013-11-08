@@ -231,7 +231,7 @@ public:
 	void ShowSelf()
 	{
 		ShowWindow(SW_HIDE);
-		m_show-TRUE;
+		m_show=TRUE;
 	}
 
 	void HideSelf()

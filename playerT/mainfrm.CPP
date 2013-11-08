@@ -825,8 +825,14 @@ void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 	//if (!MyLib::shared()->isPlaying())
 	//	return;
 	
-	PlayListItem *item=MyLib::shared()->GetPlayingPL()->GetPlayingItem();
-	if(item->GetIndex() == -1) return;
+	PlayList *pl=MyLib::shared()->GetPlayingPL();
+	if(!pl)
+		return;
+
+	PlayListItem *item=pl->GetPlayingItem();
+	if(!item->isValide()) 
+		return;
+
 	FileTrack *track=item->GetFileTrack();
 	
 
@@ -914,8 +920,8 @@ void CPlayListView::PlayItem(int nItem)
 
 
 	MyLib::shared()->play(track);
-
-	RedrawItems(GetPlayList()->GetPlayingIndex(),GetPlayList()->GetPlayingIndex());
+	
+	InvalidateItem(nItem);
 }
 
 
@@ -935,7 +941,11 @@ void PlayList::TerminateAddDirThread()
 
 void CMainFrame::ChangeTitle()
 {						 
-	PlayListItem *item = MyLib::shared()->GetPlayingPL()->GetPlayingItem();
+	PlayList *pl=MyLib::shared()->GetPlayingPL();
+	if(!pl)
+		return;
+
+	PlayListItem *item = pl->GetPlayingItem();
 	FileTrack *track = item->GetFileTrack();
 	
 		
@@ -1505,36 +1515,41 @@ bool MyLib::isPlaying()
 
 BOOL CPlayListView::IsAllSelectedItemInPlayQueue()
 {
-	int nItem=-1;
 	MyLib *s=MyLib::shared();
 	vector<int> v;
-	while((nItem=GetNextItem(nItem,LVNI_SELECTED)) !=-1)
-	{
-		v=s->GetIndexInPlayQueue(GetPlayList()->GetItem(nItem));
-		if(v.empty())
-			return FALSE;
-	}
+
+	CListArray < int >  aSelectedItems;
+	if(GetSelectedItems(aSelectedItems))
+		for (int i=0;i<aSelectedItems.GetSize();i++)
+		{
+			v=s->GetIndexInPlayQueue(GetPlayList()->GetItem(aSelectedItems[i]));
+			if(v.empty())
+				return FALSE;
+		}
 
 	return TRUE;
 }
 
 LRESULT CPlayListView::OnPushToPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	int nItem=-1;
 	MyLib *s=MyLib::shared();
-	while((nItem=GetNextItem(nItem,LVNI_SELECTED)) !=-1)
-		s->PushPlayQueue(GetPlayList()->GetItem(nItem));
-	
+	CListArray < int >  aSelectedItems;
+	if(GetSelectedItems(aSelectedItems))
+		for (int i=0;i<aSelectedItems.GetSize();i++)
+			s->PushPlayQueue(GetPlayList()->GetItem(aSelectedItems[i]));
+
 	return 0;
 }
 
 LRESULT CPlayListView::OnDeleteFromPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	int nItem=-1;
+
 	MyLib *s=MyLib::shared();
-	while((nItem=GetNextItem(nItem,LVNI_SELECTED)) !=-1)
-		s->DeleteFromPlayQueue(GetPlayList()->GetItem(nItem));
-	
+	CListArray < int >  aSelectedItems;
+	if(GetSelectedItems(aSelectedItems))
+		for (int i=0;i<aSelectedItems.GetSize();i++)
+			s->DeleteFromPlayQueue(GetPlayList()->GetItem(aSelectedItems[i]));
+
 	return 0;
 }
 
@@ -1601,11 +1616,33 @@ LRESULT CPlayListView::OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled)
 	return 1;
 }
 
+LRESULT CPlayListView::OnSelected(int /**/,LPNMHDR pnmh,BOOL bHandled)
+{	
+	NMLISTVIEW * pnml=(NMLISTVIEW *)pnmh;
+	if(m_bC)
+	{
+		GetPlayList()->topVisibleIndex=pnml->iItem;
+		GetPlayList()->selectedIndex=pnml->iItem;
+		if (pnml->iItem!=-1)
+		{
+			_songContainerItem item= GetPlayList()->GetItem(pnml->iItem);
+			MyLib::shared()->SetWaitPlayItem(item);
+			//GetPlayList()->SetSelectedItem(pnml->iItem);
 
-void CPlayListView::SortItems()
+		}
+	}
+	return 0;
+}
+
+
+void CPlayListView::SortItems2()
 {
-	PlayListItem *curr=MyLib::shared()->GetPlayingPL()->GetPlayingItem();
+	PlayList *pl=MyLib::shared()->GetPlayingPL();
+	PlayListItem *curr=NULL;
+	if(pl)
+		curr= pl->GetPlayingItem();
 
+	
 	//两项相等的情况下,STL的DEBUG检验会失败.
 #ifdef _DEBUG
 	//sort(GetPlayList()->m_songList.begin(),GetPlayList()->m_songList.end(),CompareProc);
@@ -1613,7 +1650,6 @@ void CPlayListView::SortItems()
 #else
 	sort(GetPlayList()->m_songList.begin(),GetPlayList()->m_songList.end(),CompareProc);
 #endif
-
 
 	m_Order = m_Order  ^ ( 1<< columnIndexClicked );
 
@@ -1625,9 +1661,8 @@ void CPlayListView::SortItems()
 		item->SetIndex(i);
 	}
 
-
 	//如果是正在播放的列表,定位至播放的音轨.
-	if(GetPlayList()==MyLib::shared()->GetPlayingPL())
+	if(GetPlayList()==MyLib::shared()->GetPlayingPL() && curr)
 	{
 		GetPlayList()->SetPlayingIndex(curr->GetIndex());
 		Reload(GetPlayList(),false);
@@ -1915,10 +1950,24 @@ void MYTREE_Add_EmptyWnd(MYTREE* tree)
 
 void  CPlayListView::CreateIsWnd()
 {
-	Create(GetSplitter()->m_hWnd, 0 , _T("WtlSysListView32"), 
-		WS_CHILD | WS_VISIBLE  |WS_CLIPCHILDREN |WS_CLIPSIBLINGS 
-		|LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA | LVS_SORTASCENDING /*| LVS_OWNERDRAWFIXED |*/
-		,0/*WS_EX_CLIENTEDGE*/);
+// 	Create(GetSplitter()->m_hWnd, 0 , _T("WtlSysListView32"), 
+// 		WS_CHILD | WS_VISIBLE  |WS_CLIPCHILDREN |WS_CLIPSIBLINGS 
+// 		|LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA | LVS_SORTASCENDING /*| LVS_OWNERDRAWFIXED |*/
+// 		,0/*WS_EX_CLIENTEDGE*/);
+		
+	RegisterClass();
+	CPlaceHolderWnd *w=new CPlaceHolderWnd;
+
+	w->Create(GetSplitter()->m_hWnd,NULL,NULL,WS_CHILD|WS_VISIBLE);
+
+//  	Create(GetSplitter()->m_hWnd, 0 , _T("WtlListView32"),
+//  		WS_CHILD | WS_VISIBLE  |WS_CLIPCHILDREN |WS_CLIPSIBLINGS ,0);
+	SubclassWindow(w->m_hWnd);
+
+	m_ilListItems.Detach();
+	m_curDivider.Detach();
+	m_curHyperLink.Detach();
+	m_ttToolTip.Detach();
 }
 
 void MYTREE_Set_Playlist(MYTREE* tree)
@@ -1926,6 +1975,7 @@ void MYTREE_Set_Playlist(MYTREE* tree)
 	CPlayListView *plv=new CPlayListView;
 
 	plv->CreateIsWnd();
+	
 	plv->Init();
 
 	tree->setWnd(plv->m_hWnd);
@@ -2147,15 +2197,16 @@ void CPlayListView::Init(bool bSearch)
 
 	SetLVFont(20);
 
-	if(!bSearch)
-		AllPlayListViews()->AddItem(this);
 
 	ChangeColorDefault();
 
-	SetExtendedListViewStyle(GetExtendedListViewStyle()| /*LVS_EX_DOUBLEBUFFER |*/LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP);
 
+	if ( !m_ilItemImages.CreateFromImage( IDB_EXAMPLE, 16, 0, RGB( 255, 0, 255 ), IMAGE_BITMAP, LR_CREATEDIBSECTION ) )
+		return ;
 
+	SetImageList( m_ilItemImages );
 
+	
 	const TCHAR * columnName[]={
 		_T("索引"),
 		_T("标题"),
@@ -2165,12 +2216,12 @@ void CPlayListView::Init(bool bSearch)
 		_T("流派")
 	};
 	const UINT alignment[]={
-		LVCFMT_CENTER,
-		LVCFMT_LEFT,
-		LVCFMT_LEFT,
-		LVCFMT_LEFT,
-		LVCFMT_RIGHT,
-		LVCFMT_RIGHT
+		ITEM_FLAGS_CENTRE,
+		ITEM_FLAGS_LEFT,
+		ITEM_FLAGS_LEFT,
+		ITEM_FLAGS_LEFT,
+		ITEM_FLAGS_RIGHT,
+		ITEM_FLAGS_RIGHT
 	};
 	const TCHAR* columnNamePlaceHoder[]={
 		_T("Index"),
@@ -2180,17 +2231,20 @@ void CPlayListView::Init(bool bSearch)
 		_T("年份"),
 		_T("Genre               ")
 	};
-	const int cxOffset = 15;
+
+	
+	const int cxOffset = 40;
 	for (int i=0;i<sizeof(columnName)/sizeof(int);++i)
-		AddColumn(columnName[i],i,-1, LVCF_FMT| LVCF_WIDTH|LVCF_TEXT|LVCF_SUBITEM ,alignment[i],GetStringWidth(columnNamePlaceHoder[i])+cxOffset);		
-
-
-	////取消焦点状态
-	//SetCallbackMask(LVIS_FOCUSED);
-	////使用新式风格
-	//SetWindowTheme(m_hWnd,_T("Explorer"),0);
+		AddColumn(columnName[i],
+		GetTextWidth(columnNamePlaceHoder[i])+cxOffset,
+		-1,0,NULL_COLUMN,alignment[i]);
+		
 	
 	
+	CListImpl< CPlayListView >::Initialise();
+
+	if(!bSearch)
+		AllPlayListViews()->AddItem(this);
 }
 
 

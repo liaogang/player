@@ -47,7 +47,7 @@ void PlayListViewMng::DeleteOneTrackFirst(PlayList *pPL)
 		CPlayListView* playlistview=*it;
 		if (playlistview->GetPlayList()==pPL)
 		{
-			playlistview->SetItemCount(pPL->GetItemCount()-1);
+			//playlistview->SetItemCount(pPL->GetItemCount()-1);
 			break;
 		}
 	}

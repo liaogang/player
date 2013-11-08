@@ -147,8 +147,8 @@ public:
 			POINT pt;
 			GetCursorPos(&pt);
 
-			::EnableMenuItem(menu,ID_PLAYLISTMNG_ACTIVE,MF_BYCOMMAND|count==1?MF_ENABLED:(MF_DISABLED | MF_GRAYED));
-			::EnableMenuItem(menu,ID_PLAYLISTMNG_RENAME,MF_BYCOMMAND|count==1?MF_ENABLED:(MF_DISABLED | MF_GRAYED));
+			::EnableMenuItem(menu,ID_PLAYLISTMNG_ACTIVE,MF_BYCOMMAND|(count==1?MF_ENABLED:(MF_DISABLED | MF_GRAYED)));
+			::EnableMenuItem(menu,ID_PLAYLISTMNG_RENAME,MF_BYCOMMAND|(count==1?MF_ENABLED:(MF_DISABLED | MF_GRAYED)));
 			::TrackPopupMenu(menu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
 		}
 

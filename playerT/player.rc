@@ -641,6 +641,8 @@ END
 //
 
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+IDB_EXAMPLE             BITMAP                  "res\\ExampleItems.bmp"
+IDB_LISTITEMS           BITMAP                  "res\\ListItems.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -713,6 +715,14 @@ BEGIN
     END
 END
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_HYPERLINK           CURSOR                  "res\\hand.cur"
+IDC_DIVIDER             CURSOR                  "res\\divider.cur"
 
 /////////////////////////////////////////////////////////////////////////////
 //

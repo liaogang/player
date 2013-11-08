@@ -92,6 +92,8 @@ playerT/DirectSoundController.h -text
 playerT/DlgConsole.h -text
 playerT/DlgProcessing.h -text
 playerT/DlgProgerty.h -text
+playerT/DragDrop.h -text
+playerT/DropArrows.h -text
 playerT/Dx9SDK/Include/Amvideo.h -text
 playerT/Dx9SDK/Include/Bdatif.h -text
 playerT/Dx9SDK/Include/DShow.h -text
@@ -310,6 +312,11 @@ playerT/Lib/Debug/vc90.pdb -text
 playerT/Lib/Release/libmpg123.lib -text
 playerT/Lib/Release/vc90.idb -text
 playerT/Lib/Release/vc90.pdb -text
+playerT/ListCombo.h -text
+playerT/ListCtrl.h -text
+playerT/ListDate.h -text
+playerT/ListEdit.h -text
+playerT/ListTypes.h -text
 playerT/LrcMng.cpp -text
 playerT/LrcMng.h -text
 playerT/MSVCProj/player.sln -text
@@ -352,6 +359,7 @@ playerT/WaveFileEx.h -text
 playerT/aboutdlg.h -text
 playerT/atlsplit.h -text
 playerT/customMsg.h -text
+playerT/dialogsearch.CPP -text
 playerT/dlgLrcSearch.h -text
 playerT/fileMonitor.cpp -text
 playerT/fileMonitor.h -text

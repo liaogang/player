@@ -11,15 +11,18 @@
 #define _WIN32_IE	0x0501
 #define _RICHEDIT_VER	0x0200
 #include "resource.h"
-#define _WTL_USE_CSTRING
+//#define _WTL_USE_CSTRING
 #define  _WTYPES_NS
 #define _WTL_NO_WTYPES 
 #define _CRT_SECURE_NO_WARNINGS
 #define _CRT_NON_CONFORMING_SWPRINTFS
 #include <atlbase.h>
+#include <atlstr.h>
 #include <atlapp.h>
 
 extern CAppModule _Module;
+
+#define _WTL_NO_CSTRING
 
 #include <atlwin.h>
 #include <atlframe.h>
@@ -33,6 +36,9 @@ extern CAppModule _Module;
 #include <atlcrack.h>
 #include <atltheme.h>
 #include <atlgdix.h>
+
+
+#define END_MSG_MAP_EX	END_MSG_MAP
 
 //split file has changed something
 #include "atlsplit.h"

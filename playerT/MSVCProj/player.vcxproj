@@ -30,11 +30,18 @@
     <ClInclude Include="..\DlgConsole.h" />
     <ClInclude Include="..\dlgLrcSearch.h" />
     <ClInclude Include="..\DlgProcessing.h" />
+    <ClInclude Include="..\DragDrop.h" />
+    <ClInclude Include="..\DropArrows.h" />
     <ClInclude Include="..\FFT.h" />
     <ClInclude Include="..\fileMonitor.h" />
     <ClInclude Include="..\forwardMsg.h" />
     <ClInclude Include="..\glassWnd.h" />
     <ClInclude Include="..\globalStuffs.h" />
+    <ClInclude Include="..\ListCombo.h" />
+    <ClInclude Include="..\ListCtrl.h" />
+    <ClInclude Include="..\ListDate.h" />
+    <ClInclude Include="..\ListEdit.h" />
+    <ClInclude Include="..\ListTypes.h" />
     <ClInclude Include="..\LrcMng.h" />
     <ClInclude Include="..\mainfrm.h" />
     <ClInclude Include="..\Mp3File.h" />
@@ -213,6 +220,7 @@
     <ClInclude Include="..\taplib\taglib\wavpack\wavpackfile.h" />
     <ClInclude Include="..\taplib\taglib\wavpack\wavpackproperties.h" />
     <ClInclude Include="..\Thread.h" />
+    <ClInclude Include="..\TitleTip.h" />
     <ClInclude Include="..\Util1.h" />
     <ClInclude Include="..\Utils.h" />
     <ClInclude Include="..\WaveFile.h" />
@@ -316,6 +324,7 @@
     <ClCompile Include="..\taplib\taglib\trueaudio\trueaudioproperties.cpp" />
     <ClCompile Include="..\taplib\taglib\wavpack\wavpackfile.cpp" />
     <ClCompile Include="..\taplib\taglib\wavpack\wavpackproperties.cpp" />
+    <ClCompile Include="..\test.cpp" />
     <ClCompile Include="..\Thread.cpp" />
     <ClCompile Include="..\Util1.cpp" />
     <ClCompile Include="..\WaveFile.cpp" />
@@ -324,9 +333,20 @@
     <ResourceCompile Include="..\player.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\res\bitmap1.bmp" />
+    <None Include="..\res\cursor1.cur" />
+    <None Include="..\res\cursor2.cur" />
+    <None Include="..\res\divider.cur" />
+    <None Include="..\res\ExampleItems.bmp" />
+    <None Include="..\res\hand.cur" />
+    <None Include="..\res\ListItems.bmp" />
     <None Include="..\res\player.ico" />
     <None Include="..\res\Toolbar.bmp" />
     <None Include="..\taplib\include\README" />
+    <None Include="res\divider.cur" />
+    <None Include="res\ExampleItems.bmp" />
+    <None Include="res\hand.cur" />
+    <None Include="res\ListItems.bmp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F39340DB-DCCF-4BD5-8609-8B4662EB643E}</ProjectGuid>

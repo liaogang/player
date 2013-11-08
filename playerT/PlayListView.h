@@ -5,6 +5,7 @@
 #include "globalStuffs.h"
 #include "customMsg.h"
 
+#include "ListCtrl.h"
 
 unsigned int BKDRHash(char *str);
 
@@ -23,8 +24,8 @@ static int columnIndexClicked;
 
 
 class CPlayListView:
-	public CWindowImpl<CPlayListView,CListViewCtrl>,
-	public CMessageFilter
+	public CListImpl< CPlayListView >,
+ 	public CMessageFilter
 {
 private:
 	PlayList *  m_pPlayList;
@@ -36,6 +37,7 @@ public:
 	inline void SetPlayList(PlayList * pPlayList){m_pPlayList=pPlayList;}
 	inline PlayList * GetPlayList(){return m_pPlayList;}
 
+	DECLARE_WND_CLASS( _T( "listctrl" ) )
 
 public:
 	HMENU menu;
@@ -57,7 +59,7 @@ public:
 	}
 
 public:
-	DECLARE_WND_SUPERCLASS( NULL ,CListViewCtrl::GetWndClassName())
+	//DECLARE_WND_SUPERCLASS( NULL ,CListViewCtrl::GetWndClassName())
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg)
 	{
@@ -72,7 +74,7 @@ public:
 			
 			//Delete
 			else if (nChar==VK_DELETE){
-				DelSelectedItem(GetKeyState(VK_SHIFT) & 0x80);
+				;//DelSelectedItem(GetKeyState(VK_SHIFT) & 0x80);
 			
 			}
 		}//if (pMsg->message!=WM_KEYDOWN)
@@ -82,25 +84,32 @@ public:
 	 
 	BEGIN_MSG_MAP_EX(CPlayListView)
 		//user message
-		MESSAGE_HANDLER(WM_PLAYLISTVIEW_SETFOCUS,OnSetFocus)
-		MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_DEFAULT,OnChColorDefault);
-		MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_BLUE,OnChColorBlue);
+		//MESSAGE_HANDLER(WM_PLAYLISTVIEW_SETFOCUS,OnSetFocus)
+		//MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_DEFAULT,OnChColorDefault);
+		//MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_BLUE,OnChColorBlue);
 		
 		MSG_WM_DESTROY(OnDestroy)
-		MSG_WM_CREATE(OnCreate);
-		MESSAGE_HANDLER(WM_PAINT,OnPaint)
-		MSG_WM_ERASEBKGND(OnEraseBkgnd)
-		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
-		MSG_WM_CHAR(OnChar)
+		MSG_WM_CREATE(OnCreate)
+		//MESSAGE_HANDLER(WM_PAINT,OnPaint)
+		//MSG_WM_ERASEBKGND(OnEraseBkgnd)
+		//MSG_WM_LBUTTONDBLCLK(OnDbClicked)
+		//MSG_WM_CHAR(OnChar)
 		MESSAGE_HANDLER(WM_NCPAINT,OnNcPaint)
 		COMMAND_ID_HANDLER(ID_OPEN_FILE_PATH,OnOpenFilePath)
 		COMMAND_ID_HANDLER(ID_PUSH_PLAYQUEUE,OnPushToPlayqueue)
 		COMMAND_ID_HANDLER(ID_DELFROMPLAYQUEUE,OnDeleteFromPlayqueue)
-		REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_RCLICK ,OnNotifyCodeHandlerEX)
-		REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED,OnItemChanged)
-		REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO,OnGetdispInfo)
-		REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
-		REFLECTED_NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK,OnColumnClick)
+		//REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_RCLICK ,OnNotifyCodeHandlerEX)
+		//REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED,OnItemChanged)
+		//REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO,OnGetdispInfo)
+		//REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
+		//REFLECTED_NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK,OnColumnClick)
+		
+		REFLECTED_NOTIFY_CODE_HANDLER( LCN_DBLCLICK, OnDbClicked)
+		REFLECTED_NOTIFY_CODE_HANDLER(LCN_SELECTED, OnSelected)
+		REFLECTED_NOTIFY_CODE_HANDLER(LCN_RIGHTCLICK, OnRightClick)
+		
+
+		CHAIN_MSG_MAP(CListImpl< CPlayListView >)
 	END_MSG_MAP()
 
 		void FillSolidRect(HDC m_hDC,LPCRECT lpRect, COLORREF clr)
@@ -138,11 +147,14 @@ public:
 			DefWindowProc(WM_PAINT, (WPARAM)memDC.m_hDC, (LPARAM)0);
 
 
+
+
+
 			return 0;
 		}
 
 
-
+		/*
 		BOOL OnEraseBkgnd(CDCHandle dc)
 		{
 			//no bkgnd repaint needed
@@ -244,9 +256,11 @@ public:
 			::SelectObject(dc,hOldPen);
 			::DeleteObject(hNewPen);
 		}
+		*/
 
 		void OnDestroy();
 
+		/*
 		LRESULT OnCustomDraw(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 		{
 			LPNMCUSTOMDRAW lpNMCustomDraw = (LPNMCUSTOMDRAW)pnmh;
@@ -266,6 +280,7 @@ public:
 
 			return dwRet;
 		}
+		*/
 
 		LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
@@ -346,7 +361,7 @@ public:
 			POINT pt;
 			GetCursorPos(&pt);
 
-			if(GetNextItem(-1,LVIS_FOCUSED|LVIS_SELECTED)!=-1)
+			if(HasSeleted())
 			{
 				::EnableMenuItem(menu,ID_DELFROMPLAYQUEUE,MF_BYCOMMAND|IsAllSelectedItemInPlayQueue()?MF_ENABLED:(MF_DISABLED | MF_GRAYED));
 
@@ -437,7 +452,30 @@ public:
 			return (pListCtrl->m_Order & (1<<columnIndexClicked))?result:!result;
 		}
 
-		void SortItems();
+		void SortItems2();
+
+		void SortItems( int nColumn, BOOL bAscending )
+		{
+			int columnOrder=nColumn;
+			columnIndexClicked=Header_OrderToIndex(ListView_GetHeader(m_hWnd),columnOrder);
+
+			if(columnIndexClicked!=COLUMN_INDEX_INDEX)
+			{
+				pListCtrl=this;
+				SortItems2();
+				Invalidate();		
+			}
+
+			
+		
+		}
+
+		void ReverseItems() // overrides CListImpl::ReverseItems
+		{
+			//SortItems2();
+
+			reverse(GetPlayList()->m_songList.begin(),GetPlayList()->m_songList.end());
+		}
 
 		LRESULT OnColumnClick(int /**/,NMHDR *pNMHDR,BOOL bHandled)
 		{
@@ -448,7 +486,7 @@ public:
 			if(columnIndexClicked!=COLUMN_INDEX_INDEX)
 			{
 				pListCtrl=this;
-				SortItems();
+				//SortItems();
 				Invalidate();		
 			}
 
@@ -464,19 +502,19 @@ public:
 		LRESULT OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled);
 
 
-		inline void SelectAll(){SetItemState(-1, LVIS_SELECTED , LVIS_SELECTED );}
-
 
 		void SelectItems(vector<int> &items)
 		{
 			ClearAllSel();
 			
 			for (auto i=items.begin();i!=items.end();i++)
-				SetItemState(*i, LVIS_SELECTED , LVIS_SELECTED );
+				SelectItem(*i);
 
 			EnsureVisibleAndCentrePos(*(items.begin()));
 		}
 
+
+#ifdef Old_Version
 		void DelSelectedItem(BOOL bDelFile=FALSE)
 		{
 			// 			if (bDeletable)
@@ -579,14 +617,16 @@ public:
 			// 			}	
 
 		}
+#endif
 
 		void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 		{
 			if (nChar==VK_RETURN)
 			{
-				PlayItem(GetFirstSelItem());
+				//PlayItem(GetFirstSelItem());
 			}
 		}
+#ifdef Old_Version
 
 		BOOL GetFirstSelItem()
 		{
@@ -596,12 +636,29 @@ public:
 
 			return nItem;
 		}
-
+#endif
 		void PlayItem(int nItem);
 
 		void PlaySelectedItem(_songContainerItem *item);
 
-		LRESULT OnDbClicked(UINT i,CPoint pt)
+		
+		LRESULT OnSelected(int /**/,LPNMHDR pnmh,BOOL bHandled);
+		LRESULT OnRightClick(int /**/,LPNMHDR pnmh,BOOL bHandled)
+		{
+			POINT pt;
+			GetCursorPos(&pt);
+
+			if(HasSeleted())
+			{
+				::EnableMenuItem(menu,ID_DELFROMPLAYQUEUE,MF_BYCOMMAND|IsAllSelectedItemInPlayQueue()?MF_ENABLED:(MF_DISABLED | MF_GRAYED));
+
+				::TrackPopupMenu(menu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
+			}
+			return 0;
+		}
+		
+
+		LRESULT OnDbClicked(int /**/,LPNMHDR pnmh,BOOL bHandled)
 		{	
 			if(!GetPlayList())return 0;
 			int k=GetPlayList()->selectedIndex;
@@ -664,21 +721,16 @@ public:
 
 		void Init(bool bSearch=false);
 		
-
-		int AddColumn(LPCTSTR strItem, int nItem, int nSubItem = -1,
-			int nMask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM,
-			int nFmt = LVCFMT_LEFT,int stringWidth=20)
+		int GetTextWidth(LPCTSTR str)
 		{
-			ATLASSERT(::IsWindow(m_hWnd));
-			LVCOLUMN lvc = { 0 };
-			lvc.mask = nMask;
-			lvc.fmt = nFmt;
-			lvc.pszText = (LPTSTR)strItem;
-			lvc.cx = stringWidth ;
-			if(nMask & LVCF_SUBITEM)
-				lvc.iSubItem = (nSubItem != -1) ? nSubItem : nItem;
-			return InsertColumn(nItem, &lvc);
+			CClientDC dcClient( m_hWnd );
+			CSize sizeExtent;
+			if ( !dcClient.GetTextExtent( str, -1, &sizeExtent ) )
+				return FALSE;
+			return sizeExtent.cx;
 		}
+
+
 
 		int GetIndex(PlayListItem *item)
 		{
@@ -698,16 +750,16 @@ public:
 	void SetPlayingItem(int nItem)
 	{
 		int nItemPlaying=GetPlayingIdx();
-		RedrawItems(nItemPlaying,nItemPlaying);
+		//RedrawItems(nItemPlaying,nItemPlaying);
 		SetPlayingIdx(nItem);
-		RedrawItems(nItem,nItem);
+		//RedrawItems(nItem,nItem);
 	}
 
 	void ClearAllSel()
 	{
 		int i=-1;
-		while ( (i=GetNextItem(i,LVIS_SELECTED)) != -1)
-			SetItemState(i,0,LVNI_SELECTED|LVNI_FOCUSED );
+		//while ( (i=GetNextItem(i,LVIS_SELECTED)) != -1)
+		//	SetItemState(i,0,LVNI_SELECTED|LVNI_FOCUSED );
 	}
 
 	//void InsertTrackItem(PlayListItem &track,int item,BOOL SetIndex=TRUE);
@@ -718,10 +770,67 @@ public:
 	{
 // 		if (GetPlayList())
 // 			GetPlayList()->pPLV=NULL;
-		if(pPlayList)
-			SetItemCount(pPlayList->m_songList.size());
+		//if(pPlayList)
+			;//SetItemCount(pPlayList->m_songList.size());
 		SetPlayList(pPlayList);
-		EnsureVisible(0,0);
+		//EnsureVisible(0,0);
+
+		for (int i=0;i<GetPlayList()->GetItemCount();++i)
+		{
+			//FileTrack *track=GetPlayList()->GetItem(i)->GetFileTrack();
+			AddItem();
+		}
+		
+	}
+
+	HFONT GetItemFont( int nItem, int nSubItem )
+	{
+		return m_Font;
+	}
+
+	CString GetItemText( int nItem, int nSubItem ) // required by CListImpl
+	{
+		CString result;
+		FileTrack *track=GetPlayList()->GetItem(nItem)->GetFileTrack();
+		if(!track) return result;
+
+		int iItemIndx=nItem;
+
+		switch(nSubItem){
+		case COLUMN_INDEX_INDEX:
+			{
+				TCHAR strIndex[4]={0};
+				_itow(iItemIndx+1,strIndex,10);
+				result=strIndex;
+			}
+			break;
+		case COLUMN_INDEX_TITLE: //fill in main text
+			result=track->title.c_str();
+			break;
+		case COLUMN_INDEX_ARTIST: //fill in sub item 1 text
+				result=track->artist.c_str();
+			break;
+		case COLUMN_INDEX_ALBUM: //fill in sub item 2 text
+
+			result=track->album.c_str();
+			break;
+		case COLUMN_INDEX_YEAR:
+
+			result=track->year.c_str();
+			break;
+		case COLUMN_INDEX_GENRE:
+		
+			result=track->genre.c_str();
+			break;
+		}
+		
+		return result;
+	}
+
+	int GetItemCount() // required by CListImpl
+	{
+		if(!GetPlayList())return 0;
+		return GetPlayList()->GetItemCount();
 	}
 
 	void ClearAllItem()
@@ -732,8 +841,10 @@ public:
 
 	void SelectAndFocusItem(int item)
 	{
-		SetItemState(item,LVIS_FOCUSED|
-			LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
+		SelectItem(item,-1,LVIS_FOCUSED|LVIS_SELECTED);
+
+		//SetItemState(item,LVIS_FOCUSED|
+		//	LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
 	}
 
 
@@ -743,7 +854,8 @@ public:
 	{
 		//resotre the curr croll bar's pos
 		if(GetPlayList())
-			GetPlayList()->topVisibleIndex=GetTopIndex();
+			//GetPlayList()->topVisibleIndex=GetTopIndex();
+				GetPlayList()->topVisibleIndex=GetTopItem();
 		
 		
 
@@ -766,8 +878,9 @@ public:
 		{
 			int index=GetPlayList()->GetPlayingIndex();
 			EnsureVisibleAndCentrePos(index);
-			SetItemState(index,LVIS_FOCUSED|
-				LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
+			SelectAndFocusItem(index);
+		//	SetItemState(index,LVIS_FOCUSED|
+			//	LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
 		}
 		else
 		{
@@ -796,42 +909,42 @@ public:
 
 	void ScrollByTop(int topIndex)
 	{
-		int top=GetTopIndex();
+		int top=GetTopItem();
 
-		EnsureVisible(topIndex,FALSE);
-
-		top=GetTopIndex();
-
-		RECT rc;
-		GetItemRect(top,&rc,LVIR_BOUNDS);
-
-		SIZE sz;
-		sz.cx=0;
-		sz.cy=(topIndex-top)*(rc.bottom-rc.top);
-		Scroll(sz);
+// 		EnsureVisible(topIndex,FALSE);
+// 
+// 		top=GetTopIndex();
+// 
+// 		RECT rc;
+// 		GetItemRect(top,&rc,LVIR_BOUNDS);
+// 
+// 		SIZE sz;
+// 		sz.cx=0;
+// 		sz.cy=(topIndex-top)*(rc.bottom-rc.top);
+// 		Scroll(sz);
 
 	}
 
 	void EnsureVisibleAndCentrePos(int index)
 	{
-		int top=GetTopIndex();
-		int countPerPage=GetCountPerPage();
-
-		//isVisible?
-		if (index >= top +1  && index  <= top+countPerPage -1 )
-			return;
-
-		EnsureVisible(index,FALSE);
-
-		top=GetTopIndex();
-
-		RECT rc;
-		GetItemRect(top,&rc,LVIR_BOUNDS);
-
-		SIZE sz;
-		sz.cx=0;
-		sz.cy=(index-top-countPerPage/2)*(rc.bottom-rc.top);
-		Scroll(sz);
+// 		int top=GetTopIndex();
+// 		int countPerPage=GetCountPerPage();
+// 
+// 		//isVisible?
+// 		if (index >= top +1  && index  <= top+countPerPage -1 )
+// 			return;
+// 
+// 		EnsureVisible(index,FALSE);
+// 
+// 		top=GetTopIndex();
+// 
+// 		RECT rc;
+// 		GetItemRect(top,&rc,LVIR_BOUNDS);
+// 
+// 		SIZE sz;
+// 		sz.cx=0;
+// 		sz.cy=(index-top-countPerPage/2)*(rc.bottom-rc.top);
+// 		Scroll(sz);
 	}
 
 	BOOL IsAllSelectedItemInPlayQueue();
@@ -839,7 +952,7 @@ public:
 	LRESULT OnDeleteFromPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnOpenFilePath(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		int nItem=GetNextItem(-1,LVIS_SELECTED);
+		int nItem=GetFirrstSelectedItem();
 
 		if(nItem!=-1)
 		{
@@ -857,8 +970,8 @@ public:
 			*   "/select,C:\a.txt"
 			*/
 			ShellExecute(NULL,_T("open"),_T("explorer"),
-				parameters.c_str(),dir.c_str(),SW_SHOW);
-		}
+ 				parameters.c_str(),dir.c_str(),SW_SHOW);
+ 		}
 		return 0;
 	}
 
@@ -867,9 +980,9 @@ public:
 	{
 		clText1=one;
 		clText2=another;
-		int top=GetTopIndex();
-		int countPerPage=GetCountPerPage();
-		RedrawItems(top,top+countPerPage);
+// 		int top=GetTopIndex();
+// 		int countPerPage=GetCountPerPage();
+// 		RedrawItems(top,top+countPerPage);
 		::UpdateWindow(this->m_hWnd);
 	}
 
@@ -926,3 +1039,5 @@ public:
 
 
 };
+
+

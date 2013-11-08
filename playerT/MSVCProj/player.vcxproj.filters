@@ -22,6 +22,9 @@
     <Filter Include="Taglib Files\Source Files">
       <UniqueIdentifier>{13ac5faf-729a-46eb-a902-048fd012165b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\ListCtrl">
+      <UniqueIdentifier>{1c4c08e5-80c7-465c-b024-2a78c562ce7e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\aboutdlg.h">
@@ -648,6 +651,30 @@
     <ClInclude Include="..\DlgProgerty.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\ListCombo.h">
+      <Filter>Header Files\ListCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ListCtrl.h">
+      <Filter>Header Files\ListCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ListDate.h">
+      <Filter>Header Files\ListCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ListEdit.h">
+      <Filter>Header Files\ListCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ListTypes.h">
+      <Filter>Header Files\ListCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\TitleTip.h">
+      <Filter>Header Files\ListCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DragDrop.h">
+      <Filter>Header Files\ListCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DropArrows.h">
+      <Filter>Header Files\ListCtrl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\BasicPlayer.cpp">
@@ -944,6 +971,9 @@
     <ClCompile Include="..\MyConfigs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\player.rc">
@@ -958,6 +988,39 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\player.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\bitmap1.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ExampleItems.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\ListItems.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\hand.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\cursor2.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\ExampleItems.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\ListItems.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\hand.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\cursor1.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\divider.cur">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\divider.cur">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

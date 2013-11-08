@@ -282,6 +282,8 @@ _songContainerItem PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 	//_songContainerItem item;
 	_songContainer::iterator cur,next;
 
+	if(GetPlayingIndex()==-1)return NULL;
+
 	_songContainerItem item=GetItem(GetPlayingIndex());
 	if(item->isValide())
 		cur = m_songList.begin()+item->GetIndex();

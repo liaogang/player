@@ -71,18 +71,18 @@ public:
 	LRESULT OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled)
 	{
 		bHandled=FALSE;
-
-		vector<int> items;
-
-		
-		int nItem=-1;
-		while((nItem=m_list.GetNextItem(nItem,LVNI_SELECTED))!=-1)
-			items.push_back(searchPl->GetItem(nItem)->GetIndex());
-		
-		if(items.size()>0)
-			AllPlayListViews()->SelectItems(items);
-		
-		m_list.OnItemChanged(0,pnmh,bHandled);
+		//todo
+// 		vector<int> items;
+// 
+// 		
+// 		int nItem=-1;
+// 		while((nItem=m_list.GetNextItem(nItem,LVNI_SELECTED))!=-1)
+// 			items.push_back(searchPl->GetItem(nItem)->GetIndex());
+// 		
+// 		if(items.size()>0)
+// 			AllPlayListViews()->SelectItems(items);
+// 		
+// 		m_list.OnItemChanged(0,pnmh,bHandled);
 
 		return 1;
 	}
