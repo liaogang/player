@@ -40,7 +40,6 @@
 #define IDB_EXAMPLE                     231
 #define IDB_LISTITEMS                   232
 #define IDC_HYPERLINK                   233
-#define IDC_CURSOR1                     237
 #define IDC_DIVIDER                     237
 #define IDC_TREE                        1000
 #define IDC_RESET_ALL                   1001
@@ -82,6 +81,8 @@
 #define IDC_RADIO2                      1035
 #define IDC_SHOW_PATH                   1036
 #define IDC_COMBO1                      1038
+#define IDC_LIST2                       1040
+#define IDC_CUSTOM1                     1041
 #define IDD_DLG_CFG_1                   2055
 #define IDD_DLG_LRC_PANE_PROPERTY1      2056
 #define IDD_DLG_LRC_PANE_PROPERTY2      2057
@@ -264,7 +265,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        238
 #define _APS_NEXT_COMMAND_VALUE         32952
-#define _APS_NEXT_CONTROL_VALUE         1040
+#define _APS_NEXT_CONTROL_VALUE         1042
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

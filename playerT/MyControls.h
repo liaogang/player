@@ -519,23 +519,29 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 
 	LRESULT OnPlay(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
+		IWantToReceiveMessage(WM_USER_TIMER);
 		//UpdateTrackInfoText();
 
 		return 0;
 	}
 
-	LRESULT OnPaused(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	LRESULT OnResume(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
+		IWantToReceiveMessage(WM_USER_TIMER);
 		return 0;
 	}
 
-	LRESULT OnResume(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	LRESULT OnPaused(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
+		IDonotWantToReceiveMessage(WM_USER_TIMER);
 		return 0;
 	}
+
 
 	LRESULT OnStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
+		SetText(0,NULL);
+		IDonotWantToReceiveMessage(WM_USER_TIMER);
 		return 0;
 	}
 

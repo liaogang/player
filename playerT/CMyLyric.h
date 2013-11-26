@@ -3,6 +3,7 @@
 #include "dlgLrcSearch.h"
 #include "forwardMsg.h"
 #include "DialogLrcList.h"
+#pragma once
 using namespace std;
 
 #define WIDTH(rc) ((rc).right-(rc.left))

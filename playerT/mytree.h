@@ -1,6 +1,7 @@
 #include "MySerialize.h"
 #include <list>
 #include <map>
+#include <math.h>
 
 #pragma once
 #define max_node_name 40
@@ -14,7 +15,9 @@ using namespace std;
 #define HEIGHT(rc) ((rc).bottom-(rc.top))
 
 //调用完calcrect之后,调用此函数,更新
-void MoveToNewRect(MYTREE *parent,HDC dc=NULL);
+void UpdateLayout(MYTREE *parent,HDC dc=NULL);
+void PaneSizeStore(MYTREE *root);
+
 
 void MYTREE_Set_Playlist(MYTREE* tree);
 void MYTREE_Set_AlbumView(MYTREE* tree);
@@ -39,6 +42,7 @@ void CreateHWNDbyName(MYTREE *tree);
 
 
 
+enum { proportionalMax = 10000 };	// scale range for proportional position
 
 //删除自身,在根树中的关系
 //返回父结点
@@ -153,16 +157,16 @@ public:
 	TCHAR nodeName[max_node_name];
 	RECT rc;
 	split_type type;
-	long  m_iSplitterBar;//把手的长度或宽度
+	int  m_iSplitterBar;//把手的长度或宽度
 	list<RECT> SplitterBarRects;//把手区域列表
+
+	int sz;
+	int proporSize;				// proportionate size
 
 	//no ....
 	HWND hWnd;	
 
 	HTREEITEM treeItem;
-
-	//vector<int> bl;//比例
-	RECT rcBeforeSize;
 };
 
 
@@ -223,8 +227,12 @@ public:
 	RECT getRect(){return data.getRect();}
 	void setRect(RECT &rc){data.setRect(rc);}
 
-	RECT getRectBeforeSize(){return data.rcBeforeSize;}
-	void setRectBeforeSzie(RECT &rc){data.rcBeforeSize=rc;}
+	//RECT getRectBeforeSize(){return data.rcBeforeSize;}
+	//void setRectBeforeSzie(RECT &rc){data.rcBeforeSize=rc;}
+	int getProporSize(){return data.proporSize;}
+	void setProporSize(int sz){data.proporSize=sz;}
+	int getSize(){return data.sz;}
+	void setSize(int sz){data.sz=sz;}
 
 	void AdjustSplitterBar(LONG offset,MY_DIRECTION direction)
 	{
@@ -490,158 +498,88 @@ public:
 	}
 
 
-	void BeginSize()
+	void PaneChildSizeStore(int RootSize)
 	{
-		MYTREE *cur=this;
-		cur->setRectBeforeSzie(cur->getRect());
-		if(cur->hasChild())
+		for (MYTREE *walk=child;walk;walk=walk->next)
 		{
-			cur=cur->child;
-			for (int count=0;count<childs;cur=cur->next,++count)
-			{
-				cur->setRectBeforeSzie(cur->getRect());
-				if(cur->hasChild())
-					cur->BeginSize();
-			}
+			RECT newRC=walk->getRect();
+			bool bLR=(walk->data.type==left_right);
+			walk->setSize(bLR?WIDTH(newRC):HEIGHT(newRC));
+			walk->setProporSize(::MulDiv (walk->getSize(), proportionalMax, RootSize));
+			
+			if(walk->hasChild())
+				walk->PaneChildSizeStore(RootSize);
 		}
 	}
-
 
 	//重新计算子结点的矩形区域
 	//按原比例来分配
 	void CalcChildsRect(RECT &newRC)
 	{
+		data.SplitterBarRects.clear();
 		setRect(newRC);
 		if(!hasChild())
 			return;
 
-		static int idebug=0;
-		if(idebug++)
-			if(idebug==5)
-				idebug=0;
-			else
-				return;
-
-		RECT oldRC=getRectBeforeSize();
-
-
+		int proporSize=getProporSize();
 		bool bLR=(data.type==left_right);
+		int  newSz=bLR?WIDTH(newRC):HEIGHT(newRC);
+		
+		RECT r={0};
+		MYTREE *lastTree=NULL;
 
-		int  bEnlarge=bLR?(WIDTH(newRC)-WIDTH(oldRC)) :(HEIGHT(newRC)-HEIGHT(oldRC));
-		int  bEnlarge2=(!bLR)?(WIDTH(newRC)-WIDTH(oldRC)) :(HEIGHT(newRC)-HEIGHT(oldRC));
-		if(bEnlarge==0 && bEnlarge2==0)
-			return;
-		if(bEnlarge2!=0)
+		
+		MYTREE *cur=child;
+		RECT tmp;
+		for (int count=0;cur;cur=cur->next,++count)
 		{
-			list<RECT> bars;
-			auto i=data.SplitterBarRects.begin();
-			int count=0;
-			for (MYTREE *cur=child;cur;cur=cur->next,++count)
+			if(lastTree)
 			{
-				RECT rc=cur->getRect();
+				RECT rcBar=r;
+				tmp=r;
 				if(bLR)
 				{
-					rc.bottom=newRC.bottom;
-					rc.top=newRC.top;
+					tmp.right-=data.m_iSplitterBar;
+					rcBar.left=tmp.right;
+					r.left=r.right;
 				}
 				else
 				{
-					rc.right=newRC.right;
-					rc.left=newRC.left;
+					tmp.bottom-=data.m_iSplitterBar;
+					rcBar.top=tmp.bottom;
+					r.bottom=r.top;
 				}
-				cur->setRect(rc);
 
-				if(count!=childs-1)
-				{
-					RECT rcBar=*i;
-					if(bLR)
-						rcBar.bottom=newRC.bottom;
-					else
-						rc.right=newRC.right;
+				lastTree->setRect(tmp);
+				data.SplitterBarRects.push_back(rcBar);
 
-					bars.push_back(rcBar);
-
-					i++;
-				}
+				if (lastTree->hasChild())
+					lastTree->CalcChildsRect(tmp);
 			}
 
-			data.SplitterBarRects=bars;
-		}
 
-		float times=bLR?WIDTH(newRC)/(float)WIDTH(oldRC) :
-			HEIGHT(newRC)/(float)HEIGHT(oldRC);
-
-		data.SplitterBarRects.clear();
-
-		MYTREE *cur=child;
-		LONG lastV=bLR?cur->getRect().left:cur->getRect().top;
-		for (int count=0;count<childs;cur=cur->next,++count)
-		{
-			RECT curRC=cur->getRect();
-
-			oldRC=cur->getRectBeforeSize();
-
-			float curW=(bLR?WIDTH(oldRC):HEIGHT(oldRC)) * times;
-
-			if(count!=childs-1)
-			{
-				if(bLR)
-				{
-					curRC.left=lastV;
-					curRC.right=curRC.left + curW ;
-					lastV=curRC.right+data.m_iSplitterBar;
-					//curRC.right-=data.m_iSplitterBar;
-				}
-				else
-				{
-					curRC.top=lastV;
-					curRC.bottom=curRC.top + curW ;
-					lastV=curRC.bottom+data.m_iSplitterBar;
-					//curRC.bottom-=data.m_iSplitterBar;
-				}
+			cur->setSize(::MulDiv(newSz,proporSize,proportionalMax));
+			if(bLR)
+			{	
+				r.right=r.left+getSize();
+				r.bottom=newRC.bottom;
 			}
 			else
 			{
-				if(bLR)
-				{
-
-					curRC.left=lastV;
-					curRC.right=getRect().right;
-				}
-				else
-				{
-					curRC.top=lastV;
-					curRC.bottom=getRect().bottom;
-				}
+				r.bottom=r.top+getSize();
+				r.right=newRC.right;
 			}
 
-			cur->setRect(curRC);
-
-			if(count!=childs-1)
-			{
-				RECT rcBar=curRC;
-				if(bLR)
-				{
-					rcBar.left=curRC.right;
-					rcBar.right+=data.m_iSplitterBar;
-				}
-				else
-				{
-					rcBar.top=curRC.bottom;
-					rcBar.bottom+=data.m_iSplitterBar;
-				}
-				data.SplitterBarRects.push_back(rcBar);
-			}
-
-
-			if (cur->hasChild())
-				cur->CalcChildsRect(curRC);
+			lastTree=cur;
 		}
+
+		if (lastTree->hasChild())
+			lastTree->CalcChildsRect(tmp);
 	}
 
 	//重新计算子结点的矩形区域
 	//重新分配相等的空间
-	void ReCalcChildsRect()
+	void EvenPanes()
 	{
 		if(!hasChild())return;
 
@@ -658,7 +596,7 @@ public:
 			child->setRect(rc);
 
 			if (first->hasChild())
-				first->ReCalcChildsRect();
+				first->EvenPanes();
 		}
 		else
 		{
@@ -710,7 +648,7 @@ public:
 				first->setRect(childRC);
 
 				if (first->hasChild())
-					first->ReCalcChildsRect();
+					first->EvenPanes();
 			}
 
 		}

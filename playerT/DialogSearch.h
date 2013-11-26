@@ -43,6 +43,7 @@ public:
 	{
 		DlgResize_Init(FALSE,FALSE);
 		CenterWindow(GetParent());
+
 		m_list.SubclassWindow(::GetDlgItem(m_hWnd,IDC_LIST));
 		
 		searchPl=new PlayList;

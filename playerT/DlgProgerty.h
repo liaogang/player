@@ -377,8 +377,8 @@ public:
 
 		mytree->AddChild(newSplit);
 
-		mytree->ReCalcChildsRect();
-		MoveToNewRect(mytree);
+		mytree->EvenPanes();
+		UpdateLayout(mytree);
 		UpdateTree(mytree);
 
 		return 0;
@@ -393,8 +393,8 @@ public:
 
 		mytree->AddChild(newSplit);
 
-		mytree->ReCalcChildsRect();
-		MoveToNewRect(mytree);
+		mytree->EvenPanes();
+		UpdateLayout(mytree);
 		UpdateTree(mytree);
 
 		return 0;
@@ -406,13 +406,10 @@ public:
 
 		MYTREE_Add_Playlist(mytree);
 
-		GetSplitter()->OnSizing();
-
 		UpdateTree(mytree);
-		GetSplitter()->Invalidate();
+
 		return 0;
 	}
-
 
 
 
@@ -422,7 +419,7 @@ public:
 		MYTREE_Add_SpectrumView(mytree);
 		GetSplitter()->OnSizing();
 		UpdateTree(mytree);
-		GetSplitter()->Invalidate();
+		PaneSizeStore(mytree);
 
 		return 0;
 	}
@@ -432,7 +429,7 @@ public:
 		MYTREE_Add_AlbumView(mytree);
 		GetSplitter()->OnSizing();
 		UpdateTree(mytree);
-
+		PaneSizeStore(mytree);
 		return 0;
 	}
 	LRESULT OnAddPaneLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -441,8 +438,7 @@ public:
 		MYTREE_Add_LyricView(mytree);
 		GetSplitter()->OnSizing();
 		UpdateTree(mytree);
-		GetSplitter()->Invalidate();
-
+		PaneSizeStore(mytree);
 		return 0;
 	}
 
@@ -454,7 +450,7 @@ public:
 		GetSplitter()->OnSizing();
 		UpdateTree(mytree);
 		GetSplitter()->Invalidate();
-
+		PaneSizeStore(mytree->parent);
 
 		return 0;
 	}
@@ -465,8 +461,8 @@ public:
 		MYTREE *mytree=(MYTREE*)GetItemData(rclickItem);
 		if(mytree->data.SetSplitType(left_right))
 		{
-			mytree->ReCalcChildsRect();
-			MoveToNewRect(mytree);
+			mytree->EvenPanes();
+			UpdateLayout(mytree);
 			UpdateTree(mytree);
 			GetSplitter()->Invalidate();
 		}
@@ -480,8 +476,8 @@ public:
 
 		if(mytree->data.SetSplitType(up_down))
 		{
-			mytree->ReCalcChildsRect();
-			MoveToNewRect(mytree);
+			mytree->EvenPanes();
+			UpdateLayout(mytree);
 			UpdateTree(mytree);
 			GetSplitter()->Invalidate();
 		}
@@ -495,8 +491,8 @@ public:
 
 		MYTREE *parent=MYTree_RemoveFromRoot(mytree);
 
-		parent->ReCalcChildsRect();
-		MoveToNewRect(parent);
+		parent->EvenPanes();
+		UpdateTree(parent);
 		UpdateTree(parent);
 		GetSplitter()->Invalidate();
 

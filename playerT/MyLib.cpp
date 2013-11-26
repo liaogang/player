@@ -118,8 +118,8 @@ void MyLib::playNext(BOOL scanID3)
 	}
 
 	
-	
-	play(nextItem);
+	if(nextItem)
+		play(nextItem);
 	
 }
 

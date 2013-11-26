@@ -533,9 +533,6 @@ int dataNode::SerializeB(FILE *pFile)
 
 	size+=::Serialize(pFile,type==left_right?1:0);
 
-	size+=::Serialize(pFile,m_iSplitterBar);
-	
-
 	int numBars=SplitterBarRects.size();
 	size+=::Serialize(pFile,numBars);
 	if (numBars>0)
@@ -560,8 +557,6 @@ int dataNode::ReSerialize(FILE *pFile)
 	int leftright;
 	size+=::ReSerialize(pFile,&leftright);
 	type=leftright?left_right:up_down;
-
-	size+=::ReSerialize(pFile,m_iSplitterBar);
 
 
 	int numBars;

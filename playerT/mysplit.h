@@ -105,14 +105,13 @@ public:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 		rootTree=UISplitterTreeRoot();
-		if (rootTree->hasChild())//reserialize from cfg file
-		{
+		if (rootTree->hasChild())//reserialize from  file
 			CreateHWNDbyName(rootTree);
-		}
+		
 
-		MoveToNewRect(rootTree);
-
-		BeginSize();
+		UpdateLayout(rootTree);
+		
+		PaneSizeStore(rootTree);
 
 		if(m_hCursorLeftRight == NULL)
 			m_hCursorLeftRight = ::LoadCursor(NULL, IDC_SIZEWE);
@@ -126,25 +125,29 @@ public:
 
 	void UpdateTree(MYTREE *treeData);
 
-	void BeginSize()
-	{
-		rootTree->BeginSize();
-	}
 	
 	LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
+		OnSizing();
 		bHandled=FALSE;
 		return 1;
 	}
 
 	void OnSizing()
 	{
+		static bool bFirst=true;
+		if(bFirst)
+		{
+			PaneSizeStore(rootTree);
+			bFirst=false;
+		}
+
 		RECT newRC;
 		GetClientRect(&newRC);
 		if (WIDTH(newRC) && HEIGHT(newRC))
 		{
 			rootTree->CalcChildsRect(newRC);
-			MoveToNewRect(rootTree,GetDC());
+			UpdateLayout(rootTree,GetDC());
 		}
 	}
 
@@ -176,7 +179,7 @@ public:
 
 		rclickTree->addChildNodeAfter(newTree);
 
-		rclickTree->ReCalcChildsRect();
+		rclickTree->EvenPanes();
 
 		Invalidate();
 		UpdateTree(rclickTree);
@@ -196,7 +199,7 @@ public:
 
 		rclickTree->addChildNodeAfter(newTree);
 
-		rclickTree->ReCalcChildsRect();
+		rclickTree->EvenPanes();
 
 
 		Invalidate();
@@ -222,8 +225,8 @@ public:
 		else
 		{
 			MYTREE *parent= MYTree_RemoveFromRoot(rclickTree);
-			parent->ReCalcChildsRect();
-
+			parent->EvenPanes();
+			UpdateLayout(parent);
 			curHitPos=NULL;
 
 			Invalidate();
@@ -403,7 +406,7 @@ public:
 						info.tree->next->AdjustRect(xyOffset,ajust_top);
 					}
 
-					MoveToNewRect(info.tree->parent);
+					UpdateLayout(info.tree->parent);
 					//InvalidateRect(&rcErase);
 					//UpdateWindow();
 				}
@@ -417,6 +420,9 @@ public:
 
 			//get cur split pos,after move
 			lastXPPos+=xyOffset;
+
+
+			PaneSizeStore(rootTree);
 		}
 		else		// not dragging, just set cursor
 		{

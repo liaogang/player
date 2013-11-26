@@ -134,8 +134,7 @@ public:
 		MESSAGE_HANDLER(WM_CLOSE,OnExit)
 		
 
-		MESSAGE_HANDLER(WM_SIZING,OnSizing)
-		MESSAGE_HANDLER(WM_NCLBUTTONDOWN,OnNcLButtonDown)
+		//MESSAGE_HANDLER(WM_SIZING,OnSizing)
 
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
@@ -210,10 +209,9 @@ public:
 	}
 
 	
-	LRESULT OnSizing(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+	//LRESULT OnSizing(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
-	LRESULT OnNcLButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-
+	
 	
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnTrackReachEnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);

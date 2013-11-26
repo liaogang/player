@@ -324,7 +324,6 @@
     <ClCompile Include="..\taplib\taglib\trueaudio\trueaudioproperties.cpp" />
     <ClCompile Include="..\taplib\taglib\wavpack\wavpackfile.cpp" />
     <ClCompile Include="..\taplib\taglib\wavpack\wavpackproperties.cpp" />
-    <ClCompile Include="..\test.cpp" />
     <ClCompile Include="..\Thread.cpp" />
     <ClCompile Include="..\Util1.cpp" />
     <ClCompile Include="..\WaveFile.cpp" />

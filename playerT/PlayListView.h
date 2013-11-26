@@ -775,11 +775,13 @@ public:
 		SetPlayList(pPlayList);
 		//EnsureVisible(0,0);
 
-		for (int i=0;i<GetPlayList()->GetItemCount();++i)
-		{
-			//FileTrack *track=GetPlayList()->GetItem(i)->GetFileTrack();
-			AddItem();
-		}
+		DeleteAllItems();
+		if(pPlayList)
+			for (int i=0;i<GetPlayList()->GetItemCount();++i)
+			{
+				//FileTrack *track=GetPlayList()->GetItem(i)->GetFileTrack();
+				AddItem();
+			}
 		
 	}
 
@@ -877,7 +879,7 @@ public:
 		if(ActivePlaying)
 		{
 			int index=GetPlayList()->GetPlayingIndex();
-			EnsureVisibleAndCentrePos(index);
+			//EnsureVisibleAndCentrePos(index);
 			SelectAndFocusItem(index);
 		//	SetItemState(index,LVIS_FOCUSED|
 			//	LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
@@ -909,7 +911,7 @@ public:
 
 	void ScrollByTop(int topIndex)
 	{
-		int top=GetTopItem();
+		EnsureItemVisible(topIndex,-1,FALSE);
 
 // 		EnsureVisible(topIndex,FALSE);
 // 
@@ -927,6 +929,7 @@ public:
 
 	void EnsureVisibleAndCentrePos(int index)
 	{
+		EnsureItemVisible(index,-1,TRUE);
 // 		int top=GetTopIndex();
 // 		int countPerPage=GetCountPerPage();
 // 

@@ -70,6 +70,8 @@ BOOL CPlayerThread:: ReadFileReduceVol(BOOL bReduce)
 	BYTE *fileBuffer=(BYTE*)pBufFFT1;
 
 	double vol=bReduce ? 1 : 0;
+	
+	
 
 	double step=1/(double)times;
 	int   bufferOffset=0;

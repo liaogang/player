@@ -676,21 +676,14 @@ LRESULT CMyComboBox::OnCbnSelchanged(UINT,int id, HWND hWndCtl)
 
 
 
-LRESULT CMainFrame::OnSizing(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-{
-	m_pWndMultiSplitter->OnSizing();
-	bHandled=FALSE;
-	
-	return 0;
-}
+// LRESULT CMainFrame::OnSizing(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+// {
+// 	m_pWndMultiSplitter->OnSizing();
+// 	bHandled=FALSE;
+// 	
+// 	return 0;
+// }
 
-LRESULT CMainFrame::OnNcLButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-{
-	m_pWndMultiSplitter->BeginSize();
-	bHandled=FALSE;
-	//If an application processes this message, it should return zero. 
-	return 1;
-}
 
 
 LRESULT CMainFrame::OnTrackReachEnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
@@ -976,7 +969,8 @@ void CMainFrame::ShowSearchDialog()
 	{
 		m_pDlgSearch=new DialogSearch;
 		m_pDlgSearch->pM=this;
-		m_pDlgSearch->Create(m_hWnd);
+		if(!m_pDlgSearch->Create(m_hWnd))
+			return;
 
 		if(m_rcSearch.right>0 && m_rcSearch.bottom > 0)
 			::SetWindowPos(m_pDlgSearch->m_hWnd, NULL, m_rcSearch.left, m_rcSearch.top, m_rcSearch.right - m_rcSearch.left, m_rcSearch.bottom - m_rcSearch.top,SWP_NOZORDER);
@@ -1944,7 +1938,7 @@ void MYTREE_Add_EmptyWnd(MYTREE* tree)
 
 
 	tree->addChildNodeAfter(newTree);
-	tree->ReCalcChildsRect();
+	tree->EvenPanes();
 
 }
 
@@ -1963,11 +1957,6 @@ void  CPlayListView::CreateIsWnd()
 //  	Create(GetSplitter()->m_hWnd, 0 , _T("WtlListView32"),
 //  		WS_CHILD | WS_VISIBLE  |WS_CLIPCHILDREN |WS_CLIPSIBLINGS ,0);
 	SubclassWindow(w->m_hWnd);
-
-	m_ilListItems.Detach();
-	m_curDivider.Detach();
-	m_curHyperLink.Detach();
-	m_ttToolTip.Detach();
 }
 
 void MYTREE_Set_Playlist(MYTREE* tree)
@@ -1990,7 +1979,9 @@ void MYTREE_Add_Playlist(MYTREE* tree)
 	wcscpy(newTree->data.nodeName,L"播放列表");
 
 	tree->addChildNodeAfter(newTree);
-	tree->ReCalcChildsRect();
+	tree->EvenPanes();
+	PaneSizeStore(newTree->parent);
+	UpdateLayout(newTree->parent);
 }
 
 
@@ -2018,7 +2009,9 @@ void MYTREE_Add_AlbumView(MYTREE* tree)
 	wcscpy(newTree->data.nodeName,L"封面面板");
 
 	tree->addChildNodeAfter(newTree);
-	tree->ReCalcChildsRect();
+	tree->EvenPanes();
+	PaneSizeStore(newTree->parent);
+	UpdateLayout(newTree->parent);
 }
 void MYTREE_Set_LyricView(MYTREE* tree)
 {
@@ -2034,7 +2027,9 @@ void MYTREE_Add_LyricView(MYTREE* tree)
 	wcscpy(newTree->data.nodeName,L"歌词面板");
 
 	tree->addChildNodeAfter(newTree);
-	tree->ReCalcChildsRect();
+	tree->EvenPanes();
+	PaneSizeStore(newTree->parent);
+	UpdateLayout(newTree->parent);
 }
 
 
@@ -2051,7 +2046,7 @@ void MYTREE_Add_SpectrumView(MYTREE* tree)
 	MYTREE_Set_SpectrumView(newTree);
 	wcscpy(newTree->data.nodeName,L"频谱面板");
 	tree->addChildNodeAfter(newTree);
-	tree->ReCalcChildsRect();
+	tree->EvenPanes();
 }
 
 void CMyStatusBar::UpdateTrackInfoText()
@@ -2241,6 +2236,11 @@ void CPlayListView::Init(bool bSearch)
 		
 	
 	
+	m_ilListItems.Detach();
+	m_curDivider.Detach();
+	m_curHyperLink.Detach();
+	m_ttToolTip.Detach();
+
 	CListImpl< CPlayListView >::Initialise();
 
 	if(!bSearch)

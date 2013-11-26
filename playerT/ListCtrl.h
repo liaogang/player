@@ -868,8 +868,8 @@ public:
 		
 		return TRUE;
 	}
-	
-	BOOL EnsureItemVisible( int nItem, int nSubItem = NULL_SUBITEM )
+	//param bCenter, add by lg
+	BOOL EnsureItemVisible( int nItem, int nSubItem = NULL_SUBITEM ,BOOL bCenter=FALSE)
 	{
 		if ( IsItemVisible( nItem, nSubItem, FALSE ) )
 			return TRUE;
@@ -890,10 +890,10 @@ public:
 			
 			// scroll list up/down to include item
 			if ( rcItem.top < rcClient.top || rcItem.Height() > rcClient.Height() )
-				nScrollItem = nItem;
+				nScrollItem = nItem -  (bCenter ? ((GetCountPerPage( FALSE ) -1 )/2 ):0);
 			else if ( rcItem.bottom > rcClient.bottom )
-				nScrollItem = nItem - ( GetCountPerPage( FALSE ) - 1 );
-			
+				nScrollItem = nItem - ( GetCountPerPage( FALSE ) - 1 ) / (bCenter?2:1);
+		
 			if ( nScrollItem != NULL_ITEM )
 				SetScrollPos( SB_VERT, nScrollItem * m_nItemHeight );
 		}
@@ -1769,7 +1769,7 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		
-		if ( !EnsureItemVisible( nItem, nSubItem ) )
+		if ( !EnsureItemVisible( nItem, nSubItem ,TRUE) )
 			return FALSE;
 		
 		if ( GetFocus() != m_hWnd )
@@ -2233,6 +2233,12 @@ public:
 		
 		if ( !HitTest( point, nItem, nSubItem ) )
 		{
+			//add by lg
+			//hit in the right of end sub item , the deselect item
+			if (nItem >= pT->GetItemCount() ||  nSubItem == GetColumnCount() )
+				ResetSelected();
+			//end add
+
 			m_nFirstSelected = NULL_ITEM;
 			m_bBeginSelect = TRUE;		
 		}

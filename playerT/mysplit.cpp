@@ -5,13 +5,13 @@
 
 
 
-void MoveToNewRect(MYTREE *parent,HDC dc)
+void UpdateLayout(MYTREE *parent,HDC dc)
 {
 	for (MYTREE *cur=parent->getFirstSibling();cur;cur=cur->next)
 	{
 		if(cur->hasChild())
 		{
-			MoveToNewRect(cur->child);
+			UpdateLayout(cur->child);
 		}
 		else 
 		{
@@ -115,4 +115,19 @@ void WalkOverTree(MYTREE * tree,DoSomeThing func)
 		if (tree->hasChild())
 			WalkOverTree(tree->child,func);
 	}
+}
+
+
+
+
+void PaneSizeStore(MYTREE *root)
+{
+	ATLASSERT(root->isroot());
+
+	bool bLR=(root->data.type==left_right);
+	int rootSize=bLR?WIDTH(root->getRect()):HEIGHT(root->getRect());
+	
+
+	if(root->hasChild())
+		root->PaneChildSizeStore(rootSize);
 }
