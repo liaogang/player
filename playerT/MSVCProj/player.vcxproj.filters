@@ -984,19 +984,7 @@
     <None Include="..\res\Toolbar.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\res\player.ico">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\res\bitmap1.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\ExampleItems.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\ListItems.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\hand.cur">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\cursor2.cur">
@@ -1014,10 +1002,13 @@
     <None Include="..\res\cursor1.cur">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\divider.cur">
+    <None Include="..\res\divider.cur">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\res\divider.cur">
+    <None Include="..\res\icon1.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\Toolbar1.bmp">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

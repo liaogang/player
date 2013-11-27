@@ -67,7 +67,7 @@ MyLib::~MyLib()
 
 void MyLib::play(PlayListItem *item)
 {	
-	if(item->isValide());
+	if(item->isValide())
 	{
 		PlayList *pl=item->GetPlayList();
 		SetPlayingPlaylist(pl);

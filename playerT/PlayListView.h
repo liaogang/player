@@ -768,21 +768,13 @@ public:
 
 	void LoadPlayList(PlayList *pPlayList)
 	{
-// 		if (GetPlayList())
-// 			GetPlayList()->pPLV=NULL;
-		//if(pPlayList)
-			;//SetItemCount(pPlayList->m_songList.size());
 		SetPlayList(pPlayList);
 		//EnsureVisible(0,0);
 
 		DeleteAllItems();
 		if(pPlayList)
 			for (int i=0;i<GetPlayList()->GetItemCount();++i)
-			{
-				//FileTrack *track=GetPlayList()->GetItem(i)->GetFileTrack();
 				AddItem();
-			}
-		
 	}
 
 	HFONT GetItemFont( int nItem, int nSubItem )
@@ -838,15 +830,11 @@ public:
 	void ClearAllItem()
 	{
 		DeleteAllItems();
-		//SetItemCount(0);
 	}
 
 	void SelectAndFocusItem(int item)
 	{
 		SelectItem(item,-1,LVIS_FOCUSED|LVIS_SELECTED);
-
-		//SetItemState(item,LVIS_FOCUSED|
-		//	LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
 	}
 
 
@@ -856,9 +844,7 @@ public:
 	{
 		//resotre the curr croll bar's pos
 		if(GetPlayList())
-			//GetPlayList()->topVisibleIndex=GetTopIndex();
 				GetPlayList()->topVisibleIndex=GetTopItem();
-		
 		
 
 		m_bC=FALSE;
@@ -879,10 +865,7 @@ public:
 		if(ActivePlaying)
 		{
 			int index=GetPlayList()->GetPlayingIndex();
-			//EnsureVisibleAndCentrePos(index);
 			SelectAndFocusItem(index);
-		//	SetItemState(index,LVIS_FOCUSED|
-			//	LVIS_SELECTED,LVIS_FOCUSED|LVIS_SELECTED);
 		}
 		else
 		{
@@ -912,42 +895,11 @@ public:
 	void ScrollByTop(int topIndex)
 	{
 		EnsureItemVisible(topIndex,-1,FALSE);
-
-// 		EnsureVisible(topIndex,FALSE);
-// 
-// 		top=GetTopIndex();
-// 
-// 		RECT rc;
-// 		GetItemRect(top,&rc,LVIR_BOUNDS);
-// 
-// 		SIZE sz;
-// 		sz.cx=0;
-// 		sz.cy=(topIndex-top)*(rc.bottom-rc.top);
-// 		Scroll(sz);
-
 	}
 
 	void EnsureVisibleAndCentrePos(int index)
 	{
 		EnsureItemVisible(index,-1,TRUE);
-// 		int top=GetTopIndex();
-// 		int countPerPage=GetCountPerPage();
-// 
-// 		//isVisible?
-// 		if (index >= top +1  && index  <= top+countPerPage -1 )
-// 			return;
-// 
-// 		EnsureVisible(index,FALSE);
-// 
-// 		top=GetTopIndex();
-// 
-// 		RECT rc;
-// 		GetItemRect(top,&rc,LVIR_BOUNDS);
-// 
-// 		SIZE sz;
-// 		sz.cx=0;
-// 		sz.cy=(index-top-countPerPage/2)*(rc.bottom-rc.top);
-// 		Scroll(sz);
 	}
 
 	BOOL IsAllSelectedItemInPlayQueue();
@@ -983,9 +935,6 @@ public:
 	{
 		clText1=one;
 		clText2=another;
-// 		int top=GetTopIndex();
-// 		int countPerPage=GetCountPerPage();
-// 		RedrawItems(top,top+countPerPage);
 		::UpdateWindow(this->m_hWnd);
 	}
 

@@ -432,11 +432,7 @@ playerT/player.cpp -text
 playerT/player.h -text
 playerT/player.rc -text
 playerT/res/Toolbar.bmp -text
-playerT/res/idr_main.ico -text
-playerT/res/player.ico -text
-playerT/res/playerT.ico -text
-playerT/res/player_p1.bmp -text
-playerT/res/player_p2.bmp -text
+playerT/res/icon1.ico -text
 playerT/resource.h -text
 playerT/stdafx.cpp -text
 playerT/stdafx.h -text

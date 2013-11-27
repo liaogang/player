@@ -338,14 +338,11 @@
     <None Include="..\res\divider.cur" />
     <None Include="..\res\ExampleItems.bmp" />
     <None Include="..\res\hand.cur" />
+    <None Include="..\res\icon1.ico" />
     <None Include="..\res\ListItems.bmp" />
-    <None Include="..\res\player.ico" />
     <None Include="..\res\Toolbar.bmp" />
+    <None Include="..\res\Toolbar1.bmp" />
     <None Include="..\taplib\include\README" />
-    <None Include="res\divider.cur" />
-    <None Include="res\ExampleItems.bmp" />
-    <None Include="res\hand.cur" />
-    <None Include="res\ListItems.bmp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F39340DB-DCCF-4BD5-8609-8B4662EB643E}</ProjectGuid>

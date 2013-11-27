@@ -643,6 +643,8 @@ END
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
 IDB_EXAMPLE             BITMAP                  "res\\ExampleItems.bmp"
 IDB_LISTITEMS           BITMAP                  "res\\ListItems.bmp"
+IDB_BITMAP1             BITMAP                  "E:\\Coding_stuffs\\SourceCode1\\res\\Toolbar1.bmp"
+IDB_BITMAP2             BITMAP                  "res\\Toolbar1.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -651,7 +653,7 @@ IDB_LISTITEMS           BITMAP                  "res\\ListItems.bmp"
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON                    "res\\player.ico"
+IDR_MAINFRAME           ICON                    "res\\icon1.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
