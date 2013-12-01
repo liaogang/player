@@ -341,6 +341,16 @@ public:
 
 	void setroot(){parent=NULL;}
 	bool isroot(){return parent==NULL;}
+	
+	MYTREE *getroot()
+	{
+		ATLASSERT(parent!=this);
+		MYTREE *cur;
+		for (cur=this;!cur->isroot();cur=cur->parent)
+			;
+
+		return cur;
+	}
 
 	bool hasParent(){return parent!=this&&parent!=NULL;}
 
@@ -498,17 +508,22 @@ public:
 	}
 
 
-	void PaneChildSizeStore(int RootSize)
+	void PaneChildSizeStore()
 	{
+		bool bLR=(data.type==left_right);
+		RECT parentRC=getRect();
+		int RootSize=bLR?WIDTH(parentRC):HEIGHT(parentRC);
+
 		for (MYTREE *walk=child;walk;walk=walk->next)
 		{
 			RECT newRC=walk->getRect();
-			bool bLR=(walk->data.type==left_right);
-			walk->setSize(bLR?WIDTH(newRC):HEIGHT(newRC));
-			walk->setProporSize(::MulDiv (walk->getSize(), proportionalMax, RootSize));
+
+			int sz=bLR?WIDTH(newRC):HEIGHT(newRC);
+			walk->setSize(sz);
+			walk->setProporSize(::MulDiv (sz, proportionalMax, RootSize));
 			
 			if(walk->hasChild())
-				walk->PaneChildSizeStore(RootSize);
+				walk->PaneChildSizeStore();
 		}
 	}
 
@@ -520,66 +535,76 @@ public:
 		setRect(newRC);
 		if(!hasChild())
 			return;
-
-		int proporSize=getProporSize();
+		
 		bool bLR=(data.type==left_right);
 		int  newSz=bLR?WIDTH(newRC):HEIGHT(newRC);
 		
-		RECT r={0};
-		MYTREE *lastTree=NULL;
-
-		
+		RECT r=newRC;
 		MYTREE *cur=child;
-		RECT tmp;
 		for (int count=0;cur;cur=cur->next,++count)
 		{
-			if(lastTree)
-			{
-				RECT rcBar=r;
-				tmp=r;
-				if(bLR)
-				{
-					tmp.right-=data.m_iSplitterBar;
-					rcBar.left=tmp.right;
-					r.left=r.right;
-				}
-				else
-				{
-					tmp.bottom-=data.m_iSplitterBar;
-					rcBar.top=tmp.bottom;
-					r.bottom=r.top;
-				}
-
-				lastTree->setRect(tmp);
-				data.SplitterBarRects.push_back(rcBar);
-
-				if (lastTree->hasChild())
-					lastTree->CalcChildsRect(tmp);
-			}
-
-
+			int proporSize=cur->getProporSize();
 			cur->setSize(::MulDiv(newSz,proporSize,proportionalMax));
+			
 			if(bLR)
 			{	
-				r.right=r.left+getSize();
-				r.bottom=newRC.bottom;
+				r.right=r.left+cur->getSize();
 			}
 			else
 			{
-				r.bottom=r.top+getSize();
-				r.right=newRC.right;
+				r.bottom=r.top+cur->getSize();
 			}
 
-			lastTree=cur;
+
+
+			RECT rcBar=r;
+			RECT rcPane=r;
+			if(bLR)
+			{
+				rcPane.right-=data.m_iSplitterBar;
+				rcBar.left=rcPane.right;
+				
+				r.left=r.right;
+			}
+			else
+			{
+				rcPane.bottom-=data.m_iSplitterBar;
+				rcBar.top=rcPane.bottom;
+
+				r.top=r.bottom;
+			}
+
+			
+			if(count!=childs-1)
+				data.SplitterBarRects.push_back(rcBar);
+			else
+			{
+				if(bLR)
+					rcPane.right=newRC.right;
+				else 
+					rcPane.bottom=newRC.bottom;
+
+			}
+
+				cur->setRect(rcPane);
+
+
+			if (cur->hasChild())
+				cur->CalcChildsRect(rcPane);
 		}
 
-		if (lastTree->hasChild())
-			lastTree->CalcChildsRect(tmp);
 	}
 
 	//重新计算子结点的矩形区域
 	//重新分配相等的空间
 	void EvenPanes()
+	{
+		_EvenPanes();
+	
+		PaneSizeStore(getroot());
+	}
+
+	void _EvenPanes()
 	{
 		if(!hasChild())return;
 
@@ -648,7 +673,7 @@ public:
 				first->setRect(childRC);
 
 				if (first->hasChild())
-					first->EvenPanes();
+					first->_EvenPanes();
 			}
 
 		}
@@ -692,7 +717,7 @@ public:
 			}
 			else
 			{
-				if(wndEmpty())	
+				if(cur->wndEmpty())	
 					cur->DrawEmptyPane(dc);
 				else
 				{

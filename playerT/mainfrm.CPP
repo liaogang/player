@@ -1980,7 +1980,7 @@ void MYTREE_Add_Playlist(MYTREE* tree)
 
 	tree->addChildNodeAfter(newTree);
 	tree->EvenPanes();
-	PaneSizeStore(newTree->parent);
+	//PaneSizeStore(newTree->parent);
 	UpdateLayout(newTree->parent);
 }
 
@@ -2010,7 +2010,7 @@ void MYTREE_Add_AlbumView(MYTREE* tree)
 
 	tree->addChildNodeAfter(newTree);
 	tree->EvenPanes();
-	PaneSizeStore(newTree->parent);
+	//PaneSizeStore(newTree);
 	UpdateLayout(newTree->parent);
 }
 void MYTREE_Set_LyricView(MYTREE* tree)
@@ -2028,8 +2028,7 @@ void MYTREE_Add_LyricView(MYTREE* tree)
 
 	tree->addChildNodeAfter(newTree);
 	tree->EvenPanes();
-	PaneSizeStore(newTree->parent);
-	UpdateLayout(newTree->parent);
+	UpdateLayout(tree);
 }
 
 

@@ -72,9 +72,6 @@
     <ClInclude Include="..\DialogSearch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\DirectSoundController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\DlgConsole.h">
       <Filter>Header Files</Filter>
     </ClInclude>

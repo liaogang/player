@@ -26,7 +26,6 @@
     <ClInclude Include="..\DialogLrcList.h" />
     <ClInclude Include="..\DialogLyric.h" />
     <ClInclude Include="..\DialogSearch.h" />
-    <ClInclude Include="..\DirectSoundController.h" />
     <ClInclude Include="..\DlgConsole.h" />
     <ClInclude Include="..\dlgLrcSearch.h" />
     <ClInclude Include="..\DlgProcessing.h" />

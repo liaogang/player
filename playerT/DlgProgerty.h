@@ -417,9 +417,7 @@ public:
 	{
 		MYTREE *mytree=(MYTREE*)GetItemData(rclickItem);
 		MYTREE_Add_SpectrumView(mytree);
-		GetSplitter()->OnSizing();
 		UpdateTree(mytree);
-		PaneSizeStore(mytree);
 
 		return 0;
 	}
@@ -427,18 +425,16 @@ public:
 	{
 		MYTREE *mytree=(MYTREE*)GetItemData(rclickItem);
 		MYTREE_Add_AlbumView(mytree);
-		GetSplitter()->OnSizing();
 		UpdateTree(mytree);
-		PaneSizeStore(mytree);
 		return 0;
 	}
+
 	LRESULT OnAddPaneLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		MYTREE *mytree=(MYTREE*)GetItemData(rclickItem);
 		MYTREE_Add_LyricView(mytree);
-		GetSplitter()->OnSizing();
 		UpdateTree(mytree);
-		PaneSizeStore(mytree);
+
 		return 0;
 	}
 
@@ -447,10 +443,8 @@ public:
 	{
 		MYTREE *mytree=(MYTREE*)GetItemData(rclickItem);
 		MYTREE_Add_EmptyWnd(mytree);
-		GetSplitter()->OnSizing();
 		UpdateTree(mytree);
-		GetSplitter()->Invalidate();
-		PaneSizeStore(mytree->parent);
+		
 
 		return 0;
 	}
@@ -493,9 +487,10 @@ public:
 
 		parent->EvenPanes();
 		UpdateTree(parent);
-		UpdateTree(parent);
+		
+		UpdateLayout(parent);
 		GetSplitter()->Invalidate();
-
+		
 		return 0;
 	}
 

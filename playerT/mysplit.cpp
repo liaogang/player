@@ -120,14 +120,8 @@ void WalkOverTree(MYTREE * tree,DoSomeThing func)
 
 
 
-void PaneSizeStore(MYTREE *root)
+void PaneSizeStore(MYTREE *parent)
 {
-	ATLASSERT(root->isroot());
-
-	bool bLR=(root->data.type==left_right);
-	int rootSize=bLR?WIDTH(root->getRect()):HEIGHT(root->getRect());
-	
-
-	if(root->hasChild())
-		root->PaneChildSizeStore(rootSize);
+	if(parent->hasChild())
+		parent->PaneChildSizeStore();
 }

@@ -84,7 +84,7 @@ public:
 	 
 	BEGIN_MSG_MAP_EX(CPlayListView)
 		//user message
-		//MESSAGE_HANDLER(WM_PLAYLISTVIEW_SETFOCUS,OnSetFocus)
+		MESSAGE_HANDLER(WM_PLAYLISTVIEW_SETFOCUS,OnSetFocus)
 		//MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_DEFAULT,OnChColorDefault);
 		//MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_BLUE,OnChColorBlue);
 		
@@ -296,6 +296,7 @@ public:
 			SetFocus();
 			return 1;
 		}
+
 		LRESULT OnChColorDefault(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
 			ChangeColorDefault();
