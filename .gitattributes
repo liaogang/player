@@ -88,7 +88,6 @@ playerT/DialogFFTOutline.h -text
 playerT/DialogLrcList.h -text
 playerT/DialogLyric.h -text
 playerT/DialogSearch.h -text
-playerT/DirectSoundController.h -text
 playerT/DlgConsole.h -text
 playerT/DlgProcessing.h -text
 playerT/DlgProgerty.h -text
@@ -349,6 +348,7 @@ playerT/StringConvertions.cpp -text
 playerT/StringConvertions.h -text
 playerT/Thread.cpp -text
 playerT/Thread.h -text
+playerT/TitleTip.h -text
 playerT/Util1.cpp -text
 playerT/Util1.h -text
 playerT/Utils.h -text
@@ -356,6 +356,7 @@ playerT/WTLTabViewCtrl.h -text
 playerT/WaveFile.cpp -text
 playerT/WaveFile.h -text
 playerT/WaveFileEx.h -text
+playerT/WuLines.h -text
 playerT/aboutdlg.h -text
 playerT/atlsplit.h -text
 playerT/customMsg.h -text
