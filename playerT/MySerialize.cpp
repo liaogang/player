@@ -40,6 +40,11 @@ int Serialize(FILE *pFile,int t)
 	return sizeof(int)*fwrite(&t,sizeof(int),1,pFile);
 };
 
+template <> int Serialize (FILE *pFile,double t)
+{
+	return sizeof(double)*fwrite(&t,sizeof(double),1,pFile);
+}
+
 template <>
 int Serialize (FILE *pFile,long int t)
 {
@@ -160,6 +165,12 @@ template <>
 int ReSerialize(FILE *pFile,long &t)
 {
 	return  sizeof(long)*fread(&t,sizeof(long),1,pFile);
+};
+
+template <>
+int ReSerialize(FILE *pFile,double &t)
+{
+	return  sizeof(double)*fread(&t,sizeof(double),1,pFile);
 };
 
 template <>
@@ -457,11 +468,12 @@ bool LoadCoreCfg()
 		 //MyConfigs
 		 GetMyConfigs()->ReSerialize(pFile);
 		
+		 ValidateCfg();
 
 		fclose (pFile);
 	}
 
-	ValidateCfg();
+	
 	
 	return TRUE;
 }
@@ -707,6 +719,46 @@ int CMainFrame::ReSerialize(FILE *pFile)
 	size+=::ReSerialize(pFile,m_rcPLConsole);
 	
 
+
+	return size;
+}
+
+
+
+
+int MyConfigs::SerializeB(FILE *pFile)
+{
+	int size=0;
+
+	size+=::Serialize(pFile,bResumeOnReboot);
+	size+=::Serialize(pFile,playlistIndex);
+	size+=::Serialize(pFile,trackIndex);
+
+	size+=::Serialize(pFile,pos.used);
+	size+=::Serialize(pFile,pos.left);
+
+	size+=::Serialize(pFile,playersVolume);
+
+	size+=::Serialize(pFile,playorder);
+
+	return size;
+}
+
+int MyConfigs::ReSerialize(FILE *pFile)
+{
+	int size=0,totalsize;
+	size+=::ReSerialize(pFile,&totalsize);
+
+	size+=::ReSerialize(pFile,&bResumeOnReboot);
+	size+=::ReSerialize(pFile,&playlistIndex);
+	size+=::ReSerialize(pFile,&trackIndex);
+
+	size+=::ReSerialize(pFile,pos.used);
+	size+=::ReSerialize(pFile,pos.left);
+
+	size+=::ReSerialize(pFile,&playersVolume);
+
+	size+=::ReSerialize(pFile,&playorder);
 
 	return size;
 }

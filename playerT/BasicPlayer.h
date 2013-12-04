@@ -35,9 +35,6 @@ public:
 	MMRESULT	m_timerUpID;
 	volatile int curVolDown,curVolUp;
 
-
-
-
 	INT m_curVolume;
 	double m_curDSBVolume;
 	BOOL m_bStopped;
@@ -49,7 +46,7 @@ public:
 	CPlayerThread* m_pPlayerThread;
 	CSpectrumAnalyser* m_pSpectrumAnalyser;
 
-	FileTrack *itemWaitPlay;
+	
 	//void InitSlowDown(BOOL bSlowDown=TRUE,BOOL bCloseFile=FALSE);
 	void SlowDownVol();
 	void GrowUpVol();
@@ -70,7 +67,7 @@ public:
 protected:
 	void play();
 	void pause();//pause or resume play
-	void stop();
+	void stop(BOOL bDestroy=FALSE);
 	BOOL open( LPCTSTR filepath );
 
 private:

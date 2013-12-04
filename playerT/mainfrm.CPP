@@ -333,15 +333,9 @@ LRESULT CMySimpleRebar::OnNotify(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	MyLib::shared()->ClearPlayQueue();
-	//MyLib::stop();
 
-	_songContainerItem track=MyLib::shared()->GetWaitPlayItem();
-	if(track->isValide())
-	{
-		MyLib::shared()->play(track);
-	}
-	//RedrawItems(nItemPlaying,nItemPlaying);
-
+	MyLib::shared()->play();
+	
 	return 0;
 }
 
@@ -1488,6 +1482,7 @@ void MyLib::play(FileTrack  *track)
 }
 
 
+
 void MyLib::pause()
 {
 	CBasicPlayer::shared()->pause();
@@ -1595,35 +1590,24 @@ void PlayListViewMng::Reload(PlayList *pPL,bool activeplaying)
 LRESULT CPlayListView::OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled)
 {
 	NMLISTVIEW * pnml=(NMLISTVIEW *)pnmh;
+	int item=pnml->iItem;
 	if(m_bC)
 	{
-		GetPlayList()->topVisibleIndex=pnml->iItem;
-		GetPlayList()->selectedIndex=pnml->iItem;
-		if (pnml->iItem!=-1)
-		{
-			_songContainerItem item= GetPlayList()->GetItem(pnml->iItem);
-			MyLib::shared()->SetWaitPlayItem(item);
-			//GetPlayList()->SetSelectedItem(pnml->iItem);
-
-		}
+		GetPlayList()->SetTopVisibleIndex(item);
+		GetPlayList()->SetSelectedIndex(item);
 	}
+
 	return 1;
 }
 
 LRESULT CPlayListView::OnSelected(int /**/,LPNMHDR pnmh,BOOL bHandled)
 {	
 	NMLISTVIEW * pnml=(NMLISTVIEW *)pnmh;
+	int item=pnml->iItem;
 	if(m_bC)
 	{
-		GetPlayList()->topVisibleIndex=pnml->iItem;
-		GetPlayList()->selectedIndex=pnml->iItem;
-		if (pnml->iItem!=-1)
-		{
-			_songContainerItem item= GetPlayList()->GetItem(pnml->iItem);
-			MyLib::shared()->SetWaitPlayItem(item);
-			//GetPlayList()->SetSelectedItem(pnml->iItem);
-
-		}
+		GetPlayList()->SetTopVisibleIndex(item);
+		GetPlayList()->SetSelectedIndex(item);
 	}
 	return 0;
 }
@@ -2233,8 +2217,10 @@ void CPlayListView::Init(bool bSearch)
 		GetTextWidth(columnNamePlaceHoder[i])+cxOffset,
 		-1,0,NULL_COLUMN,alignment[i]);
 		
-	
-	
+
+	SetDragDrop(TRUE);
+	//SetSingleSelect();
+
 	m_ilListItems.Detach();
 	m_curDivider.Detach();
 	m_curHyperLink.Detach();
@@ -2266,7 +2252,9 @@ void CollectInfo()
 				c->trackIndex=track->GetIndex();
 			}
 		}
-		CBasicPlayer::shared()->GetPos(&(c->pos),0);
+
+		c->pos=*getTrackPosInfo();
+
 	}
 
 	c->setPlayersVolume(CBasicPlayer::shared()->m_curVolume);
@@ -2279,7 +2267,16 @@ void ValidateCfg()
 	CBasicPlayer::shared()->SetVolumeByEar(c->getPlayersVolume());
 	MyLib::shared()->SetPlayOrder(static_cast<MyLib::PlayOrder>(c->playorder));
 
+	MyLib* s= MyLib::shared();
+	PlayList *pl= s->Index2Playlist(c->playlistIndex);
 	
+	s->SetPlayingIndex(c->playlistIndex);
+	pl->SetPlayingIndex(c->trackIndex);
+
+	setTrackPosInfo(c->pos);
+
+	if(c->getResumeOnReboot() && c->pos.used!=-1)
+		::PostMessage(GetMainFrame()->m_hWnd,WM_COMMAND,MAKEWPARAM(ID_PLAY,0),(LPARAM)0);
 }
 
 
@@ -2296,4 +2293,26 @@ LPDIRECTSOUND DSoundDeviceCreate(LPGUID lpGuid  )
 
 	if(FAILED(lpDSound->SetCooperativeLevel( GetMainFrame()->m_hWnd, DSSCL_NORMAL) ))return NULL;
 	return lpDSound;
+}
+
+
+
+HWND CMyTrackBarBase::CreateIsWnd(HWND parent)
+{
+	UINT style=WS_CHILD  | WS_VISIBLE /*| WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/;
+	style|=TBS_TOOLTIPS  |TBS_NOTICKS /*|TBS_AUTOTICKS */ | TBS_BOTH ; 
+	UINT styleEx=0; 
+	Create( parent,NULL,NULL,style,styleEx);
+
+	SetPageSize(1);
+	SetLineSize(1);
+	SetThumbLength(30);
+
+
+	if(CBasicPlayer::shared()->stoped())
+		EnableWindow(FALSE);
+
+	m_bPressing=false;
+
+	return m_hWnd;
 }

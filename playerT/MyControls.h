@@ -81,27 +81,9 @@ public:
 		return 1;
 	}
 
+	HWND CreateIsWnd(HWND parent);
 
-	HWND CreateIsWnd(HWND parent)
-	{
-		UINT style=WS_CHILD  | WS_VISIBLE /*| WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/;
-		style|=TBS_TOOLTIPS  |TBS_NOTICKS /*|TBS_AUTOTICKS */ | TBS_BOTH ; 
-		UINT styleEx=0; 
-		Create( parent,NULL,NULL,style,styleEx);
-
-		SetPageSize(1);
-		SetLineSize(1);
-		SetThumbLength(30);
-
-		EnableWindow(FALSE);
-
-
-
-
-		m_bPressing=false;
-
-		return m_hWnd;
-	}
+	
 
 	void EnableWindow(BOOL bEnable)
 	{
@@ -230,7 +212,7 @@ public:
 		int totalSec=getTrackPosInfo()->used+getTrackPosInfo()->left;
 
 		SetRange(0,totalSec);
-		SetPos((int)0);
+		SetPos((int)getTrackPosInfo()->left);
 
 
 		SetTimer((UINT_PTR)&m_nIDEvent,m_uElapse,NULL);

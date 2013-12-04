@@ -10,8 +10,8 @@ using namespace std;
 template <class T> int Serialize (FILE *pFile,T t);
 template <> int Serialize (FILE *pFile,std::tstring t);
 template <> int Serialize (FILE *pFile,int t);
+template <> int Serialize (FILE *pFile,double t);
 template <> int Serialize (FILE *pFile,WCHAR szStr);
-
 
 
 template <class T>
@@ -19,6 +19,10 @@ int ReSerialize(FILE *pFile,T *t);
 
 template <class T>
 int ReSerialize(FILE *pFile,T &t);
+
+
+template <>
+int ReSerialize(FILE *pFile,double &t);
 
 // template <class T> T ReSerialize (FILE *pFile);
 // template <> std::tstring ReSerialize (FILE *pFile);

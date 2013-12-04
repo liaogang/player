@@ -156,7 +156,7 @@ void SetHighestMatchLrc(LrcMatchItem &item);
 
 struct trackPosInfo;
 trackPosInfo *getTrackPosInfo();
-
+void setTrackPosInfo(trackPosInfo info);
 
 
 

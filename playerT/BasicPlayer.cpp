@@ -43,6 +43,11 @@ trackPosInfo *getTrackPosInfo()
 	return &curPosInfo;
 }
 
+void setTrackPosInfo(trackPosInfo info)
+{
+	curPosInfo=info;
+}
+
 
 
 ///////////////////////////////////////
@@ -72,7 +77,7 @@ trackPosInfo *getTrackPosInfo()
 
 CBasicPlayer :: ~CBasicPlayer(void)
 {
-	stop();
+	stop(TRUE);
 	delete[] volBuffer;
 	if(!m_pPlayerThread) delete m_pPlayerThread;
 	if (!m_pSpectrumAnalyser) delete m_pSpectrumAnalyser; 
@@ -148,13 +153,19 @@ void CBasicPlayer::play()
 	m_bStopped=FALSE;
 	m_bPaused=FALSE;
 
-	m_pFile->ResetFile();
+	if(curPosInfo.used==-1)
+		m_pFile->ResetFile();
+	else
+		m_pFile->SetPos(curPosInfo.used,curPosInfo.used+curPosInfo.left);
+
 	m_pPlayerThread->Reset();
 
 	m_pPlayerThread->CleanDSBuffer();
 
 	m_pPlayerThread->Init(FALSE);
 	
+	m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
+	TimerVolGrowUp();
 	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
 
 	NotifyMsg(WM_NEW_TRACK_STARTED,(WPARAM)NULL,0);
@@ -286,18 +297,29 @@ void CBasicPlayer::pause()
 
 
 
-void CBasicPlayer::stop()
+void CBasicPlayer::stop(BOOL bDestroy)
 {
 	if(!m_bStopped )
 	{
 		m_cs.Enter();
 		m_bStopped=TRUE;
 		
+
 		m_pPlayerThread->m_lpDSBuffer->Stop();
 
+		if(bDestroy)//cllocect info
+		{
+			getTrackPosInfo();
+		}
+		else  //clear info
+			curPosInfo.used=-1;
+
 		NotifyMsg(WM_TRACKSTOPPED);
+
 		m_pPlayerThread->Teminate();
 		m_pFile->Close();
+
+
 
 		m_cs.Leave();
 	}
@@ -308,6 +330,7 @@ BOOL CBasicPlayer::open( FileTrack *track)
 	return open(track->url.c_str());
 }
 
+//set pos in playing
 void CBasicPlayer::SetPos(int cur,int max)
 {
 	if (!m_bStopped)

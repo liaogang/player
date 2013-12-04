@@ -1,4 +1,5 @@
 #include "MySerialize.h"
+#include "customMsg.h"
 
 class MyConfigs:public SerializeObj
 {
@@ -26,8 +27,7 @@ public:
 	
 	int playlistIndex;     //第几个播放列表
 	int trackIndex;                //列表中的第几个音轨
-	int pos;					   //音轨的播放进度
-
+	trackPosInfo pos;    //音轨的播放进度
 
 	//播放器的音量
 	int playersVolume;

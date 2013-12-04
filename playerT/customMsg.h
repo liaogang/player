@@ -9,6 +9,9 @@ struct trackPosInfo
 {
 	double used;
 	double left;
+public:
+	trackPosInfo():used(-1),left(-1)
+	{}
 };
 
 //#define  WM_TRACKPOS          (WM_USER+22)  

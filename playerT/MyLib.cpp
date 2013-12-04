@@ -77,6 +77,22 @@ void MyLib::play(PlayListItem *item)
 	}
 }
 
+
+void MyLib::play()
+{
+	PlayList *pl=GetPlayingPL();
+	if(pl)
+	{
+		int pi=GetPlayingPL()->GetPlayingIndex();
+		if(pi==-1)
+			pi=GetPlayingPL()->GetSelectedIndex();
+
+		PlayListItem * item=GetPlayingPL()->GetItem(pi);
+		if(item->isValide())
+			play(item->GetFileTrack());
+	}
+}
+
 void MyLib::playNext(BOOL scanID3)
 {	
 	PlayListItem *nextItem;
@@ -93,7 +109,7 @@ void MyLib::playNext(BOOL scanID3)
 		{	
 			int np=spl->GetPlayingIndex();
 			if(np==-1)
-				np=spl->selectedIndex;
+				np=spl->GetSelectedIndex();
 			if(np==-1)
 				np=0;
 

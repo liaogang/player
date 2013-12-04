@@ -662,11 +662,11 @@ public:
 		LRESULT OnDbClicked(int /**/,LPNMHDR pnmh,BOOL bHandled)
 		{	
 			if(!GetPlayList())return 0;
-			int k=GetPlayList()->selectedIndex;
+			int k=GetPlayList()->GetSelectedIndex();
 			if(k!=-1)
 			{
 				PlayItem(k);
-				GetPlayList()->topVisibleIndex=k;
+				GetPlayList()->SetTopVisibleIndex(k);
 			}
 
 			SetMsgHandled(FALSE);
@@ -778,6 +778,13 @@ public:
 				AddItem();
 	}
 
+
+	BOOL DragItem()
+	{
+
+		return TRUE;
+	}
+
 	HFONT GetItemFont( int nItem, int nSubItem )
 	{
 		return m_Font;
@@ -845,7 +852,7 @@ public:
 	{
 		//resotre the curr croll bar's pos
 		if(GetPlayList())
-				GetPlayList()->topVisibleIndex=GetTopItem();
+				GetPlayList()->SetTopVisibleIndex(GetTopItem());
 		
 
 		m_bC=FALSE;
@@ -885,7 +892,7 @@ public:
 			}
 
 
-			ScrollByTop(GetPlayList()->topVisibleIndex);
+			ScrollByTop(GetPlayList()->GetTopVisibleIndex());
 		}
 
 

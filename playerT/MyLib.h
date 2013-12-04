@@ -98,14 +98,7 @@ public:
 private:
 	int m_IndexPlaying;
 	int m_IndexSelecting;
-	_songContainerItem WaitPlayItem;
 public:
-	void SetWaitPlayItem(_songContainerItem item)
-	{
-		WaitPlayItem=item;
-	}
-	_songContainerItem GetWaitPlayItem(){
-		return WaitPlayItem;}
 
 	void SetPlayingIndex(int i){m_IndexPlaying=i;}
 	void SetPlayingIndex(PlayList *pl){SetPlayingIndex(Playlist2Index(pl));}
@@ -142,6 +135,7 @@ public:
 	bool isPlaying();
 
 	static PlayList* AddFolderToCurrentPlayList(LPCTSTR pszFolder);
+	void play();
 	void play(PlayListItem *item);//set active track, play 
 private:
 	void play(FileTrack  *item);//set active track, play 

@@ -250,10 +250,17 @@ public:
 	inline int GetPlayingIndex(){return nItemPlaying;}
 	inline void SetPlayingIndex(int nItem){nItemPlaying=nItem;}
 	PlayListItem *GetPlayingItem(){return GetItem(GetPlayingIndex());}
+
+
+	void SetSelectedIndex(int i){selectedIndex=i;}
+	int  GetSelectedIndex(){return selectedIndex;}
+	PlayListItem *GetSelectedItem(){return GetItem(GetSelectedIndex());}
+
+	void SetTopVisibleIndex(int i){topVisibleIndex=i;}
+	int  GetTopVisibleIndex(){return topVisibleIndex;}
 private:
 	int nItemPlaying;//正在播放的项目
-public:
 	//this data will used in list view when display
 	int topVisibleIndex;
-	int selectedIndex;
+	int selectedIndex;	
 };
