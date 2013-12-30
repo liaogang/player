@@ -93,6 +93,7 @@ public:
 	};
 	ID3Status m_bStatus;
 
+	BOOL  IsFileExist();
 	BOOL  ScanId3Info( BOOL bRetainPic=FALSE,BOOL forceRescan=TRUE);
 	const TCHAR* GetTitle(){return title.c_str();}
 	BOOL  GetLrcFileFromLib(BOOL forceResearch=FALSE);
@@ -119,21 +120,22 @@ public:
 		m_id=m_globalid++;
 	}
 
-	PlayListItem(PlayList *playlist,std::tstring url):
-	  pPL(playlist),filetrack(new FileTrack(url)),index(-1)
+	PlayListItem(PlayList *playlist,std::tstring url)
+		:pPL(playlist),filetrack(new FileTrack(url)),index(-1)
 	  {
 		  //pfiletrack=&filetrack;
 		  //filetrack->SetParent(this);
 		  m_id=m_globalid++;
 	  }
 
-	  PlayListItem(PlayList *playlist):
-	  pPL(playlist),filetrack(new FileTrack()),index(-1)
+	  PlayListItem(PlayList *playlist)
+		  :pPL(playlist),filetrack(new FileTrack()),index(-1)
 	  {
 		  // pfiletrack=&filetrack;
 		  //filetrack->SetParent(this);
 		  m_id=m_globalid++;
 	  }
+
 
 	  ~PlayListItem()
 	  {
@@ -152,13 +154,16 @@ public:
 		  return *this;
 	  }
 
-
-	  bool operator==(const PlayListItem &other)
+	  //copy a new one
+	  PlayListItem* Duplicate()
 	  {
-		  if(other.m_id == m_id)
-			  return true;
-		  return false;
+		  PlayListItem *item=new PlayListItem;
+		  *item=*this;
+		  return item;
 	  }
+
+	   bool operator==(const PlayListItem &other);
+
 
 	  inline PlayList * GetPlayList(){return this->pPL;}
 	  inline void  SetPlayList(PlayList *pPL){this->pPL=pPL;}
@@ -171,6 +176,8 @@ public:
 	  BOOL  GetLrcFileFromLib(BOOL forceResearch=FALSE){return filetrack->GetLrcFileFromLib(forceResearch);}
 	  BOOL  HaveKeywords(TCHAR *keywords){return filetrack->HaveKeywords(keywords);}
 	  void TryLoadLrcFile(std::tstring &filename,BOOL forceLoad=FALSE){return filetrack->TryLoadLrcFile(filename,forceLoad);}
+	  BOOL  IsFileExist(){return filetrack->IsFileExist();}
+
 
 
 FileTrack* GetFileTrack(){return filetrack.get();}
@@ -182,10 +189,6 @@ private:
 
 	shared_ptr<FileTrack> filetrack;
 	
-	//debug
-	//shared_ptr<FileTrack>* pfiletrack;
-
-
 	//index in playlist
 	int index;
 };
@@ -193,8 +196,8 @@ private:
 
 
 typedef PlayListItem*  _songContainerItem;
-
-
+#define NULLITEM NULL;
+typedef  bool (*CompareProc)(PlayListItem *a, PlayListItem *b);
 class PlayList:
 	public SerializeObj
 {
@@ -208,12 +211,19 @@ public:
 
 public:
 	typedef vector<_songContainerItem> _songContainer;
+private:
 	_songContainer m_songList;
+public:
 	int GetItemCount(){return m_songList.size();}
 
 	_songContainerItem GetItem(int nItem)
 	{
-		return m_songList[nItem];
+		if(nItem<0 || nItem >= GetItemCount())
+		{
+			return NULLITEM;
+		}
+		else
+			return m_songList[nItem];
 	}
 
 	std::tstring       m_playlistName;
@@ -221,26 +231,29 @@ public:
 
 
 public:
-	_songContainerItem nextTrack();
+	//_songContainerItem nextTrack();
+	
+	void SortItems(CompareProc compFunc);
 
-
+	void ReverseItems();
 public:
 	//operation
-	_songContainerItem DeleteTrack(int nItem);
-	void DeleteTrack(int nItem,int nLastItem);
+	void DeleteItem(int nItem);
+	//void DeleteTrack(int nItem,int nLastItem);
+	void DeleteAllItems();
 	void DeleteTrackByPath(TCHAR *path);
 	void ChangeTrackPath(TCHAR *from,TCHAR *to);
 	//void DeleteTrack(PlayListItem* track);
 
 public:
 	HANDLE hAddDir;
-	BOOL AddFolderByThread(LPCTSTR pszFolder);
+	HANDLE AddFolderByThread(LPCTSTR pszFolder);
 	void TerminateAddDirThread();
 
 	//return file added
 	int AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir=FALSE);
 	BOOL AddFile(TCHAR *filepath);
-
+	void AddItem(_songContainerItem item);
 	_songContainerItem GetNextTrackByOrder(BOOL bMoveCur=TRUE);
 
 public:

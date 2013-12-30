@@ -27,7 +27,6 @@ public:
 		ATLASSERT(pLoop != NULL);
 		pLoop->AddMessageFilter(this);
 
-		TrackChanged();
 		foo();
 
 		bHandled=FALSE;

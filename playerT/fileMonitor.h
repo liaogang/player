@@ -20,13 +20,14 @@ public:
 	~fileMonitor()
 	{
 		bShouldWatch=false;
+
+		if (hWatch)
+			TerminateThread(hWatch,NULL);
+
 		if(hDir)
 			::CloseHandle(hDir);
 		if (myOverLapped.overlapped.hEvent)
 			::CloseHandle(myOverLapped.overlapped.hEvent);
-
-		if (hWatch)
-			TerminateThread(hWatch,NULL);
 	}
 
 
@@ -113,7 +114,7 @@ public:
 	{
 		if (!m_fileMonitors.empty())
 		{
-			for (auto i=m_fileMonitors.begin();i!=m_fileMonitors.end();)
+			for (auto i=m_fileMonitors.begin();i!=m_fileMonitors.end();i++)
 			{
 				delete (*i);
 			}

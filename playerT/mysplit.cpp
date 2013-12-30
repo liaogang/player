@@ -2,7 +2,7 @@
 #include "mysplit.h"
 #include "DlgProgerty.h"
 #include "globalStuffs.h"
-
+#include "FunctionReg.h"
 
 
 void UpdateLayout(MYTREE *parent,HDC dc)
@@ -124,4 +124,25 @@ void PaneSizeStore(MYTREE *parent)
 {
 	if(parent->hasChild())
 		parent->PaneChildSizeStore();
+}
+
+
+LRESULT CMultiSpliltWnd::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	rootTree=UISplitterTreeRoot();
+	if (rootTree->hasChild())//reserialize from  file
+		CreateHWNDbyName(rootTree);
+
+
+	UpdateLayout(rootTree);
+
+	PaneSizeStore(rootTree);
+
+	if(m_hCursorLeftRight == NULL)
+		m_hCursorLeftRight = ::LoadCursor(NULL, IDC_SIZEWE);
+	if(m_hCursorUpDown == NULL)
+		m_hCursorUpDown = ::LoadCursor(NULL, IDC_SIZENS );			
+
+	SetMsgHandled(FALSE);
+	return 1;
 }

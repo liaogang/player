@@ -2,6 +2,7 @@
 #include "customMsg.h"
 #include "globalStuffs.h"
 #include "mysplit.h"
+#include "FunctionReg.h"
 
 //基类属性面板树右边的对话框
 #include <string>
@@ -96,7 +97,7 @@ public:
 	}
 
 
-
+	void InitList();
 	LRESULT OnBtnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnBtnDel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
@@ -110,6 +111,7 @@ public:
 		m_list.InsertColumn(0,_T("路径"),LVCFMT_LEFT,220);
 		m_list.InsertColumn(1,_T("状态"),LVCFMT_LEFT,80);
 
+		InitList();
 
 		CMessageLoop* pLoop = _Module.GetMessageLoop();
 		ATLASSERT(pLoop != NULL);

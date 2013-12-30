@@ -85,8 +85,10 @@ public:
 
 
 	//自动播放列表,媒体库专用.
-	void SetAutoPlayList(PlayList *pl);
+	void InitMonitor(PlayList *pl);
 	PlayList* GetAutoPlaylist();
+	void SetAutoPlaylist(PlayList *pl);
+
 	list<std::tstring> mediaPaths;
 	void ClearMediaPath();
 	void AddMediaPath(std::tstring &path);
@@ -135,10 +137,10 @@ public:
 	bool isPlaying();
 
 	static PlayList* AddFolderToCurrentPlayList(LPCTSTR pszFolder);
-	void play();
-	void play(PlayListItem *item);//set active track, play 
+	BOOL play();
+	BOOL play(PlayListItem *item);//set active track, play 
 private:
-	void play(FileTrack  *item);//set active track, play 
+	BOOL play(FileTrack  *item);//set active track, play 
 public:
 	static void pause();
 	static void stop();

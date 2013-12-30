@@ -6,6 +6,7 @@
 #include "mytree.h"
 #include "MyConfigs.h"
 #include "mainfrm.h"
+#include "MyControls.h"
 
 template <class T>
 int Serialize(FILE *pFile,T t)
@@ -324,7 +325,10 @@ PlayList* MyLib::LoadPlaylist(LPTSTR filepath,TCHAR* PlName)
 
 
 		if(playlist->m_bAuto)
-			MyLib::shared()->SetAutoPlayList(playlist);
+		{
+			MyLib::shared()->SetAutoPlaylist(playlist);
+			//MyLib::shared()->InitMonitor(playlist);
+		}
 
 		SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)playlist,1);
 
@@ -424,6 +428,12 @@ bool SaveCoreCfg()
 		for (auto k=MyLib::shared()->lrcDirs.begin();k!=MyLib::shared()->lrcDirs.end();++k)
 			::Serialize<>(pFile,*k);
 		
+		//Media paths
+		len=MyLib::shared()->mediaPaths.size();
+		::Serialize(pFile,len);
+
+		for (auto k=MyLib::shared()->mediaPaths.begin();k!=MyLib::shared()->mediaPaths.end();++k)
+			::Serialize<>(pFile,*k);
 
 		//***************************************//
 		//MyConfigs
@@ -447,6 +457,7 @@ bool LoadCoreCfg()
 	if (pFile!=NULL)
 	{
 		int size=0;
+		MyLib * s=MyLib::shared();
 		/*******************************************/
 		//lrc dir list
 		size=0;
@@ -457,13 +468,28 @@ bool LoadCoreCfg()
 
 			::ReSerialize(pFile,&lrcDir);
 			if(!lrcDir.empty())
-				MyLib::shared()->lrcDirs.push_back(lrcDir);
+				s->lrcDirs.push_back(lrcDir);
 		}
 
-		 MyLib::shared()->InitLrcLib();
+		 s->InitLrcLib();
  
+		 //Load the Media Lib
+		 ::ReSerialize(pFile,&size);
+		 if(size>0)
+			 s->InitMonitor(s->GetAutoPlaylist());
 
+		 while (size--)
+		 {
+			 std::tstring mediaPath;
 
+			 ::ReSerialize(pFile,&mediaPath);
+			 if(!mediaPath.empty())
+			 {
+				 s->AddMediaPath(mediaPath);
+			 }
+		 }
+
+		 
 		 //***************************************//
 		 //MyConfigs
 		 GetMyConfigs()->ReSerialize(pFile);
@@ -559,8 +585,10 @@ int dataNode::ReSerialize(FILE *pFile)
 	int size=0;
 
 	int totalSize=0;
-	fread(&totalSize,1,4,pFile);
-	size+=4;
+	//fread(&totalSize,1,4,pFile);
+	//size+=4;
+
+	size+=::ReSerialize(pFile,&totalSize);
 
 	
 	size+=::ReSerialize(pFile,nodeName);
@@ -635,14 +663,9 @@ bool SaveUICfg()
 	FILE * pFile = _tfopen( UIFILENAME , _T("wb") );
 	if (pFile)
 	{	
-		/***************   Main Window ******************/
+		
 		GetMainFrame()->Serialize(pFile);
 
-
-		/**********user interface split windows's section************/
-		MYTREE* root=UISplitterTreeRoot();
-		
-		SerializeAllTree(root,pFile);
 
 
 
@@ -662,20 +685,10 @@ bool LoadUICfg()
 	if (pFile)
 	{
 
-		/***************   Main Window ******************/
+		
 		GetMainFrame()->ReSerialize(pFile);
 
 
-		/**********user interface split windows's section************/
-		MYTREE *root=new MYTREE(_T(""));
-		root->data.SplitterBarRects.clear();
-
-		root->setroot();
-		root->ReSerialize(pFile);
-
-		ReSerializeAllTree(root,pFile);
-		
-		SetRootTree(root);
 		
 		fclose (pFile);
 	}
@@ -688,6 +701,7 @@ int CMainFrame::SerializeB(FILE *pFile)
 {
 	int size=0;
 
+	/***************   Main Window ******************/
 	size+=::Serialize(pFile,m_rcMain);
 	size+=::Serialize(pFile,m_rcConfig);
 	size+=::Serialize(pFile,m_rcLrc);
@@ -696,6 +710,19 @@ int CMainFrame::SerializeB(FILE *pFile)
 	size+=::Serialize(pFile,m_rcFFT);
 	size+=::Serialize(pFile,m_rcPLMng);
 	size+=::Serialize(pFile,m_rcPLConsole);
+
+
+	
+
+	/**********user interface split windows's section************/
+	MYTREE* root=UISplitterTreeRoot();
+
+	SerializeAllTree(root,pFile);
+
+
+
+	/********************Rebar section*************************/
+	size+=m_wndRebar.SerializeB(pFile);
 
 
 	return size;
@@ -709,6 +736,7 @@ int CMainFrame::ReSerialize(FILE *pFile)
 	fread(&totalSize,1,4,pFile);
 	size+=4;
 
+	/***************   Main Window ******************/
 	size+=::ReSerialize(pFile,m_rcMain);
 	size+=::ReSerialize(pFile,m_rcConfig);
 	size+=::ReSerialize(pFile,m_rcLrc);
@@ -718,6 +746,23 @@ int CMainFrame::ReSerialize(FILE *pFile)
 	size+=::ReSerialize(pFile,m_rcPLMng);
 	size+=::ReSerialize(pFile,m_rcPLConsole);
 	
+
+	
+	/**********user interface split windows's section************/
+	MYTREE *root=new MYTREE(_T(""));
+	root->data.SplitterBarRects.clear();
+
+	root->setroot();
+	root->ReSerialize(pFile);
+
+	ReSerializeAllTree(root,pFile);
+
+	SetRootTree(root);
+
+
+
+	/********************Rebar section*************************/
+	size+=m_wndRebar.ReSerialize(pFile);
 
 
 	return size;
@@ -759,6 +804,55 @@ int MyConfigs::ReSerialize(FILE *pFile)
 	size+=::ReSerialize(pFile,&playersVolume);
 
 	size+=::ReSerialize(pFile,&playorder);
+
+	return size;
+}
+
+
+
+
+
+int CMySimpleRebar::SerializeB(FILE *pFile)
+{
+	int size=0;
+
+	int bandCount=GetBandCount();
+	//bandCount >> file
+	size+=::Serialize(pFile,bandCount);
+
+	for (int nBand=0;nBand<bandCount;++nBand)
+	{
+		REBARBANDINFO rbBand={ RunTimeHelper::SizeOf_REBARBANDINFO() };
+		GetBandInfo(nBand,&rbBand);
+
+		HWND hWndBand=rbBand.hwndChild;
+		TCHAR szClassName[128]={0};
+		::SendMessage(hWndBand,WM_GET_BAND_CLASSNAME,WPARAM(szClassName),LPARAM(128));
+
+		//rbBand >> file
+
+		//szClassName >> fiile
+	}
+
+	return size;
+}
+
+int CMySimpleRebar::ReSerialize(FILE *pFile)
+{
+	int size=0;
+
+	int bandCount=0;
+	size+=::ReSerialize(pFile,&bandCount);
+
+	for (int nBand=0;nBand<bandCount;++nBand)
+	{
+		REBARBANDINFO rbBand={ RunTimeHelper::SizeOf_REBARBANDINFO() };
+		TCHAR szClassName[128]={0};
+
+		//size+=::ReSerialize(pFile,rbBand);
+
+		size+=::ReSerialize(pFile,szClassName);
+	}
 
 	return size;
 }

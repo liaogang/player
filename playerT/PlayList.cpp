@@ -9,6 +9,7 @@
 #include "StringConvertions.h"
 #include "globalStuffs.h"
 #include "forwardMsg.h"
+#include <io.h>
 using namespace TagLib;
 
 UINT PlayListItem::m_globalid  = 0;
@@ -58,6 +59,7 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 
 PlayList::~PlayList(void)
 {	
+	DeleteAllItems();
 	SdMsg(WM_PL_CHANGED,FALSE,(WPARAM)this,(LPARAM)FALSE);
 }
 
@@ -76,27 +78,38 @@ void PlayList::ChangeTrackPath(TCHAR *from,TCHAR *to)
 
 void PlayList::DeleteTrackByPath(TCHAR *path)
 {
-	for (auto i=m_songList.begin();i!=m_songList.end();++i)
-	{
-		PlayListItem *item=*i;
-		if (_tcscmp(path,item->GetFileTrack()->url.c_str())==0)
+	if(GetItemCount()>0)
+		for (auto i=m_songList.begin();i!=m_songList.end();++i)
 		{
-			//先删除视图里的显视,再删除数据
-			NotifyMsg(WM_PL_TRACKNUM_CHANGED,(WPARAM)this,(LPARAM)-1);
-			m_songList.erase(i);
-			break;
+			PlayListItem *item=*i;
+			if (_tcscmp(path,item->GetFileTrack()->url.c_str())==0)
+			{
+				//先删除视图里的显视,再删除数据
+				NotifyMsg(WM_PL_TRACKNUM_CHANGED,(WPARAM)this,(LPARAM)-1);
+				m_songList.erase(i);
+				break;
+			}
 		}
-	}
 }
 
-_songContainerItem PlayList::DeleteTrack(int nItem)
+void PlayList::DeleteItem(int nItem)
 {
-	return *(m_songList.erase(m_songList.begin()+nItem));
+	delete GetItem(nItem);
+
+	m_songList.erase(m_songList.begin()+nItem);
 }
 
-void PlayList::DeleteTrack(int nItem,int nLastItem)
+// void PlayList::DeleteTrack(int nItem,int nLastItem)
+// {
+// 	m_songList.erase(m_songList.begin()+nItem,m_songList.begin()+nLastItem);
+// }
+
+void PlayList::DeleteAllItems()
 {
-	m_songList.erase(m_songList.begin()+nItem,m_songList.begin()+nLastItem);
+	for (auto i=m_songList.begin();i!=m_songList.end();++i)
+		delete (*i);
+	
+	m_songList.clear();
 }
 
 // void PlayList::DeleteTrack(PlayListItem* track)
@@ -105,15 +118,14 @@ void PlayList::DeleteTrack(int nItem,int nLastItem)
 // 		m_songList.erase(m_songList.begin()+track->indexInListView);
 // }
 
-BOOL PlayList::AddFolderByThread(LPCTSTR pszFolder)
+HANDLE PlayList::AddFolderByThread(LPCTSTR pszFolder)
 {
 	PLANDPATH* p=new PLANDPATH;
 	p->pPlaylist=this;
 	p->pszFolder=pszFolder;
 
-	hAddDir=::CreateThread(NULL,NULL,AddFolderThreadProc,(LPVOID)p,
+	return hAddDir=::CreateThread(NULL,NULL,AddFolderThreadProc,(LPVOID)p,
 		NULL,NULL);
-	return 0;
 }
 
 
@@ -181,29 +193,38 @@ BOOL IsDots(TCHAR* fn)
 	return bResult;
 }
 
+
+void PlayList::AddItem(_songContainerItem item)
+{
+	item->SetIndex(m_songList.size());
+	m_songList.push_back(item);
+}
+
 BOOL PlayList::AddFile(TCHAR *filepath)
 {
-	//if 'filepath' not include the dir name , added it. 
-	if(!_tcschr(filepath,'\\'))
-	{
-		TCHAR szPath[MAX_PATH]={0};
-		_tgetcwd(szPath,MAX_PATH);
-		_tcscpy(szPath,filepath);
-		filepath=szPath;
-	}
+// 	//if 'filepath' not include the dir name , added it. 
+// 	if(!_tcschr(filepath,'\\'))
+// 	{
+// 		TCHAR szPath[MAX_PATH]={0};
+// 		_tgetcwd(szPath,MAX_PATH);
+// 		_tcscpy(szPath,filepath);
+// 		filepath=szPath;
+// 	}
 
 	std::tstring str(filepath);
 	PlayListItem * pItem=new PlayListItem(this,str);
+	
+	OutputDebugString(filepath);
 	
 	if(pItem->ScanId3Info())
 	{	
 		pItem->SetIndex(m_songList.size());
 		m_songList.push_back(pItem);
 		NotifyMsg(WM_FILE_FINDED,(WPARAM)filepath,(LPARAM)2);
-
+		ATLTRACE2(L"succeed\n");
 		return TRUE;
 	}
-
+	ATLTRACE2(L"failed\n");
 	return FALSE;
 }
 
@@ -355,6 +376,14 @@ void FileTrack::Buf2Img(BYTE* lpRsrc,DWORD len)
 		delete img;
 		img=NULL;}
 };
+
+
+
+BOOL  FileTrack::IsFileExist()
+{
+	//check if the file is exist
+	return _taccess(url.c_str(), 0 )!=-1;
+}
 
 BOOL FileTrack::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 {
@@ -609,4 +638,41 @@ UINT LrcMng::MatchTrackAndLrcTags(FileTrack *track,std::tstring &lrcpath)
 }
 
 
+void PlayList::SortItems(CompareProc compFunc)
+{
+	PlayListItem *itemPlaying=GetPlayingItem();;
+	PlayListItem *itemSelecting=GetSelectedItem();
 
+	//两项相等的情况下,STL的DEBUG检验会失败.
+#ifdef _DEBUG
+	//sort(GetPlayList()->m_songList.begin(),GetPlayList()->m_songList.end(),CompareProc);
+	reverse(m_songList.begin(),m_songList.end());
+#else
+	sort(m_songList.begin(),m_songList.end(),compFunc);
+#endif
+
+	
+	//重新分配序号
+	int i=0;
+	for (auto iter=m_songList.begin();iter!=m_songList.end();++i,++iter)
+		(*iter)->SetIndex(i);
+	
+
+	if(itemPlaying)
+		SetPlayingIndex(itemPlaying->GetIndex());
+	if(itemSelecting)
+		SetSelectedIndex(itemSelecting->GetIndex());
+}
+
+
+void PlayList::ReverseItems()
+{
+	reverse(m_songList.begin(),m_songList.end());
+}
+
+bool PlayListItem::operator==(const PlayListItem &other)
+{
+	if(other.m_id == m_id)
+		return true;
+	return false;
+}

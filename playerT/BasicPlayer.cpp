@@ -1,16 +1,17 @@
 #include "stdafx.h"
+
 #include "BasicPlayer.h"
 #include "MusicFile.h"
 #include "PlayerThread.h"
 #include "SpectrumAnalyser.h"
 #include "Mp3File.h"
 #include "WaveFileEx.h"
-#include "mainfrm.h"
+//#include "mainfrm.h"
 #include "PlayList.h"
+#include "forwardMsg.h"
 #include "globalStuffs.h"
 #include <complex>
 using namespace std;
-
 
 static TrackFormatInfo *gTrackFormatInfo;
 void SetTrackFormatInfo(int type,int rate,int samplesps,int mode)
@@ -38,7 +39,8 @@ TrackFormatInfo* GetTrackFormatInfo()
 static trackPosInfo curPosInfo;
 trackPosInfo *getTrackPosInfo()
 {
-	CBasicPlayer::shared()->m_pFile->GetPos(&(curPosInfo.used),&(curPosInfo.left));
+	if( !CBasicPlayer::shared()->stoped() && CBasicPlayer::shared()->m_pFile)
+		CBasicPlayer::shared()->m_pFile->GetPos(&(curPosInfo.used),&(curPosInfo.left));
 
 	return &curPosInfo;
 }
@@ -132,9 +134,12 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
 	else if (_tcscmp(p,_T("wma"))==0 || _tcscmp(p,_T("WMA"))==0)
 		m_pFile=new Mp3File();
 	else
-		{return -1;}
-
-	return m_pFile->Open(filepath);
+		{return FALSE;}
+ 
+	BOOL result=m_pFile->Open(filepath);
+	if(result==FALSE)
+		delete m_pFile;
+	return result;
 }
 
 
@@ -304,7 +309,6 @@ void CBasicPlayer::stop(BOOL bDestroy)
 		m_cs.Enter();
 		m_bStopped=TRUE;
 		
-
 		m_pPlayerThread->m_lpDSBuffer->Stop();
 
 		if(bDestroy)//cllocect info
@@ -318,7 +322,6 @@ void CBasicPlayer::stop(BOOL bDestroy)
 
 		m_pPlayerThread->Teminate();
 		m_pFile->Close();
-
 
 
 		m_cs.Leave();

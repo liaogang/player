@@ -8,6 +8,7 @@
 #include "AboutDlg.h"
 #include "forwardMsg.h"
 #include "MySerialize.h"
+#include "MyRebar.h"
 
 #ifndef _MAINFRAME_H
 #define _MAINFRAME_H
@@ -48,12 +49,14 @@ class CMainFrame :
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 public:
+	typedef CFrameWindowImpl<CMainFrame> thebase;
+
 	//周边窗口
-	CMySimpleRebar *m_pRebar;
+	CMySimpleRebar m_wndRebar;
 	CMyTrackBar *m_pTrackBar;
 	CMyVolumeBar *m_pVolumeBar;
 	CMyComboBox *m_pComboBox;
-	CCommandBarCtrl m_CmdBar;
+	CMyCommandBarCtrl m_CmdBar;
 	CMyStatusBar *m_pStatus;
 
 	//主视图
@@ -132,16 +135,10 @@ public:
 		
 		MESSAGE_HANDLER(WM_NOTIFY,OnNotify)
 		MESSAGE_HANDLER(WM_CLOSE,OnExit)
-		
-
-		//MESSAGE_HANDLER(WM_SIZING,OnSizing)
-
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
-		
 		MESSAGE_HANDLER(WM_DRAWSPECTRUM,OnDrawSpectrum)
 		MESSAGE_HANDLER(WM_HOTKEY,OnHotKey)
-
 
 		//user message
 		MESSAGE_HANDLER(WM_FILE_FINDED,OnFileFinded)
@@ -208,11 +205,12 @@ public:
 		return OnNotify2((int)wParam, (LPNMHDR)lParam); 
 	}
 
-	
-	//LRESULT OnSizing(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-
-	
-	
+// 	BOOL AddSimpleReBarBand(HWND hWndBand, LPCTSTR lpstrTitle = NULL, BOOL bNewRow = FALSE, int cxWidth = 0, BOOL bFullWidthAlways = FALSE)
+// 	{
+// 		thebase::AddSimpleReBarBand(hWndBand,lpstrTitle,bNewRow,cxWidth,bFullWidthAlways);
+// /*		m_pRebar->add*/
+// 	}
+		
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnTrackReachEnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
@@ -221,7 +219,6 @@ public:
 	
 	LRESULT OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
-	//LRESULT OnPlayDirectly(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnPaused(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnFileFinded(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnChangePLColorDefault(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

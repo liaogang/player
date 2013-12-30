@@ -74,4 +74,6 @@ public:
 
 
 
-
+//WPARAM,the buffer to reseive rebar's band class name
+//LPARAM,the max length of the buffer
+#define WM_GET_BAND_CLASSNAME (WM_USER+58)

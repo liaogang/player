@@ -102,25 +102,9 @@ public:
 	}
 
 
-	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-	{
-		rootTree=UISplitterTreeRoot();
-		if (rootTree->hasChild())//reserialize from  file
-			CreateHWNDbyName(rootTree);
-		
+	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 
-		UpdateLayout(rootTree);
-		
-		PaneSizeStore(rootTree);
-
-		if(m_hCursorLeftRight == NULL)
-			m_hCursorLeftRight = ::LoadCursor(NULL, IDC_SIZEWE);
-		if(m_hCursorUpDown == NULL)
-			m_hCursorUpDown = ::LoadCursor(NULL, IDC_SIZENS );			
-
-		SetMsgHandled(FALSE);
-		return 1;
-	}
+	
 
 
 	void UpdateTree(MYTREE *treeData);

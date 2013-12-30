@@ -305,6 +305,8 @@ playerT/Dx9SDK/Lib/msdmo.lib -text
 playerT/Dx9SDK/Lib/quartz.lib -text
 playerT/Dx9SDK/Lib/strmiids.lib -text
 playerT/FFT.h -text
+playerT/FunctionReg.cpp -text
+playerT/FunctionReg.h -text
 playerT/Lib/Debug/libmpg123.lib -text
 playerT/Lib/Debug/vc90.idb -text
 playerT/Lib/Debug/vc90.pdb -text
@@ -329,6 +331,7 @@ playerT/MyConfigs.h -text
 playerT/MyControls.h -text
 playerT/MyLib.cpp -text
 playerT/MyLib.h -text
+playerT/MyRebar.h -text
 playerT/MySerialize.cpp -text
 playerT/MySerialize.h -text
 playerT/PlayList.cpp -text

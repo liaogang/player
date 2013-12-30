@@ -65,43 +65,42 @@ MyLib::~MyLib()
 
 //-----------------------------------------
 
-void MyLib::play(PlayListItem *item)
+BOOL MyLib::play(PlayListItem *item)
 {	
-	if(item->isValide())
+	if(item->isValide() && item->IsFileExist())
 	{
 		PlayList *pl=item->GetPlayList();
-		SetPlayingPlaylist(pl);
+		SetPlayingIndex(pl);
 		pl->SetPlayingIndex(item->GetIndex());
-		item->ScanId3Info(TRUE,TRUE);
-		play(item->GetFileTrack());
+		return play(item->GetFileTrack());
 	}
+	return FALSE;
 }
 
 
-void MyLib::play()
+BOOL MyLib::play()
 {
-	PlayList *pl=GetPlayingPL();
-	if(pl)
-	{
-		int pi=GetPlayingPL()->GetPlayingIndex();
-		if(pi==-1)
-			pi=GetPlayingPL()->GetSelectedIndex();
+	ClearPlayQueue();
 
-		PlayListItem * item=GetPlayingPL()->GetItem(pi);
-		if(item->isValide())
-			play(item->GetFileTrack());
-	}
+	PlayList *pl=GetSelectedPL();
+	return pl?play(pl->GetSelectedItem()):FALSE;
 }
 
 void MyLib::playNext(BOOL scanID3)
 {	
+	if (!playQueue.empty())
+	{
+		play(PopTrackFromPlayQueue());
+		return;
+	}
+
 	PlayListItem *nextItem;
 	PlayListItem *currItem=NULL;
 
 	PlayList *pl=GetPlayingPL();
 	if(pl)
 		currItem=pl->GetItem(pl->GetPlayingIndex());
-
+	
 	if(!currItem || !currItem->isValide())
 	{
 		PlayList *spl=SelectedPlaylist();
@@ -117,26 +116,19 @@ void MyLib::playNext(BOOL scanID3)
 		}
 	}
 
+
 	if(!currItem || !currItem->isValide())
 		return;
 
 	PlayList *pPl=currItem->GetPlayList();
- 	if (!playQueue.empty())
-	{
-		nextItem=PopTrackFromPlayQueue();
-	}
-	else
-	{
+
 		if(IsValidePlayList(pPl))
 			nextItem=pPl->GetNextTrackByOrder();
 		else
 			return;
-	}
-
 	
 	if(nextItem)
 		play(nextItem);
-	
 }
 
 
@@ -153,7 +145,14 @@ PlayList* MyLib::GetAutoPlaylist()
 	return pPlayListAuto;
 }
 
-void MyLib::SetAutoPlayList(PlayList *pl)
+
+void MyLib::SetAutoPlaylist(PlayList *pl)
+{
+	pPlayListAuto=pl;
+}
+
+
+void MyLib::InitMonitor(PlayList *pl)
 {
 	pPlayListAuto=pl;
 	m_pFileMonitor=new fileMonitors(pPlayListAuto);
@@ -200,7 +199,7 @@ vector<int> MyLib::GetIndexInPlayQueue(_songContainerItem item)
 	int idx=0;
 	for(PlayQueueContainer::iterator i=playQueue.begin();
 		i!=playQueue.end();++i,++idx)
-		if( *i == item)
+		if( *(*i) == *item)
 			v.push_back(idx);
 	
 	return v;
@@ -214,7 +213,7 @@ void MyLib::DeleteFromPlayQueue(_songContainerItem item)
 		PlayQueueContainer::iterator k=i;
 		++i;
 
-		if(*k == item)
+		if(*(*k) == *item)
 			playQueue.erase(k);
 	}
 }
@@ -279,12 +278,14 @@ void MyLib::DeletePlayList(PlayList *pl)
 	{
 		m_playLists.erase(i);
 		delete pl;
+		if(pl->m_bAuto)
+		{
+			delete m_pFileMonitor;
+			m_pFileMonitor=NULL;
+			SetAutoPlaylist(NULL);
+		}
 	}
 
-	
-	//todo 
-	//if pl == active pl
-	//active = select pl
 }
 
 void MyLib::DeletePlayList(int nIndex)

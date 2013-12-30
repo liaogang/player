@@ -15,18 +15,19 @@ void fileMonitor::HandleNotify(FILE_NOTIFY_INFORMATION *pNotify)
 {
 	memset(pathTo,0,sizeof(pathTo));
 
-// 	int len=_tcslen(szPath);     
-// 	_tcscpy(pathTo,szPath);
-// 	pathTo[len++]='\\';
+	int len=_tcslen(szPath);     
+	_tcscpy(pathTo,szPath);
+	pathTo[len++]='\\';
 
-	INT len=0;
 
 	while(1)
 	{
 		wcsncpy(pathTo+len,pNotify->FileName,pNotify->FileNameLength/sizeof(TCHAR));
-
+		
 		switch(pNotify->Action)
 		{
+		case FILE_ACTION_MODIFIED:
+			break;
 		case FILE_ACTION_ADDED:
 			::Sleep(250);
 			pPL->AddFile(pathTo);

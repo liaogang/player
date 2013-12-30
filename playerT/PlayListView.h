@@ -4,7 +4,7 @@
 #include "PlayListViewMng.h"
 #include "globalStuffs.h"
 #include "customMsg.h"
-
+#include <map>
 #include "ListCtrl.h"
 
 unsigned int BKDRHash(char *str);
@@ -24,8 +24,8 @@ static int columnIndexClicked;
 
 
 class CPlayListView:
-	public CListImpl< CPlayListView >,
- 	public CMessageFilter
+	public CListImpl< CPlayListView >
+	//,public CMessageFilter
 {
 private:
 	PlayList *  m_pPlayList;
@@ -43,7 +43,7 @@ public:
 	HMENU menu;
 	COLORREF clText1,clText2;
 	bool bClientEdge;
-
+	BOOL m_bC;
 	CPlayListView():m_bC(TRUE),m_Order(0)
 	{
 		SetPlayList(NULL);
@@ -61,26 +61,26 @@ public:
 public:
 	//DECLARE_WND_SUPERCLASS( NULL ,CListViewCtrl::GetWndClassName())
 
-	virtual BOOL PreTranslateMessage(MSG* pMsg)
-	{
-		if (pMsg->message==WM_KEYDOWN){	
-			UINT nChar=(TCHAR)pMsg->wParam;
-			
-			//Ctrl+A
-			if (nChar=='A' || nChar=='a'){
-				if (GetKeyState(VK_CONTROL) &0x80)
-					SelectAll();
-			}
-			
-			//Delete
-			else if (nChar==VK_DELETE){
-				;//DelSelectedItem(GetKeyState(VK_SHIFT) & 0x80);
-			
-			}
-		}//if (pMsg->message!=WM_KEYDOWN)
+	//virtual BOOL PreTranslateMessage(MSG* pMsg)
+	//{
+	//	if (pMsg->message==WM_KEYDOWN){	
+	//		UINT nChar=(TCHAR)pMsg->wParam;
+	//		
+	//		//Ctrl+A
+	//		if (nChar=='A' || nChar=='a'){
+	//			if (GetKeyState(VK_CONTROL) &0x80)
+	//				SelectAll();
+	//		}
+	//		
+	//		//Delete
+	//		else if (nChar==VK_DELETE){
+	//			;//DelSelectedItem(GetKeyState(VK_SHIFT) & 0x80);
+	//		
+	//		}
+	//	}//if (pMsg->message!=WM_KEYDOWN)
 
-		return FALSE;
-	}
+	//	return FALSE;
+	//}
 	 
 	BEGIN_MSG_MAP_EX(CPlayListView)
 		//user message
@@ -90,210 +90,22 @@ public:
 		
 		MSG_WM_DESTROY(OnDestroy)
 		MSG_WM_CREATE(OnCreate)
-		//MESSAGE_HANDLER(WM_PAINT,OnPaint)
-		//MSG_WM_ERASEBKGND(OnEraseBkgnd)
-		//MSG_WM_LBUTTONDBLCLK(OnDbClicked)
-		//MSG_WM_CHAR(OnChar)
-		MESSAGE_HANDLER(WM_NCPAINT,OnNcPaint)
 		COMMAND_ID_HANDLER(ID_OPEN_FILE_PATH,OnOpenFilePath)
 		COMMAND_ID_HANDLER(ID_PUSH_PLAYQUEUE,OnPushToPlayqueue)
 		COMMAND_ID_HANDLER(ID_DELFROMPLAYQUEUE,OnDeleteFromPlayqueue)
-		//REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_RCLICK ,OnNotifyCodeHandlerEX)
-		//REFLECTED_NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED,OnItemChanged)
-		//REFLECTED_NOTIFY_CODE_HANDLER(LVN_GETDISPINFO,OnGetdispInfo)
-		//REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
-		//REFLECTED_NOTIFY_CODE_HANDLER(LVN_COLUMNCLICK,OnColumnClick)
-		
 		REFLECTED_NOTIFY_CODE_HANDLER( LCN_DBLCLICK, OnDbClicked)
 		REFLECTED_NOTIFY_CODE_HANDLER(LCN_SELECTED, OnSelected)
 		REFLECTED_NOTIFY_CODE_HANDLER(LCN_RIGHTCLICK, OnRightClick)
-		
-
 		CHAIN_MSG_MAP(CListImpl< CPlayListView >)
 	END_MSG_MAP()
 
-		void FillSolidRect(HDC m_hDC,LPCRECT lpRect, COLORREF clr)
-		{
-			ATLASSERT(m_hDC != NULL);
-
-			COLORREF clrOld = ::SetBkColor(m_hDC, clr);
-			ATLASSERT(clrOld != CLR_INVALID);
-			if(clrOld != CLR_INVALID)
-			{
-				::ExtTextOut(m_hDC, 0, 0, ETO_OPAQUE, lpRect, NULL, 0, NULL);
-				::SetBkColor(m_hDC, clrOld);
-			}
-		}
-
-		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-		{
-			//An application returns zero if it processes this message. 
-			CPaintDC dc(m_hWnd);
-
-			RECT headerRect;
-			GetDlgItem(0).GetWindowRect(&headerRect);
-			ScreenToClient(&headerRect);
-			dc.ExcludeClipRect(&headerRect);
-
-			// Paint to a memory device context to help
-			// eliminate screen flicker.
-			CMemDC memDC(dc.m_hDC,&dc.m_ps.rcPaint);
-
-			RECT clip;
-			GetClipBox(memDC,&clip);
-			FillSolidRect(memDC, &clip ,GetSysColor(COLOR_WINDOW));		
-
-			// Now let the window do its default painting...
-			DefWindowProc(WM_PAINT, (WPARAM)memDC.m_hDC, (LPARAM)0);
-
-
-
-
-
-			return 0;
-		}
-
-
-		/*
-		BOOL OnEraseBkgnd(CDCHandle dc)
-		{
-			//no bkgnd repaint needed
-				return 1;
-		}
-
-		void DrawLine(HDC dc,int nItem)
-		{
-			LVITEM item;
-			item.iItem = nItem;
-			item.iSubItem = 0;
-			item.mask = LVIF_STATE;
-			item.stateMask = 0XFFFF;
-
-			GetItem(&item);
-			BOOL selected = item.state & LVIS_SELECTED;
-			BOOL focused  = item.state & LVIS_FOCUSED;
-		   		
-			RECT rcCol;
-			ListView_GetItemRect(m_hWnd,nItem,&rcCol,LVIR_SELECTBOUNDS)	;
-
-			//ÆÕÍ¨
-			//°×µ×,ºÚ×Ö
-			int B=nItem%2?clText1 : clText2;
-			int T=COLOR_WINDOWTEXT ;
-			//À¶µ×,°××Ö
-			const int SFB=COLOR_HIGHLIGHT;
-			const int SFT=COLOR_WINDOW;
-			//»Òµ×,ºÚ×Ö
-			const int SB=COLOR_BTNFACE;
-			const int ST=COLOR_WINDOWTEXT;
-
-			COLORREF clBackgnd;
-			COLORREF clText;
-			if(selected)
-			{
-				clBackgnd=::GetSysColor(SFB);
-				clText=::GetSysColor(SFT);
-			}
-			else if(  focused )
-			{	
-				clBackgnd=::GetSysColor(SB);
-				clText=::GetSysColor(ST);
-			}
-			else
-			{
-				clBackgnd=B;
-				clText=::GetSysColor(T);
-			}
-
-
-			//ÐÐ±³¾°
-			HPEN hNewPen=::CreatePen(PS_SOLID,1, clBackgnd );
-			HBRUSH hNewBrush= ::CreateSolidBrush(clBackgnd);
-
-			HPEN hOldPen = (HPEN)::SelectObject(dc, hNewPen);
-			HBRUSH hOldBrush = (HBRUSH)::SelectObject(dc,hNewBrush );
-
-			::Rectangle(dc, rcCol.left, rcCol.top, rcCol.right, rcCol.bottom);
-
-			//Èç¹ûÑ¡ÖÐÏî¾ßÓÐ½¹µã,»­³öÐéÏß¾ØÐÎ½¹µã±ß¿ò
-			if(focused )//&& GetFocus()==m_hWnd)
-			{
-				::DrawFocusRect(dc,&rcCol);	
-			}
-
-			//draw text
-			::DeleteObject(hNewPen);
-			hNewPen=::CreatePen(PS_SOLID,1,clText);
-			SelectObject(dc,hNewPen);
-
-			::SetBkMode(dc,TRANSPARENT);
-			::SetTextColor(dc,clText);
-
-			LV_COLUMN lvc;
-			lvc.mask=LVCF_FMT;
-			for(int nOrder=0; GetColumn(nOrder,&lvc); ++nOrder)
-			{
-				int nSubItem=Header_OrderToIndex(ListView_GetHeader(m_hWnd),nOrder);
-
-				RECT rcSubItem;
-				ListView_GetSubItemRect(m_hWnd,nItem,nSubItem,LVIR_BOUNDS,&rcSubItem);
-				
-				UINT DT_S=DT_LEFT;
-				if (lvc.fmt & HDF_CENTER)
-					DT_S=DT_CENTER;	
-				else if (lvc.fmt & HDF_RIGHT)
-					DT_S=DT_RIGHT;
-
-				WCHAR szText[MAX_PATH];
-				int strLen=GetItemText(nItem,nSubItem,szText,MAX_PATH);
-
-				DrawText(dc,szText, strLen, &rcSubItem, DT_S|DT_VCENTER|DT_SINGLELINE |DT_WORD_ELLIPSIS);
-			}
-
-			::SelectObject(dc, hOldBrush);
-			::DeleteObject(hNewBrush);
-
-			::SelectObject(dc,hOldPen);
-			::DeleteObject(hNewPen);
-		}
-		*/
-
+		
 		void OnDestroy();
-
-		/*
-		LRESULT OnCustomDraw(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
-		{
-			LPNMCUSTOMDRAW lpNMCustomDraw = (LPNMCUSTOMDRAW)pnmh;
-			NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>( lpNMCustomDraw );  
-
-			DWORD dwRet;
-			switch(lpNMCustomDraw->dwDrawStage)
-			{
-			case CDDS_PREPAINT:
-				dwRet= CDRF_NOTIFYITEMDRAW ;
-				break;
-			case CDDS_ITEMPREPAINT:
-				DrawLine(pLVCD->nmcd.hdc,pLVCD->nmcd.dwItemSpec);
-				dwRet= CDRF_SKIPDEFAULT ;
-				break;
-			}
-
-			return dwRet;
-		}
-		*/
-
-		LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-		{
-			if (bClientEdge)
-				DrawSunkenInnerEdge();
-
-			return 1;
-		}
-
 
 		LRESULT OnSetFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 		{
-			SetFocus();
+			HWND hwnd=SetFocus();
+
 			return 1;
 		}
 
@@ -309,97 +121,23 @@ public:
 			return 1;
 		}
 		
-
-		LRESULT OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-		{
-			// return zero  if processed
-
-			if (bClientEdge)
-			{
-				//let system draw scroll bar it self
-				::DefWindowProc(m_hWnd,uMsg,wParam,lParam);
-				DrawSunkenInnerEdge(wParam);
-				return 0;
-			}
-
-
-			bHandled=FALSE;
-			return 1;
-		}
-
-		void DrawSunkenInnerEdge(WPARAM wParam=1)
-		{
-			HDC hdc;
-			if((int)wParam==1)
-				hdc=::GetWindowDC(m_hWnd);
-			else
-				hdc = ::GetDCEx(m_hWnd,(HRGN)wParam, DCX_WINDOW|DCX_INTERSECTRGN);
-
-			RECT r;
-			GetWindowRect(&r);
-			ScreenToClient(&r);
-			r.right-=r.left;
-			r.bottom-=r.top;
-			r.left=0;
-			r.top=0;
-
-			DrawEdge(hdc,&r, EDGE_SUNKEN, BF_RECT | BF_ADJUST);
-			ReleaseDC(hdc);
-		}
-
-		LRESULT OnMeasureItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
-		{
-			LPMEASUREITEMSTRUCT lpMeasureItemStruct=(LPMEASUREITEMSTRUCT)lParam;
-			lpMeasureItemStruct->itemHeight=19;
-			return 1;
-		}
-
-		//LRESULT OnDrawItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
-
-
-		LRESULT OnNotifyCodeHandlerEX(LPNMHDR pnmh)
-		{
-			POINT pt;
-			GetCursorPos(&pt);
-
-			if(HasSeleted())
-			{
-				::EnableMenuItem(menu,ID_DELFROMPLAYQUEUE,MF_BYCOMMAND|IsAllSelectedItemInPlayQueue()?MF_ENABLED:(MF_DISABLED | MF_GRAYED));
-
-				::TrackPopupMenu(menu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
-			}
-
-			return 1;
-		}
-
-		// 		void OnMeasureItem(int nIDCtl, LPMEASUREITEMSTRUCT lpMeasureItemStruct)
-		// 		{
-		// 			SetMsgHandled(FALSE);
-		// 			lpMeasureItemStruct->itemHeight=17;
-		// 		}
-
-
-
-
 		int OnCreate(LPCREATESTRUCT lpCreateStruct)
 		{
 			DWORD dwStyle ;
 			dwStyle= ::GetWindowLong(m_hWnd, GWL_EXSTYLE);
 			bClientEdge=(dwStyle & WS_EX_CLIENTEDGE)?true:false;
 
-			CMessageLoop* pLoop = _Module.GetMessageLoop();
-			ATLASSERT(pLoop != NULL);
-			pLoop->AddMessageFilter(this);
+// 			CMessageLoop* pLoop = _Module.GetMessageLoop();
+// 			ATLASSERT(pLoop != NULL);
+// 			pLoop->AddMessageFilter(this);
 
 			SetMsgHandled(FALSE);
 			return 0;
 		}
 
 
-		LRESULT OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled);
-
 		UINT m_Order;
-		static bool CALLBACK CompareProc(PlayListItem *item1, PlayListItem *item2)
+		static bool CompareProc(PlayListItem *item1, PlayListItem *item2)
 		{
 			bool result;
 
@@ -453,63 +191,42 @@ public:
 			return (pListCtrl->m_Order & (1<<columnIndexClicked))?result:!result;
 		}
 
-		void SortItems2();
+		
 
 		void SortItems( int nColumn, BOOL bAscending )
 		{
 			int columnOrder=nColumn;
-			columnIndexClicked=Header_OrderToIndex(ListView_GetHeader(m_hWnd),columnOrder);
+			
+			//index to order
+			columnIndexClicked=GetColumnIndex(columnOrder);
 
 			if(columnIndexClicked!=COLUMN_INDEX_INDEX)
 			{
 				pListCtrl=this;
-				SortItems2();
-				Invalidate();		
-			}
 
-			
-		
+				GetPlayList()->SortItems(CompareProc);
+
+				m_Order = m_Order  ^ ( 1<< columnIndexClicked );
+
+				ScrollByTop(GetPlayList()->GetSelectedIndex());	
+				SelectItem(GetPlayList()->GetSelectedIndex());
+			}
 		}
 
 		void ReverseItems() // overrides CListImpl::ReverseItems
 		{
-			//SortItems2();
-
-			reverse(GetPlayList()->m_songList.begin(),GetPlayList()->m_songList.end());
+			GetPlayList()->ReverseItems();
 		}
 
-		LRESULT OnColumnClick(int /**/,NMHDR *pNMHDR,BOOL bHandled)
-		{
-			LPNMLISTVIEW pnmv = (LPNMLISTVIEW) pNMHDR;
-			int columnOrder=pnmv->iSubItem;
-			columnIndexClicked=Header_OrderToIndex(ListView_GetHeader(m_hWnd),columnOrder);
-			
-			if(columnIndexClicked!=COLUMN_INDEX_INDEX)
-			{
-				pListCtrl=this;
-				//SortItems();
-				Invalidate();		
-			}
 
-			return 0;
-		}
-
-		BOOL m_bC;
 		
-
-	
-
-		//LRESULT OnItemChanging(int /**/,LPNMHDR pnmh,BOOL bHandled);
-		LRESULT OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled);
-
-
-
+		
 		void SelectItems(vector<int> &items)
 		{
 			ClearAllSel();
 			
 			for (auto i=items.begin();i!=items.end();i++)
-				SelectItem(*i);
+				SelectItem(*i,NULL_SUBITEM,MK_CONTROL);
 
 			EnsureVisibleAndCentrePos(*(items.begin()));
 		}
@@ -627,6 +344,7 @@ public:
 				//PlayItem(GetFirstSelItem());
 			}
 		}
+
 #ifdef Old_Version
 
 		BOOL GetFirstSelItem()
@@ -638,11 +356,8 @@ public:
 			return nItem;
 		}
 #endif
-		void PlayItem(int nItem);
 
-		void PlaySelectedItem(_songContainerItem *item);
 
-		
 		LRESULT OnSelected(int /**/,LPNMHDR pnmh,BOOL bHandled);
 		LRESULT OnRightClick(int /**/,LPNMHDR pnmh,BOOL bHandled)
 		{
@@ -658,21 +373,7 @@ public:
 			return 0;
 		}
 		
-
-		LRESULT OnDbClicked(int /**/,LPNMHDR pnmh,BOOL bHandled)
-		{	
-			if(!GetPlayList())return 0;
-			int k=GetPlayList()->GetSelectedIndex();
-			if(k!=-1)
-			{
-				PlayItem(k);
-				GetPlayList()->SetTopVisibleIndex(k);
-			}
-
-			SetMsgHandled(FALSE);
-			return 0;
-		} 
-
+		LRESULT OnDbClicked(int /**/,LPNMHDR pnmh,BOOL bHandled);
 
 
 		enum{
@@ -731,36 +432,32 @@ public:
 			return sizeExtent.cx;
 		}
 
+// 		int GetIndex(PlayListItem *item)
+// 		{
+// 			// 			int nItem= GetPlayList()->GetItem(item);
+// 			// 			return nItem==GetPlayList()->GetItemCount()?-1:nItem;
+// 
+// 			return 0;
+// 		}
 
 
-		int GetIndex(PlayListItem *item)
-		{
-			// 			int nItem= GetPlayList()->GetItem(item);
-			// 			return nItem==GetPlayList()->GetItemCount()?-1:nItem;
-
-			return 0;
-		}
-
-
-		void SetPlayingItem(PlayListItem *item)
-		{
-			SetPlayingItem(GetIndex(item));
-		}
+// 		void SetPlayingItem(PlayListItem *item)
+// 		{
+// 			SetPlayingItem(GetIndex(item));
+// 		}
 
 public:
-	void SetPlayingItem(int nItem)
-	{
-		int nItemPlaying=GetPlayingIdx();
-		//RedrawItems(nItemPlaying,nItemPlaying);
-		SetPlayingIdx(nItem);
-		//RedrawItems(nItem,nItem);
-	}
+// 	void SetPlayingItem(int nItem)
+// 	{
+// 		int nItemPlaying=GetPlayingIdx();
+// 		//RedrawItems(nItemPlaying,nItemPlaying);
+// 		SetPlayingIdx(nItem);
+// 		//RedrawItems(nItem,nItem);
+// 	}
 
 	void ClearAllSel()
 	{
-		int i=-1;
-		//while ( (i=GetNextItem(i,LVIS_SELECTED)) != -1)
-		//	SetItemState(i,0,LVNI_SELECTED|LVNI_FOCUSED );
+		ResetSelected();
 	}
 
 	//void InsertTrackItem(PlayListItem &track,int item,BOOL SetIndex=TRUE);
@@ -770,7 +467,6 @@ public:
 	void LoadPlayList(PlayList *pPlayList)
 	{
 		SetPlayList(pPlayList);
-		//EnsureVisible(0,0);
 
 		DeleteAllItems();
 		if(pPlayList)
@@ -986,11 +682,6 @@ public:
 
 	void OnFinalMessage(_In_ HWND /*hWnd*/)
 	{
-		CMessageLoop* pLoop = _Module.GetMessageLoop();
-		ATLASSERT(pLoop != NULL);
-		pLoop->RemoveMessageFilter(this);
-
-		
 		if(GetPlayList() && GetPlayList()->m_bSearch)
 			;
 		else
@@ -1001,3 +692,47 @@ public:
 };
 
 
+
+class CPlayListViewS :public CPlayListView
+{
+public:
+	BEGIN_MSG_MAP_EX(CPlayListViewS)
+		COMMAND_ID_HANDLER(ID_PUSH_PLAYQUEUE,OnPushToPlayqueue)
+		REFLECTED_NOTIFY_CODE_HANDLER(LCN_SELECTED, OnSelected)
+		REFLECTED_NOTIFY_CODE_HANDLER( LCN_DBLCLICK, OnDbClicked)
+		CHAIN_MSG_MAP(CPlayListView)
+	END_MSG_MAP()
+
+	LRESULT OnPushToPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	
+	LRESULT OnSelected(int /**/,LPNMHDR pnmh,BOOL bHandled);
+	
+	LRESULT OnDbClicked(int /**/,LPNMHDR pnmh,BOOL bHandled);
+
+	//the target play-list witch is being searching
+	PlayList *playlistParent;
+
+
+	map<PlayListItem*,PlayListItem*> playListItemMap;
+	typedef pair<PlayListItem*,PlayListItem*> playListItemPair;
+	void Add2Map(PlayListItem *itemInSearch,PlayListItem *itemInParent)
+	{
+		playListItemMap.insert(playListItemPair(itemInSearch,itemInParent));
+	}
+
+	void ClearMap()
+	{
+		playListItemMap.clear();
+	}
+
+	PlayListItem * GetItemInParent(PlayListItem *itemInSearch)
+	{
+		PlayListItem *itemInParent=NULL;
+
+		auto it=playListItemMap.find(itemInSearch);
+		if(it!=playListItemMap.end())
+			itemInParent=it->second;
+
+		return itemInParent;
+	}
+};

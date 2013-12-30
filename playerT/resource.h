@@ -7,11 +7,9 @@
 #define IDC_LOAD                        100
 #define IDC_SHOW_FILE                   101
 #define IDR_MAINFRAME                   128
-#define IDR_MAINFRAME1                  129
 #define IDD_CONFIG                      201
 #define IDD_DLG_EMPTY                   202
 #define IDD_DLG_LYRIC                   202
-#define IDD_DLG_LYRIC1                  202
 #define IDD_DIALOG1                     203
 #define IDD_DIALO_FFT                   204
 #define IDD_DIALOG2                     205
@@ -47,18 +45,19 @@
 #define IDI_ICON2                       240
 #define IDB_BITMAP1                     242
 #define IDB_BITMAP2                     244
+#define IDR_MENU_REBAR                  245
 #define IDC_TREE                        1000
 #define IDC_RESET_ALL                   1001
 #define IDC_RESET_THIS                  1002
 #define ID_OK                           1003
 #define IDC_BUTTON1                     1005
-#define IDC_PROGRESS1                   1006
 #define IDC_BTN_DEL                     1006
 #define IDC_BUTTON4                     1006
 #define IDC_SLIDER1                     1007
 #define IDC_BUTTON5                     1007
 #define IDC_MEDIA_LIST                  1008
 #define IDC_BUTTON6                     1008
+#define IDC_SLIDER2                     1008
 #define IDC_BUTTON_APPLY                1009
 #define IDC_BTN_ADD                     1011
 #define IDC_EDIT3                       1012
@@ -87,7 +86,6 @@
 #define IDC_RADIO2                      1035
 #define IDC_SHOW_PATH                   1036
 #define IDC_COMBO1                      1038
-#define IDD_DLG_CFG_1                   2055
 #define IDD_DLG_LRC_PANE_PROPERTY1      2056
 #define IDD_DLG_LRC_PANE_PROPERTY2      2057
 #define ID_FILE_PLAY                    32775
@@ -263,13 +261,28 @@
 #define ID_PLAYLISTMNG_NEW              32950
 #define ID_PLAYLISTMNG_RENAME           32951
 #define ID_BUTTON32952                  32952
+#define ID_32953                        32953
+#define ID_32954                        32954
+#define ID_EDIT_DEL_INVALIDE            32955
+#define ID_REBAR_32957                  32957
+#define ID_REBAR_32958                  32958
+#define ID_REBAR_32959                  32959
+#define ID_REBAR_32960                  32960
+#define ID_REBAR_32961                  32961
+#define ID_REBAR_32962                  32962
+#define ID_REBAR_LOCK                   32963
+#define ID_REBAR_TOOL                   32964
+#define ID_REBAR_VOL                    32965
+#define ID_REBAR_TRACK                  32966
+#define ID_REBAR_PLAYORDER              32967
+#define ID_REBAR_RESET                  32968
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        245
-#define _APS_NEXT_COMMAND_VALUE         32953
+#define _APS_NEXT_RESOURCE_VALUE        246
+#define _APS_NEXT_COMMAND_VALUE         32969
 #define _APS_NEXT_CONTROL_VALUE         1042
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

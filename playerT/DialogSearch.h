@@ -1,5 +1,6 @@
 #pragma once
-
+#include <set>
+#include <atlsimpcoll.h>
 #include "PlayListView.h"
 #include "globalStuffs.h"
 using namespace std;
@@ -23,7 +24,6 @@ public:
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 		COMMAND_CODE_HANDLER(EN_CHANGE, OnSearch )
-		NOTIFY_CODE_HANDLER(LVN_ITEMCHANGED,OnItemChanged)
 		CHAIN_MSG_MAP(CDialogResize<DialogSearch>)
 		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
@@ -34,8 +34,7 @@ public:
 		DLGRESIZE_CONTROL(IDC_LIST,DLSZ_SIZE_Y)
 	END_DLGRESIZE_MAP()
 
-	CMainFrame *pM;
-	CPlayListView m_list;
+	CPlayListViewS m_list;
 	PlayList *searchPl;
 	RECT m_rc;
 
@@ -68,32 +67,15 @@ public:
 		return 0;
 	}
 
-
-	LRESULT OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled)
-	{
-		bHandled=FALSE;
-		//todo
-// 		vector<int> items;
-// 
-// 		
-// 		int nItem=-1;
-// 		while((nItem=m_list.GetNextItem(nItem,LVNI_SELECTED))!=-1)
-// 			items.push_back(searchPl->GetItem(nItem)->GetIndex());
-// 		
-// 		if(items.size()>0)
-// 			AllPlayListViews()->SelectItems(items);
-// 		
-// 		m_list.OnItemChanged(0,pnmh,bHandled);
-
-		return 1;
-	}
-	
-
 	LRESULT OnSearch(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
+		PlayList *pSelectedPl=SelectedPlaylist();
+
+		m_list.ClearMap();
 		m_list.ClearAllItem();
 		m_list.SetPlayingIdx(0);
-		searchPl->m_songList.clear();
+		m_list.playlistParent=pSelectedPl;
+		searchPl->DeleteAllItems();
 
 		TCHAR buf[MAX_PATH];
 		::GetWindowText(::GetDlgItem(m_hWnd,IDC_EDIT),buf,MAX_PATH);
@@ -117,17 +99,21 @@ public:
 		if (b<a) {m_list.ClearAllItem();return 0;}
 		strBuf=strBuf.substr(a,b+1-a);
 
-		PlayList *pSelectedPl=SelectedPlaylist();
+		
 		int count=pSelectedPl->GetItemCount();
 		for (int i=0;i<count;++i)
 		{
-			_songContainerItem item=pSelectedPl->m_songList[i];
+			_songContainerItem item=pSelectedPl->GetItem(i);
 			FileTrack *track=item->GetFileTrack();
 			if (track->HaveKeywords(const_cast<TCHAR*>( strBuf.c_str()) ))
-				searchPl->m_songList.push_back(item);
+			{
+				auto cp=item->Duplicate();
+				searchPl->AddItem(cp);
+				m_list.Add2Map(cp,item);
+			}
 		}
 
-		if (searchPl->m_songList.size()>0)
+		if (searchPl->GetItemCount()>0)
 			m_list.Reload(searchPl,-1);
 		else
 			m_list.ClearAllItem();

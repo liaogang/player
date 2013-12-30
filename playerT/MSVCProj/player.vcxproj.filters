@@ -672,6 +672,12 @@
     <ClInclude Include="..\DropArrows.h">
       <Filter>Header Files\ListCtrl</Filter>
     </ClInclude>
+    <ClInclude Include="..\FunctionReg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MyRebar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\BasicPlayer.cpp">
@@ -968,6 +974,9 @@
     <ClCompile Include="..\MyConfigs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\FunctionReg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\player.rc">
@@ -1006,6 +1015,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\Toolbar1.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\idr_main.ico">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

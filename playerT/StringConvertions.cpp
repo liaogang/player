@@ -288,7 +288,9 @@ void CreateQianQianCode(char *id,char *ar,char*ti,std::string &code)
 	{
 		char *ak=(char*)(arti.c_str()+i);
 		char  akk=*ak;
-		song[i]=((int)akk) & 0x000000FF;	}
+		song[i]=((int)akk) & 0x000000FF;
+	}
+
 	int t1=0,t2=0,t3=0;
 
 	t1 = (iId & 0x0000FF00) >> 8;
@@ -397,58 +399,61 @@ LONG GetStrSizeX(HDC dc,TCHAR *str)
 	return sz.cx;
 }
 
-void MakeShortString(HDC dc,TCHAR *str,long width)
-{
-	static const TCHAR szThreeDots[] ={_T("...")};
-
-	SIZE sz;
-	int strLen=_tcslen(str);
-	::GetTextExtentPoint(dc,str,strLen,&sz);
-	
-	if (strLen && sz.cx > width)
-	{
-		::GetTextExtentPoint(dc,szThreeDots,sizeof(szThreeDots)/sizeof(TCHAR)-1,&sz);
-		int nAddLen=sz.cx;
-
-		for (--strLen;strLen;--strLen)
-			{
-			::GetTextExtentPoint(dc,str,strLen,&sz);
-			if (sz.cx+nAddLen<=width)
-				{
-				_tcscpy(str+strLen,szThreeDots);
-				break;
-				}
-			}
-	}
-
-}
 
 
-//在矩形中央画出,正三角形
-void DrawTriangleInRect(HDC dc,RECT &rc)
-{
-	POINT ptCenter={rc.left+(rc.right-rc.left)/2,rc.top+(rc.bottom-rc.top)/2};
+//void MakeShortString(HDC dc,TCHAR *str,long width)
+//{
+//	static const TCHAR szThreeDots[] ={_T("...")};
+//
+//	SIZE sz;
+//	int strLen=_tcslen(str);
+//	::GetTextExtentPoint(dc,str,strLen,&sz);
+//	
+//	if (strLen && sz.cx > width)
+//	{
+//		::GetTextExtentPoint(dc,szThreeDots,sizeof(szThreeDots)/sizeof(TCHAR)-1,&sz);
+//		int nAddLen=sz.cx;
+//
+//		for (--strLen;strLen;--strLen)
+//			{
+//			::GetTextExtentPoint(dc,str,strLen,&sz);
+//			if (sz.cx+nAddLen<=width)
+//				{
+//				_tcscpy(str+strLen,szThreeDots);
+//				break;
+//				}
+//			}
+//	}
+//
+//}
+//
+//
+////在矩形中央画出,正三角形
+//void DrawTriangleInRect(HDC dc,RECT &rc)
+//{
+//	POINT ptCenter={rc.left+(rc.right-rc.left)/2,rc.top+(rc.bottom-rc.top)/2};
+//
+//#define TAN60 1.7320508
+//#define CENTER_X TAN60/3
+//
+//	LONG TRIANGLE_LENGTH =rc.bottom-rc.top;
+//
+//	/*
+//		   p0
+//		      c  p2
+//		   p1
+//	*/
+//
+//	POINT pTri[3]={ 
+//		{ptCenter.x-CENTER_X*TRIANGLE_LENGTH/2,ptCenter.y-TRIANGLE_LENGTH/2},
+//		{ptCenter.x-CENTER_X*TRIANGLE_LENGTH/2,ptCenter.y+TRIANGLE_LENGTH/2},
+//		{ptCenter.x+CENTER_X*TRIANGLE_LENGTH/2,ptCenter.y}
+//					};
+//
+//	HBRUSH blueBrush=::CreateSolidBrush(RGB(200,210,255));
+//	HRGN rgn=::CreatePolygonRgn(pTri,3,ALTERNATE);
+//	::FillRgn(dc,rgn,blueBrush);
+//	::DeleteObject(rgn);
+//	::DeleteObject(blueBrush);
+//}
 
-#define TAN60 1.7320508
-#define CENTER_X TAN60/3
-
-	LONG TRIANGLE_LENGTH =rc.bottom-rc.top;
-
-	/*
-		   p0
-		      c  p2
-		   p1
-	*/
-
-	POINT pTri[3]={ 
-		{ptCenter.x-CENTER_X*TRIANGLE_LENGTH/2,ptCenter.y-TRIANGLE_LENGTH/2},
-		{ptCenter.x-CENTER_X*TRIANGLE_LENGTH/2,ptCenter.y+TRIANGLE_LENGTH/2},
-		{ptCenter.x+CENTER_X*TRIANGLE_LENGTH/2,ptCenter.y}
-					};
-
-	HBRUSH blueBrush=::CreateSolidBrush(RGB(200,210,255));
-	HRGN rgn=::CreatePolygonRgn(pTri,3,ALTERNATE);
-	::FillRgn(dc,rgn,blueBrush);
-	::DeleteObject(rgn);
-	::DeleteObject(blueBrush);
-}

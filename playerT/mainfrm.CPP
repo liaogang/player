@@ -115,6 +115,13 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	SetTimer((UINT_PTR)&m_nIDEvent,m_uElapse,NULL);
 
 
+	//-----------------------------------------
+	//-----------------------------------------
+	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
+	m_wndRebar.SubclassWindow(m_hWndToolBar);
+
+
+	//-----------------------------------------
 	// create command bar window
 	HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
 	// attach menu
@@ -125,20 +132,15 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_CmdBar.LoadImages(IDR_MAINFRAME);
 	// remove old menu
 	SetMenu(NULL);
-	//SetMenu(pMenu->m_hMenu);
+	AddSimpleReBarBand(hWndCmdBar);
+
 
 	//-----------------------------------------
 	//standed toobar 
 	HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd,IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
-
 	//CreateSimpleReBar(ATL_SIMPLE_REBAR_STYLE);
-	
-	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
-	m_pRebar=new CMySimpleRebar;
-	m_pRebar->SubclassWindow(m_hWndToolBar);
-
-
-	AddSimpleReBarBand(hWndCmdBar);
+	CMyToolBar *pWndToolbar=new CMyToolBar;
+	pWndToolbar->SubclassWindow(hWndToolBar);
 	AddSimpleReBarBand(hWndToolBar, NULL,TRUE,0,TRUE);
 	
 	
@@ -150,21 +152,15 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	UINT styleEx=0; 
 
 	HWND hWndProgressBar=m_pTrackBar->CreateIsWnd(m_hWndToolBar);
-	m_pRebar->pTrack=m_pTrackBar;
-
-
-	//HRESULT result=EnableThemeDialogTexture(hWndProgressBar,ETDT_ENABLE);
-
-	//result=EnableThemeDialogTexture(hWndToolBar,ETDT_ENABLE);
+	m_wndRebar.pTrack=m_pTrackBar;
 
 	AddSimpleReBarBand(hWndProgressBar,NULL,FALSE,280,TRUE);
 
 	
+	//-----------------------------------------
 	//combo box
 	m_pComboBox=new CMyComboBox;
 	HWND comboBar=m_pComboBox->CreateIsWnd(m_hWndToolBar);
-
-	
 // 	 	CFont font;
 // 	 	LOGFONT lf;
 // 	 	memset(&lf, 0, sizeof(LOGFONT));       // zero out structure
@@ -179,17 +175,17 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	AddSimpleReBarBand(comboBar,NULL,FALSE,140,TRUE);
 
 
-	
+	//-----------------------------------------
 	//volume track bar
 	m_pVolumeBar=new CMyVolumeBar;
 	HWND hWndVolumeBar=m_pVolumeBar->Create(m_hWndToolBar,NULL,NULL,style,styleEx);
 	m_pVolumeBar->Init();
 	
-	m_pRebar->pVolume=m_pVolumeBar;
+	m_wndRebar.pVolume=m_pVolumeBar;
 	AddSimpleReBarBand(hWndVolumeBar,NULL,FALSE,70,TRUE);
 
 
-	
+	//-----------------------------------------
 	//status bar  
 	//add it all
 	CreateSimpleStatusBar();
@@ -212,9 +208,6 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	pLoop->AddIdleHandler(this);
 
 	
-
-	
-
 	RegisterMyHotKeys();
 
 	SetMsgHandled(FALSE);
@@ -332,8 +325,6 @@ LRESULT CMySimpleRebar::OnNotify(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	MyLib::shared()->ClearPlayQueue();
-
 	MyLib::shared()->play();
 	
 	return 0;
@@ -492,7 +483,7 @@ void CPlayListManager::AddPlayList(PlayList *pPL)
 {
 	int item=GetItemCount();
 	TCHAR strCount[256];
-	_itow(pPL->m_songList.size(),strCount,10);
+	_itow(pPL->GetItemCount(),strCount,10);
 
 	InsertItem(item,pPL->m_playlistName.c_str());
 	SetItemText(item,1,strCount);
@@ -524,7 +515,7 @@ void CPlayListManager::UpdateByPLTrack(PlayList *pPL)
 			SetItemText(i,0,pPL->m_playlistName.c_str());
 
 			TCHAR strCount[256];
-			_itow(pPL->m_songList.size(),strCount,10);
+			_itow(pPL->GetItemCount(),strCount,10);
 			SetItemText(i,1,strCount);
 			break;
 			}
@@ -695,6 +686,8 @@ LRESULT CMainFrame::OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 
 	ChangeTitle();
 	*/
+
+	ChangeTitle();
 
 	return 0;
 }
@@ -878,39 +871,36 @@ void CMainFrame::OnSelectionChanged()
 //}
 
 
+LRESULT CPlayListView::OnDbClicked(int /**/,LPNMHDR pnmh,BOOL bHandled)
+{	
+	if(!GetPlayList())return 0;
+
+	int k=GetPlayList()->GetSelectedIndex();
+	if(k!=-1)
+	{
+		MyLib::shared()->play();
+		GetPlayList()->SetTopVisibleIndex(k);
+	}
+
+	SetMsgHandled(FALSE);
+	return 0;
+} 
 
 
-void PlayListViewItem(int index)
-{
+LRESULT CPlayListViewS::OnDbClicked(int /**/,LPNMHDR pnmh,BOOL bHandled)
+{	
+	if(!GetPlayList())return 0;
 
-}
+	int k=playlistParent->GetSelectedIndex();
+	if(k!=-1)
+	{
+		MyLib::shared()->play();
+		GetPlayList()->SetTopVisibleIndex(k);
+	}
 
-void CPlayListView::PlaySelectedItem(_songContainerItem *item)
-{
-
-}
-
-void CPlayListView::PlayItem(int nItem)
-{
-	MyLib* s=MyLib::shared();
-// 	if(s->ActivePlaylist())
-// 	{
-// 		PlayListItem *lastTrack=s->ActivePlaylist()->curTrack();
-// 		//if (lastTrack)
-// 		//	RedrawItems(lastTrack,lastTrack);
-// 	}
-
-	PlayListItem* track;
-	if(nItem==-1)return;
-
-	track=GetPlayList()->GetItem(nItem);
-
-
-	MyLib::shared()->play(track);
-	
-	InvalidateItem(nItem);
-}
-
+	SetMsgHandled(TRUE);
+	return 0;
+} 
 
 
 LRESULT CMainFrame::OnExit(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
@@ -962,7 +952,7 @@ void CMainFrame::ShowSearchDialog()
 	if (!m_pDlgSearch)
 	{
 		m_pDlgSearch=new DialogSearch;
-		m_pDlgSearch->pM=this;
+		//m_pDlgSearch->pM=this;
 		if(!m_pDlgSearch->Create(m_hWnd))
 			return;
 
@@ -1009,8 +999,9 @@ LRESULT CMainFrame::OnFileFinded(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BO
 {
 	if(!pDlgProcess)
 		ShowDlgProcessFile();
-
+	
 	pDlgProcess->ShowFileName((TCHAR*)wParam,(BOOL)lParam);
+
 	return 0;
 }
 
@@ -1072,83 +1063,6 @@ void CMyVolumeBar::OnPos(int pos)
 
 
 
-
-LRESULT CPlayListView::OnGetdispInfo(int /**/,NMHDR *pNMHDR,BOOL bHandled)
-{
-	LV_DISPINFO* pDispInfo = (LV_DISPINFO*)pNMHDR;
-	LV_ITEM* pItem= &(pDispInfo)->item;
-	int iItemIndx= pItem->iItem;
-
-	FileTrack *track=GetPlayList()->GetItem(iItemIndx)->GetFileTrack();
-	if(!track) return 0;
-	
-	
-	if (pItem->mask & LVIF_TEXT) //valid text buffer?
-	{
-		switch(pItem->iSubItem){
-		case COLUMN_INDEX_INDEX:
-			{
-				TCHAR strIndex[4]={0};
-				_itow(iItemIndx+1,strIndex,10);
-				lstrcpy(pItem->pszText,strIndex);
-			}
-			break;
-		case COLUMN_INDEX_TITLE: //fill in main text
-			lstrcpy(pItem->pszText, 
-				track->title.c_str());
-			break;
-		case COLUMN_INDEX_ARTIST: //fill in sub item 1 text
-			lstrcpy(pItem->pszText,
-				track->artist.c_str());
-			break;
-		case COLUMN_INDEX_ALBUM: //fill in sub item 2 text
-			lstrcpy(pItem->pszText,
-				track->album.c_str());
-			break;
-		case COLUMN_INDEX_YEAR:
-			lstrcpy(pItem->pszText,track->year.c_str());
-			break;
-		case COLUMN_INDEX_GENRE:
-			lstrcpy(pItem->pszText,track->genre.c_str());
-			break;
-		}
-	}
-
-	return 1;
-}
-
-
-/*
-LRESULT CMyTabBar::OnSelectionChanged( LPNMHDR )
-{
-	int curSel=GetCurSel( );
-
-	PlayList* pPl=GetTabPlayList(curSel);
-	SetActivePlaylist(pPl);
-
-	//SetActiveTab( curSel);
-	//pMain->m_pPlaylistView->Reload(pPl);
-	//pMain->m_pPlaylistView->SetFocus();
-	return 0;
-}
-*/
-/*
-void CMyTabBar::SetCurSel(PlayList* ppl,int index)
-{
-	int nItem;
-
-	for (nItem=0;GetItemCount();nItem++)
-	{
-		PlayList* pplOnTab=(PlayList*)GetTabParam(nItem);
-		if(pplOnTab==ppl)
-		{
-			SetActiveTab(nItem);
-			//pMain->m_pPlaylistView->Reload(ppl,index);
-			break;
-		}
-	}
-}
-*/
 
 
 	LRESULT  CPlayListManager::OnDbClicked(UINT i,CPoint pt)
@@ -1421,6 +1335,8 @@ void CDlgLrcSearch::DownLoad()
 
 		if(dlg.DoModal()==IDOK)
 			savePath=dlg.m_ofn.lpstrFile;
+		else
+			return;
 	}
 
 	wcscpy(artist+len,savePath);
@@ -1467,18 +1383,22 @@ void CDlgLrcSearch::DownLoad()
 
 
 
-void MyLib::play(FileTrack  *track)
+BOOL MyLib::play(FileTrack  *track)
 {
 	ATLASSERT(track);
 
-	track->ScanId3Info(TRUE,TRUE);
+	if(!track->ScanId3Info(TRUE,TRUE))
+		return FALSE;
 
 	CBasicPlayer* s=CBasicPlayer::shared();
 	s->stop();
 	if(s->open(track))
 	{
-		s->play();
+		 s->play();
+		 return TRUE;
 	}
+
+	return FALSE;
 }
 
 
@@ -1519,6 +1439,7 @@ BOOL CPlayListView::IsAllSelectedItemInPlayQueue()
 	return TRUE;
 }
 
+
 LRESULT CPlayListView::OnPushToPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	MyLib *s=MyLib::shared();
@@ -1529,6 +1450,21 @@ LRESULT CPlayListView::OnPushToPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWN
 
 	return 0;
 }
+
+LRESULT CPlayListViewS::OnPushToPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	MyLib *s=MyLib::shared();
+	CListArray < int >  aSelectedItems;
+	if(GetSelectedItems(aSelectedItems))
+		for (int i=0;i<aSelectedItems.GetSize();i++)
+		{
+			PlayListItem *item=GetPlayList()->GetItem(aSelectedItems[i]);
+			PlayListItem *itemInParent=GetItemInParent(item);
+			s->PushPlayQueue(itemInParent);
+		}
+		return 0;
+}
+
 
 LRESULT CPlayListView::OnDeleteFromPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
@@ -1584,72 +1520,59 @@ void PlayListViewMng::Reload(PlayList *pPL,bool activeplaying)
 		//(*i)->EnsureVisibleAndCentrePos(index);
 		//(*i)->SelectAndFocusItem(index);
 	}
+
+	MyLib::shared()->SetSelectedIndex(pPL);
 }
 
 
-LRESULT CPlayListView::OnItemChanged(int /**/,LPNMHDR pnmh,BOOL bHandled)
-{
-	NMLISTVIEW * pnml=(NMLISTVIEW *)pnmh;
-	int item=pnml->iItem;
-	if(m_bC)
-	{
-		GetPlayList()->SetTopVisibleIndex(item);
-		GetPlayList()->SetSelectedIndex(item);
-	}
 
-	return 1;
-}
 
 LRESULT CPlayListView::OnSelected(int /**/,LPNMHDR pnmh,BOOL bHandled)
 {	
-	NMLISTVIEW * pnml=(NMLISTVIEW *)pnmh;
-	int item=pnml->iItem;
-	if(m_bC)
-	{
-		GetPlayList()->SetTopVisibleIndex(item);
-		GetPlayList()->SetSelectedIndex(item);
-	}
+// 	NMLISTVIEW * pnml=(NMLISTVIEW *)pnmh;
+// 	int nItem=pnml->iItem;
+	
+	int nItem=GetFirrstSelectedItem();
+
+	GetPlayList()->SetTopVisibleIndex(nItem);
+	GetPlayList()->SetSelectedIndex(nItem);
+
 	return 0;
 }
 
 
-void CPlayListView::SortItems2()
-{
-	PlayList *pl=MyLib::shared()->GetPlayingPL();
-	PlayListItem *curr=NULL;
-	if(pl)
-		curr= pl->GetPlayingItem();
+LRESULT CPlayListViewS::OnSelected(int /**/,LPNMHDR pnmh,BOOL bHandled)
+{	
+	vector<int> items;
 
-	
-	//两项相等的情况下,STL的DEBUG检验会失败.
-#ifdef _DEBUG
-	//sort(GetPlayList()->m_songList.begin(),GetPlayList()->m_songList.end(),CompareProc);
-	reverse(GetPlayList()->m_songList.begin(),GetPlayList()->m_songList.end());
-#else
-	sort(GetPlayList()->m_songList.begin(),GetPlayList()->m_songList.end(),CompareProc);
-#endif
+	CListArray < int > aSelectedItems;
+	GetSelectedItems(aSelectedItems);
 
-	m_Order = m_Order  ^ ( 1<< columnIndexClicked );
-
-	// 			//重新分配序号
-	auto iter=GetPlayList()->m_songList.begin();
-	for (int i=0;iter!=GetPlayList()->m_songList.end();++i,++iter)
+	for (int count=0;count< aSelectedItems.GetSize();count++)
 	{
-		PlayListItem *item=*iter;
-		item->SetIndex(i);
+		int nItem=aSelectedItems[count];
+		PlayListItem *itemInParent=GetItemInParent(GetPlayList()->GetItem(nItem));
+		
+		items.push_back(itemInParent->GetIndex());
 	}
 
-	//如果是正在播放的列表,定位至播放的音轨.
-	if(GetPlayList()==MyLib::shared()->GetPlayingPL() && curr)
-	{
-		GetPlayList()->SetPlayingIndex(curr->GetIndex());
-		Reload(GetPlayList(),false);
-	}
-	else
-	{
-		Invalidate();
-	}
+	if(aSelectedItems.GetSize()>0)
+		AllPlayListViews()->SelectItems(items);
 
+
+// 	NMLISTVIEW * pnml=(NMLISTVIEW *)pnmh;
+// 	int nItem=pnml->iItem;
+// 
+// 	PlayListItem *itemInSearch=GetPlayList()->GetItem(nItem);
+// 
+// 	PlayListItem *itemInParent=GetItemInParent(itemInSearch);
+// 	
+// 	ATLASSERT(itemInParent);
+// 
+// 	playlistParent->SetTopVisibleIndex(itemInParent->GetIndex());
+// 	playlistParent->SetSelectedIndex(itemInParent->GetIndex());
+	bHandled=FALSE;
+	return 0;
 }
 
 
@@ -1790,6 +1713,22 @@ LRESULT CPropertyDlgMediaLib::OnBtnDel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 
 	delete strPath;
 	return 0;
+}
+
+void CPropertyDlgMediaLib::InitList()
+{
+	m_list.DeleteAllItems();
+
+	MyLib * s=MyLib::shared();
+	for (auto i=s->mediaPaths.begin();i!=s->mediaPaths.end();++i)
+	{
+		std::tstring path=*i;
+		int count=m_list.GetItemCount();
+		m_list.InsertItem(count,path.c_str());
+		m_list.SetItemText(count,1,_T("正在监视"));
+		std::tstring *strPath=new std::tstring(path);
+		m_list.SetItemData(count,(DWORD)strPath);
+	}
 }
 
 BOOL CPropertyDlgNormal::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
@@ -2023,6 +1962,7 @@ void MYTREE_Set_SpectrumView(MYTREE* tree)
 	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
 	tree->setWnd(w->m_hWnd);
 }
+
 void MYTREE_Add_SpectrumView(MYTREE* tree)
 {
 	MYTREE *newTree=new MYTREE();
@@ -2123,33 +2063,6 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	return 1;
 }
 
-static map<TCHAR*,CreateWindowFun> createWndFuns;
-void RegisterCreateWndFuns(TCHAR* panename,CreateWindowFun func)
-{
-	createWndFuns.insert(map<TCHAR*,CreateWindowFun>::value_type(panename,func));
-
-	CreateWindowFun fun =createWndFuns.find(panename)->second;
-}
-
-void CreateHWNDbyName(MYTREE *tree)
-{
-	for (;tree;tree=tree->next)
-	{	
-		for (auto i=createWndFuns.begin();i!=createWndFuns.end();++i)
-		{
-			if (_tcscmp(i->first,tree->data.nodeName)==0)
-			{
-				CreateWindowFun fun=i->second;
-				fun(tree);
-				break;
-			}
-		}
-	
-		if (tree->hasChild())
-			CreateHWNDbyName(tree->child);
-	}
-
-}
 
 
 
@@ -2269,14 +2182,14 @@ void ValidateCfg()
 
 	MyLib* s= MyLib::shared();
 	PlayList *pl= s->Index2Playlist(c->playlistIndex);
-	
-	s->SetPlayingIndex(c->playlistIndex);
-	pl->SetPlayingIndex(c->trackIndex);
-
+	if(pl)
+	{	s->SetPlayingIndex(c->playlistIndex);
+		pl->SetPlayingIndex(c->trackIndex);
+	}
 	setTrackPosInfo(c->pos);
 
 	if(c->getResumeOnReboot() && c->pos.used!=-1)
-		::PostMessage(GetMainFrame()->m_hWnd,WM_COMMAND,MAKEWPARAM(ID_PLAY,0),(LPARAM)0);
+		SdMsg(WM_COMMAND,TRUE,MAKEWPARAM(ID_PLAY,0),(LPARAM)0);
 }
 
 
@@ -2316,3 +2229,112 @@ HWND CMyTrackBarBase::CreateIsWnd(HWND parent)
 
 	return m_hWnd;
 }
+
+
+HWND CreateTrackBand(HWND hWndParent)
+{
+	CMyTrackBar *pB=new CMyTrackBar;
+	pB->CreateIsWnd(hWndParent);
+	return pB->m_hWnd;
+}
+
+
+HWND CreateComboBand(HWND hWndParent)
+{
+	CMyComboBox *pB=new CMyComboBox;
+	pB->CreateIsWnd(hWndParent);
+	return pB->m_hWnd;
+}
+
+
+HWND CreateVolumeBand(HWND hWndParent)
+{
+	CMyStatusBar *pB=new CMyStatusBar;
+	pB->Create(hWndParent,NULL,NULL,WS_CHILD  | WS_VISIBLE |TBS_TOOLTIPS  |TBS_NOTICKS |TBS_AUTOTICKS  | TBS_BOTH ,0);
+	pB->Init();
+	return pB->m_hWnd;
+}
+
+
+#include "WuLines.h"
+DWORD CMyVolumeBar::OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW pNMCD)
+	{
+		LRESULT lr = CDRF_DODEFAULT;
+
+
+		//draw a triangle channel bar
+		if(pNMCD->dwItemSpec == TBCD_CHANNEL)
+		{
+			CDC dc;
+			dc.Attach(pNMCD->hdc);
+			
+			CRect r;
+			GetClientRect(r);
+			r.DeflateRect(8, 4, 10, 6);
+			CopyRect(&pNMCD->rc, &r);
+			
+			CPen shadow;
+				shadow.CreatePen(PS_SOLID, 1, GetSysColor(COLOR_3DSHADOW));
+			CPen light;
+				light.CreatePen(PS_SOLID, 1, GetSysColor(COLOR_3DHILIGHT));
+			CPen old= dc.SelectPen(light);
+
+			dc.MoveTo(pNMCD->rc.right, pNMCD->rc.top);
+			dc.LineTo(pNMCD->rc.right, pNMCD->rc.bottom);
+			dc.LineTo(pNMCD->rc.left, pNMCD->rc.bottom);
+			dc.SelectPen(shadow);
+			//dc.LineTo(pNMCD->rc.right, pNMCD->rc.top);
+
+			DrawWuLine(&dc,pNMCD->rc.left,pNMCD->rc.bottom,pNMCD->rc.right,pNMCD->rc.top,GetSysColor(COLOR_3DSHADOW));
+
+			dc.SelectPen(old);
+
+			dc.Detach();
+			
+			
+
+			/*
+			RECT rc=pNMCD->rc;
+			HDC  hdc=pNMCD->hdc;
+			DWORD clrLight=GetSysColor(COLOR_3DFACE);
+
+			TRIVERTEX vertex[3];
+			vertex[0].x=rc.left;
+			vertex[0].y=rc.bottom;
+			vertex[0].Red=GetRValue(clrLight);
+			vertex[0].Green=GetGValue(clrLight);
+			vertex[0].Blue=GetBValue(clrLight);
+			vertex[0].Alpha = 0x0000;
+
+			vertex[1].x=rc.right;
+			vertex[1].y=rc.top;
+			vertex[1].Alpha = 0x0000;
+			vertex[1].Red=GetRValue(clrLight);
+			vertex[1].Green=GetGValue(clrLight);
+			vertex[1].Blue=GetBValue(clrLight);
+
+
+			vertex[2].x=rc.right;
+			vertex[2].y=rc.bottom;
+			vertex[2].Red=GetRValue(clrLight);
+			vertex[2].Green=GetGValue(clrLight);
+			vertex[2].Blue=GetBValue(clrLight);
+			vertex[2].Alpha = 0x0000;
+
+			GRADIENT_TRIANGLE gTriangle;
+			gTriangle.Vertex1 = 0;
+			gTriangle.Vertex2 = 1;
+			gTriangle.Vertex3 = 2;
+			GradientFill(hdc, vertex, 3, &gTriangle, 1, GRADIENT_FILL_TRIANGLE);
+			*/
+
+
+
+			lr = CDRF_SKIPDEFAULT;
+		}
+
+
+		pNMCD->uItemState &= ~CDIS_FOCUS;
+
+		return lr;
+	}

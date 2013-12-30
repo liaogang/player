@@ -1,8 +1,11 @@
 
 #include "WTLTabViewCtrl.h"
 #include "globalStuffs.h"
-#include "WuLines.h"
 #include "BasicPlayer.h"
+
+#pragma once
+
+
 //-----------------------------------------
 //progress pos track bar
 class CMyTrackBarBase
@@ -12,13 +15,25 @@ public:
 	DECLARE_WND_SUPERCLASS(NULL,CTrackBarCtrl::GetWndClassName())
 
 	BEGIN_MSG_MAP_EX(CMyTrackBarBase)
+		MESSAGE_HANDLER(WM_GET_BAND_CLASSNAME,OnGetBandClassName)
 		MSG_WM_SETFOCUS(OnSetFocus)
 		MESSAGE_HANDLER(WM_ERASEBKGND,OnEraseBkgnd)
 		MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLButtonDown)
 	END_MSG_MAP()
 
 
+	void OnRButtonDown(UINT nFlags, CPoint point)
+	{
+		::SetCapture(::GetParent(m_hWnd));
+	}
+	
 
+
+	LRESULT OnGetBandClassName(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		_tcscpy((TCHAR*)wParam,_T("ComboBox"));
+		return 0;
+	}
 
 	bool m_bPressing;
 	LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -125,19 +140,16 @@ public:
 		REFLECTED_NOTIFY_CODE_HANDLER(NM_RELEASEDCAPTURE,OnMouseReleased)
 
 		CHAIN_MSG_MAP(CMyTrackBarBase)
-		CHAIN_MSG_MAP_ALT(CCustomDraw<CMyTrackBar>, 1)
+		ALT_MSG_MAP(1)
+		CHAIN_MSG_MAP_ALT(CCustomDraw<CMyTrackBar>,1)
 	END_MSG_MAP()
 
 	LRESULT OnMouseReleased(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/);
 
-
-
-
-
 	bool m_bPaused;
 	bool m_bStopped;
-
 	UINT m_uCurrTime;
+
 	void OnTimer(UINT_PTR /*nIDEvent*/)
 	{
 		if(!m_bPaused)
@@ -212,14 +224,16 @@ public:
 		int totalSec=getTrackPosInfo()->used+getTrackPosInfo()->left;
 
 		SetRange(0,totalSec);
-		SetPos((int)getTrackPosInfo()->left);
+		SetPos((int)getTrackPosInfo()->used);
 
+		m_uCurrTime=getTrackPosInfo()->used * 1000;
 
 		SetTimer((UINT_PTR)&m_nIDEvent,m_uElapse,NULL);
 
 		m_bPaused=false;
 		m_bStopped=false;
-		m_uCurrTime=0;
+
+		
 
 		return 0;
 	}
@@ -307,90 +321,10 @@ public:
 	{
 		return CDRF_NOTIFYITEMDRAW;
 	}
+	
 
-	DWORD OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW pNMCD)
-	{
-		LRESULT lr = CDRF_DODEFAULT;
-
-
-		//draw a triangle channel bar
-		if(pNMCD->dwItemSpec == TBCD_CHANNEL)
-		{
-			CDC dc;
-			dc.Attach(pNMCD->hdc);
-			
-			CRect r;
-			GetClientRect(r);
-			r.DeflateRect(8, 4, 10, 6);
-			CopyRect(&pNMCD->rc, &r);
-			
-			CPen shadow;
-				shadow.CreatePen(PS_SOLID, 1, GetSysColor(COLOR_3DSHADOW));
-			CPen light;
-				light.CreatePen(PS_SOLID, 1, GetSysColor(COLOR_3DHILIGHT));
-			CPen old= dc.SelectPen(light);
-
-			dc.MoveTo(pNMCD->rc.right, pNMCD->rc.top);
-			dc.LineTo(pNMCD->rc.right, pNMCD->rc.bottom);
-			dc.LineTo(pNMCD->rc.left, pNMCD->rc.bottom);
-			dc.SelectPen(shadow);
-			//dc.LineTo(pNMCD->rc.right, pNMCD->rc.top);
-
-			DrawWuLine(&dc,pNMCD->rc.left,pNMCD->rc.bottom,pNMCD->rc.right,pNMCD->rc.top,GetSysColor(COLOR_3DSHADOW));
-
-			dc.SelectPen(old);
-
-			dc.Detach();
-			
-			
-
-			/*
-			RECT rc=pNMCD->rc;
-			HDC  hdc=pNMCD->hdc;
-			DWORD clrLight=GetSysColor(COLOR_3DFACE);
-
-			TRIVERTEX vertex[3];
-			vertex[0].x=rc.left;
-			vertex[0].y=rc.bottom;
-			vertex[0].Red=GetRValue(clrLight);
-			vertex[0].Green=GetGValue(clrLight);
-			vertex[0].Blue=GetBValue(clrLight);
-			vertex[0].Alpha = 0x0000;
-
-			vertex[1].x=rc.right;
-			vertex[1].y=rc.top;
-			vertex[1].Alpha = 0x0000;
-			vertex[1].Red=GetRValue(clrLight);
-			vertex[1].Green=GetGValue(clrLight);
-			vertex[1].Blue=GetBValue(clrLight);
-
-
-			vertex[2].x=rc.right;
-			vertex[2].y=rc.bottom;
-			vertex[2].Red=GetRValue(clrLight);
-			vertex[2].Green=GetGValue(clrLight);
-			vertex[2].Blue=GetBValue(clrLight);
-			vertex[2].Alpha = 0x0000;
-
-			GRADIENT_TRIANGLE gTriangle;
-			gTriangle.Vertex1 = 0;
-			gTriangle.Vertex2 = 1;
-			gTriangle.Vertex3 = 2;
-			GradientFill(hdc, vertex, 3, &gTriangle, 1, GRADIENT_FILL_TRIANGLE);
-			*/
-
-
-
-			lr = CDRF_SKIPDEFAULT;
-		}
-
-
-		pNMCD->uItemState &= ~CDIS_FOCUS;
-
-		return lr;
-	}
-
-
+	DWORD OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW pNMCD);
+	
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
 		SetPageSize(1);
@@ -456,6 +390,7 @@ public:
 
 class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 {
+public:
 	DECLARE_WND_SUPERCLASS(NULL,CStatusBarCtrl::GetWndClassName())
 
 	BEGIN_MSG_MAP_EX(CMyStatusBar)
@@ -466,6 +401,7 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 // 		MESSAGE_HANDLER(WM_PAUSED,OnPaused)
 // 		MESSAGE_HANDLER(WM_PAUSE_START,OnResume)
 // 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnStopped)
+		MESSAGE_HANDLER(WM_GET_BAND_CLASSNAME,OnGetBandClassName)
 		MESSAGE_HANDLER(WM_USER_TIMER,OnTimer)
 	END_MSG_MAP()
 
@@ -497,7 +433,11 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 
 	void UpdateTrackInfoText();
 
-	
+	LRESULT OnGetBandClassName(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		_tcscpy((TCHAR*)wParam,_T("ComboBox"));
+		return 0;
+	}
 
 	LRESULT OnPlay(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
@@ -546,19 +486,49 @@ class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
 };
 
 
+class CMyToolBar:public CWindowImpl<CMyToolBar,CToolBarCtrl>
+{
+public:
+	BEGIN_MSG_MAP_EX(CMyToolBar)
+		MSG_WM_RBUTTONDOWN(OnRButtonDown)
+	END_MSG_MAP()
+
+public:
+
+	void OnRButtonDown(UINT nFlags, CPoint point)
+	{
+		::SetCapture(::GetParent(m_hWnd));
+	}
+};
 
 class CMyComboBox:public CWindowImpl<CMyComboBox,CComboBox>
 {
 public:
 	DECLARE_WND_SUPERCLASS(_T("MyComboBox"),CComboBox::GetWndClassName())
 
-	BEGIN_MSG_MAP(CMyComboBox)
+	BEGIN_MSG_MAP_EX(CMyComboBox)
+		MSG_WM_RBUTTONDOWN(OnRButtonDown)
 		MSG_WM_SETFOCUS(OnSetFocus)
+		MESSAGE_HANDLER(WM_GET_BAND_CLASSNAME,OnGetBandClassName)
 		REFLECTED_COMMAND_CODE_HANDLER_EX(CBN_CLOSEUP,OnCloseUp)
 		REFLECTED_COMMAND_CODE_HANDLER_EX(CBN_SELCHANGE,OnCbnSelchanged)
 	END_MSG_MAP()
 
 public:
+	
+	void OnRButtonDown(UINT nFlags, CPoint point)
+	{
+
+		::SetCapture(::GetParent(m_hWnd));
+
+	}
+
+	LRESULT OnGetBandClassName(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		_tcscpy((TCHAR*)wParam,_T("ComboBox"));
+		return 0;
+	}
+
 	LRESULT OnCbnSelchanged(UINT,int id, HWND hWndCtl);
 	HWND CreateIsWnd(HWND parent);
 
@@ -579,94 +549,8 @@ public:
 	}
 };
 
-class CMySimpleRebar:public CWindowImpl<CMySimpleRebar,CReBarCtrl>
-{   
-public:
-	typedef CWindowImpl<CMySimpleRebar,CReBarCtrl> thebase;
-	DECLARE_WND_SUPERCLASS(NULL,CReBarCtrl::GetWndClassName())
-
-	BEGIN_MSG_MAP_EX(CMySimpleRebar)
-		//MESSAGE_HANDLER(WM_NOTIFY,OnNotify)
-		MESSAGE_HANDLER(WM_CTLCOLORSTATIC,OnCtrlColorStatic)
-		MESSAGE_HANDLER(WM_HSCROLL,OnHscroll)//Reflect Scroll Message
-		
-		REFLECT_NOTIFICATIONS()
-	END_MSG_MAP()
-
-	LRESULT ReflectNotifications(
-		_In_ UINT uMsg,
-		_In_ WPARAM wParam,
-		_In_ LPARAM lParam,
-		_Inout_ BOOL& bHandled)
-	{
-		//filter the Wm_CtrlColorStatic message , because the combobox will not display fine.
-		if(uMsg == WM_CTLCOLORLISTBOX)
-		{
-			bHandled=TRUE;
-			return ::DefWindowProc(m_hWnd,uMsg,wParam,lParam);
-		}
-		else
-			return thebase::ReflectNotifications(uMsg,wParam,lParam,bHandled);
-	}
 
 
-	LRESULT OnHscroll(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-	{
-		::SendMessage((HWND)lParam,WM_HSCROLL,wParam,NULL);
-		bHandled=FALSE;
-		return 0;
-	}
-
-
-	LRESULT OnNotify(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-
-
-
-	CMyTrackBar *pTrack;
-	CMyVolumeBar *pVolume;
-	LRESULT OnCtrlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-	{
-		LRESULT lResult=FALSE;
-		HDC dc=(HDC)wParam;
-		HWND wnd=(HWND)lParam;
-
-		if (wnd==pVolume->m_hWnd 
-			||wnd==pTrack->m_hWnd 
-			)
-		{
-			//!m_hWnd ,¸¸¿Ø¼þ,Rebar
-			//!wnd    ,×Ó¿Ø¼þ,trackBar
-
-			RECT rc;
-			::GetWindowRect(m_hWnd,&rc);
-
-			HDC dcMem;
-			dcMem= ::CreateCompatibleDC(dc);
-			HBITMAP bmp,oldBmp;
-			bmp=::CreateCompatibleBitmap(dc,rc.right-rc.left,rc.bottom-rc.top);
-			oldBmp=(HBITMAP)::SelectObject(dcMem,bmp);
-
-			POINT pt={0,0};
-			::MapWindowPoints(wnd,m_hWnd,&pt,1);
-			::OffsetWindowOrgEx(dcMem,pt.x,pt.y,&pt);
-			::SendMessage(m_hWnd,WM_ERASEBKGND, (WPARAM)dcMem, 0L);
-			::SetWindowOrgEx(dcMem,pt.x,pt.y,NULL);
-			::DeleteDC(dcMem);
-
-			static HBRUSH hBrush=0;
-			if (hBrush)
-				::DeleteObject((HGDIOBJ)hBrush);
-
-			hBrush = ::CreatePatternBrush(bmp);
-			::DeleteObject(bmp);
-
-			lResult=(LRESULT)hBrush;
-		}
-
-		return lResult;
-	}
-
-};	
 
 
 
@@ -775,6 +659,7 @@ BEGIN_MSG_MAP(CMyEdit)
 //MSG_WM_KEYDOWN(OnKeyDown)
 //MSG_WM_SYSKEYDOWN(OnChar)
 //MSG_WM_CHAR(OnChar)
+ALT_MSG_MAP(1)
 CHAIN_MSG_MAP_ALT(CEditCommands<CMyEdit>, 1)
 END_MSG_MAP()
 
@@ -783,8 +668,31 @@ DialogSearch *m_pDlgSearch;
 void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 };
 */
+class CMyCommandBarCtrl : public CCommandBarCtrlImpl<CMyCommandBarCtrl>
+{
+	typedef CCommandBarCtrlImpl<CMyCommandBarCtrl> theBase;
+public:
+	DECLARE_WND_SUPERCLASS(_T("WTL_CommandBar"), GetWndClassName())
+	
+	BEGIN_MSG_MAP(CMyCommandBarCtrl)
+		MESSAGE_HANDLER(WM_RBUTTONDOWN,OnRButtonDown)
+		CHAIN_MSG_MAP(theBase)
+		ALT_MSG_MAP(1)
+		CHAIN_MSG_MAP_ALT(theBase, 1)
+		ALT_MSG_MAP(2)
+		CHAIN_MSG_MAP_ALT(theBase, 2)
+		ALT_MSG_MAP(3)
+		CHAIN_MSG_MAP_ALT(theBase, 3)
+	END_MSG_MAP()
 
 
+	LRESULT OnRButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		::SetCapture(::GetParent(m_hWnd));
+		return TRUE;
+	}
+
+};
 
 class CMySplitterWindow:
 	public CSplitterWindowImpl<CSplitterWindowT<true>, true>
@@ -797,3 +705,5 @@ public:
 		CHAIN_MSG_MAP(_baseClass1)
 	END_MSG_MAP()
 };
+
+

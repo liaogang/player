@@ -5,6 +5,7 @@ class MyConfigs:public SerializeObj
 {
 public:
 	MyConfigs():bResumeOnReboot(1),playersVolume(100),playorder(0)
+		,playlistIndex(-1),trackIndex(-1)
 	{
 
 	}
