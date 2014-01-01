@@ -162,7 +162,7 @@ public:
 		  return item;
 	  }
 
-	   bool operator==(const PlayListItem &other);
+	  bool operator==(const PlayListItem &other);
 
 
 	  inline PlayList * GetPlayList(){return this->pPL;}

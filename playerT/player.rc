@@ -550,8 +550,7 @@ BEGIN
         END
         POPUP "更换分离器类型"
         BEGIN
-            MENUITEM "水平分离器\t| ",                   ID_CHANGE_SPLIT_LR
-            MENUITEM "垂直分离器\t—",                    ID_CHANGE_SPLIT_UD
+            MENUITEM "X",                           ID_PANE_LYRIC
         END
         MENUITEM SEPARATOR
         MENUITEM "上移\t↑",                       ID_MOVE_UP
@@ -565,6 +564,14 @@ BEGIN
         MENUITEM "下移",                          ID_MOVE_DOWN
         MENUITEM SEPARATOR
         MENUITEM "删除面板",                        ID_DEL_PANE
+    END
+    POPUP "Other"
+    BEGIN
+        MENUITEM "水平分离器\t| ",                   ID_CHANGE_SPLIT_LR
+    END
+    POPUP "Other"
+    BEGIN
+        MENUITEM "垂直分离器\t—",                    ID_CHANGE_SPLIT_UD
     END
 END
 

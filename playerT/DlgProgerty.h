@@ -21,26 +21,26 @@ public:
 
 /*
 class CPropertyDlg:
-	public CDlgConfig,
-	public CDialogImpl<CPropertyDlg>,
-	public CWinDataExchange<CPropertyDlg>	
+public CDlgConfig,
+public CDialogImpl<CPropertyDlg>,
+public CWinDataExchange<CPropertyDlg>	
 {
 public:
-	enum { IDD = IDD_DLG_EMPTY };
+enum { IDD = IDD_DLG_EMPTY };
 
-	BEGIN_MSG_MAP(CPropertyDlg)
-	END_MSG_MAP()
+BEGIN_MSG_MAP(CPropertyDlg)
+END_MSG_MAP()
 };
 
 class CPropertyDlg1:
-	public CDlgConfig,
-	public CDialogImpl<CPropertyDlg1>,
-	public CWinDataExchange<CPropertyDlg1>
+public CDlgConfig,
+public CDialogImpl<CPropertyDlg1>,
+public CWinDataExchange<CPropertyDlg1>
 {
 public:
-	enum { IDD = IDD_DLG_CFG_1 };
-	BEGIN_MSG_MAP(CPropertyDlg1)
-	END_MSG_MAP()
+enum { IDD = IDD_DLG_CFG_1 };
+BEGIN_MSG_MAP(CPropertyDlg1)
+END_MSG_MAP()
 
 
 };
@@ -105,7 +105,7 @@ public:
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 	{
 		DoDataExchange();
-	
+
 		m_list.SetExtendedListViewStyle(m_list.GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT);
 
 		m_list.InsertColumn(0,_T("路径"),LVCFMT_LEFT,220);
@@ -188,7 +188,7 @@ public:
 	END_MSG_MAP()
 	BOOL OnInitDialog(CWindow wndFocus, LPARAM lInitParam);
 	LRESULT OnButtonResumeOnBoot(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-	
+
 };
 
 
@@ -200,7 +200,7 @@ public:
 	HWND child;	
 public:
 	DECLARE_WND_CLASS_EX(NULL,CS_DBLCLKS,NULL)
-		
+
 	BEGIN_MSG_MAP_EX(CPlaceHolderWnd)
 		MSG_WM_NCPAINT(OnNcPaint)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
@@ -208,7 +208,7 @@ public:
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
-	
+
 	void OnNcPaint(CRgnHandle rgn)
 	{
 		RECT r;
@@ -222,10 +222,10 @@ public:
 		else
 			hdc = ::GetDCEx(m_hWnd,(HRGN)rgn.m_hRgn, DCX_WINDOW|DCX_INTERSECTRGN);
 
-// 		r.bottom+=r.top;
-// 		r.right+=r.left;
-// 		r.top=0;
-// 		r.left=0;
+		// 		r.bottom+=r.top;
+		// 		r.right+=r.left;
+		// 		r.top=0;
+		// 		r.left=0;
 
 		// Paint into this DC
 		DrawEdge(hdc,&r, EDGE_SUNKEN, BF_RECT | BF_ADJUST);
@@ -238,7 +238,7 @@ public:
 	{
 		RECT rect;
 		GetClientRect(&rect);
-		
+
 		//::SetWindowPos(child,NULL, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,SWP_NOZORDER | SWP_NOACTIVATE);
 
 		bHandled=FALSE;
@@ -363,6 +363,8 @@ public:
 		COMMAND_ID_HANDLER(ID_CHANGE_SPLIT_UD,OnChangeUpdown)
 		COMMAND_ID_HANDLER(ID_CHANGE_SPLIT_LR,OnChangeLeftRight)
 
+		COMMAND_ID_HANDLER(ID_MOVE_UP,OnMoveUp)
+		COMMAND_ID_HANDLER(ID_MOVE_DOWN,OnMoveDown)
 
 	END_MSG_MAP()
 
@@ -423,6 +425,7 @@ public:
 
 		return 0;
 	}
+
 	LRESULT OnAddPaneAlbum(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		MYTREE *mytree=(MYTREE*)GetItemData(rclickItem);
@@ -446,11 +449,10 @@ public:
 		MYTREE *mytree=(MYTREE*)GetItemData(rclickItem);
 		MYTREE_Add_EmptyWnd(mytree);
 		UpdateTree(mytree);
-		
+
 
 		return 0;
 	}
-
 
 	LRESULT OnChangeLeftRight(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
@@ -481,6 +483,26 @@ public:
 		return 0;
 	}
 
+	LRESULT OnMoveUp(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		MYTREE *mytree=(MYTREE*)GetItemData(rclickItem);
+
+		MYTREE::MoveUpDown(mytree,TRUE);
+
+		return 0;
+	}
+
+	LRESULT OnMoveDown(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		MYTREE *mytree=(MYTREE*)GetItemData(rclickItem);
+
+		MYTREE::MoveUpDown(mytree,FALSE);
+
+		return 0;
+	}
+
+
+
 	LRESULT OnDelPane(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		MYTREE *mytree=(MYTREE*)GetItemData(rclickItem);
@@ -489,10 +511,10 @@ public:
 
 		parent->EvenPanes();
 		UpdateTree(parent);
-		
+
 		UpdateLayout(parent);
 		GetSplitter()->Invalidate();
-		
+
 		return 0;
 	}
 
@@ -510,15 +532,45 @@ public:
 		if(rclickItem )
 		{
 			MYTREE* mytree=(MYTREE*)GetItemData(rclickItem);
-			if(mytree->data.hWnd==0)//is split pane
-			{
-				//是根的话,禁用删除
-				UINT flag= (mytree->isroot()?MF_DISABLED|MF_GRAYED:MF_ENABLED);
-				::EnableMenuItem(splitMenu,ID_DEL_PANE,MF_BYCOMMAND |flag);	
-				::TrackPopupMenu(splitMenu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
-			}
-			else
-				::TrackPopupMenu(paneMenu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
+
+			BOOL bSplit = mytree->data.hWnd==0;
+
+			//is split pane?
+			HMENU menu=bSplit ? splitMenu :paneMenu ;
+
+			//是根的话,禁用删除
+			UINT flag= (mytree->isroot()?MF_DISABLED|MF_GRAYED:MF_ENABLED);
+			::EnableMenuItem(menu,ID_DEL_PANE,MF_BYCOMMAND |flag);	
+
+			// if root disable? disable
+			//if first sibling? disable
+			flag=(mytree->isroot() || mytree->getFirstSibling() == mytree )?MF_DISABLED|MF_GRAYED:MF_ENABLED;
+
+			::EnableMenuItem(menu,ID_MOVE_UP,MF_BYCOMMAND |flag);	
+
+			//if last sibling? disable
+			flag=(mytree->isroot() || mytree->getLastSibling() == mytree )?MF_DISABLED|MF_GRAYED:MF_ENABLED;
+			::EnableMenuItem(menu,ID_MOVE_DOWN,MF_BYCOMMAND |flag);	
+
+			BOOL bLR= mytree->data.type==left_right;
+
+			TCHAR strText[]=_T("水平分离器\t|");
+			TCHAR strText2[]=_T("垂直分离器\t—");
+			
+			MENUITEMINFO mi;
+			mi.cbSize=sizeof(mi);
+			mi.fMask=MIIM_ID|MIIM_STRING;
+			mi.fState=MFS_ENABLED;
+			mi.wID=bLR?ID_CHANGE_SPLIT_UD:ID_CHANGE_SPLIT_LR;
+			mi.dwTypeData=bLR?strText2:strText;
+			mi.cch=sizeof(bLR?strText2:strText)/sizeof(TCHAR);
+
+			HMENU menu3=GetSubMenu(menu,1);
+			RemoveMenu(menu3,0,MF_BYPOSITION);
+			InsertMenuItem(menu3,0,TRUE,&mi);
+
+
+			::TrackPopupMenu(menu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
 		}
 
 		return 1;
@@ -560,13 +612,13 @@ public:
 	LRESULT OnLockSplitter(WORD wNotifyCode, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		//pre status
- 		int bLocked=::SendMessage(m_hWnd, BM_GETCHECK, 0, 0);
+		int bLocked=::SendMessage(m_hWnd, BM_GETCHECK, 0, 0);
 		//cur status
 		bLocked=!bLocked;
 
 
 		if (bLocked)
- 			WalkOverTree(MyRoot,SetLockedTrue);
+			WalkOverTree(MyRoot,SetLockedTrue);
 		else
 			WalkOverTree(MyRoot,SetLockedFalse);
 
@@ -574,7 +626,7 @@ public:
 		return 0;
 	}
 
-	
+
 	void TraverseSplitTreeAndShowInTreeView(MYTREE *cur,HTREEITEM item)
 	{
 		tree.TraverseSplitTreeAndShowInTreeView(cur,item);

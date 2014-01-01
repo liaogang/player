@@ -134,6 +134,26 @@ public:
 
 	virtual int SerializeB(FILE *pFile);
 	virtual int ReSerialize(FILE *pFile);
+	
+	//赋值构造
+	dataNode ( dataNode & b)
+	{
+		*this=b;
+	}
+
+	dataNode& operator=(const dataNode &b)
+	{
+		_tcscpy(nodeName,b.nodeName);
+		rc=b.rc;
+		type=b.type;
+		m_iSplitterBar=b.m_iSplitterBar;//把手的长度或宽度
+		SplitterBarRects=b.SplitterBarRects;//把手区域列表
+		sz=b.sz;
+		proporSize=b.proporSize;
+		hWnd=b.hWnd;	
+		treeItem=b.treeItem;		
+		return *this;
+	}
 
 public:
 	//serialize object
@@ -342,6 +362,12 @@ public:
 		return child->isleaf();
 	}
 
+	MYTREE *GetChild()
+	{
+		ATLASSERT(hasChild());
+		return child;
+	}
+
 	MYTREE *getFirstSibling()
 	{
 		if (isroot())
@@ -361,12 +387,6 @@ public:
 
 	int getSiblingNumber()
 	{
-		// 		int i=0;
-		// 		for (auto *after=getFirstSibling();after;after=after->next)
-		// 			++i;
-		// 
-		// 		return i;
-
 		return isroot()? 1 : parent->childs;
 	}
 
@@ -388,6 +408,34 @@ public:
 		data.hWnd=hWnd;
 	}
 
+	static void swap_slibing(MYTREE *a,MYTREE *b)
+	{
+		ATLASSERT(a->parent==b->parent);
+		ATLASSERT(a->next==b || a->prev==b);
+
+		dataNode temp=a->data;
+		RECT rectB=b->getRect();
+
+		//swap
+		a->data=b->data;
+		b->data=temp;
+
+		//rect retain
+		a->setRect(temp.getRect());
+		b->setRect(rectB);
+	}
+
+	static	void MoveUpDown(MYTREE *node,BOOL bUp)
+	{
+		ATLASSERT(!node->isroot());
+		ATLASSERT(bUp ? node->getFirstSibling()!=node : node->getLastSibling()!=node);
+
+		if(bUp)
+			swap_slibing(node,node->prev);
+		else
+			swap_slibing(node,node->next);
+	}
+
 	//添加子结点到最后
 	void AddChild(MYTREE *node)
 	{
@@ -398,11 +446,12 @@ public:
 
 		MYTREE* last=child;
 		if(child)
-		{while(last->next)
-		last=last->next;
+		{
+			while(last->next)
+				last=last->next;
 
-		last->next=node;
-		node->prev=last;
+			last->next=node;
+			node->prev=last;
 		}
 		else
 			child=node;
@@ -412,7 +461,7 @@ public:
 
 	//添加子结点,在mark之后.mark=TVI_FIRST,添加为第一个子结点
 	//返回被添加的结点
-#define MY_TVI_FIRST (MYTREE*)0
+#define MY_TVI_FIRST (MYTREE*)0  
 	MYTREE* addChildNodeAfter(MYTREE *newAdd,MYTREE *mark=MY_TVI_FIRST)
 	{
 		ATLASSERT(mark?mark->parent==this:1 && newAdd->parent==newAdd);

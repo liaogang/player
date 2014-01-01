@@ -1686,8 +1686,9 @@ void MYTREE_Add_Playlist(MYTREE* tree)
 	wcscpy(newTree->data.nodeName,L"播放列表");
 
 	tree->addChildNodeAfter(newTree);
+
 	tree->EvenPanes();
-	//PaneSizeStore(newTree->parent);
+	
 	UpdateLayout(newTree->parent);
 }
 
@@ -1716,10 +1717,12 @@ void MYTREE_Add_AlbumView(MYTREE* tree)
 	wcscpy(newTree->data.nodeName,L"封面面板");
 
 	tree->addChildNodeAfter(newTree);
+
 	tree->EvenPanes();
-	//PaneSizeStore(newTree);
+	
 	UpdateLayout(newTree->parent);
 }
+
 void MYTREE_Set_LyricView(MYTREE* tree)
 {
 	CWndLyric *w=new CWndLyric;
@@ -1731,10 +1734,13 @@ void MYTREE_Add_LyricView(MYTREE* tree)
 {
 	MYTREE *newTree=new MYTREE();
 	MYTREE_Set_LyricView(newTree);
+
 	wcscpy(newTree->data.nodeName,L"歌词面板");
 
 	tree->addChildNodeAfter(newTree);
+
 	tree->EvenPanes();
+
 	UpdateLayout(tree);
 }
 
@@ -1751,9 +1757,14 @@ void MYTREE_Add_SpectrumView(MYTREE* tree)
 {
 	MYTREE *newTree=new MYTREE();
 	MYTREE_Set_SpectrumView(newTree);
+
 	wcscpy(newTree->data.nodeName,L"频谱面板");
+
 	tree->addChildNodeAfter(newTree);
+
 	tree->EvenPanes();
+
+	UpdateLayout(tree);
 }
 
 void CMyStatusBar::UpdateTrackInfoText()

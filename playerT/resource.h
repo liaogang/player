@@ -276,13 +276,22 @@
 #define ID_REBAR_TRACK                  32966
 #define ID_REBAR_PLAYORDER              32967
 #define ID_REBAR_RESET                  32968
+#define ID_MULTISPLITEDITMODE_32969     32969
+#define ID_CHANGE_SPLIT                 32970
+#define ID_32971                        32971
+#define ID_CHANGE_SPLIT_LOR             32972
+#define ID_CHANGE_SPLIT_X               32973
+#define ID_MULTISPLITEDITMODE_32974     32974
+#define ID_32975                        32975
+#define ID_OTHER_SDF                    32976
+#define ID_OTHER_32978                  32978
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        246
-#define _APS_NEXT_COMMAND_VALUE         32969
+#define _APS_NEXT_COMMAND_VALUE         32980
 #define _APS_NEXT_CONTROL_VALUE         1042
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
