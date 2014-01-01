@@ -67,12 +67,14 @@ MyLib::~MyLib()
 
 BOOL MyLib::play(PlayListItem *item)
 {	
-	if(item->isValide() && item->IsFileExist())
+	if( item->isValide())
 	{
 		PlayList *pl=item->GetPlayList();
 		SetPlayingIndex(pl);
 		pl->SetPlayingIndex(item->GetIndex());
-		return play(item->GetFileTrack());
+
+		if(item->IsFileExist())
+			return play(item->GetFileTrack());
 	}
 	return FALSE;
 }
@@ -122,10 +124,10 @@ void MyLib::playNext(BOOL scanID3)
 
 	PlayList *pPl=currItem->GetPlayList();
 
-		if(IsValidePlayList(pPl))
-			nextItem=pPl->GetNextTrackByOrder();
-		else
-			return;
+	if(IsValidePlayList(pPl))
+		nextItem=pPl->GetNextTrackByOrder();
+	else
+		return;
 	
 	if(nextItem)
 		play(nextItem);

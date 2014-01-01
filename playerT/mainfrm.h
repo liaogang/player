@@ -140,7 +140,7 @@ public:
 		MESSAGE_HANDLER(WM_DRAWSPECTRUM,OnDrawSpectrum)
 		MESSAGE_HANDLER(WM_HOTKEY,OnHotKey)
 
-		//user message
+		//message from message center
 		MESSAGE_HANDLER(WM_FILE_FINDED,OnFileFinded)
 		MESSAGE_HANDLER(WM_ADDFOLDERED,OnAddFolder)
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
@@ -148,7 +148,9 @@ public:
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
 		MESSAGE_HANDLER(WM_PL_CHANGED,OnPLChanged)
 		MESSAGE_HANDLER(WM_PL_TRACKNUM_CHANGED,OnPLTrackNumChanged)
-		//user message
+		//message from message center
+
+		MESSAGE_HANDLER(WM_PLAYLISTVIEW_CENTER_ITEM,OnPLVCenterItem)
 
 		MSG_WM_TIMER(OnTimer)
 
@@ -216,7 +218,7 @@ public:
 	LRESULT OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnPLChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnPLTrackNumChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
-	
+	LRESULT OnPLVCenterItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnPaused(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);

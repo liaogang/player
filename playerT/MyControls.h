@@ -117,7 +117,6 @@ public:
 	
 	CMyTrackBar()
 	{
-
 	}
 public:
 	DECLARE_WND_SUPERCLASS(NULL,CMyTrackBarBase::GetWndClassName())
@@ -140,9 +139,11 @@ public:
 		REFLECTED_NOTIFY_CODE_HANDLER(NM_RELEASEDCAPTURE,OnMouseReleased)
 
 		CHAIN_MSG_MAP(CMyTrackBarBase)
-		ALT_MSG_MAP(1)
-		CHAIN_MSG_MAP_ALT(CCustomDraw<CMyTrackBar>,1)
-	END_MSG_MAP()
+
+
+		//ALT_MSG_MAP(1) ,,//the reflect msg has problem ,
+		CHAIN_MSG_MAP_ALT(CCustomDraw<CMyTrackBar>,1)	
+		END_MSG_MAP()
 
 	LRESULT OnMouseReleased(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/);
 
@@ -152,7 +153,7 @@ public:
 
 	void OnTimer(UINT_PTR /*nIDEvent*/)
 	{
-		if(!m_bPaused)
+		if(!m_bPaused || !m_bStopped)
 		{
 			m_uCurrTime+=m_uElapse;
 		
@@ -314,6 +315,7 @@ public:
 		MESSAGE_HANDLER(TB_BUTTONCOUNT,TBB)
 		MESSAGE_HANDLER(TB_GETITEMRECT,OnGetItemRect)
 		CHAIN_MSG_MAP( CMyTrackBarBase)
+
 		CHAIN_MSG_MAP_ALT(CCustomDraw<CMyVolumeBar>, 1)
 	END_MSG_MAP()
 
@@ -407,14 +409,9 @@ public:
 
 	//Ë«»÷×´Ì¬À¸,¼¤»îµ±Ç°²¥·ÅÒô¹ì
 	void OnLButtonDblClk(UINT nFlags, CPoint point);
-#ifdef _DEBUG
-	int bInit;
-#endif
+
 	void Init()
 	{
-#ifdef _DEBUG
-		bInit=1;
-#endif
 
 // 		RECT rc;
 // 		GetClientRect(&rc);

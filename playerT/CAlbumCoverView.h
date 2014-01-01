@@ -44,7 +44,14 @@ public:
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnStopped)
 		MSG_WM_ERASEBKGND(OnEraseBkgnd)
+		MSG_WM_LBUTTONDBLCLK(OnLButtonDblClk)
 	END_MSG_MAP()
+	
+	void OnLButtonDblClk(UINT nFlags, CPoint point)
+	{
+		::PostMessage(GetMainFrame()->m_hWnd,WM_PLAYLISTVIEW_CENTER_ITEM,NULL,NULL);
+	}
+
 
 	HWND CreateMyWnd();
 
@@ -78,7 +85,7 @@ public:
 	{
 		const TCHAR szFilter[]=_T("BMPÍ¼ÏñÎÄ¼þ(*.bmp)\0*.bmp\0");
 		const TCHAR szDefaultExt[]=_T("bmp");
-		
+
 		CFileDialog dlg(FALSE,szDefaultExt,NULL,OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
 		if(dlg.DoModal()==IDOK)
 		{
@@ -87,7 +94,7 @@ public:
 
 		return 0;
 	}
-	
+
 	void OnRButtonUp(UINT nFlags, CPoint point)
 	{
 		::ClientToScreen(m_hWnd,&point);
@@ -102,12 +109,12 @@ public:
 	void TrackChanged()
 	{
 		bHasPic=FALSE;
-		
+
 		if (MyLib::shared()->isPlaying())
 		{
 			track=MyLib::shared()->GetPlayingPL()->GetPlayingItem()->GetFileTrack();
 			if (track->img)
-			   bHasPic=TRUE;
+				bHasPic=TRUE;
 		}
 
 		Invalidate();
@@ -127,7 +134,7 @@ public:
 		Invalidate(TRUE);
 		return 0;
 	}
-	
+
 
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
@@ -142,11 +149,11 @@ public:
 
 			int iw=track->img->GetWidth();
 			int ih=track->img->GetHeight();
-			
+
 			track->img->Draw(ps.hdc,WIDTH(rc)/2-iw/2,HEIGHT(rc)/2-ih/2,iw,ih,0,0,iw,ih);
 
 
-			
+
 
 
 			rc.bottom+=1;
@@ -184,7 +191,7 @@ public:
 		//	::SelectObject(ps.hdc,oldPen);
 		//}
 
-		
+
 
 		::EndPaint(m_hWnd,&ps);	
 
@@ -216,7 +223,7 @@ public:
 
 	virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
 	{
-		
+
 
 		delete this;
 	}

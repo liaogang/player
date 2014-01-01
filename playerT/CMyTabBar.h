@@ -160,3 +160,72 @@ public:
 	class CMainFrame* pMain;
 	BOOL AddPlaylistTab(PlayList* ppl,BOOL inActiveFlag = TRUE, int inImage = -1);
 };
+
+
+
+BOOL CMyTabBar::AddPlaylistTab(PlayList* ppl,BOOL inActiveFlag , int inImage )
+{
+	//int nNewTab=AddTab(ppl->m_playlistName.c_str(),pMain->m_pPlaylistView->m_hWnd,inActiveFlag,inImage,(LPARAM)ppl);
+
+	// 	pMain->m_pPlaylistView->Reload(ppl);
+	// 	MyLib::shared()->SetSelPlaylist(ppl);
+
+	return 0;
+}
+
+LRESULT CMyTabBar::OnPlDel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	PlayList* pl= GetTabPlayList(RtBtnTab);
+
+	RemoveTab(RtBtnTab);
+	//pMain->m_pPlaylistView->Reload(GetTabPlayList(GetCurSel()));
+
+	MyLib::shared()->DeletePlayList(pl);
+
+	return 0;
+}
+LRESULT CMyTabBar::OnPlRename(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	PlayList* pl= GetTabPlayList(RtBtnTab);
+
+	// 	CFileDialog 
+	// 	{
+	// 		pl->Rename();
+	// 	}
+
+	return 0;
+}
+LRESULT CMyTabBar::OnPlSave(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	PlayList* pl= GetTabPlayList(RtBtnTab);
+	if(pl)
+	{
+		const TCHAR szFilter[]=_T("playlist files(*.pl)\0*.pl\0");
+		const TCHAR szDefaultExt[]=_T("pl");
+		CFileDialog dlg(FALSE,szDefaultExt,NULL,OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
+		if(dlg.DoModal()==IDOK)
+			MyLib::SavePlaylist(pl,dlg.m_ofn.lpstrFile);
+	}
+
+	return 0;
+}
+
+LRESULT CMyTabBar::OnPlOpenFolder(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	PlayList* pl= GetTabPlayList(RtBtnTab);
+	if(pl)
+	{
+		// 		std::tstring parameters(_T("/select,"));
+		// 		parameters+=pl->m_saveLocation;
+		// 
+		// 		ShellExecute(NULL,
+		// 			_T("open"),
+		// 			_T("explorer"),
+		// 			parameters.c_str(),
+		// 			0,
+		// 			SW_SHOWNORMAL
+		// 			);
+	}
+
+	return 0;
+}

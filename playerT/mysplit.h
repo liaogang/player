@@ -18,8 +18,7 @@ class CPlaceHolderWnd;
 
 
 //CSplitterWindow;
-static HCURSOR m_hCursorLeftRight=NULL;
-static HCURSOR m_hCursorUpDown=NULL;
+
 
 class CMultiSpliltWnd:
 	public ATL::CWindowImpl< CMultiSpliltWnd>
@@ -27,7 +26,7 @@ class CMultiSpliltWnd:
 public:
 	MYTREE *rootTree;
 	MYTREE *rclickTree;
-	CMainFrame *pMain;
+	//CMainFrame *pMain;
 	bool m_bFullDrag;
 	splitBarInfo info;
 	int m_cxyDragOffset;
@@ -35,6 +34,9 @@ public:
 	MYTREE *curHitPos;
 	HMENU menu;
 	HMENU subMenu;
+
+	static HCURSOR m_hCursorLeftRight;
+	static HCURSOR m_hCursorUpDown;
 
 public:
 	DECLARE_WND_CLASS_EX(NULL,NULL,NULL)

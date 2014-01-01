@@ -85,8 +85,8 @@ public:
 	BEGIN_MSG_MAP_EX(CPlayListView)
 		//user message
 		MESSAGE_HANDLER(WM_PLAYLISTVIEW_SETFOCUS,OnSetFocus)
-		//MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_DEFAULT,OnChColorDefault);
-		//MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_BLUE,OnChColorBlue);
+		MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_DEFAULT,OnChColorDefault);
+		MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_BLUE,OnChColorBlue);
 		
 		MSG_WM_DESTROY(OnDestroy)
 		MSG_WM_CREATE(OnCreate)
@@ -486,6 +486,15 @@ public:
 		return m_Font;
 	}
 
+	BOOL GetItemColours( int nItem, int nSubItem, COLORREF& rgbBackground, COLORREF& rgbText )
+	{
+		if(IsSelected( nItem ))
+			return FALSE;
+
+		rgbBackground = nItem%2==0?clText1:clText2;
+		return TRUE;
+	}
+
 	CString GetItemText( int nItem, int nSubItem ) // required by CListImpl
 	{
 		CString result;
@@ -639,7 +648,8 @@ public:
 	{
 		clText1=one;
 		clText2=another;
-		::UpdateWindow(this->m_hWnd);
+		
+		Invalidate();
 	}
 
 	void ChangeColorDefault()

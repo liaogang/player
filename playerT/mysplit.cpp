@@ -126,6 +126,8 @@ void PaneSizeStore(MYTREE *parent)
 		parent->PaneChildSizeStore();
 }
 
+HCURSOR CMultiSpliltWnd::m_hCursorLeftRight=NULL;
+HCURSOR CMultiSpliltWnd::m_hCursorUpDown=NULL;
 
 LRESULT CMultiSpliltWnd::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {

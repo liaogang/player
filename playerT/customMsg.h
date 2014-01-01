@@ -16,7 +16,7 @@ public:
 
 //#define  WM_TRACKPOS          (WM_USER+22)  
 
-#define  WM_TRACK_REACH_END   (WM_USER+53)//“ÙπÏµΩ¥Ôƒ©Œ≤
+#define  WM_TRACK_REACH_END   (WM_USER+33)//“ÙπÏµΩ¥Ôƒ©Œ≤
 #define  WM_TRACKSTOPPED      (WM_USER+34)//“ÙπÏ≤•∑≈Õ£÷π
 
 //ø™ º“ÙπÏ≤•∑≈
@@ -63,7 +63,10 @@ public:
 
 
 //tell the playlist view to gain the focus
-#define WM_PLAYLISTVIEW_SETFOCUS (WM_USER+54)
+#define WM_PLAYLISTVIEW_SETFOCUS (WM_USER+53)
+
+//center the current playing item in playlist view
+#define WM_PLAYLISTVIEW_CENTER_ITEM (WM_USER+54)
 
 //the playlist view 's color need to change
 #define WM_PLAYLISTVIEW_COLOR_DEFAULT  (WM_USER+55)

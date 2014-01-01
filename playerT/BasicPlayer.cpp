@@ -161,7 +161,8 @@ void CBasicPlayer::play()
 	if(curPosInfo.used==-1)
 		m_pFile->ResetFile();
 	else
-		m_pFile->SetPos(curPosInfo.used,curPosInfo.used+curPosInfo.left);
+		m_pFile->SetPos(curPosInfo.used-7>0?curPosInfo.used-7:curPosInfo.used,curPosInfo.used+curPosInfo.left);
+	
 
 	m_pPlayerThread->Reset();
 

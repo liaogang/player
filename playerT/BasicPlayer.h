@@ -64,10 +64,12 @@ public:
 	{
 		return m_bStopped;
 	}
+
+	void stop(BOOL bDestroy=FALSE);
 protected:
 	void play();
 	void pause();//pause or resume play
-	void stop(BOOL bDestroy=FALSE);
+	
 	BOOL open( LPCTSTR filepath );
 
 private:

@@ -122,6 +122,7 @@ protected:
 	BOOL m_bScrolling;
 	BOOL m_bScrollDown;
 	BOOL m_bTileBackground;
+
 	CPoint m_ptDownPoint;
 	CPoint m_ptSelectPoint;
 	CRect m_rcGroupSelect;
@@ -156,6 +157,7 @@ protected:
 	
 	UINT m_nHeaderClipboardFormat;
 	
+
 	COLORREF m_rgbBackground;
 	COLORREF m_rgbHeaderBackground;
 	COLORREF m_rgbHeaderBorder;
@@ -476,6 +478,7 @@ public:
 		return TRUE;
 	}
 		
+	
 	int GetTotalWidth( BOOL bRecalc = FALSE )
 	{
 		if ( bRecalc )
@@ -630,7 +633,7 @@ public:
 		ATLASSERT( FALSE ); // must be implemented in a derived class
 		return _T( "" );
 	}
-	
+
 	BOOL GetItemDate( int nItem, int nSubItem, SYSTEMTIME& stItemDate )
 	{
 		T* pT = static_cast<T*>(this);
@@ -3152,6 +3155,8 @@ public:
 		CPen penBorder;
 		penBorder.CreatePen( PS_SOLID, 1, rgbOuter );
 		CBrush bshInterior;
+		
+		//
 		bshInterior.CreateSolidBrush( m_rgbBackground );
 		
 		dcPaint.SelectPen( penBorder );
