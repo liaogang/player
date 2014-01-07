@@ -12,7 +12,7 @@ HWND CreateComboBand(HWND hWndParent);
 
 class CMySimpleRebar:
 	public CWindowImpl<CMySimpleRebar,CReBarCtrl>
-	,public SerializeObj
+	,public SerializeObj<CMySimpleRebar>
 {   
 public:
 	typedef CWindowImpl<CMySimpleRebar,CReBarCtrl> thebase;
@@ -27,8 +27,8 @@ public:
 		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 
-	int SerializeB(FILE *pFile);
-	int ReSerialize(FILE *pFile);
+	FILE& operator<<(FILE& f);
+	FILE& operator>>(FILE& f);
 
 	void OnRButtonDown(UINT nFlags, CPoint point)
 	{

@@ -44,7 +44,7 @@ class CMainFrame :
 	public CUpdateUI<CMainFrame>,
 	public CMessageFilter, 
 	public CIdleHandler,
-	public SerializeObj
+	public SerializeObj<CMainFrame>
 {
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
@@ -191,8 +191,8 @@ public:
 
 
 
-	int SerializeB(FILE *pFile);
-	int ReSerialize(FILE *pFile);
+	FILE& operator<<(FILE& f);
+	FILE& operator>>(FILE& f);
 
 
 	void OnTimer(UINT_PTR /*nIDEvent*/)

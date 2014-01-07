@@ -34,11 +34,11 @@ if count =0 , it will dealloced
 */
 
 
-class FileTrack: public SerializeObj
+class FileTrack: public SerializeObj<FileTrack>
 {
 public:
-	virtual int SerializeB(FILE* pFile);
-	virtual int ReSerialize(FILE* pFile);
+	FILE& operator<<(FILE& f);
+	FILE& operator>>(FILE& f);
 private:
 	//PlayListItem *parent;
 public:
@@ -169,8 +169,11 @@ public:
 	  inline void  SetPlayList(PlayList *pPL){this->pPL=pPL;}
 
 	  //proxy functions
-	  int SerializeB(FILE* pFile){return filetrack->SerializeB(pFile);}
-	  int ReSerialize(FILE* pFile){return filetrack->ReSerialize(pFile);}
+	  FILE& operator<<(FILE& f){return *GetFileTrack()<<f;}
+	  FILE& operator>>(FILE& f){return *GetFileTrack()>>f;}
+
+
+
 	  BOOL  ScanId3Info( BOOL bRetainPic=FALSE,BOOL forceRescan=TRUE){return filetrack->ScanId3Info(bRetainPic,forceRescan);}
 	  const TCHAR* GetTitle(){return filetrack->GetTitle();}
 	  BOOL  GetLrcFileFromLib(BOOL forceResearch=FALSE){return filetrack->GetLrcFileFromLib(forceResearch);}
@@ -199,15 +202,15 @@ typedef PlayListItem*  _songContainerItem;
 #define NULLITEM NULL;
 typedef  bool (*CompareProc)(PlayListItem *a, PlayListItem *b);
 class PlayList:
-	public SerializeObj
+	public SerializeObj<PlayList>
 {
 public:
 	PlayList(void);
 	PlayList(std::tstring &name);
 	~PlayList(void);
 public:
-	virtual int SerializeB(FILE* pFile);
-	virtual int ReSerialize(FILE* pFile);
+	FILE& operator<<(FILE& f);
+	FILE& operator>>(FILE& f);
 
 public:
 	typedef vector<_songContainerItem> _songContainer;

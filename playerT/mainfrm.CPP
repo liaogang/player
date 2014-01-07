@@ -1639,14 +1639,11 @@ void MYTREE_Add_EmptyWnd(MYTREE* tree)
 
 	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE |WS_CLIPCHILDREN |WS_CLIPSIBLINGS,WS_EX_CLIENTEDGE);
 	
-
 	newTree->setWnd(w->m_hWnd);
 	wcscpy(newTree->data.nodeName,L"¿ÕÕ¼Î»ÊÓÍ¼");
 
-
 	tree->addChildNodeAfter(newTree);
 	tree->EvenPanes();
-
 }
 
 void  CPlayListView::CreateIsWnd()

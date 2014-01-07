@@ -477,7 +477,6 @@ public:
 			mytree->EvenPanes();
 			UpdateLayout(mytree);
 			UpdateTree(mytree);
-			GetSplitter()->Invalidate();
 		}
 
 		return 0;
@@ -489,6 +488,10 @@ public:
 
 		MYTREE::MoveUpDown(mytree,TRUE);
 
+		UpdateLayout(mytree->parent);
+		UpdateTree(mytree->parent);
+	
+
 		return 0;
 	}
 
@@ -497,6 +500,10 @@ public:
 		MYTREE *mytree=(MYTREE*)GetItemData(rclickItem);
 
 		MYTREE::MoveUpDown(mytree,FALSE);
+
+		UpdateLayout(mytree->parent);
+		UpdateTree(mytree->parent);
+		
 
 		return 0;
 	}
@@ -513,7 +520,7 @@ public:
 		UpdateTree(parent);
 
 		UpdateLayout(parent);
-		GetSplitter()->Invalidate();
+		
 
 		return 0;
 	}

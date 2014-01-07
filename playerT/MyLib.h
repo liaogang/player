@@ -19,8 +19,7 @@ static const TCHAR *gPlayOrderStr[] =
 
 
 
-class MyLib:
-	public SerializeObj
+class MyLib
 {
 	//-----------------------------------------
 	//
@@ -42,8 +41,7 @@ public:
 	void MyLib::InitLrcLib();
 
 public:
-	virtual int SerializeB(FILE* pFile);
-	virtual int ReSerialize(FILE* pFile);
+
 
 	//-----------------------------------------
 

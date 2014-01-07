@@ -76,7 +76,7 @@ enum pane_type
 	panetype_empty
 };
 
-class dataNode:public SerializeObj
+class dataNode:public SerializeObj<dataNode>
 {
 public:
 	dataNode(TCHAR *name):hWnd(NULL),m_iSplitterBar(SPLITTER_WH)
@@ -104,11 +104,6 @@ public:
 
 	~dataNode()
 	{
-		if (hWnd&&IsWindow(hWnd))
-		{
-			ShowWindow(hWnd,SW_HIDE);
-			DestroyWindow(hWnd);
-		}
 	}
 
 	RECT getRect(){return rc;}
@@ -132,8 +127,8 @@ public:
 	}
 
 
-	virtual int SerializeB(FILE *pFile);
-	virtual int ReSerialize(FILE *pFile);
+	FILE& operator<<(FILE& f);
+	FILE& operator>>(FILE& f);
 	
 	//∏≥÷µππ‘Ï
 	dataNode ( dataNode & b)
@@ -189,7 +184,7 @@ public:
 
 
 class MYTREE
-	:public SerializeObj
+	:public SerializeObj<MYTREE>
 {
 public:
 	MYTREE(TCHAR *name):next(NULL),prev(NULL),
@@ -213,8 +208,8 @@ public:
 		//AtlTrace(L"created : %s\n",paneN);
 	}
 
-	virtual int SerializeB(FILE *pFile);
-	virtual int ReSerialize(FILE *pFile);
+	FILE& operator<<(FILE& f);
+	FILE& operator>>(FILE& f);
 
 
 	bool wndEmpty()
@@ -229,6 +224,7 @@ public:
 
 	RECT getRect(){return data.getRect();}
 	void setRect(RECT &rc){data.setRect(rc);}
+	
 
 	//RECT getRectBeforeSize(){return data.rcBeforeSize;}
 	//void setRectBeforeSzie(RECT &rc){data.rcBeforeSize=rc;}
@@ -408,21 +404,43 @@ public:
 		data.hWnd=hWnd;
 	}
 
-	static void swap_slibing(MYTREE *a,MYTREE *b)
+	static void swap_slibing(MYTREE *tree,MYTREE *tree2)
 	{
-		ATLASSERT(a->parent==b->parent);
-		ATLASSERT(a->next==b || a->prev==b);
+		ATLASSERT(tree->parent==tree2->parent);
+		ATLASSERT(tree->next==tree2 || tree->prev==tree2);
 
-		dataNode temp=a->data;
+
+		// a b c d 
+		//swap position
+		// a c b d
+
+		MYTREE *b=tree;
+		MYTREE *c=tree2;
+		if(tree->prev==tree2)
+		{
+			b=tree2;
+			c=tree;
+		}
+
+		MYTREE *a=b->prev;
+		MYTREE *d=c->next;
+
+		if(a)a->next=c;
+		if(d)d->prev=b;
+		c->prev=a;
+		c->next=b;
+		b->prev=c;
+		b->next=d;
+
+		if(b->parent->child==b)
+			b->parent->child=c;
+
+		//swap the rect too
 		RECT rectB=b->getRect();
+		RECT rectC=c->getRect();
 
-		//swap
-		a->data=b->data;
-		b->data=temp;
-
-		//rect retain
-		a->setRect(temp.getRect());
-		b->setRect(rectB);
+		b->CalcChildsRect(rectC);
+		c->CalcChildsRect(rectB);
 	}
 
 	static	void MoveUpDown(MYTREE *node,BOOL bUp)
@@ -850,3 +868,6 @@ public:
 	}
 
 };
+
+
+

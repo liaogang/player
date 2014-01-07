@@ -19,6 +19,7 @@ void UpdateLayout(MYTREE *parent,HDC dc)
 			{
 				RECT rect=cur->getRect();
 				::SetWindowPos(cur->data.hWnd, NULL, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,SWP_NOZORDER);
+				::InvalidateRect(cur->data.hWnd,NULL,TRUE);			
 			}
 			if(dc!=NULL && cur->wndEmpty())
 				cur->DrawEmptyPane(dc);
@@ -43,7 +44,15 @@ void MYTree_DestroyFromRoot(MYTREE *tree)
 			cur=next;
 		}
 	else
-		delete tree;
+		{
+			if(IsWindow(tree->data.hWnd))
+			{
+				ShowWindow(tree->data.hWnd,SW_HIDE);
+				DestroyWindow(tree->data.hWnd);
+			}
+
+			delete tree;
+	}
 }
 
 
@@ -148,3 +157,4 @@ LRESULT CMultiSpliltWnd::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPa
 	SetMsgHandled(FALSE);
 	return 1;
 }
+

@@ -1,67 +1,36 @@
 #include "stdafx.h"
 #include <fstream>
-#include <string>
-#include <iostream>
-#include <ostream>
-#include <iosfwd>
+
 #pragma  once
 using namespace std;
 
-template <class T> int Serialize (FILE *pFile,T t);
-template <> int Serialize (FILE *pFile,std::tstring t);
-template <> int Serialize (FILE *pFile,int t);
-template <> int Serialize (FILE *pFile,double t);
-template <> int Serialize (FILE *pFile,WCHAR szStr);
+
+#define ADDTOSERIALIZE(CLASSNAME) \
+FILE& operator<<(FILE& f,CLASSNAME &t) \
+{return t>>f;} \
+FILE& operator>>(FILE& f,CLASSNAME &t) \
+{return t<<f;}
 
 
-template <class T>
-int ReSerialize(FILE *pFile,T *t);
-
-template <class T>
-int ReSerialize(FILE *pFile,T &t);
-
-
-template <>
-int ReSerialize(FILE *pFile,double &t);
-
-// template <class T> T ReSerialize (FILE *pFile);
-// template <> std::tstring ReSerialize (FILE *pFile);
-// template <> int ReSerialize (FILE *pFile);
-// template <> uint ReSerialize (FILE *pFile);
-
-
+template<typename T>
 class SerializeObj
 {
 public:
-	//object to file
-	int Serialize(FILE *pFile)
+	
+	//get from
+	FILE& operator<<(FILE& f)
 	{
-		int size=0;
-		//4 byte ,ռλ
-		fwrite(&size,sizeof(int),1,pFile);
-
-		size+=sizeof(int);
-
-		//size
-		size+=SerializeB(pFile);
-
-		//write the total size
-		fseek(pFile,-size,SEEK_CUR);
-
-		fwrite(&size,1,sizeof(int),pFile);
-
-		//seek back to old
-		fseek(pFile,size-sizeof(int),SEEK_CUR);
-
-		return size;
+		// must be implemented in a derived class
+		ATLASSERT(0);
+		return f;
 	}
 
-	//some class store
-	//figture out is size
-	//return the size used
-	virtual int SerializeB(FILE *pFile)=0;
 
-	//file to object
-	//read size
-	virtual int ReSerialize(FILE *pFile)=0;
+	//save to
+	FILE& operator>>(FILE& f)
+	{
+		// must be implemented in a derived class
+		ATLASSERT(0);
+		return f;
+	}
 };

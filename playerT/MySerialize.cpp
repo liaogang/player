@@ -7,248 +7,164 @@
 #include "MyConfigs.h"
 #include "mainfrm.h"
 #include "MyControls.h"
+#include <iostream>
 
-template <class T>
-int Serialize(FILE *pFile,T t)
+ADDTOSERIALIZE(CMainFrame)
+ADDTOSERIALIZE(PlayList)
+ADDTOSERIALIZE(FileTrack)
+ADDTOSERIALIZE(MyConfigs)
+ADDTOSERIALIZE(CMySimpleRebar)
+ADDTOSERIALIZE(MYTREE)
+ADDTOSERIALIZE(dataNode)
+ADDTOSERIALIZE(PlayListItem)
+
+//double
+FILE& operator<<(FILE& f,double t)
 {
-	ATLASSERT(FALSE);
-	return 0;
-};
-
-template <>
-int Serialize(FILE *pFile,UINT t)
-{
-	fwrite(&t,1,4,pFile);
-	return 4;
-};
-
-
-template <>
-int Serialize(FILE *pFile,std::tstring t)
-{
-	int totalSize=sizeof(TCHAR)*t.length()+sizeof(int);
-
-	fwrite(&totalSize,sizeof(int),1,pFile);
-
-	fwrite(t.c_str(),sizeof(WCHAR),t.length(),pFile);
-
-	return totalSize;
-};
-
-template <>
-int Serialize(FILE *pFile,int t)
-{
-	return sizeof(int)*fwrite(&t,sizeof(int),1,pFile);
-};
-
-template <> int Serialize (FILE *pFile,double t)
-{
-	return sizeof(double)*fwrite(&t,sizeof(double),1,pFile);
+	fwrite(&t,sizeof(double),1,&f);
+	return f;
 }
 
-template <>
-int Serialize (FILE *pFile,long int t)
+FILE& operator>>(FILE& f,double& t)
 {
-	return  sizeof (long int)*fwrite(&t,sizeof (long int),1,pFile);
-};
+	fread(&t,sizeof(double),1,&f);
+	return f;
+}
+//int
+FILE& operator<<(FILE& f,int t)
+{
+	fwrite(&t,sizeof(int),1,&f);
+	return f;
+}
+
+FILE& operator>>(FILE& f,int& t)
+{
+	fread(&t,sizeof(int),1,&f);
+	return f;
+}
+
+//UINT
+FILE& operator<<(FILE& f,UINT t)
+{
+	fwrite(&t,sizeof(UINT),1,&f);
+	return f;
+}
+
+FILE& operator>>(FILE& f,UINT& t)
+{
+	fread(&t,sizeof(UINT),1,&f);
+	return f;
+}
 
 
-template <>
-int Serialize(FILE *pFile,RECT r)
+//long
+FILE& operator<<(FILE& f,long t)
+{
+	fwrite(&t,sizeof(long),1,&f);
+	return f;
+}
+
+FILE& operator>>(FILE& f,long& t)
+{
+	fread(&t,sizeof(long),1,&f);
+	return f;
+}
+
+
+
+//write zero terminated str array
+FILE& operator<<(FILE& f,TCHAR * str)
+{
+	int l=_tcslen(str)+1;
+	f<<l;
+	fwrite(str,sizeof(TCHAR),l,&f);
+	return f;
+}
+
+FILE& operator>>(FILE& f,TCHAR * str)
+{
+	int l=0;
+	f>>l;
+	fread(str,sizeof(TCHAR),l,&f);
+	return f;
+}
+
+//tstring
+FILE& operator<<(FILE& f,tstring &str)
+{
+	int l=str.length();
+	f<<l+1;
+	fwrite(str.c_str(),sizeof(TCHAR),l,&f);
+	TCHAR nullstr='\0';
+	fwrite(&nullstr,sizeof(TCHAR),1,&f);
+	return f;
+}
+
+FILE& operator>>(FILE& f,tstring &str)
+{
+	TCHAR buf[128];
+	f>>buf;
+	str=buf;
+	return f;
+}
+
+
+//RECT
+FILE& operator>>(FILE& f,RECT &r)
+{
+	return f>>r.left>>r.top>>r.right>>r.bottom;
+}
+
+FILE& operator<<(FILE& f,RECT &r)
+{
+	return f<<r.left<<r.top<<r.right<<r.bottom;
+}
+
+
+int SerializeAllTree(MYTREE *c,FILE& f)
 {
 	int size=0;
-	size+=Serialize(pFile,r.left);
-	size+=Serialize(pFile,r.top);
-	size+=Serialize(pFile,r.right);
-	size+=Serialize(pFile,r.bottom);
-	return size;
-};
-
-
-template <> 
-int Serialize(FILE *pFile,WCHAR *szStr)
-{
-	int len=wcslen(szStr)+1;
-	int size=len*sizeof(WCHAR) + sizeof(int);
-
-	fwrite(&size,sizeof(int),1 ,pFile);
-
-	fwrite(szStr,sizeof(WCHAR),len,pFile);
-
-	return size;
+	for (;c;c=c->next)	
+	{
+		f<<*c;
+		if (c->hasChild())
+			size+=SerializeAllTree(c->child,f);
+	}
+	return 0;
 }
 
-
-
-//-----------------------------------------
-
-template <class T>
-int ReSerialize(FILE *pFile,T *t)
+int ReSerializeAllTree(MYTREE *parent,FILE & f)
 {
-	ATLASSERT(FALSE);
-	return -1;
-};
+	int size=0;
 
-template <class T>
-int ReSerialize(FILE *pFile,T &t)
-{
-	ATLASSERT(FALSE);
-	return -1;
-};
-
-template <>
-int ReSerialize(FILE *pFile,std::tstring *str)
-{
-	int size;
-	fread(&size,sizeof(int),1,pFile);
-
-	//string len is 0
-	if(size-4<0)
+	if (parent->childs==NULL)
 	{
-		AtlTrace(L"Parse File Failed,Invalide Data\n");
 		return 0;
 	}
-	else
+
+	MYTREE *c=new MYTREE;
+	f>>*c;
+	c->parent=parent;
+	parent->child=c;
+
+	if (c->childs)
+		ReSerializeAllTree(c,f);
+
+	MYTREE *last=c;
+
+	for (int i=1;i<parent->childs;++i)
 	{
-		int len=(size-4)/sizeof(TCHAR);
-		TCHAR* pStr=new TCHAR[len];
-		fread(pStr,sizeof(TCHAR),len,pFile);
+		c=new MYTREE;
+		f>>*c;
 
-		std::tstring tmp(pStr,pStr+len);
-		delete[] pStr;
-		(*str)=tmp;
+		last->next=c;
+		c->prev=last;
+		c->parent=last->parent;
 
-// 		std::string strstr=*str;
-// 		strstr=pStr;
-// 		delete[] pStr;
-	}
+		if (c->childs)
+			ReSerializeAllTree(c,f);
 
-	return size;
-};
-
-
-template <>
-int ReSerialize (FILE *pFile,int *pVal)
-{
-	fread(pVal,4,1,pFile);
-	return 4;
-};
-
-template <>
-int ReSerialize(FILE *pFile,UINT *pVal)
-{
-	fread(pVal,4,1,pFile);
-	return 4;
-};
-
-template <> 
-int ReSerialize(FILE *pFile,WCHAR *szStr)
-{
-	int size;
-	fread(&size,sizeof(int),1,pFile);
-
-	int len=(size - sizeof(int))/sizeof(WCHAR);
-
-	if (len<0)
-	{
-		AtlTrace(L"Parse format error\n");
-		return -1;
-	}
-	
-
-	fread(szStr,sizeof(WCHAR),len,pFile);
-
-	return size;
-}
-
-
-template <>
-int ReSerialize(FILE *pFile,long &t)
-{
-	return  sizeof(long)*fread(&t,sizeof(long),1,pFile);
-};
-
-template <>
-int ReSerialize(FILE *pFile,double &t)
-{
-	return  sizeof(double)*fread(&t,sizeof(double),1,pFile);
-};
-
-template <>
-int ReSerialize(FILE *pFile,RECT &r)
-{
-	int size=0;
-	size+=ReSerialize(pFile,r.left);
-	size+=ReSerialize(pFile,r.top);
-	size+=ReSerialize(pFile,r.right);
-	size+=ReSerialize(pFile,r.bottom);
-	return size;
-};
-
-
-
-/*******************************************/
-
-int MyLib::SerializeB(FILE *pFile)
-{
-	int size=0;
-	// 	list<PlayList>::iterator i;
-	// 	for (i=m_playLists.begin();i!=m_playLists.end();++i)
-	// 	{
-	// 		size+=(*i).Serialize(out);
-	// 	}
-	size+=SelectedPlaylist()->Serialize(pFile);
-	return size;
-}
-
-int MyLib::ReSerialize(FILE *pFile)
-{
-	int totalSize=0;
-	fread(&totalSize,1,4,pFile);
-
-	int size=SelectedPlaylist()->ReSerialize(pFile);
-
-	return size;
-}
-
-int PlayList::SerializeB(FILE *pFile)
-{
-	int size=0;
-
-	//m_playlistName Serialize
-	size+=::Serialize(pFile,m_playlistName);
-
-	//bMonitor  
-	size+=::Serialize(pFile,m_bAuto);
-
-	//m_songList Serialize
-	_songContainer::iterator i;
-	for (i=m_songList.begin();i!=m_songList.end();++i){
-		size+=(*i)->GetFileTrack()->Serialize(pFile);
-	}
-
-	return size;
-}
-
-int PlayList::ReSerialize(FILE *pFile)
-{
-	int size=0;
-	int totalSize=0;
-	int playlistnameSize=0;
-	fread(&totalSize,sizeof(int),1,pFile);
-
-	playlistnameSize=::ReSerialize(pFile,&m_playlistName);
-	size+=playlistnameSize;
-
-
-	//4 byte  
-	::ReSerialize(pFile,&m_bAuto);
-
-	while(size<totalSize-playlistnameSize-4){
-		PlayListItem *item=new PlayListItem(this);
-		size+=item->ReSerialize(pFile);
-		item->SetIndex(m_songList.size());
-		m_songList.push_back(item);
+		last=c;
 	}
 
 
@@ -256,61 +172,29 @@ int PlayList::ReSerialize(FILE *pFile)
 }
 
 
-int FileTrack::SerializeB(FILE *pFile)
-{
-	int size=0;
-	size+=::Serialize(pFile,url);
-	size+=::Serialize(pFile,playCount);
-	size+=::Serialize(pFile,starLvl);
-	size+=::Serialize(pFile,title);
-	size+=::Serialize(pFile,artist);
-	size+=::Serialize(pFile,album);
-	size+=::Serialize(pFile,genre);
-	size+=::Serialize(pFile,year);
-	return size;
-}
 
-int FileTrack::ReSerialize(FILE *pFile)
-{
-	int size=0;
-
-	int totalSize=0;
-	fread(&totalSize,4,1,pFile);
-	size+=4;
-
-	size+=::ReSerialize(pFile,&url);
-	size+=::ReSerialize(pFile,&playCount);
-	size+=::ReSerialize(pFile,&starLvl);
-	size+=::ReSerialize(pFile,&title);
-	size+=::ReSerialize(pFile,&artist);
-	size+=::ReSerialize(pFile,&album);
-	size+=::ReSerialize(pFile,&genre);
-	size+=::ReSerialize(pFile,&year);
-	return size;
-}
 
 
 BOOL MyLib::SavePlaylist(PlayList *pl,LPTSTR filepath)
 {
-	BOOL result=FALSE;
-	FILE * pFile;
-	pFile = _tfopen((LPCTSTR)filepath , _T("wb") );
-	if (pFile!=NULL){
-		result=pl->Serialize(pFile);
-		fclose (pFile);
+	BOOL result=TRUE;
+	FILE  * f = _tfopen( filepath , _T("wb") );
+	if (f)
+	{
+		*f<<*pl;
+		fclose(f);
 	}
-
 	return result;
 }
 
 PlayList* MyLib::LoadPlaylist(LPTSTR filepath,TCHAR* PlName)
 {
 	PlayList *playlist=NULL;
-	BOOL result=FALSE;
-	FILE * pFile;
+	BOOL result=TRUE;
 
-	pFile = _tfopen ((LPCTSTR)filepath, _T("rb") );
-	if (pFile)
+
+	FILE  * f = _tfopen( filepath , _T("rb") );
+	if (f)
 	{
 		playlist=new PlayList();
 		if(PlName!=NULL)
@@ -319,7 +203,8 @@ PlayList* MyLib::LoadPlaylist(LPTSTR filepath,TCHAR* PlName)
 			playlist->m_playlistName=PlName;
 		}
 
-		result=playlist->ReSerialize(pFile);
+		*f>>*playlist;
+
 		m_playLists.push_back(playlist);
 		SetSelectedPlaylist(playlist);
 
@@ -332,11 +217,10 @@ PlayList* MyLib::LoadPlaylist(LPTSTR filepath,TCHAR* PlName)
 
 		SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)playlist,1);
 
-		fclose (pFile);
+		fclose(f);
 	}
 
 
-	
 	return playlist;
 }
 
@@ -345,28 +229,28 @@ bool LoadAllPlayList()
 	if(!ChangeCurDir2PlaylistPath(true))
 		return false;
 
-	FILE * pFile=NULL;
+	
 	BOOL   bLoaded=TRUE;
-	pFile = _tfopen( PLAYLISTINDEXFILE , _T("rb") );
-	if (pFile!=NULL)
-	{	
+
+	FILE  * f = _tfopen( PLAYLISTINDEXFILE , _T("rb") );
+	if (f)
+	{
 		int totalNum=0;
-		::ReSerialize(pFile,&totalNum);
+		*f>>totalNum;
 
 		for (int i=0;i<totalNum;++i)
 		{
 			int nIndex;
 			tstring name;
 			TCHAR path[MAX_PATH];
-			::ReSerialize(pFile,&nIndex);
-			::ReSerialize(pFile,&name);
+			*f>>nIndex>>name;
 
 			wsprintf(path,_T("%08d.pl"),nIndex);
 			
 			MyLib::shared()->LoadPlaylist((LPTSTR)path,(TCHAR*)name.c_str());
 		}
 
-		fclose(pFile);
+		fclose(f);
 	}
 
 	return bLoaded;
@@ -377,14 +261,11 @@ bool SaveAllPlayList()
 	if(!ChangeCurDir2PlaylistPath(true))
 		return false;
 	
-
-	FILE * pFile=NULL;
-	
-	pFile = _tfopen( PLAYLISTINDEXFILE , _T("wb") );
-	if (pFile!=NULL)
-	{	
+	FILE  * f = _tfopen( PLAYLISTINDEXFILE , _T("wb") );
+	if (f)
+	{
 		int totalNum=MyLib::shared()->m_playLists.size();
-		::Serialize(pFile,totalNum);
+		*f<<totalNum;
 
 		for (int i=0;i<totalNum;++i)
 		{
@@ -392,9 +273,7 @@ bool SaveAllPlayList()
 			auto i2=MyLib::shared()->m_playLists[i];
 			tstring name=(*i2).m_playlistName;
 
-			::Serialize(pFile,nIndex);
-			::Serialize(pFile,name);
-
+			*f<<nIndex<<name;
 
 			TCHAR path[MAX_PATH];
 
@@ -403,7 +282,8 @@ bool SaveAllPlayList()
 			MyLib::shared()->SavePlaylist(&(*i2),(LPTSTR)path);
 		}
 
-		fclose(pFile);
+
+		fclose(f);
 	}
 
 	return true;
@@ -412,35 +292,36 @@ bool SaveAllPlayList()
 bool SaveCoreCfg()
 {
 	CollectInfo();
-
-	FILE * pFile;
 	ChangeCurDir2ModulePath();
-	pFile = _tfopen( CFGFILENAME , _T("wb") );
-	if (pFile!=NULL)
-	{	
+
+
+
+	FILE  * f = _tfopen( CFGFILENAME , _T("wb") );
+	if (f)
+	{
 		int len;
 		/*******************************************/
 		//lrc section
 		len=MyLib::shared()->lrcDirs.size();
-		::Serialize(pFile,len);
-
+		*f<<len;
 		
 		for (auto k=MyLib::shared()->lrcDirs.begin();k!=MyLib::shared()->lrcDirs.end();++k)
-			::Serialize<>(pFile,*k);
+		{	
+			*f<<(*k);
+		}
+		
 		
 		//Media paths
 		len=MyLib::shared()->mediaPaths.size();
-		::Serialize(pFile,len);
+		*f<<len;
 
 		for (auto k=MyLib::shared()->mediaPaths.begin();k!=MyLib::shared()->mediaPaths.end();++k)
-			::Serialize<>(pFile,*k);
+			 *f<<(*k);
 
 		//***************************************//
 		//MyConfigs
-		GetMyConfigs()->Serialize(pFile);
-		
-
-		fclose (pFile);
+		*f<<*GetMyConfigs();
+		fclose(f);
 	}
 
 
@@ -451,22 +332,21 @@ bool SaveCoreCfg()
 
 bool LoadCoreCfg()
 {
-	FILE * pFile;
 	ChangeCurDir2ModulePath();
-	pFile = _tfopen( CFGFILENAME, _T("rb") );
-	if (pFile!=NULL)
+
+	FILE  * f = _tfopen( CFGFILENAME , _T("rb") );
+	if (f)
 	{
 		int size=0;
 		MyLib * s=MyLib::shared();
 		/*******************************************/
 		//lrc dir list
-		size=0;
-		::ReSerialize(pFile,&size);
-		 while (size--)
+		*f>>size;
+		 while (size-->0)
 		{
 			std::tstring lrcDir;
 
-			::ReSerialize(pFile,&lrcDir);
+			*f>>lrcDir;
 			if(!lrcDir.empty())
 				s->lrcDirs.push_back(lrcDir);
 		}
@@ -474,29 +354,27 @@ bool LoadCoreCfg()
 		 s->InitLrcLib();
  
 		 //Load the Media Lib
-		 ::ReSerialize(pFile,&size);
+		*f>>size;
 		 if(size>0)
+		{
 			 s->InitMonitor(s->GetAutoPlaylist());
-
-		 while (size--)
-		 {
-			 std::tstring mediaPath;
-
-			 ::ReSerialize(pFile,&mediaPath);
-			 if(!mediaPath.empty())
+			 while (size--)
 			 {
-				 s->AddMediaPath(mediaPath);
+				 std::tstring mediaPath;
+
+				* f>>mediaPath;
+				 if(!mediaPath.empty())
+					 s->AddMediaPath(mediaPath);
 			 }
 		 }
 
 		 
 		 //***************************************//
 		 //MyConfigs
-		 GetMyConfigs()->ReSerialize(pFile);
-		
-		 ValidateCfg();
+		*f>>*GetMyConfigs();
 
-		fclose (pFile);
+		ValidateCfg();
+		fclose(f);
 	}
 
 	
@@ -511,314 +389,180 @@ bool LoadCoreCfg()
 /************************************************************************/
 
 
-int MYTREE::SerializeB(FILE *pFile)
+
+int SerializeTree(FILE &f,MYTREE *cur)
 {
-	int size=0;
-	size+=::Serialize(pFile,childs);
-	return size+data.Serialize(pFile);
-}
-
-int MYTREE::ReSerialize(FILE *pFile)
-{
-	int size=4,totalsize;
-	::ReSerialize(pFile,&totalsize);
-
-
-	size+= ::ReSerialize(pFile,&childs);
-	return size+data.ReSerialize(pFile);
-}
-
-int SerializeTree(FILE *pFile,MYTREE *cur)
-{
-	int size=0;
-
 	for (auto i=cur;i;i=i->next)
 	{
-		size+=i->Serialize(pFile);
-		
+		f<<(*i);
 		if (i->hasChild())
-			size+=SerializeTree(pFile,i);
+			SerializeTree(f,i);
 	}
 	
-	return size;
+	return 0;
 }
 
-int ReSerializeTree(FILE *pFile,MYTREE *cur)
+int ReSerializeTree(FILE &f,MYTREE *cur)
 {
-	int size=0;
+	f<<(*cur);
 
-	size+=cur->ReSerialize(pFile);
 	
 	for(int i=0;i<cur->childs;++i)
 	{
 		MYTREE *newTree=new MYTREE;
-		newTree->ReSerialize(pFile);
-		size+=ReSerializeTree(pFile,newTree);
+		f<<*newTree;
+
+		ReSerializeTree(f,newTree);
 
 		cur->AddChild(newTree);
 	}
 
 
-	return size;
-}
-
-int dataNode::SerializeB(FILE *pFile)
-{
-	int size=0;
-
-	size+=::Serialize(pFile,nodeName);
-	size+=::Serialize(pFile,rc);
-
-	size+=::Serialize(pFile,type==left_right?1:0);
-
-	int numBars=SplitterBarRects.size();
-	size+=::Serialize(pFile,numBars);
-	if (numBars>0)
-		for (auto it=SplitterBarRects.begin();it!=SplitterBarRects.end();++it)
-			size+=::Serialize(pFile,*it);
-	
-	return size;
-}
-
-int dataNode::ReSerialize(FILE *pFile)
-{
-	int size=0;
-
-	int totalSize=0;
-	//fread(&totalSize,1,4,pFile);
-	//size+=4;
-
-	size+=::ReSerialize(pFile,&totalSize);
-
-	
-	size+=::ReSerialize(pFile,nodeName);
-	size+=::ReSerialize(pFile,rc);
-	
-	int leftright;
-	size+=::ReSerialize(pFile,&leftright);
-	type=leftright?left_right:up_down;
-
-
-	int numBars;
-	size+=::ReSerialize(pFile,&numBars);
-	for (int i=0;i<numBars;++i)
-	{
-		RECT rc;
-		size+=::ReSerialize(pFile,rc);
-		SplitterBarRects.push_back(rc);
-	}
-
-	return size;
+	return 0;
 }
 
 
-void SerializeAllTree(MYTREE *c,FILE *pFile)
-{
-	for (;c;c=c->next)	
-	{
-		c->Serialize(pFile);
-		if (c->hasChild())
-			SerializeAllTree(c->child,pFile);
-	}
-}
-
-void ReSerializeAllTree(MYTREE *parent,FILE *pFile)
-{
-	if (parent->childs==NULL)
-	{
-		return;
-	}
-
-	MYTREE *c=new MYTREE;
-	c->ReSerialize(pFile);
-	c->parent=parent;
-	parent->child=c;
-	
-	if (c->childs)
-		ReSerializeAllTree(c,pFile);
-	
-	MYTREE *last=c;
-
-	for (int i=1;i<parent->childs;++i)
-	{
-		c=new MYTREE;
-		c->ReSerialize(pFile);
-		
-		last->next=c;
-		c->prev=last;
-		c->parent=last->parent;
-
-		if (c->childs)
-			ReSerializeAllTree(c,pFile);
-		
-		last=c;
-	}
-	
-}
 
 
 bool SaveUICfg()
 {
 	ChangeCurDir2ModulePath();
-	FILE * pFile = _tfopen( UIFILENAME , _T("wb") );
-	if (pFile)
-	{	
-		
-		GetMainFrame()->Serialize(pFile);
 
-
-
-
-		fclose (pFile);
+	FILE  * f = _tfopen( UIFILENAME , _T("wb") );
+	if (f)
+	{
+		*f<<(*GetMainFrame());
+		fclose(f);
 	}
-
 
 	return TRUE;
 }
-
 
 
 bool LoadUICfg()
 {
 	ChangeCurDir2ModulePath();
-	FILE * pFile = _tfopen( UIFILENAME , _T("rb") );
-	if (pFile)
+
+	FILE  * f = _tfopen( UIFILENAME , _T("rb") );
+	if (f)
 	{
-
-		
-		GetMainFrame()->ReSerialize(pFile);
-
-
-		
-		fclose (pFile);
+		*f>>*GetMainFrame();
+		fclose(f);
 	}
-
-	return TRUE;
+	return FALSE;
 }
 
 
-int CMainFrame::SerializeB(FILE *pFile)
+
+
+
+
+FILE& CMainFrame::operator>>(FILE& f)
 {
-	int size=0;
-
 	/***************   Main Window ******************/
-	size+=::Serialize(pFile,m_rcMain);
-	size+=::Serialize(pFile,m_rcConfig);
-	size+=::Serialize(pFile,m_rcLrc);
-	size+=::Serialize(pFile,m_rcProcess);
-	size+=::Serialize(pFile,m_rcSearch);
-	size+=::Serialize(pFile,m_rcFFT);
-	size+=::Serialize(pFile,m_rcPLMng);
-	size+=::Serialize(pFile,m_rcPLConsole);
+	f<<m_rcMain<<m_rcConfig<<m_rcLrc<<m_rcProcess<<m_rcSearch<<m_rcFFT<<m_rcPLMng<<m_rcPLConsole;
+
+	/********************Rebar section*************************/
+	//size+=m_wndRebar.SerializeB(pFile);
 
 
-	
-
+	//put this section to the end . 
+	//it won't calc the total size.
 	/**********user interface split windows's section************/
 	MYTREE* root=UISplitterTreeRoot();
 
-	SerializeAllTree(root,pFile);
+	SerializeAllTree(root,f);
 
-
-
-	/********************Rebar section*************************/
-	size+=m_wndRebar.SerializeB(pFile);
-
-
-	return size;
+	return f;
 }
 
-int CMainFrame::ReSerialize(FILE *pFile)
+FILE& CMainFrame::operator<<(FILE& f)
 {
-	int size=0;
-
-	int totalSize=0;
-	fread(&totalSize,1,4,pFile);
-	size+=4;
-
 	/***************   Main Window ******************/
-	size+=::ReSerialize(pFile,m_rcMain);
-	size+=::ReSerialize(pFile,m_rcConfig);
-	size+=::ReSerialize(pFile,m_rcLrc);
-	size+=::ReSerialize(pFile,m_rcProcess);
-	size+=::ReSerialize(pFile,m_rcSearch);
-	size+=::ReSerialize(pFile,m_rcFFT);
-	size+=::ReSerialize(pFile,m_rcPLMng);
-	size+=::ReSerialize(pFile,m_rcPLConsole);
-	
+	f>>m_rcMain>>m_rcConfig>>m_rcLrc>>m_rcProcess>>m_rcSearch>>m_rcFFT>>m_rcPLMng>>m_rcPLConsole;
 
-	
+	/********************Rebar section*************************/
+	//size+=m_wndRebar.ReSerialize(pFile);
+
+
+
 	/**********user interface split windows's section************/
 	MYTREE *root=new MYTREE(_T(""));
 	root->data.SplitterBarRects.clear();
 
 	root->setroot();
-	root->ReSerialize(pFile);
 
-	ReSerializeAllTree(root,pFile);
+	f>>*root;
+
+
+	ReSerializeAllTree(root,f);
 
 	SetRootTree(root);
 
+	return f;
+}
 
 
-	/********************Rebar section*************************/
-	size+=m_wndRebar.ReSerialize(pFile);
+FILE& PlayList::operator>>(FILE& f)
+{
+	f<<m_playlistName<<m_bAuto;
+
+	//m_songList Serialize
+	int count=m_songList.size();
+	f<<count;
+
+	_songContainer::iterator i;
+	for (i=m_songList.begin();i!=m_songList.end();++i)
+		f<<*(*i);
+	
+
+	return f;
+}
+
+FILE& PlayList::operator<<(FILE& f)
+{
+	int count=0;
+	f>>m_playlistName>>m_bAuto>>count;
+
+	if(count>=0)
+		while(count--){
+			PlayListItem *item=new PlayListItem(this);
+			f>>*item;
+			item->SetIndex(m_songList.size());
+			m_songList.push_back(item);
+		}
+
+		return f;
+}
 
 
-	return size;
+FILE& FileTrack::operator>>(FILE& f)
+{
+	return f<<url<<playCount<<starLvl<<title<<artist<<album<<genre<<year;
+}
+
+FILE& FileTrack::operator<<(FILE& f)
+{
+	return f>>url>>playCount>>starLvl>>title>>artist>>album>>genre>>year;
+}
+
+
+FILE& MyConfigs::operator>>(FILE& f)
+{
+	return f<<bResumeOnReboot<<playlistIndex<<trackIndex<<pos.used<<pos.left<<playersVolume<<playorder;
+}
+
+FILE& MyConfigs::operator<<(FILE& f)
+{
+	return f>>bResumeOnReboot>>playlistIndex>>trackIndex>>pos.used>>pos.left>>playersVolume>>playorder;
 }
 
 
 
-
-int MyConfigs::SerializeB(FILE *pFile)
+FILE& CMySimpleRebar::operator>>(FILE& f)
 {
-	int size=0;
-
-	size+=::Serialize(pFile,bResumeOnReboot);
-	size+=::Serialize(pFile,playlistIndex);
-	size+=::Serialize(pFile,trackIndex);
-
-	size+=::Serialize(pFile,pos.used);
-	size+=::Serialize(pFile,pos.left);
-
-	size+=::Serialize(pFile,playersVolume);
-
-	size+=::Serialize(pFile,playorder);
-
-	return size;
-}
-
-int MyConfigs::ReSerialize(FILE *pFile)
-{
-	int size=0,totalsize;
-	size+=::ReSerialize(pFile,&totalsize);
-
-	size+=::ReSerialize(pFile,&bResumeOnReboot);
-	size+=::ReSerialize(pFile,&playlistIndex);
-	size+=::ReSerialize(pFile,&trackIndex);
-
-	size+=::ReSerialize(pFile,pos.used);
-	size+=::ReSerialize(pFile,pos.left);
-
-	size+=::ReSerialize(pFile,&playersVolume);
-
-	size+=::ReSerialize(pFile,&playorder);
-
-	return size;
-}
-
-
-
-
-
-int CMySimpleRebar::SerializeB(FILE *pFile)
-{
-	int size=0;
-
 	int bandCount=GetBandCount();
-	//bandCount >> file
-	size+=::Serialize(pFile,bandCount);
+	f<<bandCount;
 
 	for (int nBand=0;nBand<bandCount;++nBand)
 	{
@@ -834,15 +578,13 @@ int CMySimpleRebar::SerializeB(FILE *pFile)
 		//szClassName >> fiile
 	}
 
-	return size;
+	return f;
 }
 
-int CMySimpleRebar::ReSerialize(FILE *pFile)
+FILE& CMySimpleRebar::operator<<(FILE& f)
 {
-	int size=0;
-
 	int bandCount=0;
-	size+=::ReSerialize(pFile,&bandCount);
+	f>>bandCount;
 
 	for (int nBand=0;nBand<bandCount;++nBand)
 	{
@@ -850,9 +592,54 @@ int CMySimpleRebar::ReSerialize(FILE *pFile)
 		TCHAR szClassName[128]={0};
 
 		//size+=::ReSerialize(pFile,rbBand);
-
-		size+=::ReSerialize(pFile,szClassName);
+		f>>szClassName;
 	}
 
-	return size;
+	return f;
 }
+
+
+FILE& MYTREE::operator>>(FILE& f)
+{
+	return f<<childs<<data;
+}
+
+FILE& MYTREE::operator<<(FILE& f)
+{
+	return f>>childs>>data;
+}
+
+
+
+FILE& dataNode::operator>>(FILE& f)
+{
+	f<<nodeName<<rc;
+	f<<(type==left_right?1:0);
+
+	int numBars=SplitterBarRects.size();
+	f<<numBars;
+	if (numBars>0)
+		for (auto it=SplitterBarRects.begin();it!=SplitterBarRects.end();++it)
+			f<<(*it);
+	return f;
+}
+
+FILE& dataNode::operator<<(FILE& f)
+{
+	int leftright;
+
+	f>>nodeName>>rc>>leftright;
+	type=leftright?left_right:up_down;
+
+	int numBars;
+	f>>numBars;
+	for (int i=0;i<numBars;++i)
+	{
+		RECT rc;
+		f>>rc;
+		SplitterBarRects.push_back(rc);
+	}
+
+	return f;
+}
+

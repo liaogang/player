@@ -64,10 +64,9 @@ MyLib::~MyLib()
 
 
 //-----------------------------------------
-
 BOOL MyLib::play(PlayListItem *item)
 {	
-	if( item->isValide())
+	if( item && item->isValide())
 	{
 		PlayList *pl=item->GetPlayList();
 		SetPlayingIndex(pl);

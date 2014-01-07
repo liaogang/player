@@ -25,7 +25,6 @@ static int columnIndexClicked;
 
 class CPlayListView:
 	public CListImpl< CPlayListView >
-	//,public CMessageFilter
 {
 private:
 	PlayList *  m_pPlayList;

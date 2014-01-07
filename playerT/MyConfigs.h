@@ -1,7 +1,7 @@
 #include "MySerialize.h"
 #include "customMsg.h"
 
-class MyConfigs:public SerializeObj
+class MyConfigs:public SerializeObj<MyConfigs>
 {
 public:
 	MyConfigs():bResumeOnReboot(1),playersVolume(100),playorder(0)
@@ -10,9 +10,8 @@ public:
 
 	}
 public:
-	int SerializeB(FILE *pFile);
-
-	int ReSerialize(FILE *pFile);
+	FILE& operator<<(FILE& f);
+	FILE& operator>>(FILE& f);
 public:
 	
 	inline int getResumeOnReboot(){return bResumeOnReboot;}
