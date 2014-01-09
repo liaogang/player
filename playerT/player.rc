@@ -480,7 +480,7 @@ IDR_MENU_LRC MENU
 BEGIN
     POPUP "歌词面板"
     BEGIN
-        MENUITEM "重载歌词",                        ID_32848
+        MENUITEM "重载歌词",                        ID_RELOAD_LYRICS
         MENUITEM "已找到的歌词",                      ID_SHOW_LRC_LIST
         MENUITEM SEPARATOR
         MENUITEM "参数选项",                        ID_32850

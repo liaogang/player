@@ -59,8 +59,10 @@ public:
 		}
 	}
 
+	
+
 	//发送广播消息
-	void Msg(UINT uMsg,WPARAM wParam=NULL,LPARAM lParam=NULL)
+	void Msg(UINT uMsg,BOOL bPost,WPARAM wParam=NULL,LPARAM lParam=NULL)
 	{
 #ifdef _DEBUG
 		//AtlTrace(L"message WM_USER+%d come in to msg center\n",uMsg-WM_USER);
@@ -72,7 +74,10 @@ public:
 			ListOfOneMsg* pList=it->second;
 			for (ListOfOneMsg::iterator it2=pList->begin();it2!=pList->end();++it2)
 			{
-				::SendMessage(*it2,uMsg,wParam,lParam);
+				if(bPost)
+					::PostMessage(*it2,uMsg,wParam,lParam);
+				else
+					::SendMessage(*it2,uMsg,wParam,lParam);
 			}
 		}
 	}
@@ -85,4 +90,5 @@ void LoginOutMsgReceiver(UINT uMsg,HWND hWnd);
 void RegistMsgReceiver(UINT uMsg,HWND hWnd);
 
 
-inline void NotifyMsg(UINT uMsg,WPARAM wParam=NULL,LPARAM lParam=NULL){NotifyCenter()->Msg(uMsg,wParam,lParam);}
+inline void NotifyMsg(UINT uMsg,BOOL bPost=FALSE,WPARAM wParam=NULL,LPARAM lParam=NULL){NotifyCenter()->Msg(uMsg,wParam,lParam,bPost);}
+

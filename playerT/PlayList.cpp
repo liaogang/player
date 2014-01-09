@@ -312,6 +312,7 @@ _songContainerItem PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 	{
 		if(selectedIndex==-1)
 		{
+
 			if(m_songList.size()>0)
 			return m_songList[0];
 		}
@@ -322,7 +323,7 @@ _songContainerItem PlayList::GetNextTrackByOrder(BOOL bMoveCur)
 	//MyLib::shared()->lastPlayingItem=GetPlayingItem();
 
 	next=MyLib::shared()->GetNextByOrder(m_songList.begin(), cur ,m_songList.end());
-
+	if(next==m_songList.end())return NULL;
 	//if(bMoveCur)curPlayingItem=*next;
 	return *next;
 }

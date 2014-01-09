@@ -345,6 +345,8 @@ void CBasicPlayer::SetPos(int cur,int max)
 		
 		m_pFile->SetPos(cur,max);
 
+		NotifyMsg(WM_TRACK_POS_CHANGED,TRUE);
+
 		m_pPlayerThread->EndChangeTrackPos();
 
 		m_cs.Leave();

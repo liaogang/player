@@ -14,7 +14,7 @@ public:
 	{}
 };
 
-//#define  WM_TRACKPOS          (WM_USER+22)  
+#define  WM_TRACK_POS_CHANGED          (WM_USER+22)  
 
 #define  WM_TRACK_REACH_END   (WM_USER+33)//“ÙπÏµΩ¥Ôƒ©Œ≤
 #define  WM_TRACKSTOPPED      (WM_USER+34)//“ÙπÏ≤•∑≈Õ£÷π

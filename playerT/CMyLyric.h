@@ -65,7 +65,7 @@ public:
 
 public:
 	BEGIN_MSG_MAP_EX(CMyLyric)
-		//MESSAGE_HANDLER(WM_TRACKPOS,OnPos)
+		MESSAGE_HANDLER(WM_TRACK_POS_CHANGED,OnTrackPosChanged)
 		MESSAGE_HANDLER(WM_LYRIC_RELOAD,OnLyricReload)
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
 
@@ -90,269 +90,299 @@ public:
 		COMMAND_ID_HANDLER(ID_MENU_LRC_PANE_PROPERTY,OnProperty)
 		COMMAND_ID_HANDLER(ID_MENU_SEARCH_ONLINE,OnShowDlgLrcSearch)
 		COMMAND_ID_HANDLER(ID_SHOW_LRC_LIST,OnShowDlgLrcList)
-		END_MSG_MAP()
+		COMMAND_ID_HANDLER(ID_RELOAD_LYRICS,OnReloadLyrics)
+	END_MSG_MAP()
 
 
-		
-		void OnTimer(UINT_PTR /*nIDEvent*/)
+
+	void OnTimer(UINT_PTR /*nIDEvent*/)
+	{
+		if(m_bPaused || !bLrcReady)
+			return;
+
+		m_uCurrTime+=m_uElapse;
+
+
+// 		LrcLine nextLrcLine=*nextLine;
+// 
+// 		if (m_uCurrTime <= nextLrcLine.time.GetTotalMillisec())
+// 			return;
+// 
+// 		++nextLine;
+// 		auto k=curLineInfo;
+// 		if(++k!=veclineinfo.end())
+// 		{
+// 			mydraw();
+// 			++curLineInfo;
+// 		}
+// 		else
+// 		{
+// 			mydraw();
+// 			bLrcReady=false;
+// 		}
+
+		UpdateCurrLine();
+
+		mydraw();
+	}
+
+	void UpdateCurrLine()
+	{
+		auto k=veclineinfo.begin();
+		for (auto i=lrcs.begin();i!=lrcs.end();++i,++k)
 		{
-			if(m_bPaused || !bLrcReady)
-				return;
-
-			m_uCurrTime+=m_uElapse;
-			
-
-			LrcLine nextLrcLine=*nextLine;
-
-			if (m_uCurrTime <= nextLrcLine.time.GetTotalMillisec())
-				return;
-
-			++nextLine;
-			auto k=curLineInfo;
-			if(++k!=veclineinfo.end())
-			{
-				mydraw();
-				++curLineInfo;
-			}
-			else
-			{
-				mydraw();
-				bLrcReady=false;
-			}
+			curLineInfo=k;
+			if (m_uCurrTime <= i->time.GetTotalMillisec())
+				break;
 		}
+	}
 
-		void OnDestroy()
-		{
-			IDonotWantToReceiveMessage(WM_LYRIC_RELOAD);
-			IDonotWantToReceiveMessage(WM_NEW_TRACK_STARTED);
-
-
-			IDonotWantToReceiveMessage(WM_PAUSED);
-			IDonotWantToReceiveMessage(WM_PAUSE_START);
-			IDonotWantToReceiveMessage(WM_TRACKSTOPPED);
-
-			if(m_nIDEvent!=0)
-				KillTimer((UINT_PTR)&m_nIDEvent);	
-			
-			SetMsgHandled(FALSE);
-		}
-
-		BOOL OnEraseBkgnd(CDCHandle dc)
-		{
-			//no bkgnd repaint needed
-			if(bLrcReady)
-				return 1;
-			else 
-			{
-				SetMsgHandled(FALSE);
-				return 0;
-			}
-		}
-
-		int OnCreate(LPCREATESTRUCT lpCreateStruct)
-		{
-			Init();
-			SetMsgHandled(FALSE);
-			return 0;
-		}
-
-		UINT m_uTotalTime;
-		UINT m_uCurrTime;
-		LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
-		{
-			trackPosInfo *pos=getTrackPosInfo();
-			m_uTotalTime=pos->left;
-
-			TrackChanged();
-			return 0;
-		}
-
-		LRESULT OnPaused(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-		{
-			m_bPaused=true;
-			return 0;
-		}
-
-		LRESULT OnPauseStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-		{
-			m_bPaused=false;
-			return 0;
-		}
-
-		LRESULT OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-		{
-			bLrcReady=FALSE;
-
-			if(m_nIDEvent!=0)
-			{
-				KillTimer((UINT_PTR)&m_nIDEvent);
-				m_nIDEvent=0;
-			}
+	void OnDestroy()
+	{
+		IDonotWantToReceiveMessage(WM_TRACK_POS_CHANGED);
+		IDonotWantToReceiveMessage(WM_LYRIC_RELOAD);
+		IDonotWantToReceiveMessage(WM_NEW_TRACK_STARTED);
 
 
-			ResetTitle();
+		IDonotWantToReceiveMessage(WM_PAUSED);
+		IDonotWantToReceiveMessage(WM_PAUSE_START);
+		IDonotWantToReceiveMessage(WM_TRACKSTOPPED);
 
-			Invalidate(TRUE);
+		if(m_nIDEvent!=0)
+			KillTimer((UINT_PTR)&m_nIDEvent);	
 
-			return 0;
-		}
+		SetMsgHandled(FALSE);
+	}
 
-		SIZE sz;
-		BOOL bLrcReady;
-		FileTrack* track;
-		vector<LrcLine>::iterator curLine,nextLine;
-
-		std::wstring title;
-
-		RECT m_rcClient;
-
-		void OnPaint(CDCHandle dc)
-		{
-			PAINTSTRUCT ps;
-			::BeginPaint(m_hWnd,&ps);
-			if(bLrcReady)
-				mydraw(ps.hdc);
-
-			::EndPaint(m_hWnd,&ps);	
-		}
-
-		BOOL m_bSized;
-
-		//If an application processes this message, it should return zero. 
-		LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-		{
-			GetClientRect(&m_rcClient);
-			
-			m_bSized=TRUE;
-
-			bHandled=FALSE;
+	BOOL OnEraseBkgnd(CDCHandle dc)
+	{
+		//no bkgnd repaint needed
+		if(bLrcReady)
 			return 1;
-		}
-
-		LRESULT OnProperty(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+		else 
 		{
-			// 			CColorDialog dlg;
-			// 			dlg.DoModal(m_hWnd);
+			SetMsgHandled(FALSE);
 			return 0;
 		}
+	}
 
+	int OnCreate(LPCREATESTRUCT lpCreateStruct)
+	{
+		Init();
+		SetMsgHandled(FALSE);
+		return 0;
+	}
 
+	UINT m_uTotalTime;
+	UINT m_uCurrTime;
+	LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		trackPosInfo *pos=getTrackPosInfo();
+		m_uTotalTime=pos->left;
 
-		LRESULT OnShowDlgLrcList(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+		TrackChanged();
+		return 0;
+	}
+
+	LRESULT OnPaused(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		m_bPaused=true;
+		return 0;
+	}
+
+	LRESULT OnPauseStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		m_bPaused=false;
+		return 0;
+	}
+
+	LRESULT OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		bLrcReady=FALSE;
+
+		if(m_nIDEvent!=0)
 		{
-			DialogLrcList dlg;
-			dlg.DoModal();
-
-			return 0;
+			KillTimer((UINT_PTR)&m_nIDEvent);
+			m_nIDEvent=0;
 		}
 
 
-		CDlgLrcSearch dlgLrcSearch;
-		LRESULT OnShowDlgLrcSearch(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+		ResetTitle();
+
+		Invalidate(TRUE);
+
+		return 0;
+	}
+
+	SIZE sz;
+	BOOL bLrcReady;
+	FileTrack* track;
+	vector<LrcLine>::iterator curLine;
+	//,nextLine
+
+	std::wstring title;
+
+	RECT m_rcClient;
+
+	void OnPaint(CDCHandle dc)
+	{
+		PAINTSTRUCT ps;
+		::BeginPaint(m_hWnd,&ps);
+		if(bLrcReady)
+			mydraw(ps.hdc);
+
+		::EndPaint(m_hWnd,&ps);	
+	}
+
+	BOOL m_bSized;
+
+	//If an application processes this message, it should return zero. 
+	LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		GetClientRect(&m_rcClient);
+
+		m_bSized=TRUE;
+
+		bHandled=FALSE;
+		return 1;
+	}
+
+	LRESULT OnProperty(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		// 			CColorDialog dlg;
+		// 			dlg.DoModal(m_hWnd);
+		return 0;
+	}
+
+
+	LRESULT OnReloadLyrics(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		TrackChanged();
+
+		return 0;
+	}
+
+	LRESULT OnShowDlgLrcList(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		DialogLrcList dlg;
+		dlg.DoModal();
+
+		return 0;
+	}
+
+
+	CDlgLrcSearch dlgLrcSearch;
+	LRESULT OnShowDlgLrcSearch(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		if (!dlgLrcSearch.IsWindow())
+			dlgLrcSearch.Create(T::m_hWnd);
+
+		WCHAR  path[MAX_PATH]={};
+
+
+		if(MyLib::shared()->isPlaying())
 		{
-			if (!dlgLrcSearch.IsWindow())
-				dlgLrcSearch.Create(T::m_hWnd);
-
-			WCHAR  path[MAX_PATH]={};
-
-
-			if(MyLib::shared()->isPlaying())
+			_songContainerItem playlistitem=MyLib::shared()->GetPlayingPL()->GetPlayingItem();
+			FileTrack* track=playlistitem->GetFileTrack();
+			if (track)
 			{
-				_songContainerItem playlistitem=MyLib::shared()->GetPlayingPL()->GetPlayingItem();
-				FileTrack* track=playlistitem->GetFileTrack();
-				if (track)
+				if(MyLib::shared()->lrcDirs.size()>0)
+					wcscpy(path,(WCHAR*)(*(MyLib::shared()->lrcDirs.begin())).c_str());
+				else
 				{
-					if(MyLib::shared()->lrcDirs.size()>0)
-						wcscpy(path,(WCHAR*)(*(MyLib::shared()->lrcDirs.begin())).c_str());
-					else
-					{
-						int idx=track->url.find_last_of('\\');
-						ATLASSERT(idx!=track->url.npos);
+					int idx=track->url.find_last_of('\\');
+					ATLASSERT(idx!=track->url.npos);
 
-						if (idx!=track->url.npos)
-							wcscpy(path,track->url.c_str()+idx+1);
-					}
+					if (idx!=track->url.npos)
+						wcscpy(path,track->url.c_str()+idx+1);
+				}
 
-					//we use path\artist - title.lrc
-					wcscat(wcscat(path,L"\\"),track->artist.c_str());
-					wcscat(wcscat(path,L" - "),track->title.c_str());
-					wcscat(path,L".lrc");
+				//we use path\artist - title.lrc
+				wcscat(wcscat(path,L"\\"),track->artist.c_str());
+				wcscat(wcscat(path,L" - "),track->title.c_str());
+				wcscat(path,L".lrc");
 
-					dlgLrcSearch.ReInit((WCHAR*)track->artist.c_str(),(WCHAR*)track->title.c_str(),path);
-				}//if(item)
-			}
-
-
-			if(!path)
-				dlgLrcSearch.ReInit(NULL,NULL,NULL);
-
-			dlgLrcSearch.ShowWindow(SW_SHOW);
-
-			return 0;
+				dlgLrcSearch.ReInit((WCHAR*)track->artist.c_str(),(WCHAR*)track->title.c_str(),path);
+			}//if(item)
 		}
 
 
+		if(!path)
+			dlgLrcSearch.ReInit(NULL,NULL,NULL);
 
-		LRESULT OnLyricReload(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-		{
-			TrackChanged();
-			return 0;
-		}
+		dlgLrcSearch.ShowWindow(SW_SHOW);
 
-		void OnRButtonUp(UINT nFlags, CPoint point)
-		{
-			::ClientToScreen(m_hWnd,&point);
-			::TrackPopupMenu(trackMenu,TPM_LEFTALIGN,point.x,point.y,0,m_hWnd,0);
-		}
+		return 0;
+	}
 
-		HDC m_memDCNormal,m_memDCHighlight;
-		CFont m_Font;
+	
+	LRESULT OnTrackPosChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		UpdateTime();
+		UpdateCurrLine();
+		return 0;
+	}
 
-		vector<lineinfo> veclineinfo;
-		vector<lineinfo>::iterator curLineInfo;
-		vector<LrcLine> lrcs;
-		
-		int m_nFontHeight;//字高
+	LRESULT OnLyricReload(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		TrackChanged();
+		return 0;
+	}
 
-		int m_iESize;//歌词上方的空白区域
-		//We will Create two memory drawing context
-		//One is normal,another is highlighted
-		//Then,we will cut on line space from the true display draw context
-		//parse with the highlighted memory one
-		//parse other with the normal memory one
-		void CreateBackDC(BOOL bNewTrack=FALSE)
-		{
-			int lineSpacing;//行间隔
-			int lineHeight;//行高=字高*几行字 + 行间隔
-			int lineWidth;//每一行的宽度
-			int lineWidthSpacing;//行与窗口的左右间隔
-			int totalHeight;
-			m_iESize=500;
+	void OnRButtonUp(UINT nFlags, CPoint point)
+	{
+		::ClientToScreen(m_hWnd,&point);
+		::TrackPopupMenu(trackMenu,TPM_LEFTALIGN,point.x,point.y,0,m_hWnd,0);
+	}
 
-			HDC dc=GetDC();
-			
+	HDC m_memDCNormal,m_memDCHighlight;
+	CFont m_Font;
 
-			//settings
-			lineWidthSpacing=3;
-			lineSpacing=3;
-			lineWidth=m_rcClient.right-m_rcClient.left-3;
-			lineHeight=+lineSpacing+m_nFontHeight;
+	vector<lineinfo> veclineinfo;
+	vector<lineinfo>::iterator curLineInfo;
+	vector<LrcLine> lrcs;
 
+	int m_nFontHeight;//字高
 
-			//
-			RECT rcDest;
-			rcDest.left=3;
-			rcDest.top=3;
-			rcDest.right=lineWidth+rcDest.left;
-			rcDest.bottom=lrcs.size()*lineHeight+rcDest.top;
+	int m_iESize;//歌词上方的空白区域
+	//We will Create two memory drawing context
+	//One is normal,another is highlighted
+	//Then,we will cut on line space from the true display draw context
+	//parse with the highlighted memory one
+	//parse other with the normal memory one
+	void CreateBackDC(BOOL bNewTrack=FALSE)
+	{
+		int lineSpacing;//行间隔
+		int lineHeight;//行高=字高*几行字 + 行间隔
+		int lineWidth;//每一行的宽度
+		int lineWidthSpacing;//行与窗口的左右间隔
+		int totalHeight;
+		m_iESize=500;
+
+		HDC dc=GetDC();
 
 
-			//Draw In Normal and HighLight mode
-			static COLORREF textColor=RGB(0,118,163);
-			static COLORREF textColorHighlight=RGB(128,0,0);
-			
-			static RECT rcDesktop;
-			if(bNewTrack){
+		//settings
+		lineWidthSpacing=3;
+		lineSpacing=3;
+		lineWidth=m_rcClient.right-m_rcClient.left-3;
+		lineHeight=+lineSpacing+m_nFontHeight;
+
+
+		//
+		RECT rcDest;
+		rcDest.left=3;
+		rcDest.top=3;
+		rcDest.right=lineWidth+rcDest.left;
+		rcDest.bottom=lrcs.size()*lineHeight+rcDest.top;
+
+
+		//Draw In Normal and HighLight mode
+		static COLORREF textColor=RGB(0,118,163);
+		static COLORREF textColorHighlight=RGB(128,0,0);
+
+		static RECT rcDesktop;
+		if(bNewTrack){
 
 			HWND destop=GetDesktopWindow();
 			::GetClientRect(destop,&rcDesktop);
@@ -362,7 +392,7 @@ public:
 			if(m_memDCNormal!=NULL)::DeleteDC(m_memDCNormal);
 			if(m_memDCHighlight!=NULL)::DeleteDC(m_memDCHighlight);
 
-			
+
 			m_memDCNormal=::CreateCompatibleDC(dc);
 			HBITMAP tmp=::CreateCompatibleBitmap(dc,WIDTH(rcDesktop),HEIGHT(rcDesktop));
 			::SelectObject(m_memDCNormal,tmp);
@@ -378,229 +408,246 @@ public:
 			//draw backgnd rectangle
 			HBRUSH hOldBrush1=(HBRUSH) ::SelectObject(m_memDCNormal,brush);			
 			HPEN hOldPen1=(HPEN) ::SelectObject(m_memDCNormal,newPen);
-			
-			
+
+
 			HBRUSH hOldBrush2=(HBRUSH) ::SelectObject(m_memDCHighlight,brush);			
 			HPEN hOldPen2=(HPEN)::SelectObject(m_memDCHighlight,newPen);
-			}
-
-			
-			::Rectangle(m_memDCNormal,rcDesktop.left-1,rcDesktop.top,rcDesktop.right+1,rcDesktop.bottom+1);
-			::Rectangle(m_memDCHighlight,rcDesktop.left-1,rcDesktop.top,rcDesktop.right+1,rcDesktop.bottom+1);
-
-			//now draw text
-			if(bNewTrack)
-			{
-				SetBkMode(m_memDCNormal,TRANSPARENT);
-				SetBkMode(m_memDCHighlight,TRANSPARENT);
-			
-				SetTextColor(m_memDCNormal,textColor);
-				SetTextColor(m_memDCHighlight,textColorHighlight);
-			}
+		}
 
 
-			lineinfo info;
-			memset(&info,0,sizeof(info));
-			
-			info.yPos=m_iESize;
+		::Rectangle(m_memDCNormal,rcDesktop.left-1,rcDesktop.top,rcDesktop.right+1,rcDesktop.bottom+1);
+		::Rectangle(m_memDCHighlight,rcDesktop.left-1,rcDesktop.top,rcDesktop.right+1,rcDesktop.bottom+1);
 
-			if(bNewTrack)
-				veclineinfo.clear();
+		//now draw text
+		if(bNewTrack)
+		{
+			SetBkMode(m_memDCNormal,TRANSPARENT);
+			SetBkMode(m_memDCHighlight,TRANSPARENT);
 
-			for (auto i=lrcs.begin();i!=lrcs.end();++i)
-			{
-				info.yPos=info.yPos+info.nStrLines*m_nFontHeight;
-				info.nStrLines=GetStrSizeX(dc,(TCHAR*)i->text.c_str())/(int)lineWidth+1;
+			SetTextColor(m_memDCNormal,textColor);
+			SetTextColor(m_memDCHighlight,textColorHighlight);
+		}
 
-				if(bNewTrack)
-					veclineinfo.push_back(info);
 
-				RECT rcString;
-				rcString.left=lineWidthSpacing;
-				rcString.right=rcString.left+lineWidth;
-				rcString.top=info.yPos;
-				rcString.bottom=rcString.top+info.nStrLines*m_nFontHeight;
-				::DrawText(m_memDCNormal,i->text.c_str(),i->text.length(),&rcString,DT_CENTER);//DT_CALCRECT|
-				::DrawText(m_memDCHighlight,i->text.c_str(),i->text.length(),&rcString,DT_CENTER);//DT_CALCRECT|
-			}
+		lineinfo info;
+		memset(&info,0,sizeof(info));
 
+		info.yPos=m_iESize;
+
+		if(bNewTrack)
+			veclineinfo.clear();
+
+		for (auto i=lrcs.begin();i!=lrcs.end();++i)
+		{
+			info.yPos=info.yPos+info.nStrLines*m_nFontHeight;
+			info.nStrLines=GetStrSizeX(dc,(TCHAR*)i->text.c_str())/(int)lineWidth+1;
 
 			if(bNewTrack)
-			{
-				curLineInfo=veclineinfo.begin();
-				totalHeight=info.yPos+info.nStrLines*m_nFontHeight;
+				veclineinfo.push_back(info);
 
-			}
+			RECT rcString;
+			rcString.left=lineWidthSpacing;
+			rcString.right=rcString.left+lineWidth;
+			rcString.top=info.yPos;
+			rcString.bottom=rcString.top+info.nStrLines*m_nFontHeight;
+			::DrawText(m_memDCNormal,i->text.c_str(),i->text.length(),&rcString,DT_CENTER);//DT_CALCRECT|
+			::DrawText(m_memDCHighlight,i->text.c_str(),i->text.length(),&rcString,DT_CENTER);//DT_CALCRECT|
+		}
+
+
+		if(bNewTrack)
+		{
+			curLineInfo=veclineinfo.begin();
+			totalHeight=info.yPos+info.nStrLines*m_nFontHeight;
+
+		}
+		ReleaseDC(dc);
+	}
+
+	void mydraw(HDC dc_=NULL)
+	{
+		HDC dc=dc_==NULL?GetDC():dc_;
+
+		if(m_bSized)
+		{
+			m_bSized=FALSE;
+			CreateBackDC();
+		}
+
+		RECT rcDest;
+		GetClientRect(&rcDest);
+		int y;
+		if(!bLrcReady)return;
+		auto kk=curLineInfo;
+		//if(curLineInfo!=veclineinfo.begin())
+		//	--kk;
+
+		y= kk->yPos - (m_rcClient.bottom-m_rcClient.top)/2 ;
+
+		//first draw the back ground
+		// 			if(y<0)
+		// 			{
+		// 				HBRUSH hOldBrush1=(HBRUSH) ::SelectObject(dc,brush);	
+		// 				Rectangle(dc,rcDest.left-1,rcDest.top-1,rcDest.right+1,0-y+2);
+		// 				::SelectObject(dc,hOldBrush1);	
+		// 			}
+
+		// bitblt the lyrics
+		RECT rcLine=rcDest;
+		rcLine.top=HEIGHT(rcDest) /2;
+		rcLine.bottom=rcLine.top+curLineInfo->nStrLines*m_nFontHeight;
+
+		::BitBlt(dc,rcDest.left,rcDest.top,WIDTH(rcDest),HEIGHT(rcDest),
+			m_memDCNormal,0,y , SRCCOPY);
+
+		::BitBlt(dc,rcLine.left,rcLine.top,WIDTH(rcLine),HEIGHT(rcLine),
+			m_memDCHighlight,0,y+rcLine.top, SRCCOPY);
+
+		if(dc_==NULL)
 			ReleaseDC(dc);
-		}
+	}
 
-		void mydraw(HDC dc_=NULL)
+
+
+	UINT m_nIDEvent;
+	bool m_bPaused;
+	static const int m_uElapse=500;
+	void TrackChanged()
+	{
+		bLrcReady=FALSE;
+
+		if(!MyLib::shared()->isPlaying())
+			return;
+
+		track=MyLib::shared()->GetPlayingPL()->GetPlayingItem()->GetFileTrack();
+
+		LrcMng *sLM=LrcMng::Get();
+		if( track->GetLrcFileFromLib(TRUE) )
 		{
-			HDC dc=dc_==NULL?GetDC():dc_;
-			
-			if(m_bSized)
-			{
-				m_bSized=FALSE;
-				CreateBackDC();
-			}
-			
-			RECT rcDest;
-			GetClientRect(&rcDest);
-			int y;
-			if(!bLrcReady)return;
-			auto kk=curLineInfo;
-			//if(curLineInfo!=veclineinfo.begin())
-			//	--kk;
+			lrcs=LrcMng::Get()->lib;
+			veclineinfo.clear();
 
-			y= kk->yPos - (m_rcClient.bottom-m_rcClient.top)/2 ;
+			CreateBackDC(TRUE);
 
-			//first draw the back ground
-// 			if(y<0)
-// 			{
-// 				HBRUSH hOldBrush1=(HBRUSH) ::SelectObject(dc,brush);	
-// 				Rectangle(dc,rcDest.left-1,rcDest.top-1,rcDest.right+1,0-y+2);
-// 				::SelectObject(dc,hOldBrush1);	
-// 			}
 
-			// bitblt the lyrics
-			RECT rcLine=rcDest;
-			rcLine.top=HEIGHT(rcDest) /2;
-			rcLine.bottom=rcLine.top+curLineInfo->nStrLines*m_nFontHeight;
+			m_bPaused=false;
 
-			::BitBlt(dc,rcDest.left,rcDest.top,WIDTH(rcDest),HEIGHT(rcDest),
-				m_memDCNormal,0,y , SRCCOPY);
-			
-			::BitBlt(dc,rcLine.left,rcLine.top,WIDTH(rcLine),HEIGHT(rcLine),
-				m_memDCHighlight,0,y+rcLine.top, SRCCOPY);
 
-			if(dc_==NULL)
-				ReleaseDC(dc);
+			SetTimer((UINT_PTR)&m_nIDEvent,m_uElapse,NULL);
+
+
+			//del lyricfromlrcfile
+			//use global
+			//nextLine=lrcs.begin();
+			UpdateTime();
+			UpdateCurrLine();
+
+			bLrcReady=TRUE;
 		}
 
 
+		Invalidate();
 
-		UINT m_nIDEvent;
-		bool m_bPaused;
-		static const int m_uElapse=500;
-		void TrackChanged()
+		if(track->lycPath.empty())
+			ResetTitle();
+		else
 		{
-			bLrcReady=FALSE;
-			
-			if(!MyLib::shared()->isPlaying())
-				return;
-
-			track=MyLib::shared()->GetPlayingPL()->GetPlayingItem()->GetFileTrack();
-
-			LrcMng *sLM=LrcMng::Get();
-			if( track->GetLrcFileFromLib(TRUE) )
-			{
-				lrcs=LrcMng::Get()->lib;
-				veclineinfo.clear();
-
-				CreateBackDC(TRUE);
-
-				
-				m_bPaused=false;
-				m_uCurrTime=0;
-				SetTimer((UINT_PTR)&m_nIDEvent,m_uElapse,NULL);
-
-
-				//del lyricfromlrcfile
-				//use global
-				nextLine=lrcs.begin();
-				bLrcReady=TRUE;
-			}
-
-			Invalidate();
-
-			if(track->lycPath.empty())
-				ResetTitle();
-			else
-			{
-				title=track->lycPath;
-				ChangedTitle();
-			}
-
+			title=track->lycPath;
+			ChangedTitle();
 		}
 
-		void Init()
+	}
+
+	void UpdateTime()
+	{
+		 				int usedtotalSec=getTrackPosInfo()->used;
+		// 				int usedMinute=usedtotalSec/60;
+		// 				int usedSec=usedtotalSec - usedMinute*60;
+		// 				int Millisec=usedSec*10;
+
+		m_uCurrTime=usedtotalSec*1000;
+	}
+
+	void Init()
+	{
+		SetFont(m_Font.m_hFont);
+
+		//GetTextExtentPoint32(GetDC(),_T("A"),1,&sz); 
+		sz.cy=19;
+
+		track=NULL;
+		bLrcReady=FALSE;
+
+
+		
+		IWantToReceiveMessage(WM_TRACK_POS_CHANGED);
+		IWantToReceiveMessage(WM_LYRIC_RELOAD);
+
+		IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
+		IWantToReceiveMessage(WM_PAUSED);
+		IWantToReceiveMessage(WM_PAUSE_START);
+		IWantToReceiveMessage(WM_TRACKSTOPPED);
+
+		TrackChanged();
+	}
+
+	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		CenterWindow(GetParent());
+		Init();
+		return TRUE;
+	}
+
+	void ChangedTitle()
+	{
+		SetWindowText((LPTSTR)title.c_str());
+	}
+
+	void ResetTitle()
+	{
+		SetWindowText(_T("歌词"));
+	}
+
+
+	LRESULT OnOpenLrcFile(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		if(track->m_bLrcFromLrcFile)
 		{
-			SetFont(m_Font.m_hFont);
-
-			//GetTextExtentPoint32(GetDC(),_T("A"),1,&sz); 
-			sz.cy=19;
-
-			track=NULL;
-			bLrcReady=FALSE;
-
-	
-			IWantToReceiveMessage(WM_LYRIC_RELOAD);
-			
-			IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
-			IWantToReceiveMessage(WM_PAUSED);
-			IWantToReceiveMessage(WM_PAUSE_START);
-			IWantToReceiveMessage(WM_TRACKSTOPPED);
-
-			TrackChanged();
+			ShellExecute(NULL,L"open",
+				L"explorer",
+				track->lycPath.c_str(),
+				L"",
+				SW_SHOW);
 		}
 
-		LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-		{
-			CenterWindow(GetParent());
-			Init();
-			return TRUE;
+		return 0;
+	}
+
+	LRESULT OnMenuFolderOpen(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		if(track->m_bLrcFromLrcFile){
+			std::tstring tmp=L"/select,";
+			tmp+=track->lycPath.c_str();
+
+			ShellExecute(NULL,L"open",
+				L"explorer",
+				tmp.c_str(),
+				L"",
+				SW_SHOW);
 		}
 
-		void ChangedTitle()
-		{
-			SetWindowText((LPTSTR)title.c_str());
-		}
+		return 0;
+	}
 
-		void ResetTitle()
-		{
-			SetWindowText(_T("歌词"));
-		}
+	LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		ShowWindow(SW_HIDE);
+		return 0;
+	}
 
-
-		LRESULT OnOpenLrcFile(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-		{
-			if(track->m_bLrcFromLrcFile)
-			{
-				ShellExecute(NULL,L"open",
-					L"explorer",
-					track->lycPath.c_str(),
-					L"",
-					SW_SHOW);
-			}
-
-			return 0;
-		}
-
-		LRESULT OnMenuFolderOpen(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-		{
-			if(track->m_bLrcFromLrcFile){
-				std::tstring tmp=L"/select,";
-				tmp+=track->lycPath.c_str();
-
-				ShellExecute(NULL,L"open",
-					L"explorer",
-					tmp.c_str(),
-					L"",
-					SW_SHOW);
-			}
-
-			return 0;
-		}
-
-		LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-		{
-			ShowWindow(SW_HIDE);
-			return 0;
-		}
-
-		virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
-		{
-			delete this;
-		}
+	virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
+	{
+		delete this;
+	}
 };
 
