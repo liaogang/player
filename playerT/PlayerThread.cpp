@@ -59,7 +59,7 @@ void CPlayerThread::Reset()
 
 
 
-BOOL CPlayerThread:: ReadFileReduceVol(BOOL bReduce)
+BOOL CPlayerThread:: ReadFileReduceVol(BOOL bReduce,char *debugStr)
 {
 	BOOL bFileEnd=FALSE;
 	
@@ -67,23 +67,27 @@ BOOL CPlayerThread:: ReadFileReduceVol(BOOL bReduce)
 
 	int times= bReduce ? 16 :  8 ;
 	int   totalBufferLen=fileBufferLen * times;
-	BYTE *fileBuffer=(BYTE*)pBufFFT1;
+
+	static BYTE *fileBuffer=new BYTE[16*fileBufferLen];
 
 	double vol=bReduce ? 1 : 0;
 	
-	
-
 	double step=1/(double)times;
 	int   bufferOffset=0;
 	while(times--)
 	{
 		vol = bReduce ? vol - step : vol + step ;
 
-		m_pPlayer->m_pFile->SetOutVolume(vol);
+		//m_pPlayer->m_pFile->SetOutVolume(vol);
 
+		strcat(debugStr,"(");
+		char buf[128]={0};
+		sprintf(buf,"  %p,%d,%d,%d  ",fileBuffer, bufferOffset,fileBufferLen,m_dwSizeRead);
+		strcat(debugStr,buf);
 		if(!m_pPlayer->m_pFile->Read(fileBuffer + bufferOffset,fileBufferLen,&m_dwSizeRead) ||
 			m_dwSizeRead==0 )
 		{
+			strcat(debugStr,")");
 			bFileEnd=TRUE;
 			break;
 		}
@@ -91,17 +95,32 @@ BOOL CPlayerThread:: ReadFileReduceVol(BOOL bReduce)
 		{
 			bufferOffset+=m_dwSizeRead;
 		}
+		strcat(debugStr,(")"));
 	}
 
 	DSoundBufferWrite(fileBuffer,totalBufferLen);
 
-	m_pPlayer->m_pFile->SetOutVolume(bReduce ? 0 : 1);
+	//m_pPlayer->m_pFile->SetOutVolume(bReduce ? 0 : 1);
 
 	return bFileEnd;
 }
 
+double CPlayerThread::GetOffsetSeconds()
+{
+	DWORD playCursor;
+	if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return 0;
+	DWORD available=DS_GetAvailable(g_dwMaxDSBufferLen,playCursor,m_dwCurWritePos);
 
-BOOL CPlayerThread::BeginChangeTrackPos()
+	DWORD played=g_dwMaxDSBufferLen-available;
+	WAVEFORMATEX *pwfx=0;
+
+	pwfx=m_pPlayer->m_pFile->GetFormat();
+	
+	double timePlayed=played/pwfx->nAvgBytesPerSec;
+	return timePlayed;
+}
+
+BOOL CPlayerThread::BeginChangeTrackPos(char *debugStr)
 {
 	//Set our write pos to actually direct sound write cursor
 	DWORD dwWrite;
@@ -118,15 +137,15 @@ BOOL CPlayerThread::BeginChangeTrackPos()
 
 	m_dwCurWritePos=dwWrite;
 	//read file . send to direct sound buffer .
-	ReadFileReduceVol(TRUE);
+	ReadFileReduceVol(TRUE,debugStr);
 
 	return dwWrite;
 }
 
 
-BOOL CPlayerThread::EndChangeTrackPos()
+BOOL CPlayerThread::EndChangeTrackPos(char *debugStr)
 {
-	ReadFileReduceVol(FALSE);
+	ReadFileReduceVol(FALSE,debugStr);
 
 	return TRUE;
 }
@@ -164,7 +183,6 @@ void CPlayerThread::Excute()
 
 void CPlayerThread::WriteDataToDSBuf()
 {
-
 	//if the direct sound buffer is about to over flow ,
 	//wait some times.
 	DWORD playCursor;

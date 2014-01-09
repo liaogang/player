@@ -42,6 +42,11 @@ trackPosInfo *getTrackPosInfo()
 	if( !CBasicPlayer::shared()->stoped() && CBasicPlayer::shared()->m_pFile)
 		CBasicPlayer::shared()->m_pFile->GetPos(&(curPosInfo.used),&(curPosInfo.left));
 
+	int secPlayed=CBasicPlayer::shared()->m_pPlayerThread->GetOffsetSeconds();
+
+	curPosInfo.used+=secPlayed;
+	curPosInfo.left-=secPlayed;
+
 	return &curPosInfo;
 }
 
@@ -341,13 +346,27 @@ void CBasicPlayer::SetPos(int cur,int max)
 	{
 		m_cs.Enter();
 	
-		m_pPlayerThread->BeginChangeTrackPos();
-		
-		m_pFile->SetPos(cur,max);
+		static char debufStr[10240]={0};
 
+		char debufStr2[22];
+		
+		sprintf(debufStr2,("%p\n"),debufStr);
+
+		//::MessageBoxA(GetDesktopWindow(),debufStr2,NULL,MB_OK);
+
+		strcat(debufStr,"a");
+
+		m_pPlayerThread->BeginChangeTrackPos(debufStr);
+		
+		strcat(debufStr,"b");
+
+		m_pFile->SetPos(cur,max);
+		
 		NotifyMsg(WM_TRACK_POS_CHANGED,TRUE);
 
-		m_pPlayerThread->EndChangeTrackPos();
+		m_pPlayerThread->EndChangeTrackPos(debufStr);
+
+		strcat(debufStr,("d"));
 
 		m_cs.Leave();
 	}

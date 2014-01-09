@@ -37,13 +37,13 @@ public:
 	BOOL CleanDSBuffer();
 	void WriteDataToDSBuf();
 
-
+	double GetOffsetSeconds();
 	//return TRUE if file reached end .
-	BOOL ReadFileReduceVol(BOOL bReduce=TRUE);
+	BOOL ReadFileReduceVol(BOOL bReduce=TRUE,char *debugStr=0);
 	
 	
-	BOOL BeginChangeTrackPos();
-	BOOL EndChangeTrackPos();
+	BOOL BeginChangeTrackPos(char *debugStr);
+	BOOL EndChangeTrackPos(char *debugStr);
 
 
 	DWORD m_dwCurWritePos;
