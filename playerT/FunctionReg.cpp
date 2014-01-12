@@ -1,6 +1,6 @@
 #include "FunctionReg.h"
 #include "mytree.h"
-
+#include <vector>
 #include <map>
 using namespace std;
 
@@ -35,13 +35,30 @@ void CreateHWNDbyName(MYTREE *tree)
 
 
 
-
+//static vector<MENUITEMINFO> vecBandClassNames;
 static map<TCHAR*,CreateReBarBandFuns> mapCreateRebarFuns;
 
 void RegisterCreateRebarBandFuns(TCHAR* szBandClassName,CreateReBarBandFuns func)
 {
 	ATLASSERT(szBandClassName);
 	mapCreateRebarFuns.insert(map<TCHAR*,CreateReBarBandFuns>::value_type(szBandClassName,func));
+
+
+
+// 	TCHAR *szBandClassNames=new TCHAR[128];
+// 	_tcscpy(szBandClassNames,szBandClassName);
+// 	
+// 	static int count=0;
+// 
+// 	MENUITEMINFO mi;
+// 	mi.cbSize=sizeof(mi);
+// 	mi.fMask=MIIM_ID|MIIM_STRING;
+// 	mi.fState=MFS_ENABLED;
+// 	mi.wID=ID_REBAR_BASE+count;
+// 	mi.dwTypeData=szBandClassNames;
+// 	mi.cch=_tcslen(szBandClassNames);
+// 
+// 	vecBandClassNames.push_back(mi);
 }
 
 HWND CreateRebarBand(TCHAR *szRebarClassName,HWND hWndParent)

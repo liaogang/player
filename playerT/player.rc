@@ -581,10 +581,6 @@ BEGIN
     BEGIN
         MENUITEM "锁定工具栏",                       ID_REBAR_LOCK
         MENUITEM SEPARATOR
-        MENUITEM "按钮",                          ID_REBAR_TOOL
-        MENUITEM "音量控制",                        ID_REBAR_VOL
-        MENUITEM "定位",                          ID_REBAR_TRACK
-        MENUITEM "播放次序",                        ID_REBAR_PLAYORDER
         MENUITEM SEPARATOR
         MENUITEM "重置工具栏",                       ID_REBAR_RESET
     END

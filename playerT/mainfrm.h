@@ -8,7 +8,8 @@
 #include "AboutDlg.h"
 #include "forwardMsg.h"
 #include "MySerialize.h"
-#include "MyRebar.h"
+#include "MyControls.h"
+
 
 #ifndef _MAINFRAME_H
 #define _MAINFRAME_H

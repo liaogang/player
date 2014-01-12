@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+	#include "StdAfx.h"
 #include <string>
 #include "mytree.h"
 #include "MainFrm.h"
@@ -11,7 +11,6 @@
 
 #include "DialogConfig.h"
 #include "CAlbumCoverView.h"
-#include "CMyTabBar.h"
 #include "DlgProcessing.h"
 #include "PlayListViewMng.h"
 #include "DialogSearch.h"
@@ -23,7 +22,7 @@
 #include <mpg123.h>
 #include "MyConfigs.h"
 #include "Util1.h"
-
+#include "WuLines.h"
 using namespace std;
 
 
@@ -124,66 +123,41 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	//-----------------------------------------
 	// create command bar window
 	HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
-	// attach menu
 	CMenu *pMenu=new CMenu;
 	pMenu->LoadMenu(IDR_MAINFRAME);
 	m_CmdBar.AttachMenu(pMenu->m_hMenu);
-	// load command bar images
 	m_CmdBar.LoadImages(IDR_MAINFRAME);
-	// remove old menu
 	SetMenu(NULL);
 	AddSimpleReBarBand(hWndCmdBar);
 
 
 	//-----------------------------------------
 	//standed toobar 
-	HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd,IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
-	//CreateSimpleReBar(ATL_SIMPLE_REBAR_STYLE);
 	CMyToolBar *pWndToolbar=new CMyToolBar;
-	pWndToolbar->SubclassWindow(hWndToolBar);
-	AddSimpleReBarBand(hWndToolBar, NULL,TRUE,0,TRUE);
+	pWndToolbar->CreateIsWnd(m_wndRebar);
+	m_wndRebar.AddSimpleReBarBand(*pWndToolbar, pWndToolbar->GetBandClassName(),NULL,TRUE,0,TRUE);
 	
 	
 	//------------------------------------------------
 	//progress track bar
 	m_pTrackBar=new CMyTrackBar;
-	UINT style=WS_CHILD  | WS_VISIBLE /*| WS_CLIPCHILDREN | WS_CLIPSIBLINGS*/;
-	style|=TBS_TOOLTIPS  |TBS_NOTICKS |TBS_AUTOTICKS  | TBS_BOTH ; 
-	UINT styleEx=0; 
-
-	HWND hWndProgressBar=m_pTrackBar->CreateIsWnd(m_hWndToolBar);
+	m_pTrackBar->CreateIsWnd(m_wndRebar);
 	m_wndRebar.pTrack=m_pTrackBar;
-
-	AddSimpleReBarBand(hWndProgressBar,NULL,FALSE,280,TRUE);
-
+	m_wndRebar.AddSimpleReBarBand(*m_pTrackBar,m_pTrackBar->GetBandClassName(),NULL,FALSE,280,TRUE);
 	
 	//-----------------------------------------
 	//combo box
 	m_pComboBox=new CMyComboBox;
-	HWND comboBar=m_pComboBox->CreateIsWnd(m_hWndToolBar);
-// 	 	CFont font;
-// 	 	LOGFONT lf;
-// 	 	memset(&lf, 0, sizeof(LOGFONT));       // zero out structure
-// 	 	//lf.lfHeight = 20;                      // request a 12-pixel-height font
-// 	 	lf.lfItalic=TRUE;
-// 	 	//lf.lfCharSet=
-// 	 	lf.lfUnderline=TRUE;
-// 	 	_tcscpy((TCHAR*)lf.lfFaceName, _T("Arial"));        // request a face name "Arial"
-// 	 	font.CreateFontIndirect(&lf);
-// 	 	//m_wndComboBox.GetFont();
-// 	 	m_wndComboBox.SetFont(font,TRUE);
-	AddSimpleReBarBand(comboBar,NULL,FALSE,140,TRUE);
-
+	HWND comboBar=m_pComboBox->CreateIsWnd(m_wndRebar);
+	m_wndRebar.AddSimpleReBarBand(comboBar,m_pComboBox->GetBandClassName(),NULL,FALSE,140,TRUE);
 
 	//-----------------------------------------
 	//volume track bar
 	m_pVolumeBar=new CMyVolumeBar;
-	HWND hWndVolumeBar=m_pVolumeBar->Create(m_hWndToolBar,NULL,NULL,style,styleEx);
+	m_pVolumeBar->CreateIsWnd(m_wndRebar);
 	m_pVolumeBar->Init();
-	
 	m_wndRebar.pVolume=m_pVolumeBar;
-	AddSimpleReBarBand(hWndVolumeBar,NULL,FALSE,70,TRUE);
-
+	m_wndRebar.AddSimpleReBarBand(*m_pVolumeBar,m_pVolumeBar->GetBandClassName(),NULL,FALSE,70,TRUE);
 
 	//-----------------------------------------
 	//status bar  
@@ -193,7 +167,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_pStatus->SubclassWindow(m_hWndStatusBar);
 	m_pStatus->Init();
 
-	UIAddToolBar(hWndToolBar);
+	UIAddToolBar(*pWndToolbar);
 	UIAddStatusBar(m_hWndStatusBar);
 
 	UISetCheck(ID_VIEW_TOOLBAR, 1);
@@ -214,6 +188,66 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	return 0;
 }
 
+void CMyVolumeBar::Init()
+{
+	SetPageSize(1);
+	SetLineSize(1);
+	SetThumbLength(2);
+	SetRange(0,100);
+	SetPos(CBasicPlayer::shared()->m_curVolume);
+}
+
+vector<MY_REBARBANDINFO*> CMySimpleRebar::m_vecBandInfos;
+LRESULT CMySimpleRebar::OnCtrlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	LRESULT lResult=FALSE;
+	HDC dc=(HDC)wParam;
+	HWND wnd=(HWND)lParam;
+
+	if (wnd==pVolume->m_hWnd 
+		||wnd==pTrack->m_hWnd 
+		)
+	{
+		//!m_hWnd ,¸¸¿Ø¼þ,Rebar
+		//!wnd    ,×Ó¿Ø¼þ,trackBar
+
+		RECT rc;
+		::GetWindowRect(m_hWnd,&rc);
+
+		HDC dcMem;
+		dcMem= ::CreateCompatibleDC(dc);
+		HBITMAP bmp,oldBmp;
+		bmp=::CreateCompatibleBitmap(dc,rc.right-rc.left,rc.bottom-rc.top);
+		oldBmp=(HBITMAP)::SelectObject(dcMem,bmp);
+
+		POINT pt={0,0};
+		::MapWindowPoints(wnd,m_hWnd,&pt,1);
+		::OffsetWindowOrgEx(dcMem,pt.x,pt.y,&pt);
+		::SendMessage(m_hWnd,WM_ERASEBKGND, (WPARAM)dcMem, 0L);
+		::SetWindowOrgEx(dcMem,pt.x,pt.y,NULL);
+		::DeleteDC(dcMem);
+
+		static HBRUSH hBrush=0;
+		if (hBrush)
+			::DeleteObject((HGDIOBJ)hBrush);
+
+		hBrush = ::CreatePatternBrush(bmp);
+		::DeleteObject(bmp);
+
+		lResult=(LRESULT)hBrush;
+	}
+
+	return lResult;
+}
+
+HWND CMyToolBar::CreateIsWnd(HWND parent)
+{
+	HWND hWnd=CMainFrame::CreateSimpleToolBarCtrl(::GetParent(parent),IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+	SubclassWindow(hWnd);
+	return hWnd;
+}
+
+
 
 
 void CMainFrame::InitUILayout()
@@ -224,6 +258,7 @@ void CMainFrame::InitUILayout()
 	m_pWndMultiSplitter=new CMultiSpliltWnd;
 	m_hWndClient=m_pWndMultiSplitter->Create(m_hWnd,rcDefault,NULL,dwSplitStyle,0);
 }
+
 
 
 HWND CMyComboBox::CreateIsWnd(HWND parent)
@@ -306,6 +341,14 @@ LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 	MyLib::shared()->play();
 	
 	return 0;
+}
+
+void CPlayListView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	if (nChar==VK_RETURN)
+	{
+		MyLib::shared()->play();
+	}
 }
 
 LRESULT CMainFrame::OnOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -2014,10 +2057,6 @@ HWND CMyTrackBarBase::CreateIsWnd(HWND parent)
 	SetLineSize(1);
 	SetThumbLength(30);
 
-
-	if(CBasicPlayer::shared()->stoped())
-		EnableWindow(FALSE);
-
 	m_bPressing=false;
 
 	return m_hWnd;
@@ -2049,85 +2088,85 @@ HWND CreateVolumeBand(HWND hWndParent)
 }
 
 
-#include "WuLines.h"
+
 DWORD CMyVolumeBar::OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW pNMCD)
+{
+	LRESULT lr = CDRF_DODEFAULT;
+
+
+	//draw a triangle channel bar
+	if(pNMCD->dwItemSpec == TBCD_CHANNEL)
 	{
-		LRESULT lr = CDRF_DODEFAULT;
+		CDC dc;
+		dc.Attach(pNMCD->hdc);
 
+		CRect r;
+		GetClientRect(r);
+		r.DeflateRect(8, 4, 10, 6);
+		CopyRect(&pNMCD->rc, &r);
 
-		//draw a triangle channel bar
-		if(pNMCD->dwItemSpec == TBCD_CHANNEL)
-		{
-			CDC dc;
-			dc.Attach(pNMCD->hdc);
-			
-			CRect r;
-			GetClientRect(r);
-			r.DeflateRect(8, 4, 10, 6);
-			CopyRect(&pNMCD->rc, &r);
-			
-			CPen shadow;
-				shadow.CreatePen(PS_SOLID, 1, GetSysColor(COLOR_3DSHADOW));
-			CPen light;
-				light.CreatePen(PS_SOLID, 1, GetSysColor(COLOR_3DHILIGHT));
-			CPen old= dc.SelectPen(light);
+		CPen shadow;
+		shadow.CreatePen(PS_SOLID, 1, GetSysColor(COLOR_3DSHADOW));
+		CPen light;
+		light.CreatePen(PS_SOLID, 1, GetSysColor(COLOR_3DHILIGHT));
+		CPen old= dc.SelectPen(light);
 
-			dc.MoveTo(pNMCD->rc.right, pNMCD->rc.top);
-			dc.LineTo(pNMCD->rc.right, pNMCD->rc.bottom);
-			dc.LineTo(pNMCD->rc.left, pNMCD->rc.bottom);
-			dc.SelectPen(shadow);
-			//dc.LineTo(pNMCD->rc.right, pNMCD->rc.top);
+		dc.MoveTo(pNMCD->rc.right, pNMCD->rc.top);
+		dc.LineTo(pNMCD->rc.right, pNMCD->rc.bottom);
+		dc.LineTo(pNMCD->rc.left, pNMCD->rc.bottom);
+		dc.SelectPen(shadow);
+		//dc.LineTo(pNMCD->rc.right, pNMCD->rc.top);
 
-			DrawWuLine(&dc,pNMCD->rc.left,pNMCD->rc.bottom,pNMCD->rc.right,pNMCD->rc.top,GetSysColor(COLOR_3DSHADOW));
+		DrawWuLine(&dc,pNMCD->rc.left,pNMCD->rc.bottom,pNMCD->rc.right,pNMCD->rc.top,GetSysColor(COLOR_3DSHADOW));
 
-			dc.SelectPen(old);
+		dc.SelectPen(old);
 
-			dc.Detach();
-			
-			
-
-			/*
-			RECT rc=pNMCD->rc;
-			HDC  hdc=pNMCD->hdc;
-			DWORD clrLight=GetSysColor(COLOR_3DFACE);
-
-			TRIVERTEX vertex[3];
-			vertex[0].x=rc.left;
-			vertex[0].y=rc.bottom;
-			vertex[0].Red=GetRValue(clrLight);
-			vertex[0].Green=GetGValue(clrLight);
-			vertex[0].Blue=GetBValue(clrLight);
-			vertex[0].Alpha = 0x0000;
-
-			vertex[1].x=rc.right;
-			vertex[1].y=rc.top;
-			vertex[1].Alpha = 0x0000;
-			vertex[1].Red=GetRValue(clrLight);
-			vertex[1].Green=GetGValue(clrLight);
-			vertex[1].Blue=GetBValue(clrLight);
-
-
-			vertex[2].x=rc.right;
-			vertex[2].y=rc.bottom;
-			vertex[2].Red=GetRValue(clrLight);
-			vertex[2].Green=GetGValue(clrLight);
-			vertex[2].Blue=GetBValue(clrLight);
-			vertex[2].Alpha = 0x0000;
-
-			GRADIENT_TRIANGLE gTriangle;
-			gTriangle.Vertex1 = 0;
-			gTriangle.Vertex2 = 1;
-			gTriangle.Vertex3 = 2;
-			GradientFill(hdc, vertex, 3, &gTriangle, 1, GRADIENT_FILL_TRIANGLE);
-			*/
+		dc.Detach();
 
 
 
-			lr = CDRF_SKIPDEFAULT;
-		}
+		/*
+		RECT rc=pNMCD->rc;
+		HDC  hdc=pNMCD->hdc;
+		DWORD clrLight=GetSysColor(COLOR_3DFACE);
+
+		TRIVERTEX vertex[3];
+		vertex[0].x=rc.left;
+		vertex[0].y=rc.bottom;
+		vertex[0].Red=GetRValue(clrLight);
+		vertex[0].Green=GetGValue(clrLight);
+		vertex[0].Blue=GetBValue(clrLight);
+		vertex[0].Alpha = 0x0000;
+
+		vertex[1].x=rc.right;
+		vertex[1].y=rc.top;
+		vertex[1].Alpha = 0x0000;
+		vertex[1].Red=GetRValue(clrLight);
+		vertex[1].Green=GetGValue(clrLight);
+		vertex[1].Blue=GetBValue(clrLight);
 
 
-		pNMCD->uItemState &= ~CDIS_FOCUS;
+		vertex[2].x=rc.right;
+		vertex[2].y=rc.bottom;
+		vertex[2].Red=GetRValue(clrLight);
+		vertex[2].Green=GetGValue(clrLight);
+		vertex[2].Blue=GetBValue(clrLight);
+		vertex[2].Alpha = 0x0000;
 
-		return lr;
+		GRADIENT_TRIANGLE gTriangle;
+		gTriangle.Vertex1 = 0;
+		gTriangle.Vertex2 = 1;
+		gTriangle.Vertex3 = 2;
+		GradientFill(hdc, vertex, 3, &gTriangle, 1, GRADIENT_FILL_TRIANGLE);
+		*/
+
+
+
+		lr = CDRF_SKIPDEFAULT;
 	}
+
+
+	pNMCD->uItemState &= ~CDIS_FOCUS;
+
+	return lr;
+}

@@ -6,7 +6,6 @@
 #include "SpectrumAnalyser.h"
 #include "Mp3File.h"
 #include "WaveFileEx.h"
-//#include "mainfrm.h"
 #include "PlayList.h"
 #include "forwardMsg.h"
 #include "globalStuffs.h"
@@ -346,28 +345,13 @@ void CBasicPlayer::SetPos(int cur,int max)
 	{
 		m_cs.Enter();
 	
-		static char debufStr[10240]={0};
-
-		char debufStr2[22];
-		
-		sprintf(debufStr2,("%p\n"),debufStr);
-
-		//::MessageBoxA(GetDesktopWindow(),debufStr2,NULL,MB_OK);
-
-		strcat(debufStr,"a");
-
-		m_pPlayerThread->BeginChangeTrackPos(debufStr);
-		
-		strcat(debufStr,"b");
-
+		m_pPlayerThread->BeginChangeTrackPos();
+	
 		m_pFile->SetPos(cur,max);
 		
 		NotifyMsg(WM_TRACK_POS_CHANGED,TRUE);
 
-		m_pPlayerThread->EndChangeTrackPos(debufStr);
-
-		strcat(debufStr,("d"));
-
+		m_pPlayerThread->EndChangeTrackPos();
 		m_cs.Leave();
 	}
 }

@@ -1,8 +1,8 @@
 
-#include "WTLTabViewCtrl.h"
+//#include "WTLTabViewCtrl.h"
 #include "globalStuffs.h"
-#include "BasicPlayer.h"
-
+//#include "BasicPlayer.h"
+#include "MyRebar.h"
 #pragma once
 
 
@@ -19,6 +19,7 @@ public:
 		MSG_WM_SETFOCUS(OnSetFocus)
 		MESSAGE_HANDLER(WM_ERASEBKGND,OnEraseBkgnd)
 		MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLButtonDown)
+		MSG_WM_RBUTTONDOWN(OnRButtonDown)
 	END_MSG_MAP()
 
 
@@ -27,8 +28,6 @@ public:
 		::SetCapture(::GetParent(m_hWnd));
 	}
 	
-
-
 	LRESULT OnGetBandClassName(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		_tcscpy((TCHAR*)wParam,_T("ComboBox"));
@@ -98,8 +97,6 @@ public:
 
 	HWND CreateIsWnd(HWND parent);
 
-	
-
 	void EnableWindow(BOOL bEnable)
 	{
 		::EnableWindow(m_hWnd,bEnable);
@@ -117,6 +114,23 @@ public:
 	
 	CMyTrackBar()
 	{
+		static BOOL bRegister=FALSE;
+		if(bRegister==FALSE)
+		{
+			CMySimpleRebar::RegisterRebarBand(GetBandClassName(),CreateTrackBarBand);
+			bRegister=TRUE;
+		}
+	}
+
+	static TCHAR *GetBandClassName()
+	{
+		return _T("定位");
+	}
+
+	static HWND CreateTrackBarBand(HWND parent)
+	{
+		CMyTrackBar *track=new CMyTrackBar;
+		return track->CreateIsWnd(parent);
 	}
 public:
 	DECLARE_WND_SUPERCLASS(NULL,CMyTrackBarBase::GetWndClassName())
@@ -167,9 +181,10 @@ public:
 	{
 		HWND hWnd=baseclass::CreateIsWnd(parent);
 
+		EnableWindow(FALSE);
+
 		m_CtrlTooltip.Create(hWnd);
 		m_CtrlTooltip.AddTool(hWnd, LPSTR_TEXTCALLBACK); 
-
 
 		IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
 		IWantToReceiveMessage(WM_PAUSED);
@@ -303,8 +318,25 @@ class CMyVolumeBar:
 public:
 	CMyVolumeBar()
 	{
-
+		static BOOL bRegister=FALSE;
+		if(bRegister==FALSE)
+		{
+			CMySimpleRebar::RegisterRebarBand(GetBandClassName(),CreateVolumeBarBand);
+			bRegister=TRUE;
+		}
 	}
+
+	static TCHAR *GetBandClassName()
+	{
+		return _T("音量控制");
+	}
+
+	static HWND CreateVolumeBarBand(HWND parent)
+	{
+		CMyVolumeBar *vol=new CMyVolumeBar;
+		return vol->CreateIsWnd(parent);
+	}
+
 public:
 	DECLARE_WND_SUPERCLASS(NULL,CMyTrackBarBase::GetWndClassName())
 
@@ -377,16 +409,7 @@ public:
 		return 1;
 	}
 
-
-	void Init()
-	{
-		SetPageSize(1);
-		SetLineSize(1);
-		SetThumbLength(2);
-		SetRange(0,100);
-		SetPos(CBasicPlayer::shared()->m_curVolume);
-	}
-
+	void Init();
 };
 
 
@@ -407,19 +430,12 @@ public:
 		MESSAGE_HANDLER(WM_USER_TIMER,OnTimer)
 	END_MSG_MAP()
 
+
 	//双击状态栏,激活当前播放音轨
 	void OnLButtonDblClk(UINT nFlags, CPoint point);
 
 	void Init()
 	{
-
-// 		RECT rc;
-// 		GetClientRect(&rc);
-// 
-// 		int width[]={rc.right-rc.left-260,-1};
-// 		SetParts(sizeof(width)/sizeof(width[0]),width);
-
-
 // 		IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
 // 		IWantToReceiveMessage(WM_PAUSED);
 // 		IWantToReceiveMessage(WM_TRACKSTOPPED);
@@ -491,11 +507,35 @@ public:
 	END_MSG_MAP()
 
 public:
+	CMyToolBar()
+	{
+		static BOOL bRegister=FALSE;
+		if(bRegister==FALSE)
+		{
+			CMySimpleRebar::RegisterRebarBand(GetBandClassName(),CreateToolBarBand);
+			bRegister=TRUE;
+		}
+	}
+
+	static TCHAR *GetBandClassName()
+	{
+		return _T("按钮");
+	}
+
+	static HWND CreateToolBarBand(HWND parent)
+	{
+		CMyToolBar *tool=new CMyToolBar;
+		return tool->CreateIsWnd(parent);
+	}
+
+	HWND CreateIsWnd(HWND parent);
 
 	void OnRButtonDown(UINT nFlags, CPoint point)
 	{
 		::SetCapture(::GetParent(m_hWnd));
 	}
+
+	
 };
 
 class CMyComboBox:public CWindowImpl<CMyComboBox,CComboBox>
@@ -512,12 +552,32 @@ public:
 	END_MSG_MAP()
 
 public:
-	
+	CMyComboBox()
+	{
+		static BOOL bRegister=FALSE;
+		if(bRegister==FALSE)
+		{
+			CMySimpleRebar::RegisterRebarBand(GetBandClassName(),CreateCommoBoxBand);
+			bRegister=TRUE;
+		}
+	}
+
+	static TCHAR *GetBandClassName()
+	{
+		return _T("播放次序");
+	}
+
+	static HWND CreateCommoBoxBand(HWND parent)
+	{
+		CMyComboBox *combo=new CMyComboBox;
+		return combo->CreateIsWnd(parent);
+	}
+
+
+
 	void OnRButtonDown(UINT nFlags, CPoint point)
 	{
-
 		::SetCapture(::GetParent(m_hWnd));
-
 	}
 
 	LRESULT OnGetBandClassName(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -527,6 +587,8 @@ public:
 	}
 
 	LRESULT OnCbnSelchanged(UINT,int id, HWND hWndCtl);
+
+
 	HWND CreateIsWnd(HWND parent);
 
 	LRESULT OnCloseUp(UINT uNotifyCode, int nID, CWindow wndCtl)

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "FunctionReg.h"
 #include "MySerialize.h"
-#include "MyControls.h"
+
 
 
 HWND CreateTrackBand(HWND hWndParent);
@@ -9,6 +9,20 @@ HWND CreateVolumeBand(HWND hWndParent);
 HWND CreateComboBand(HWND hWndParent);
 
 
+#define ID_REBAR_BASE 42948
+struct MY_REBARBANDINFO 
+{
+public:
+	REBARBANDINFO info;
+	UINT menuID;
+	CreateReBarBandFuns createFunc;
+	TCHAR szClassName[MAX_PATH];
+	BOOL bShow;
+};
+ 
+	
+class CMyTrackBar;
+class CMyVolumeBar;
 
 class CMySimpleRebar:
 	public CWindowImpl<CMySimpleRebar,CReBarCtrl>
@@ -20,6 +34,8 @@ public:
 
 	BEGIN_MSG_MAP_EX(CMySimpleRebar)
 		//MESSAGE_HANDLER(WM_NOTIFY,OnNotify)
+		COMMAND_ID_HANDLER(ID_REBAR_LOCK,OnLockBands)
+		COMMAND_RANGE_HANDLER(ID_REBAR_BASE,ID_REBAR_BASE+m_vecBandInfos.size(),OnShowBandX)
 		MESSAGE_HANDLER(WM_CTLCOLORSTATIC,OnCtrlColorStatic)
 		MESSAGE_HANDLER(WM_HSCROLL,OnHscroll)//Reflect Scroll Message
 		MSG_WM_RBUTTONDOWN(OnRButtonDown)
@@ -27,25 +43,111 @@ public:
 		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 
+public:
+	HMENU menu;
+	BOOL m_bLock;
+	CMyTrackBar *pTrack;
+	CMyVolumeBar *pVolume;
+
+	static vector<MY_REBARBANDINFO*> m_vecBandInfos;
+
+public:
 	FILE& operator<<(FILE& f);
 	FILE& operator>>(FILE& f);
+
+	CMySimpleRebar():m_bLock(NULL),pTrack(NULL),pVolume(NULL)
+	{
+		menu=::GetSubMenu(::LoadMenu(NULL,MAKEINTRESOURCE(IDR_MENU_REBAR)),0);
+	}
+
+	static void RegisterRebarBand(TCHAR* szBandClassName,CreateReBarBandFuns func)
+	{
+		MY_REBARBANDINFO *rbBand = static_cast<MY_REBARBANDINFO*>(malloc(sizeof(MY_REBARBANDINFO)));
+		_tcscpy(rbBand->szClassName,szBandClassName);
+		rbBand->createFunc=func;
+		
+		m_vecBandInfos.push_back(rbBand);
+	}
+
+	static UINT MenuID2BandID(UINT menuID)
+	{
+		return MenuID2BandInfo(menuID)->info.wID;
+	}
+
+	static MY_REBARBANDINFO* MenuID2BandInfo(UINT menuID)
+	{
+		for(auto i=m_vecBandInfos.begin();i!=m_vecBandInfos.end();++i)
+		{
+			MY_REBARBANDINFO *mri=*i;
+			if(mri->menuID==menuID)
+				return mri;
+		}
+
+		ATLASSERT(FALSE);
+		return NULL;
+	}
+
+	static MY_REBARBANDINFO* ClassName2BandInfo(TCHAR *className)
+	{
+		for(auto i=m_vecBandInfos.begin();i!=m_vecBandInfos.end();++i)
+		{
+			MY_REBARBANDINFO *mri=*i;
+			if(_tcscmp(mri->szClassName,className)==0)
+				return mri;
+		}
+
+		ATLASSERT(FALSE);
+		return NULL;
+	}
 
 	void OnRButtonDown(UINT nFlags, CPoint point)
 	{
 		SetCapture();
-
 	}
+
+
 
 	void OnRButtonUp(UINT nFlags, CPoint point)
 	{
 		if(GetCapture()==m_hWnd)
 		{
+			ReleaseCapture();
+
 			POINT pt=point;
 			ClientToScreen(&pt);
-			HMENU menu=::GetSubMenu(::LoadMenu(NULL,MAKEINTRESOURCE(IDR_MENU_REBAR)),0);
-			::TrackPopupMenu(menu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
+			
+			::CheckMenuItem(menu,ID_REBAR_LOCK,(m_bLock?MF_CHECKED:MF_UNCHECKED)|MF_BYCOMMAND);
 
-			ReleaseCapture();
+
+			static BOOL bRebarMenu=0;
+			if(bRebarMenu==0)//Rebar's menu added?
+			{
+				for(auto i=m_vecBandInfos.begin();i!=m_vecBandInfos.end();++i)
+				{
+					MY_REBARBANDINFO *mri=*i;
+					
+					TCHAR *szBandClassNames=mri->szClassName;
+					
+					MENUITEMINFO mi;
+					mi.cbSize=sizeof(mi);
+					mi.fMask=MIIM_ID|MIIM_STRING;
+					mi.fState=MFS_ENABLED;
+					mi.wID=mri->menuID=ID_REBAR_BASE+bRebarMenu++;
+					mi.dwTypeData=szBandClassNames;
+					mi.cch=_tcslen(szBandClassNames);
+
+
+					InsertMenuItem(menu,2,TRUE,&mi);
+				}
+			}
+
+			for(auto i=m_vecBandInfos.begin();i!=m_vecBandInfos.end();++i)
+			{
+				MY_REBARBANDINFO *mri=*i;
+				::CheckMenuItem(menu,mri->menuID,(mri->bShow?MF_CHECKED:MF_UNCHECKED)|MF_BYCOMMAND);
+			}
+			
+			::TrackPopupMenu(menu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
 		}
 	}
 
@@ -159,8 +261,19 @@ public:
 	BOOL AddSimpleReBarBand(HWND hWndBand,TCHAR *szClassName, LPCTSTR lpstrTitle = NULL, BOOL bNewRow = FALSE, int cxWidth = 0, BOOL bFullWidthAlways = FALSE)
 	{
 		ATLASSERT(::IsWindow(hWndBand));        // must be created
-		return AddSimpleReBarBandCtrl(m_hWnd, hWndBand, 0, lpstrTitle, bNewRow, cxWidth, bFullWidthAlways);
+
+		BOOL bRet= AddSimpleReBarBandCtrl(m_hWnd, hWndBand, 0, lpstrTitle, bNewRow, cxWidth, bFullWidthAlways);
+		
+		MY_REBARBANDINFO *info= ClassName2BandInfo(szClassName);
+		info->info.cbSize=sizeof(REBARBANDINFO);
+		info->info.fMask=RBBIM_ID;
+		GetBandInfo(GetBandCount()-1,&info->info);
+		info->bShow=TRUE;
+
+		return bRet;
 	}
+
+
 
 
 	LRESULT ReflectNotifications(
@@ -191,49 +304,30 @@ public:
 	//LRESULT OnNotify(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 
+	LRESULT OnCtrlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
-	CMyTrackBar *pTrack;
-	CMyVolumeBar *pVolume;
-	LRESULT OnCtrlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	
+	LRESULT OnLockBands(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		LRESULT lResult=FALSE;
-		HDC dc=(HDC)wParam;
-		HWND wnd=(HWND)lParam;
+		LockBands(m_bLock=!m_bLock);
 
-		if (wnd==pVolume->m_hWnd 
-			||wnd==pTrack->m_hWnd 
-			)
-		{
-			//!m_hWnd ,¸¸¿Ø¼þ,Rebar
-			//!wnd    ,×Ó¿Ø¼þ,trackBar
-
-			RECT rc;
-			::GetWindowRect(m_hWnd,&rc);
-
-			HDC dcMem;
-			dcMem= ::CreateCompatibleDC(dc);
-			HBITMAP bmp,oldBmp;
-			bmp=::CreateCompatibleBitmap(dc,rc.right-rc.left,rc.bottom-rc.top);
-			oldBmp=(HBITMAP)::SelectObject(dcMem,bmp);
-
-			POINT pt={0,0};
-			::MapWindowPoints(wnd,m_hWnd,&pt,1);
-			::OffsetWindowOrgEx(dcMem,pt.x,pt.y,&pt);
-			::SendMessage(m_hWnd,WM_ERASEBKGND, (WPARAM)dcMem, 0L);
-			::SetWindowOrgEx(dcMem,pt.x,pt.y,NULL);
-			::DeleteDC(dcMem);
-
-			static HBRUSH hBrush=0;
-			if (hBrush)
-				::DeleteObject((HGDIOBJ)hBrush);
-
-			hBrush = ::CreatePatternBrush(bmp);
-			::DeleteObject(bmp);
-
-			lResult=(LRESULT)hBrush;
-		}
-
-		return lResult;
+		return 0;
 	}
 
+	LRESULT OnShowBandX(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		MY_REBARBANDINFO *mrbi= MenuID2BandInfo(wID);
+
+		//if is existed
+		UINT rebarID=mrbi->info.wID;
+		mrbi->bShow=!mrbi->bShow;
+		ShowBand(IdToIndex(rebarID), mrbi->bShow);
+
+		//if not existed ,add it then.
+		//todo
+
+
+		return 0;
+	}
+	
 };	

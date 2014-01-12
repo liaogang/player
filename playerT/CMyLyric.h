@@ -24,8 +24,29 @@ public:
 	HBRUSH brush,oldBrush;
 	HPEN  newPen,oldPen; 
 
+	UINT m_uTotalTime;
+	UINT m_uCurrTime;
+	SIZE sz;
+	BOOL bLrcReady;
+	FileTrack* track;
+	std::wstring title;
+	RECT m_rcClient;
+	HDC m_memDCNormal,m_memDCHighlight;
+	CFont m_Font;
+	vector<lineinfo> veclineinfo;
+	int m_iCurLine;
+	vector<LrcLine> lrcs;
+	int m_nFontHeight;//字高
+	int m_iESize;//歌词上方的空白区域
+	UINT m_nIDEvent;
+	bool m_bPaused;
+	static const int m_uElapse=500;
+	BOOL m_bSized;
 
-	CMyLyric():bLrcReady(FALSE),track(NULL),m_nFontHeight(20)
+	CDlgLrcSearch dlgLrcSearch;
+
+public:
+	CMyLyric():bLrcReady(FALSE),track(NULL),m_nFontHeight(20),m_nIDEvent(0)
 	{
 		//brush=::GetSysColorBrush(COLOR_WINDOW);
 		brush=::GetSysColorBrush(/*COLOR_3DFACE*/COLOR_BTNSHADOW);
@@ -102,39 +123,31 @@ public:
 
 		m_uCurrTime+=m_uElapse;
 
-
-// 		LrcLine nextLrcLine=*nextLine;
-// 
-// 		if (m_uCurrTime <= nextLrcLine.time.GetTotalMillisec())
-// 			return;
-// 
-// 		++nextLine;
-// 		auto k=curLineInfo;
-// 		if(++k!=veclineinfo.end())
-// 		{
-// 			mydraw();
-// 			++curLineInfo;
-// 		}
-// 		else
-// 		{
-// 			mydraw();
-// 			bLrcReady=false;
-// 		}
-
-		UpdateCurrLine();
-
-		mydraw();
+		if(UpdateCurrLine())
+			mydraw();
 	}
 
-	void UpdateCurrLine()
+	void UpdateTime()
 	{
-		auto k=veclineinfo.begin();
+		double usedtotalSec=getTrackPosInfo()->used;
+
+		m_uCurrTime=usedtotalSec*1000;
+	}
+
+
+	//return true if line number changed.
+	BOOL UpdateCurrLine()
+	{
+		int old=m_iCurLine;
+		int k=0;
 		for (auto i=lrcs.begin();i!=lrcs.end();++i,++k)
 		{
-			curLineInfo=k;
+			m_iCurLine=k;
 			if (m_uCurrTime <= i->time.GetTotalMillisec())
 				break;
 		}
+
+		return m_iCurLine!=old;
 	}
 
 	void OnDestroy()
@@ -173,8 +186,7 @@ public:
 		return 0;
 	}
 
-	UINT m_uTotalTime;
-	UINT m_uCurrTime;
+
 	LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 		trackPosInfo *pos=getTrackPosInfo();
@@ -200,13 +212,6 @@ public:
 	{
 		bLrcReady=FALSE;
 
-		if(m_nIDEvent!=0)
-		{
-			KillTimer((UINT_PTR)&m_nIDEvent);
-			m_nIDEvent=0;
-		}
-
-
 		ResetTitle();
 
 		Invalidate(TRUE);
@@ -214,15 +219,7 @@ public:
 		return 0;
 	}
 
-	SIZE sz;
-	BOOL bLrcReady;
-	FileTrack* track;
-	vector<LrcLine>::iterator curLine;
-	//,nextLine
 
-	std::wstring title;
-
-	RECT m_rcClient;
 
 	void OnPaint(CDCHandle dc)
 	{
@@ -234,7 +231,7 @@ public:
 		::EndPaint(m_hWnd,&ps);	
 	}
 
-	BOOL m_bSized;
+	
 
 	//If an application processes this message, it should return zero. 
 	LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -271,7 +268,7 @@ public:
 	}
 
 
-	CDlgLrcSearch dlgLrcSearch;
+	
 	LRESULT OnShowDlgLrcSearch(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		if (!dlgLrcSearch.IsWindow())
@@ -335,16 +332,8 @@ public:
 		::TrackPopupMenu(trackMenu,TPM_LEFTALIGN,point.x,point.y,0,m_hWnd,0);
 	}
 
-	HDC m_memDCNormal,m_memDCHighlight;
-	CFont m_Font;
 
-	vector<lineinfo> veclineinfo;
-	vector<lineinfo>::iterator curLineInfo;
-	vector<LrcLine> lrcs;
 
-	int m_nFontHeight;//字高
-
-	int m_iESize;//歌词上方的空白区域
 	//We will Create two memory drawing context
 	//One is normal,another is highlighted
 	//Then,we will cut on line space from the true display draw context
@@ -456,11 +445,9 @@ public:
 
 
 		if(bNewTrack)
-		{
-			curLineInfo=veclineinfo.begin();
 			totalHeight=info.yPos+info.nStrLines*m_nFontHeight;
+		
 
-		}
 		ReleaseDC(dc);
 	}
 
@@ -476,26 +463,15 @@ public:
 
 		RECT rcDest;
 		GetClientRect(&rcDest);
-		int y;
+		
 		if(!bLrcReady)return;
-		auto kk=curLineInfo;
-		//if(curLineInfo!=veclineinfo.begin())
-		//	--kk;
 
-		y= kk->yPos - (m_rcClient.bottom-m_rcClient.top)/2 ;
-
-		//first draw the back ground
-		// 			if(y<0)
-		// 			{
-		// 				HBRUSH hOldBrush1=(HBRUSH) ::SelectObject(dc,brush);	
-		// 				Rectangle(dc,rcDest.left-1,rcDest.top-1,rcDest.right+1,0-y+2);
-		// 				::SelectObject(dc,hOldBrush1);	
-		// 			}
+		int y= veclineinfo[m_iCurLine].yPos - (m_rcClient.bottom-m_rcClient.top)/2 ;
 
 		// bitblt the lyrics
 		RECT rcLine=rcDest;
 		rcLine.top=HEIGHT(rcDest) /2;
-		rcLine.bottom=rcLine.top+curLineInfo->nStrLines*m_nFontHeight;
+		rcLine.bottom=rcLine.top+veclineinfo[m_iCurLine].nStrLines*m_nFontHeight;
 
 		::BitBlt(dc,rcDest.left,rcDest.top,WIDTH(rcDest),HEIGHT(rcDest),
 			m_memDCNormal,0,y , SRCCOPY);
@@ -509,9 +485,7 @@ public:
 
 
 
-	UINT m_nIDEvent;
-	bool m_bPaused;
-	static const int m_uElapse=500;
+
 	void TrackChanged()
 	{
 		bLrcReady=FALSE;
@@ -526,6 +500,7 @@ public:
 		{
 			lrcs=LrcMng::Get()->lib;
 			veclineinfo.clear();
+			m_iCurLine=0;
 
 			CreateBackDC(TRUE);
 
@@ -533,12 +508,12 @@ public:
 			m_bPaused=false;
 
 
+			if(m_nIDEvent!=0)
+				KillTimer((UINT_PTR)&m_nIDEvent);
 			SetTimer((UINT_PTR)&m_nIDEvent,m_uElapse,NULL);
-
-
+			
+			
 			//del lyricfromlrcfile
-			//use global
-			//nextLine=lrcs.begin();
 			UpdateTime();
 			UpdateCurrLine();
 
@@ -558,15 +533,7 @@ public:
 
 	}
 
-	void UpdateTime()
-	{
-		 				int usedtotalSec=getTrackPosInfo()->used;
-		// 				int usedMinute=usedtotalSec/60;
-		// 				int usedSec=usedtotalSec - usedMinute*60;
-		// 				int Millisec=usedSec*10;
 
-		m_uCurrTime=usedtotalSec*1000;
-	}
 
 	void Init()
 	{
@@ -579,7 +546,6 @@ public:
 		bLrcReady=FALSE;
 
 
-		
 		IWantToReceiveMessage(WM_TRACK_POS_CHANGED);
 		IWantToReceiveMessage(WM_LYRIC_RELOAD);
 

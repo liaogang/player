@@ -45,9 +45,6 @@
     <ClInclude Include="..\CMyLyric.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\CMyTabBar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CriticalSection.h">
       <Filter>Header Files</Filter>
     </ClInclude>

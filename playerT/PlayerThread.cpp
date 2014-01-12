@@ -59,7 +59,7 @@ void CPlayerThread::Reset()
 
 
 
-BOOL CPlayerThread:: ReadFileReduceVol(BOOL bReduce,char *debugStr)
+BOOL CPlayerThread:: ReadFileReduceVol(BOOL bReduce)
 {
 	BOOL bFileEnd=FALSE;
 	
@@ -78,16 +78,11 @@ BOOL CPlayerThread:: ReadFileReduceVol(BOOL bReduce,char *debugStr)
 	{
 		vol = bReduce ? vol - step : vol + step ;
 
-		//m_pPlayer->m_pFile->SetOutVolume(vol);
+		m_pPlayer->m_pFile->SetOutVolume(vol);
 
-		strcat(debugStr,"(");
-		char buf[128]={0};
-		sprintf(buf,"  %p,%d,%d,%d  ",fileBuffer, bufferOffset,fileBufferLen,m_dwSizeRead);
-		strcat(debugStr,buf);
 		if(!m_pPlayer->m_pFile->Read(fileBuffer + bufferOffset,fileBufferLen,&m_dwSizeRead) ||
 			m_dwSizeRead==0 )
 		{
-			strcat(debugStr,")");
 			bFileEnd=TRUE;
 			break;
 		}
@@ -95,12 +90,12 @@ BOOL CPlayerThread:: ReadFileReduceVol(BOOL bReduce,char *debugStr)
 		{
 			bufferOffset+=m_dwSizeRead;
 		}
-		strcat(debugStr,(")"));
+		
 	}
 
 	DSoundBufferWrite(fileBuffer,totalBufferLen);
 
-	//m_pPlayer->m_pFile->SetOutVolume(bReduce ? 0 : 1);
+	m_pPlayer->m_pFile->SetOutVolume(bReduce ? 0 : 1);
 
 	return bFileEnd;
 }
@@ -120,7 +115,7 @@ double CPlayerThread::GetOffsetSeconds()
 	return timePlayed;
 }
 
-BOOL CPlayerThread::BeginChangeTrackPos(char *debugStr)
+BOOL CPlayerThread::BeginChangeTrackPos()
 {
 	//Set our write pos to actually direct sound write cursor
 	DWORD dwWrite;
@@ -137,15 +132,15 @@ BOOL CPlayerThread::BeginChangeTrackPos(char *debugStr)
 
 	m_dwCurWritePos=dwWrite;
 	//read file . send to direct sound buffer .
-	ReadFileReduceVol(TRUE,debugStr);
+	ReadFileReduceVol(TRUE);
 
 	return dwWrite;
 }
 
 
-BOOL CPlayerThread::EndChangeTrackPos(char *debugStr)
+BOOL CPlayerThread::EndChangeTrackPos()
 {
-	ReadFileReduceVol(FALSE,debugStr);
+	ReadFileReduceVol(FALSE);
 
 	return TRUE;
 }

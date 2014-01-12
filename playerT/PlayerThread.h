@@ -39,11 +39,11 @@ public:
 
 	double GetOffsetSeconds();
 	//return TRUE if file reached end .
-	BOOL ReadFileReduceVol(BOOL bReduce=TRUE,char *debugStr=0);
+	BOOL ReadFileReduceVol(BOOL bReduce=TRUE);
 	
 	
-	BOOL BeginChangeTrackPos(char *debugStr);
-	BOOL EndChangeTrackPos(char *debugStr);
+	BOOL BeginChangeTrackPos();
+	BOOL EndChangeTrackPos();
 
 
 	DWORD m_dwCurWritePos;

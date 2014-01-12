@@ -17,7 +17,6 @@
     <ClInclude Include="..\CCtrlViewBase.h" />
     <ClInclude Include="..\CImg.h" />
     <ClInclude Include="..\CMyLyric.h" />
-    <ClInclude Include="..\CMyTabBar.h" />
     <ClInclude Include="..\CriticalSection.h" />
     <ClInclude Include="..\customMsg.h" />
     <ClInclude Include="..\DialogConfig.h" />
