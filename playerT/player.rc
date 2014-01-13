@@ -394,9 +394,6 @@ BEGIN
     END
     POPUP "视图"
     BEGIN
-        MENUITEM "工具栏",                         ID_VIEW_TOOLBAR
-        MENUITEM "状态栏",                         ID_VIEW_STATUS_BAR
-        MENUITEM SEPARATOR
         POPUP "播放列表颜色"
         BEGIN
             MENUITEM "Default",                     ID_CHANGEPLAYLISTCOLOR_DEFAULT

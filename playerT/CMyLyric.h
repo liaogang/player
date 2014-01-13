@@ -123,6 +123,7 @@ public:
 
 		m_uCurrTime+=m_uElapse;
 
+		UpdateTime();
 		if(UpdateCurrLine())
 			mydraw();
 	}
@@ -142,9 +143,10 @@ public:
 		int k=0;
 		for (auto i=lrcs.begin();i!=lrcs.end();++i,++k)
 		{
-			m_iCurLine=k;
 			if (m_uCurrTime <= i->time.GetTotalMillisec())
 				break;
+			else
+				m_iCurLine=k;
 		}
 
 		return m_iCurLine!=old;
@@ -189,9 +191,6 @@ public:
 
 	LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		trackPosInfo *pos=getTrackPosInfo();
-		m_uTotalTime=pos->left;
-
 		TrackChanged();
 		return 0;
 	}

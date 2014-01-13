@@ -125,8 +125,8 @@ public:
 	virtual BOOL OnIdle();
 
 	BEGIN_UPDATE_UI_MAP(CMainFrame)
-		UPDATE_ELEMENT(ID_VIEW_TOOLBAR, UPDUI_MENUPOPUP)
-		UPDATE_ELEMENT(ID_VIEW_STATUS_BAR, UPDUI_MENUPOPUP)
+// 		UPDATE_ELEMENT(ID_VIEW_TOOLBAR, UPDUI_MENUPOPUP)
+// 		UPDATE_ELEMENT(ID_VIEW_STATUS_BAR, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_FILE_OPENDIRECTORY, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_FILE_OPEN, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_FILE_SAVEPLAYLIST, UPDUI_MENUPOPUP)
@@ -158,8 +158,8 @@ public:
 		COMMAND_ID_HANDLER(ID_EDIT_SEARCH, OnEditSearch)
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_NEW, OnFileNew)
-		COMMAND_ID_HANDLER(ID_VIEW_TOOLBAR, OnViewToolBar)
-		COMMAND_ID_HANDLER(ID_VIEW_STATUS_BAR, OnViewStatusBar)
+// 		COMMAND_ID_HANDLER(ID_VIEW_TOOLBAR, OnViewToolBar)
+// 		COMMAND_ID_HANDLER(ID_VIEW_STATUS_BAR, OnViewStatusBar)
 		COMMAND_ID_HANDLER(ID_CHANGEPLAYLISTCOLOR_DEFAULT,OnChangePLColorDefault)
 		COMMAND_ID_HANDLER(ID_CHANGEPLAYLISTCOLOR_BLUE,OnChangePLColorBlue)
 		COMMAND_ID_HANDLER(ID_VIEW_PLAYLIST_MNG,OnViewPlaylistManager)		
@@ -247,28 +247,28 @@ public:
 		return 0;
 	}
 
-	LRESULT OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	{
-		static BOOL bVisible = TRUE;	// initially visible
-		bVisible = !bVisible;
-		CReBarCtrl rebar = m_hWndToolBar;
+	//LRESULT OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	//{
+	//	static BOOL bVisible = TRUE;	// initially visible
+	//	bVisible = !bVisible;
+	//	CReBarCtrl rebar = m_hWndToolBar;
 
-		for(int i=1;i<=4;++i)
-		rebar.ShowBand(rebar.IdToIndex(ATL_IDW_BAND_FIRST + i), bVisible);
+	//	for(int i=1;i<=4;++i)
+	//	rebar.ShowBand(rebar.IdToIndex(ATL_IDW_BAND_FIRST + i), bVisible);
 
-		UISetCheck(ID_VIEW_TOOLBAR, bVisible);
-		UpdateLayout();
-		return 0;
-	}
+	//	UISetCheck(ID_VIEW_TOOLBAR, bVisible);
+	//	UpdateLayout();
+	//	return 0;
+	//}
 
-	LRESULT OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	{
-		BOOL bVisible = !::IsWindowVisible(m_hWndStatusBar);
-		::ShowWindow(m_hWndStatusBar, bVisible ? SW_SHOWNOACTIVATE : SW_HIDE);
-		UISetCheck(ID_VIEW_STATUS_BAR, bVisible);
-		UpdateLayout();
-		return 0;
-	}
+	//LRESULT OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	//{
+	//	BOOL bVisible = !::IsWindowVisible(m_hWndStatusBar);
+	//	::ShowWindow(m_hWndStatusBar, bVisible ? SW_SHOWNOACTIVATE : SW_HIDE);
+	//	UISetCheck(ID_VIEW_STATUS_BAR, bVisible);
+	//	UpdateLayout();
+	//	return 0;
+	//}
 
 	LRESULT OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{

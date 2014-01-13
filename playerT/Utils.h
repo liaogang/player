@@ -51,7 +51,7 @@ LPDIRECTSOUNDBUFFER DSoundBufferCreate(LPDIRECTSOUND lpDSound,WAVEFORMATEX *pwfx
 }
 
 
-//返回剩余可写数据
+//返回剩余可写数据量
 DWORD DS_GetAvailable(int maxDSBufferLen , int playCursor, int curWritePos)
 {
 	if (playCursor>curWritePos)
@@ -61,11 +61,25 @@ DWORD DS_GetAvailable(int maxDSBufferLen , int playCursor, int curWritePos)
 }
 
 
+//返回已写入但未播放的数据量
+DWORD DS_GetWritedNotPlayed(int maxDSBufferLen , int playCursor, int curWritePos)
+{
+	if (curWritePos>=playCursor)
+		return curWritePos-playCursor;
+	else
+		return maxDSBufferLen+curWritePos-playCursor;
+}
 
-void Sleep2WaitReadCursor(DWORD available)
+//return sleeped?true:false.
+BOOL Sleep2WaitReadCursor(DWORD available)
 {
 	if (available<gDefaultBufferSize + 1)
+	{
 		::Sleep(g_dwSleepTime);
+		return TRUE;
+	}
+	else
+		return FALSE;
 }
 
 

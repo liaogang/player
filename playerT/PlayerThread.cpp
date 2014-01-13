@@ -54,7 +54,7 @@ void CPlayerThread::Reset()
 	m_dwCurWritePos=0;
 
 	gDefaultBufferSize = m_pPlayer ->m_pFile ->bytePerFrame() * 3 ;
-
+	m_dwTotalWrited=0;
 }
 
 
@@ -100,6 +100,19 @@ BOOL CPlayerThread:: ReadFileReduceVol(BOOL bReduce)
 	return bFileEnd;
 }
 
+double CPlayerThread::GetPlayedSeconds()
+{
+	DWORD playCursor;
+	if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return 0;
+	DWORD available=DS_GetWritedNotPlayed(g_dwMaxDSBufferLen,playCursor,m_dwCurWritePos);
+
+	DWORD played=m_dwTotalWrited-available;
+	WAVEFORMATEX *pwfx=m_pPlayer->m_pFile->GetFormat();
+	double timePlayed=played/(double)pwfx->nAvgBytesPerSec;
+	return timePlayed;
+}
+
+
 double CPlayerThread::GetOffsetSeconds()
 {
 	DWORD playCursor;
@@ -107,11 +120,9 @@ double CPlayerThread::GetOffsetSeconds()
 	DWORD available=DS_GetAvailable(g_dwMaxDSBufferLen,playCursor,m_dwCurWritePos);
 
 	DWORD played=g_dwMaxDSBufferLen-available;
-	WAVEFORMATEX *pwfx=0;
-
-	pwfx=m_pPlayer->m_pFile->GetFormat();
+	WAVEFORMATEX *pwfx=m_pPlayer->m_pFile->GetFormat();
 	
-	double timePlayed=played/pwfx->nAvgBytesPerSec;
+	double timePlayed=played/(double)pwfx->nAvgBytesPerSec;
 	return timePlayed;
 }
 
@@ -164,6 +175,8 @@ BOOL CPlayerThread::CleanDSBuffer()
 	}
 
 	m_lpDSBuffer->SetCurrentPosition(0);
+	
+	
 
 	return bRet;
 }
@@ -180,11 +193,14 @@ void CPlayerThread::WriteDataToDSBuf()
 {
 	//if the direct sound buffer is about to over flow ,
 	//wait some times.
-	DWORD playCursor;
-	if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return;
-	DWORD available=DS_GetAvailable(g_dwMaxDSBufferLen,playCursor,m_dwCurWritePos);
+	DWORD available;
+	do 
+	{
+		DWORD playCursor;
+		if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return;
+		available=DS_GetAvailable(g_dwMaxDSBufferLen,playCursor,m_dwCurWritePos);
+	} while (Sleep2WaitReadCursor(available));
 
-	Sleep2WaitReadCursor(available);
 
 	m_pPlayer->m_cs.Enter();
 
@@ -283,7 +299,7 @@ DWORD CPlayerThread::DSoundBufferWrite(void* pBuf , int len)
 
 
 	m_lpDSBuffer->Unlock(buffer1,buffer1Len,buffer2,buffer2Len);
-
+	m_dwTotalWrited+=buffer1Len+buffer2Len;
 	m_dwCurWritePos+=buffer1Len+buffer2Len;
 	if (m_dwCurWritePos>=g_dwMaxDSBufferLen)
 		m_dwCurWritePos-=g_dwMaxDSBufferLen;
