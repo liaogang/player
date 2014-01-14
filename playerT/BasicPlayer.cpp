@@ -41,10 +41,10 @@ trackPosInfo *getTrackPosInfo()
 	if( !CBasicPlayer::shared()->stoped() && CBasicPlayer::shared()->m_pFile)
 		CBasicPlayer::shared()->m_pFile->GetPos(&(curPosInfo.used),&(curPosInfo.left));
 
-	double secPlayed=CBasicPlayer::shared()->m_pPlayerThread->GetPlayedSeconds();
+	double secPlayed=CBasicPlayer::shared()->m_pPlayerThread->GetOffsetSeconds();
 
-	curPosInfo.used=secPlayed;
-	//curPosInfo.left-=secPlayed;
+	curPosInfo.used-=secPlayed;
+	curPosInfo.left+=secPlayed;
 
 	return &curPosInfo;
 }

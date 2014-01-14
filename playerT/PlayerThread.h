@@ -16,7 +16,6 @@ public:
 	LPDIRECTSOUNDBUFFER m_lpDSBuffer;
 	LPDIRECTSOUND m_lpDsound;
 	DWORD m_dwTime;
-	DWORD m_dwTotalWrited;
 	trackPosInfo *pPosInfo;
 	/*retain 2 times len of */
 	/*buffer for fft sample parse*/
@@ -39,9 +38,6 @@ public:
 	
 	void WriteDataToDSBuf();
 
-
-
-	double GetPlayedSeconds();
 	double GetOffsetSeconds();
 	//return TRUE if file reached end .
 	BOOL ReadFileReduceVol(BOOL bReduce=TRUE);

@@ -167,7 +167,7 @@ public:
 
 	void OnTimer(UINT_PTR /*nIDEvent*/)
 	{
-		if(!m_bPaused || !m_bStopped)
+		if(!m_bPaused && !m_bStopped)
 		{
 			m_uCurrTime+=m_uElapse;
 		
@@ -264,6 +264,9 @@ public:
 	LRESULT OnPauseStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
 		m_bPaused=false;
+		SetPos((int)getTrackPosInfo()->used);
+
+		m_uCurrTime=getTrackPosInfo()->used * 1000;
 		return 0;
 	}
 	

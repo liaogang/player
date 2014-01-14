@@ -169,6 +169,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	UIAddToolBar(*pWndToolbar);
 	UIAddStatusBar(m_hWndStatusBar);
+	ShowStatusBar(m_bShowStatusBar);
+
 
 	UISetCheck(ID_VIEW_TOOLBAR, 1);
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
@@ -662,7 +664,6 @@ LRESULT CMainFrame::OnPLChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOO
 			m_pDlgPLMng->m_list.AddPlayList(pl);
 		else
 			m_pDlgPLMng->m_list.DelPlayList(pl);
-		
 	}
 
 	if (bAdd)
@@ -819,6 +820,7 @@ void CMainFrame::ChangeTitle()
 		return;
 
 	PlayListItem *item = pl->GetPlayingItem();
+	if(item==NULL)return;
 	FileTrack *track = item->GetFileTrack();
 	
 		

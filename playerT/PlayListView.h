@@ -4,8 +4,9 @@
 #include "PlayListViewMng.h"
 #include "globalStuffs.h"
 #include "customMsg.h"
-#include <map>
 #include "ListCtrl.h"
+#include "MyLib.h"
+#include <map>
 
 unsigned int BKDRHash(char *str);
 
@@ -550,6 +551,8 @@ public:
 
 	void Reload(PlayList* pPlayList,bool ActivePlaying)
 	{
+		SetSelectedPlaylist(pPlayList);
+
 		//resotre the curr croll bar's pos
 		if(GetPlayList())
 			GetPlayList()->SetTopVisibleIndex(GetTopItem());

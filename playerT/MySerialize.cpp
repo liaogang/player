@@ -462,6 +462,7 @@ FILE& CMainFrame::operator>>(FILE& f)
 	/***************   Main Window ******************/
 	f<<m_rcMain<<m_rcConfig<<m_rcLrc<<m_rcProcess<<m_rcSearch<<m_rcFFT<<m_rcPLMng<<m_rcPLConsole;
 
+	f<<m_bShowStatusBar;
 	/********************Rebar section*************************/
 	//size+=m_wndRebar.SerializeB(pFile);
 
@@ -481,6 +482,7 @@ FILE& CMainFrame::operator<<(FILE& f)
 	/***************   Main Window ******************/
 	f>>m_rcMain>>m_rcConfig>>m_rcLrc>>m_rcProcess>>m_rcSearch>>m_rcFFT>>m_rcPLMng>>m_rcPLConsole;
 
+	f>>m_bShowStatusBar;
 	/********************Rebar section*************************/
 	//size+=m_wndRebar.ReSerialize(pFile);
 

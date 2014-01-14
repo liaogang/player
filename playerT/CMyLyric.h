@@ -40,7 +40,7 @@ public:
 	int m_iESize;//歌词上方的空白区域
 	UINT m_nIDEvent;
 	bool m_bPaused;
-	static const int m_uElapse=500;
+	static const int m_uElapse=150;
 	BOOL m_bSized;
 
 	CDlgLrcSearch dlgLrcSearch;
@@ -315,7 +315,9 @@ public:
 	LRESULT OnTrackPosChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		UpdateTime();
-		UpdateCurrLine();
+		if(UpdateCurrLine())
+			mydraw();
+
 		return 0;
 	}
 

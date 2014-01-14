@@ -94,8 +94,9 @@ public:
 
 
 	UINT m_nIDEvent;
-	static const int m_uElapse=500;
+	static const int m_uElapse=150;
 
+	BOOL m_bShowStatusBar;
 
 public:
 	CMainFrame():m_dlgLrc(NULL),
@@ -103,7 +104,8 @@ public:
 		m_pDlgSearch(NULL),pDlgProcess(NULL),
 		m_pDlgFFT(NULL),m_pDlgFFTOutline(NULL),
 		m_pDlgPLMng(NULL),m_pDlgConsole(NULL),
-		m_pDlgConfig(NULL),m_pComboBox(NULL)
+		m_pDlgConfig(NULL),m_pComboBox(NULL),
+		m_bShowStatusBar(TRUE)
 	{
 		RECT_INIT(m_rcMain)
 		RECT_INIT(m_rcConfig)
@@ -126,7 +128,7 @@ public:
 
 	BEGIN_UPDATE_UI_MAP(CMainFrame)
 // 		UPDATE_ELEMENT(ID_VIEW_TOOLBAR, UPDUI_MENUPOPUP)
-// 		UPDATE_ELEMENT(ID_VIEW_STATUS_BAR, UPDUI_MENUPOPUP)
+ 		UPDATE_ELEMENT(ID_VIEW_STATUS_BAR, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_FILE_OPENDIRECTORY, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_FILE_OPEN, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_FILE_SAVEPLAYLIST, UPDUI_MENUPOPUP)
@@ -159,7 +161,7 @@ public:
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_NEW, OnFileNew)
 // 		COMMAND_ID_HANDLER(ID_VIEW_TOOLBAR, OnViewToolBar)
-// 		COMMAND_ID_HANDLER(ID_VIEW_STATUS_BAR, OnViewStatusBar)
+ 		COMMAND_ID_HANDLER(ID_VIEW_STATUS_BAR, OnViewStatusBar)
 		COMMAND_ID_HANDLER(ID_CHANGEPLAYLISTCOLOR_DEFAULT,OnChangePLColorDefault)
 		COMMAND_ID_HANDLER(ID_CHANGEPLAYLISTCOLOR_BLUE,OnChangePLColorBlue)
 		COMMAND_ID_HANDLER(ID_VIEW_PLAYLIST_MNG,OnViewPlaylistManager)		
@@ -260,15 +262,20 @@ public:
 	//	UpdateLayout();
 	//	return 0;
 	//}
+	
+	LRESULT OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		m_bShowStatusBar=!m_bShowStatusBar;
+		ShowStatusBar(m_bShowStatusBar);
+		return 0;
+	}
 
-	//LRESULT OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	//{
-	//	BOOL bVisible = !::IsWindowVisible(m_hWndStatusBar);
-	//	::ShowWindow(m_hWndStatusBar, bVisible ? SW_SHOWNOACTIVATE : SW_HIDE);
-	//	UISetCheck(ID_VIEW_STATUS_BAR, bVisible);
-	//	UpdateLayout();
-	//	return 0;
-	//}
+	void ShowStatusBar(BOOL bShow)
+	{
+		::ShowWindow(m_hWndStatusBar, bShow ? SW_SHOWNOACTIVATE : SW_HIDE);
+		UISetCheck(ID_VIEW_STATUS_BAR, bShow);
+		UpdateLayout();
+	}
 
 	LRESULT OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
