@@ -480,7 +480,7 @@ FILE& CMainFrame::operator>>(FILE& f)
 
 	f<<m_bShowStatusBar;
 	/********************Rebar section*************************/
-	//size+=m_wndRebar.SerializeB(pFile);
+	f<<m_wndRebar;
 
 
 	//put this section to the end . 
@@ -500,7 +500,8 @@ FILE& CMainFrame::operator<<(FILE& f)
 
 	f>>m_bShowStatusBar;
 	/********************Rebar section*************************/
-	//size+=m_wndRebar.ReSerialize(pFile);
+	
+	f>>m_wndRebar;
 
 
 
@@ -579,6 +580,8 @@ FILE& MyConfigs::operator<<(FILE& f)
 
 FILE& CMySimpleRebar::operator>>(FILE& f)
 {
+	return f<<m_bLock;
+
 	int bandCount=GetBandCount();
 	f<<bandCount;
 
@@ -601,6 +604,8 @@ FILE& CMySimpleRebar::operator>>(FILE& f)
 
 FILE& CMySimpleRebar::operator<<(FILE& f)
 {
+	return f>>m_bLock;
+
 	int bandCount=0;
 	f>>bandCount;
 

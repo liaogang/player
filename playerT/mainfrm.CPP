@@ -116,8 +116,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	//-----------------------------------------
 	//-----------------------------------------
-	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
-	m_wndRebar.SubclassWindow(m_hWndToolBar);
+	m_hWndToolBar=m_wndRebar.CreateIsWnd(m_hWnd);
 
 
 	//-----------------------------------------
@@ -159,6 +158,8 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_wndRebar.pVolume=m_pVolumeBar;
 	m_wndRebar.AddSimpleReBarBand(*m_pVolumeBar,m_pVolumeBar->GetBandClassName(),NULL,FALSE,70,TRUE);
 
+	m_wndRebar.Init();
+
 	//-----------------------------------------
 	//status bar  
 	//add it all
@@ -167,12 +168,12 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_pStatus->SubclassWindow(m_hWndStatusBar);
 	m_pStatus->Init();
 
-	UIAddToolBar(*pWndToolbar);
+	//UIAddToolBar(*pWndToolbar);
 	UIAddStatusBar(m_hWndStatusBar);
 	ShowStatusBar(m_bShowStatusBar);
 
 
-	UISetCheck(ID_VIEW_TOOLBAR, 1);
+	//UISetCheck(ID_VIEW_TOOLBAR, 1);
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
 
 	InitUILayout();
@@ -183,11 +184,17 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	pLoop->AddMessageFilter(this);
 	pLoop->AddIdleHandler(this);
 
-	
 	RegisterMyHotKeys();
 
 	SetMsgHandled(FALSE);
 	return 0;
+}
+
+HWND CMySimpleRebar::CreateIsWnd(HWND hParent)
+{
+	HWND hWnd= CMainFrame::CreateSimpleReBarCtrl(hParent, ATL_SIMPLE_REBAR_NOBORDER_STYLE, ATL_IDW_TOOLBAR);
+	SubclassWindow(hWnd);
+	return hWnd;
 }
 
 void CMyVolumeBar::Init()

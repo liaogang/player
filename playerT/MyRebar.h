@@ -56,7 +56,7 @@ public:
 	FILE& operator<<(FILE& f);
 	FILE& operator>>(FILE& f);
 
-	CMySimpleRebar():m_bLock(NULL),pTrack(NULL),pVolume(NULL)
+	CMySimpleRebar():m_bLock(FALSE),pTrack(NULL),pVolume(NULL)
 	{
 		menu=::GetSubMenu(::LoadMenu(NULL,MAKEINTRESOURCE(IDR_MENU_REBAR)),0);
 	}
@@ -151,6 +151,8 @@ public:
 			::TrackPopupMenu(menu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
 		}
 	}
+
+	HWND CreateIsWnd(HWND hParent);
 
 	BOOL ReserializeRebarBand(REBARBANDINFO &info,TCHAR *szClassName)
 	{
@@ -307,13 +309,18 @@ public:
 
 	LRESULT OnCtrlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
-	
+	void Init()
+	{
+		LockBands(m_bLock);
+	}
+
 	LRESULT OnLockBands(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		LockBands(m_bLock=!m_bLock);
 
 		return 0;
 	}
+
 
 	LRESULT OnShowBandX(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
