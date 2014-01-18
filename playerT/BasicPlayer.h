@@ -1,6 +1,8 @@
 #include "Thread.h"
 #include "CriticalSection.h"
 
+#include "customMsg.h"
+
 #pragma once
 
 class CPlayerThread;
@@ -9,7 +11,7 @@ class MusicFile;
 class CMainFrame;
 class CPlayerController;
 class FileTrack;
-
+struct trackPosInfo;
 class CBasicPlayer
 {
 	friend class MyLib;
@@ -46,7 +48,8 @@ public:
 	CPlayerThread* m_pPlayerThread;
 	CSpectrumAnalyser* m_pSpectrumAnalyser;
 
-	
+	PlayingStatus m_lastStatus;
+	trackPosInfo m_lastPos;
 	//void InitSlowDown(BOOL bSlowDown=TRUE,BOOL bCloseFile=FALSE);
 	void SlowDownVol();
 	void GrowUpVol();
@@ -58,6 +61,8 @@ public:
 	BOOL open(FileTrack * track);
 	void ResetFile();
 	void SetPos(int cur,int max);
+	void SetFilePos(double cur,double max);
+	void SetFilePos(trackPosInfo *pos);
 	void GetPos(int *cur,int *max);
 	void WaitPlay();
 	BOOL stoped()
@@ -65,7 +70,10 @@ public:
 		return m_bStopped;
 	}
 
-	void stop(BOOL bDestroy=FALSE);
+	//save status and stop 
+	void Destroy();
+
+	void stop();
 protected:
 	void play();
 	void pause();//pause or resume play

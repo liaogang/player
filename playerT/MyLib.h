@@ -106,7 +106,7 @@ public:
 	PLListItem GetPlayingPL(){return Index2Playlist(GetPlayingIndex());}	
 
 	void SetSelectedIndex(int i){m_IndexSelecting=i;}
-	void SetSelectedIndex(PlayList *pl){SetSelectedIndex(Playlist2Index(pl));}
+	void SetSelectedPL(PlayList *pl){SetSelectedIndex(Playlist2Index(pl));}
 	int  GetSelectedIndex(){return m_IndexSelecting;}
 	PLListItem GetSelectedPL(){return Index2Playlist(GetSelectedIndex());}
 

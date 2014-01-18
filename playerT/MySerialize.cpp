@@ -110,15 +110,31 @@ FILE& operator>>(FILE& f,tstring &str)
 
 
 //RECT
+FILE& operator<<(FILE& f,RECT &r)
+{
+	return f<<r.left<<r.top<<r.right<<r.bottom;
+}
+
 FILE& operator>>(FILE& f,RECT &r)
 {
 	return f>>r.left>>r.top>>r.right>>r.bottom;
 }
 
-FILE& operator<<(FILE& f,RECT &r)
+
+
+//enum PlayingStatus
+FILE& operator<<(FILE& f,PlayingStatus s)
 {
-	return f<<r.left<<r.top<<r.right<<r.bottom;
+	return f<<static_cast<int>(s);
 }
+
+FILE& operator>>(FILE& f,PlayingStatus &s)
+{
+	int *t=(int*)(&s);
+	return f>>*t;
+}
+
+
 
 
 int SerializeAllTree(MYTREE *c,FILE& f)
@@ -551,12 +567,12 @@ FILE& FileTrack::operator<<(FILE& f)
 
 FILE& MyConfigs::operator>>(FILE& f)
 {
-	return f<<bResumeOnReboot<<playlistIndex<<trackIndex<<pos.used<<pos.left<<playersVolume<<playorder;
+	return f<<bResumeOnReboot<<playlistIndex<<trackIndex<<playingStatus<<pos.used<<pos.left<<playersVolume<<playorder;
 }
 
 FILE& MyConfigs::operator<<(FILE& f)
 {
-	return f>>bResumeOnReboot>>playlistIndex>>trackIndex>>pos.used>>pos.left>>playersVolume>>playorder;
+	return f>>bResumeOnReboot>>playlistIndex>>trackIndex>>playingStatus>>pos.used>>pos.left>>playersVolume>>playorder;
 }
 
 

@@ -201,7 +201,60 @@ void CMyVolumeBar::Init()
 
 vector<MY_REBARBANDINFO*> CMySimpleRebar::m_vecBandInfos;
 LRESULT CMySimpleRebar::OnCtrlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-{
+	{
+
+
+		/////////////////////////////////////
+	//LRESULT lResult=FALSE;
+	//HDC dc=(HDC)wParam;
+	//HWND wnd=(HWND)lParam;
+	//RECT rc;
+	//::GetWindowRect(m_hWnd,&rc);
+
+	//if (wnd==pVolume->m_hWnd 
+	//	||wnd==pTrack->m_hWnd 
+	//	)
+	//{
+	//HDC dcMem;
+	//dcMem= ::CreateCompatibleDC(dc);
+	//HBITMAP bmp,oldBmp;
+	//bmp=::CreateCompatibleBitmap(dc,rc.right-rc.left,rc.bottom-rc.top);
+	//oldBmp=(HBITMAP)::SelectObject(dcMem,bmp);
+
+	//POINT pt={0,0};
+	//::MapWindowPoints(wnd,m_hWnd,&pt,1);
+	//::OffsetWindowOrgEx(dcMem,pt.x,pt.y,&pt);
+
+	//::SendMessage(m_hWnd,WM_ERASEBKGND, (WPARAM)dcMem, 0L);
+
+	//HBRUSH hBrushB1=::CreateSolidBrush(RGB(242,247,253));
+	//HBRUSH hBrushB2=::CreateSolidBrush(RGB(235,243,252));
+	//HBRUSH hBrushB3=::CreateSolidBrush(RGB(227,238,251));
+	//
+	//HBRUSH oldBrush=(HBRUSH)::SelectObject(dcMem,hBrushB3);
+	////::Rectangle(dcMem,rc.left,rc.top,rc.right,rc.bottom);
+	//::Rectangle(dcMem,0,0,500,500);
+	//::SelectObject(dcMem,oldBrush);
+
+
+	//
+	//::SetWindowOrgEx(dcMem,pt.x,pt.y,NULL);
+	//::DeleteDC(dcMem);
+
+	//static HBRUSH hBrush=0;
+	//if (hBrush)
+	//	::DeleteObject((HGDIOBJ)hBrush);
+
+	//hBrush = ::CreatePatternBrush(bmp);
+	//::DeleteObject(bmp);
+
+	//lResult=(LRESULT)hBrush;
+	//return lResult;
+	//	}
+
+
+
+	////////////////////////////////
 	LRESULT lResult=FALSE;
 	HDC dc=(HDC)wParam;
 	HWND wnd=(HWND)lParam;
@@ -671,11 +724,11 @@ LRESULT CMainFrame::OnPLChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOO
 	else
 	{
 		int size=MyLib::shared()->m_playLists.size();
+		PlayList *anotherSel=NULL;
+		if(size!=0)
+			anotherSel=* MyLib::shared()->m_playLists.begin();
 
-		if(size==0)
-			AllPlayListViews()->Reload(nullptr);
-		else
-			AllPlayListViews()->Reload(* MyLib::shared()->m_playLists.begin());
+		AllPlayListViews()->Reload(anotherSel);
 	}
 
 	return 0;
@@ -1209,7 +1262,7 @@ void CDlgLrcSearch::DownLoad()
 
 
 
-BOOL MyLib::play(FileTrack  *track)
+BOOL MyLib::play(FileTrack * track)
 {
 	ATLASSERT(track);
 
@@ -1350,7 +1403,7 @@ void PlayListViewMng::Reload(PlayList *pPL,bool activeplaying)
 		//(*i)->SelectAndFocusItem(index);
 	}
 
-	MyLib::shared()->SetSelectedIndex(pPL);
+	MyLib::shared()->SetSelectedPL(pPL);
 }
 
 
@@ -1851,7 +1904,6 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	pLoop->RemoveMessageFilter(this);
 	pLoop->RemoveIdleHandler(this);
 
-
 	KillTimer(m_nIDEvent);
 
 
@@ -1886,6 +1938,7 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 // 	if(m_pDlgConsole)
 // 		m_pDlgConsole->GetWindowRect(&m_rcPLConsole);
 
+	CBasicPlayer::shared()->Destroy();
 
 	SaveAll();
 
@@ -1990,22 +2043,21 @@ void CollectInfo()
 	MyConfigs *c=GetMyConfigs();
 	c->setPlayersVolume(CBasicPlayer::shared()->m_curVolume);
 
+	PlayList *pl=MyLib::shared()->GetPlayingPL();
+	if(pl)
+	{
+		PlayListItem *track=pl->GetPlayingItem();
+		if(track)
+		{		
+			c->playlistIndex=MyLib::shared()->Playlist2Index(track->GetPlayList());
+			c->trackIndex=track->GetIndex();
+		}
+	}
 
 	if(c->getResumeOnReboot())
 	{
-		PlayList *pl=MyLib::shared()->GetPlayingPL();
-		if(pl)
-		{
-			PlayListItem *track=pl->GetPlayingItem();
-			if(track)
-			{		
-				c->playlistIndex=MyLib::shared()->Playlist2Index(track->GetPlayList());
-				c->trackIndex=track->GetIndex();
-			}
-		}
-
-		c->pos=*getTrackPosInfo();
-
+		c->playingStatus=CBasicPlayer::shared()->m_lastStatus;
+		c->pos=CBasicPlayer::shared()->m_lastPos;
 	}
 
 	c->setPlayersVolume(CBasicPlayer::shared()->m_curVolume);
@@ -2024,10 +2076,16 @@ void ValidateCfg()
 	{	s->SetPlayingIndex(c->playlistIndex);
 		pl->SetPlayingIndex(c->trackIndex);
 	}
-	setTrackPosInfo(c->pos);
 
-	if(c->getResumeOnReboot() && c->pos.used!=-1)
-		SdMsg(WM_COMMAND,TRUE,MAKEWPARAM(ID_PLAY,0),(LPARAM)0);
+	if(c->getResumeOnReboot() )
+	{
+		if(c->playingStatus==status_playing||c->playingStatus==status_paused)
+		{
+			CBasicPlayer::shared()->m_lastStatus=c->playingStatus;
+			CBasicPlayer::shared()->m_lastPos=c->pos;
+			SdMsg(WM_COMMAND,TRUE,MAKEWPARAM(ID_PLAY,0),(LPARAM)0);	
+		}
+	}
 }
 
 

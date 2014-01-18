@@ -70,6 +70,7 @@ public:
 	LRESULT OnSearch(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		PlayList *pSelectedPl=SelectedPlaylist();
+		if(pSelectedPl==NULL) return 0;
 
 		m_list.ClearMap();
 		m_list.ClearAllItem();

@@ -14,6 +14,15 @@ public:
 	{}
 };
 
+
+enum PlayingStatus
+{
+	status_invalide,
+	status_stopped,
+	status_playing,
+	status_paused
+};
+
 #define  WM_TRACK_POS_CHANGED          (WM_USER+22)  
 
 #define  WM_TRACK_REACH_END   (WM_USER+33)//Òô¹ìµ½´ïÄ©Î²

@@ -33,6 +33,7 @@ public:
 	DECLARE_WND_SUPERCLASS(NULL,CReBarCtrl::GetWndClassName())
 
 	BEGIN_MSG_MAP_EX(CMySimpleRebar)
+		//MSG_WM_ERASEBKGND(OnEraseBkgnd)
 		//MESSAGE_HANDLER(WM_NOTIFY,OnNotify)
 		COMMAND_ID_HANDLER(ID_REBAR_LOCK,OnLockBands)
 		COMMAND_RANGE_HANDLER(ID_REBAR_BASE,ID_REBAR_BASE+m_vecBandInfos.size(),OnShowBandX)
@@ -330,4 +331,36 @@ public:
 		return 0;
 	}
 	
+
+	BOOL OnEraseBkgnd(HDC dc)
+	{
+		RECT rc;
+		GetClientRect(&rc);
+
+		HBRUSH hBrushB1=::CreateSolidBrush(RGB(242,247,253));
+		HBRUSH hBrushB2=::CreateSolidBrush(RGB(235,243,252));
+		HBRUSH hBrushB3=::CreateSolidBrush(RGB(227,238,251));
+		HPEN  hPen=::CreatePen(PS_NULL,0,0);
+		HBRUSH oldBrush;
+		HPEN oldPen;
+		int height=rc.bottom-rc.top;
+		
+
+		oldPen=(HPEN)::SelectObject(dc,hPen);
+		oldBrush=(HBRUSH)::SelectObject(dc,hBrushB1);
+		::Rectangle(dc,rc.left,rc.top,rc.right,rc.top+10);
+		::SelectObject(dc,hBrushB2);
+		::Rectangle(dc,rc.left,rc.top+10,rc.right,rc.top+13);
+		::SelectObject(dc,hBrushB3);
+		::Rectangle(dc,rc.left,rc.top+13,rc.right,rc.bottom);
+
+		::SelectObject(dc,oldBrush);
+		::SelectObject(dc,oldPen);
+
+		DeleteObject(hBrushB1);
+		DeleteObject(hBrushB2);
+		DeleteObject(hBrushB3);
+
+		return TRUE;
+	}
 };	

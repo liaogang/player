@@ -54,21 +54,34 @@ void setTrackPosInfo(trackPosInfo info)
 	curPosInfo=info;
 }
 
+void CALLBACK SlowDownVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD dw2)
+{
+	CBasicPlayer *p=(CBasicPlayer*)dwUser;
+	p->SlowDownVol();
+}
+
+void CALLBACK GrowUpVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD dw2)
+{
+	CBasicPlayer *p=(CBasicPlayer*)dwUser;
+	p->GrowUpVol();
+}
 
 
 ///////////////////////////////////////
- static CBasicPlayer *pGlobalBasePlayer=NULL;
+ //static CBasicPlayer *pGlobalBasePlayer=NULL;
   CBasicPlayer* const CBasicPlayer::shared()
  {
-	 if(!pGlobalBasePlayer)
-		 pGlobalBasePlayer=new CBasicPlayer();
-	 return pGlobalBasePlayer;
+	 static CBasicPlayer player;
+	 return &player;
+	// if(!pGlobalBasePlayer)
+	//	 pGlobalBasePlayer=new CBasicPlayer();
+	// return pGlobalBasePlayer;
  }
 
  CBasicPlayer :: CBasicPlayer(void):
  m_bStopped(TRUE),m_bPaused(TRUE),
 	 m_pFile(NULL),m_bFileEnd(TRUE)
-	 ,m_curVolume(50)
+	 ,m_curVolume(50),m_lastStatus(status_invalide)
 {
 	//m_eventSlowDown=::CreateEvent(0,TRUE,TRUE,0);
 	//nosignaled state,to enter the slowdown
@@ -83,7 +96,6 @@ void setTrackPosInfo(trackPosInfo info)
 
 CBasicPlayer :: ~CBasicPlayer(void)
 {
-	stop(TRUE);
 	delete[] volBuffer;
 	if(!m_pPlayerThread) delete m_pPlayerThread;
 	if (!m_pSpectrumAnalyser) delete m_pSpectrumAnalyser; 
@@ -143,6 +155,19 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
 	BOOL result=m_pFile->Open(filepath);
 	if(result==FALSE)
 		delete m_pFile;
+	else
+	{	
+		if(m_lastStatus==status_paused || m_lastStatus==status_playing)
+			SetFilePos(&m_lastPos);
+		// 	if(m_eStatus==status_playing || m_eStatus==status_paused)
+		// 	{
+		// 		m_pFile->SetPos(curPosInfo.used-5>0?curPosInfo.used-5:curPosInfo.used,curPosInfo.used+curPosInfo.left);
+		// 		m_eStatus=status_null;	
+		// 	}
+		//m_pFile->ResetFile();		
+
+	}
+	
 	return result;
 }
 
@@ -159,14 +184,6 @@ void CBasicPlayer::play()
 		else               //正在播放
 			stop();        //先停止
 
-	m_bStopped=FALSE;
-	m_bPaused=FALSE;
-
-	if(curPosInfo.used==-1)
-		m_pFile->ResetFile();
-	else
-		m_pFile->SetPos(curPosInfo.used-7>0?curPosInfo.used-7:curPosInfo.used,curPosInfo.used+curPosInfo.left);
-	
 
 	m_pPlayerThread->Reset();
 
@@ -174,27 +191,32 @@ void CBasicPlayer::play()
 
 	m_pPlayerThread->Init(FALSE);
 	
-	m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
-	TimerVolGrowUp();
-	m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
+	m_bStopped=FALSE;
 
-	NotifyMsg(WM_NEW_TRACK_STARTED,(WPARAM)NULL,0);
+	if(m_lastStatus==status_paused)
+	{
+		m_bPaused=TRUE;
+		NotifyMsg(WM_NEW_TRACK_STARTED,(WPARAM)NULL,0);
+		NotifyMsg(WM_PAUSED,(WPARAM)NULL,0);
+	}
+	else
+	{	
+		m_bPaused=FALSE;
+
+		m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
+		TimerVolGrowUp();
+		m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
+		NotifyMsg(WM_NEW_TRACK_STARTED,(WPARAM)NULL,0);
+	}
+	
+	m_lastStatus=status_invalide;
+
 }
 
 
 
 
-void CALLBACK SlowDownVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD dw2)
-{
-	CBasicPlayer *p=(CBasicPlayer*)dwUser;
-	p->SlowDownVol();
-}
 
-void CALLBACK GrowUpVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD dw2)
-{
-	CBasicPlayer *p=(CBasicPlayer*)dwUser;
-	p->GrowUpVol();
-}
 
 
 
@@ -307,7 +329,20 @@ void CBasicPlayer::pause()
 
 
 
-void CBasicPlayer::stop(BOOL bDestroy)
+void CBasicPlayer::Destroy()
+{
+	if(m_bStopped)
+		m_lastStatus=status_stopped;
+	else if(m_bPaused)
+		m_lastStatus=status_paused;
+	else
+		m_lastStatus=status_playing;
+
+	stop();
+}
+
+
+void CBasicPlayer::stop()
 {
 	if(!m_bStopped )
 	{
@@ -316,18 +351,13 @@ void CBasicPlayer::stop(BOOL bDestroy)
 		
 		m_pPlayerThread->m_lpDSBuffer->Stop();
 
-		if(bDestroy)//cllocect info
-		{
-			getTrackPosInfo();
-		}
-		else  //clear info
-			curPosInfo.used=-1;
+		if(m_lastStatus!=status_invalide)//cllocect info
+			m_lastPos=*getTrackPosInfo();
 
 		NotifyMsg(WM_TRACKSTOPPED);
 
 		m_pPlayerThread->Teminate();
 		m_pFile->Close();
-
 
 		m_cs.Leave();
 	}
@@ -354,6 +384,17 @@ void CBasicPlayer::SetPos(int cur,int max)
 		m_pPlayerThread->EndChangeTrackPos();
 		m_cs.Leave();
 	}
+}
+
+void CBasicPlayer::SetFilePos(double cur,double max)
+{
+	ATLASSERT(m_pFile);
+	m_pFile->SetPos(cur,max);
+}
+
+void CBasicPlayer::SetFilePos(trackPosInfo *pos)
+{
+	SetFilePos(pos->used,pos->used+pos->left);
 }
 
 void CBasicPlayer::GetPos(int *cur,int *max)

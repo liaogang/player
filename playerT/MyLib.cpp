@@ -12,7 +12,7 @@ PlayList* SelectedPlaylist()
 
 void SetSelectedPlaylist(PlayList* pl)
 {
-	MyLib::shared()->SetSelectedIndex(pl);
+	MyLib::shared()->SetSelectedPL(pl);
 }
 
 PlayList* PlayingPlaylist()
@@ -79,7 +79,7 @@ BOOL MyLib::play(PlayListItem *item)
 }
 
 
-BOOL MyLib::play()
+BOOL MyLib::play( )
 {
 	ClearPlayQueue();
 
