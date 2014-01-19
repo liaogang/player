@@ -114,67 +114,47 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	SetTimer((UINT_PTR)&m_nIDEvent,m_uElapse,NULL);
 
 
-	//-----------------------------------------
-	//-----------------------------------------
 	m_hWndToolBar=m_wndRebar.CreateIsWnd(m_hWnd);
-
-
-	//-----------------------------------------
-	// create command bar window
-	HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
-	CMenu *pMenu=new CMenu;
-	pMenu->LoadMenu(IDR_MAINFRAME);
-	m_CmdBar.AttachMenu(pMenu->m_hMenu);
-	m_CmdBar.LoadImages(IDR_MAINFRAME);
 	SetMenu(NULL);
-	AddSimpleReBarBand(hWndCmdBar);
 
+	CMyTrackBar *m_pTrackBar;
+	CMyVolumeBar *m_pVolumeBar;
+	CMyComboBox *m_pComboBox;
+	CMyCommandBarCtrl *m_pCmdBar;
 
-	//-----------------------------------------
-	//standed toobar 
+	m_pCmdBar=new CMyCommandBarCtrl;
+	m_pCmdBar->CreateIsWnd(m_wndRebar);
+	m_wndRebar.AddSimpleReBarBand(*m_pCmdBar,m_pCmdBar->GetBandClassName(),FALSE,NULL,TRUE,0,TRUE);
+
 	CMyToolBar *pWndToolbar=new CMyToolBar;
 	pWndToolbar->CreateIsWnd(m_wndRebar);
-	m_wndRebar.AddSimpleReBarBand(*pWndToolbar, pWndToolbar->GetBandClassName(),NULL,TRUE,0,TRUE);
+	m_wndRebar.AddSimpleReBarBand(*pWndToolbar, pWndToolbar->GetBandClassName(),TRUE,NULL,TRUE,0,TRUE);
 	
-	
-	//------------------------------------------------
-	//progress track bar
 	m_pTrackBar=new CMyTrackBar;
 	m_pTrackBar->CreateIsWnd(m_wndRebar);
-	m_wndRebar.pTrack=m_pTrackBar;
-	m_wndRebar.AddSimpleReBarBand(*m_pTrackBar,m_pTrackBar->GetBandClassName(),NULL,FALSE,280,TRUE);
+	m_wndRebar.AddSimpleReBarBand(*m_pTrackBar,m_pTrackBar->GetBandClassName(),TRUE,NULL,FALSE,280,TRUE);
 	
-	//-----------------------------------------
-	//combo box
 	m_pComboBox=new CMyComboBox;
 	HWND comboBar=m_pComboBox->CreateIsWnd(m_wndRebar);
-	m_wndRebar.AddSimpleReBarBand(comboBar,m_pComboBox->GetBandClassName(),NULL,FALSE,140,TRUE);
+	m_wndRebar.AddSimpleReBarBand(comboBar,m_pComboBox->GetBandClassName(),TRUE,NULL,FALSE,140,TRUE);
 
-	//-----------------------------------------
-	//volume track bar
 	m_pVolumeBar=new CMyVolumeBar;
 	m_pVolumeBar->CreateIsWnd(m_wndRebar);
 	m_pVolumeBar->Init();
-	m_wndRebar.pVolume=m_pVolumeBar;
-	m_wndRebar.AddSimpleReBarBand(*m_pVolumeBar,m_pVolumeBar->GetBandClassName(),NULL,FALSE,70,TRUE);
+	m_wndRebar.AddSimpleReBarBand(*m_pVolumeBar,m_pVolumeBar->GetBandClassName(),TRUE,NULL,FALSE,70,TRUE);
 
 	m_wndRebar.Init();
 
-	//-----------------------------------------
-	//status bar  
-	//add it all
+
 	CreateSimpleStatusBar();
 	m_pStatus=new CMyStatusBar;
 	m_pStatus->SubclassWindow(m_hWndStatusBar);
 	m_pStatus->Init();
 
-	//UIAddToolBar(*pWndToolbar);
+
 	UIAddStatusBar(m_hWndStatusBar);
 	ShowStatusBar(m_bShowStatusBar);
-
-
-	//UISetCheck(ID_VIEW_TOOLBAR, 1);
-	UISetCheck(ID_VIEW_STATUS_BAR, 1);
+	UISetCheck(ID_VIEW_STATUS_BAR, m_bShowStatusBar);
 
 	InitUILayout();
 
@@ -266,10 +246,10 @@ LRESULT CMySimpleRebar::OnCtrlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM l
 	HDC dc=(HDC)wParam;
 	HWND wnd=(HWND)lParam;
 
-	if (wnd==pVolume->m_hWnd 
-		||wnd==pTrack->m_hWnd 
-		)
-	{
+// 	if (wnd==pVolume->m_hWnd 
+// 		||wnd==pTrack->m_hWnd 
+// 		)
+// 	{
 		//!m_hWnd ,¸¸¿Ø¼þ,Rebar
 		//!wnd    ,×Ó¿Ø¼þ,trackBar
 
@@ -297,7 +277,7 @@ LRESULT CMySimpleRebar::OnCtrlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM l
 		::DeleteObject(bmp);
 
 		lResult=(LRESULT)hBrush;
-	}
+/*	}*/
 
 	return lResult;
 }
@@ -2237,3 +2217,10 @@ DWORD CMyVolumeBar::OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW pNMCD)
 
 	return lr;
 }
+
+
+BOOL CMyCommandBarCtrl::bRegister=FALSE;
+BOOL CMyTrackBar::bRegister=FALSE;
+BOOL CMyVolumeBar::bRegister=FALSE;
+BOOL CMyToolBar::bRegister=FALSE;
+BOOL CMyComboBox::bRegister=FALSE;

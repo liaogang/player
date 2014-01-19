@@ -17,12 +17,10 @@
 class CDialogConfig;
 class CAlbumCoverView;
 class CDialogLyric;
-class CMyTrackBar;
 class CMyTabBar;
 class CPlayListView;
 class CWTLTabViewCtrl;
 class CPlayListView;
-class CMyVolumeBar;
 class CMyStatusBar;
 class DialogSearch;
 class CProcessingDlg;
@@ -35,9 +33,7 @@ class DialogPLManager;
 class CDialogConsole;
 class CMultiSpliltWnd;
 class MYTREE;
-class CMyComboBox;
 //-----------------------------------------
-
 
 
 class CMainFrame : 
@@ -54,10 +50,6 @@ public:
 
 	//周边窗口
 	CMySimpleRebar m_wndRebar;
-	CMyTrackBar *m_pTrackBar;
-	CMyVolumeBar *m_pVolumeBar;
-	CMyComboBox *m_pComboBox;
-	CMyCommandBarCtrl m_CmdBar;
 	CMyStatusBar *m_pStatus;
 
 	//主视图
@@ -100,12 +92,10 @@ public:
 
 public:
 	CMainFrame():m_dlgLrc(NULL),
-		m_pTrackBar(NULL),m_pVolumeBar(NULL),
 		m_pDlgSearch(NULL),pDlgProcess(NULL),
 		m_pDlgFFT(NULL),m_pDlgFFTOutline(NULL),
 		m_pDlgPLMng(NULL),m_pDlgConsole(NULL),
-		m_pDlgConfig(NULL),m_pComboBox(NULL),
-		m_bShowStatusBar(TRUE)
+		m_pDlgConfig(NULL),m_bShowStatusBar(TRUE)
 	{
 		RECT_INIT(m_rcMain)
 		RECT_INIT(m_rcConfig)

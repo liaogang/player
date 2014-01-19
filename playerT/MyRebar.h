@@ -14,10 +14,13 @@ struct MY_REBARBANDINFO
 {
 public:
 	REBARBANDINFO info;
-	UINT menuID;
 	CreateReBarBandFuns createFunc;
 	TCHAR szClassName[MAX_PATH];
-	BOOL bShow;
+	//if is not removable , the menuID and bShow is not used ,
+	//and the is no show/hide option in the PoPup menu
+	BOOL bRemovable;
+	UINT menuID;    //menu id in PoPup menu
+	BOOL bShow;     //means nows show in REBAR ?
 };
  
 	
@@ -35,6 +38,8 @@ public:
 	BEGIN_MSG_MAP_EX(CMySimpleRebar)
 		//MSG_WM_ERASEBKGND(OnEraseBkgnd)
 		//MESSAGE_HANDLER(WM_NOTIFY,OnNotify)
+		
+		COMMAND_ID_HANDLER(ID_REBAR_RESET,OnResetBands)
 		COMMAND_ID_HANDLER(ID_REBAR_LOCK,OnLockBands)
 		COMMAND_RANGE_HANDLER(ID_REBAR_BASE,ID_REBAR_BASE+m_vecBandInfos.size(),OnShowBandX)
 		MESSAGE_HANDLER(WM_CTLCOLORSTATIC,OnCtrlColorStatic)
@@ -47,8 +52,6 @@ public:
 public:
 	HMENU menu;
 	BOOL m_bLock;
-	CMyTrackBar *pTrack;
-	CMyVolumeBar *pVolume;
 
 	static vector<MY_REBARBANDINFO*> m_vecBandInfos;
 
@@ -64,6 +67,7 @@ public:
 	static void RegisterRebarBand(TCHAR* szBandClassName,CreateReBarBandFuns func)
 	{
 		MY_REBARBANDINFO *rbBand = static_cast<MY_REBARBANDINFO*>(malloc(sizeof(MY_REBARBANDINFO)));
+		memset(rbBand,0,sizeof(MY_REBARBANDINFO));
 		_tcscpy(rbBand->szClassName,szBandClassName);
 		rbBand->createFunc=func;
 		
@@ -126,19 +130,18 @@ public:
 				for(auto i=m_vecBandInfos.begin();i!=m_vecBandInfos.end();++i)
 				{
 					MY_REBARBANDINFO *mri=*i;
-					
-					TCHAR *szBandClassNames=mri->szClassName;
-					
-					MENUITEMINFO mi;
-					mi.cbSize=sizeof(mi);
-					mi.fMask=MIIM_ID|MIIM_STRING;
-					mi.fState=MFS_ENABLED;
-					mi.wID=mri->menuID=ID_REBAR_BASE+bRebarMenu++;
-					mi.dwTypeData=szBandClassNames;
-					mi.cch=_tcslen(szBandClassNames);
+					if(mri->bRemovable)
+					{
+						MENUITEMINFO mi;
+						mi.cbSize=sizeof(mi);
+						mi.fMask=MIIM_ID|MIIM_STRING;
+						mi.fState=MFS_ENABLED;
+						mi.wID=mri->menuID=ID_REBAR_BASE+bRebarMenu++;
+						mi.dwTypeData=mri->szClassName;
+						mi.cch=_tcslen(mri->szClassName);
 
-
-					InsertMenuItem(menu,2,TRUE,&mi);
+						InsertMenuItem(menu,2,TRUE,&mi);
+					}
 				}
 			}
 
@@ -167,6 +170,18 @@ public:
 		}
 
 	}
+
+	BOOL AddSimpleReBarBandCtrl(MY_REBARBANDINFO *mri)
+	{
+		return AddSimpleReBarBandCtrl(m_hWnd, 
+					mri->createFunc(m_hWnd) 
+					, 0,
+					mri->info.lpText,
+					mri->info.fStyle&RBBS_BREAK, 
+					mri->info.cx, 
+					mri->info.cx==mri->info.cxMinChild);
+	}
+
 
 	//copyed from atlframe.h
 	static BOOL AddSimpleReBarBandCtrl(HWND hWndReBar, HWND hWndBand, int nID = 0, LPCTSTR lpstrTitle = NULL, BOOL bNewRow = FALSE, int cxWidth = 0, BOOL bFullWidthAlways = FALSE)
@@ -261,7 +276,9 @@ public:
 		return TRUE;
 	}
 
-	BOOL AddSimpleReBarBand(HWND hWndBand,TCHAR *szClassName, LPCTSTR lpstrTitle = NULL, BOOL bNewRow = FALSE, int cxWidth = 0, BOOL bFullWidthAlways = FALSE)
+
+	//if param szClassName is null , the popup menu item for it is not added
+	BOOL AddSimpleReBarBand(HWND hWndBand,TCHAR *szClassName,BOOL bRemovable,LPCTSTR lpstrTitle = NULL, BOOL bNewRow = FALSE, int cxWidth = 0, BOOL bFullWidthAlways = FALSE)
 	{
 		ATLASSERT(::IsWindow(hWndBand));        // must be created
 
@@ -269,10 +286,11 @@ public:
 		
 		MY_REBARBANDINFO *info= ClassName2BandInfo(szClassName);
 		info->info.cbSize=sizeof(REBARBANDINFO);
-		info->info.fMask=RBBIM_ID;
+		info->info.fMask=RBBIM_ID|RBBIM_SIZE|RBBIM_STYLE|RBBIM_TEXT|RBBIM_ID|RBBIM_CHILDSIZE;
 		GetBandInfo(GetBandCount()-1,&info->info);
+		info->bRemovable=bRemovable;
 		info->bShow=TRUE;
-
+		
 		return bRet;
 	}
 
@@ -321,6 +339,27 @@ public:
 		return 0;
 	}
 
+	LRESULT OnResetBands(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{	
+		for(auto i=m_vecBandInfos.begin();i!=m_vecBandInfos.end();++i)
+		{
+			MY_REBARBANDINFO *mri=*i;
+			if(mri->bRemovable)
+				DeleteBand(IdToIndex(mri->info.wID));
+		}
+
+		for(auto i=m_vecBandInfos.begin();i!=m_vecBandInfos.end();++i)
+		{
+			MY_REBARBANDINFO *mri=*i;
+
+			//if band added
+			if(mri->bRemovable && mri->info.cbSize!=0 )
+				AddSimpleReBarBandCtrl(mri);
+		}
+
+		return 0;
+	}
+	
 
 	LRESULT OnShowBandX(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
@@ -339,35 +378,35 @@ public:
 	}
 	
 
-	BOOL OnEraseBkgnd(HDC dc)
-	{
-		RECT rc;
-		GetClientRect(&rc);
-
-		HBRUSH hBrushB1=::CreateSolidBrush(RGB(242,247,253));
-		HBRUSH hBrushB2=::CreateSolidBrush(RGB(235,243,252));
-		HBRUSH hBrushB3=::CreateSolidBrush(RGB(227,238,251));
-		HPEN  hPen=::CreatePen(PS_NULL,0,0);
-		HBRUSH oldBrush;
-		HPEN oldPen;
-		int height=rc.bottom-rc.top;
-		
-
-		oldPen=(HPEN)::SelectObject(dc,hPen);
-		oldBrush=(HBRUSH)::SelectObject(dc,hBrushB1);
-		::Rectangle(dc,rc.left,rc.top,rc.right,rc.top+10);
-		::SelectObject(dc,hBrushB2);
-		::Rectangle(dc,rc.left,rc.top+10,rc.right,rc.top+13);
-		::SelectObject(dc,hBrushB3);
-		::Rectangle(dc,rc.left,rc.top+13,rc.right,rc.bottom);
-
-		::SelectObject(dc,oldBrush);
-		::SelectObject(dc,oldPen);
-
-		DeleteObject(hBrushB1);
-		DeleteObject(hBrushB2);
-		DeleteObject(hBrushB3);
-
-		return TRUE;
-	}
+// 	BOOL OnEraseBkgnd(HDC dc)
+// 	{
+// 		RECT rc;
+// 		GetClientRect(&rc);
+// 
+// 		HBRUSH hBrushB1=::CreateSolidBrush(RGB(242,247,253));
+// 		HBRUSH hBrushB2=::CreateSolidBrush(RGB(235,243,252));
+// 		HBRUSH hBrushB3=::CreateSolidBrush(RGB(227,238,251));
+// 		HPEN  hPen=::CreatePen(PS_NULL,0,0);
+// 		HBRUSH oldBrush;
+// 		HPEN oldPen;
+// 		int height=rc.bottom-rc.top;
+// 		
+// 
+// 		oldPen=(HPEN)::SelectObject(dc,hPen);
+// 		oldBrush=(HBRUSH)::SelectObject(dc,hBrushB1);
+// 		::Rectangle(dc,rc.left,rc.top,rc.right,rc.top+10);
+// 		::SelectObject(dc,hBrushB2);
+// 		::Rectangle(dc,rc.left,rc.top+10,rc.right,rc.top+13);
+// 		::SelectObject(dc,hBrushB3);
+// 		::Rectangle(dc,rc.left,rc.top+13,rc.right,rc.bottom);
+// 
+// 		::SelectObject(dc,oldBrush);
+// 		::SelectObject(dc,oldPen);
+// 
+// 		DeleteObject(hBrushB1);
+// 		DeleteObject(hBrushB2);
+// 		DeleteObject(hBrushB3);
+// 
+// 		return TRUE;
+// 	}
 };	

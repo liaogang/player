@@ -112,9 +112,9 @@ class CMyTrackBar
 public:
 	typedef  CMyTrackBarBase baseclass;
 	
+	static BOOL bRegister;
 	CMyTrackBar()
 	{
-		static BOOL bRegister=FALSE;
 		if(bRegister==FALSE)
 		{
 			CMySimpleRebar::RegisterRebarBand(GetBandClassName(),CreateTrackBarBand);
@@ -319,9 +319,9 @@ class CMyVolumeBar:
 	,public CCustomDraw<CMyVolumeBar>
 {
 public:
+	static BOOL bRegister;
 	CMyVolumeBar()
 	{
-		static BOOL bRegister=FALSE;
 		if(bRegister==FALSE)
 		{
 			CMySimpleRebar::RegisterRebarBand(GetBandClassName(),CreateVolumeBarBand);
@@ -510,9 +510,9 @@ public:
 	END_MSG_MAP()
 
 public:
+	static BOOL bRegister;
 	CMyToolBar()
 	{
-		static BOOL bRegister=FALSE;
 		if(bRegister==FALSE)
 		{
 			CMySimpleRebar::RegisterRebarBand(GetBandClassName(),CreateToolBarBand);
@@ -555,9 +555,9 @@ public:
 	END_MSG_MAP()
 
 public:
+	static BOOL bRegister;
 	CMyComboBox()
 	{
-		static BOOL bRegister=FALSE;
 		if(bRegister==FALSE)
 		{
 			CMySimpleRebar::RegisterRebarBand(GetBandClassName(),CreateCommoBoxBand);
@@ -730,9 +730,16 @@ DialogSearch *m_pDlgSearch;
 void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 };
 */
+
+
 class CMyCommandBarCtrl : public CCommandBarCtrlImpl<CMyCommandBarCtrl>
 {
 	typedef CCommandBarCtrlImpl<CMyCommandBarCtrl> theBase;
+private:
+	~CMyCommandBarCtrl()
+	{
+		//prevent object create from stack
+	}
 public:
 	DECLARE_WND_SUPERCLASS(_T("WTL_CommandBar"), GetWndClassName())
 	
@@ -747,6 +754,33 @@ public:
 		CHAIN_MSG_MAP_ALT(theBase, 3)
 	END_MSG_MAP()
 
+	static BOOL bRegister;
+
+	CMyCommandBarCtrl()
+	{
+		if(bRegister==FALSE)
+		{
+			CMySimpleRebar::RegisterRebarBand(GetBandClassName(),CreateCmdBarBand);
+			bRegister=TRUE;
+		}
+	}
+
+
+	static TCHAR *GetBandClassName()
+	{
+		return _T("²Ëµ¥");
+	}
+
+	static HWND CreateCmdBarBand(HWND parent)
+	{
+		CMyCommandBarCtrl *cmdbar=new CMyCommandBarCtrl;
+		return cmdbar->CreateIsWnd(parent);
+	}
+
+	void OnFinalMessage(_In_ HWND /*hWnd*/)
+	{
+		delete this;
+	}
 
 	LRESULT OnRButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
@@ -754,6 +788,13 @@ public:
 		return TRUE;
 	}
 
+	HWND CreateIsWnd(HWND hParent)
+	{
+		Create(::GetParent(hParent), rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
+		LoadMenu(MAKEINTRESOURCE(IDR_MAINFRAME));
+		LoadImages(IDR_MAINFRAME);
+		return m_hWnd;
+	}
 };
 
 class CMySplitterWindow:
