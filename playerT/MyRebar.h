@@ -59,7 +59,7 @@ public:
 	FILE& operator<<(FILE& f);
 	FILE& operator>>(FILE& f);
 
-	CMySimpleRebar():m_bLock(FALSE),pTrack(NULL),pVolume(NULL)
+	CMySimpleRebar():m_bLock(FALSE)
 	{
 		menu=::GetSubMenu(::LoadMenu(NULL,MAKEINTRESOURCE(IDR_MENU_REBAR)),0);
 	}
