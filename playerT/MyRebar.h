@@ -127,7 +127,8 @@ public:
 			static BOOL bRebarMenu=0;
 			if(bRebarMenu==0)//Rebar's menu added?
 			{
-				for(auto i=m_vecBandInfos.begin();i!=m_vecBandInfos.end();++i)
+				//add to menu item reversely.
+				for(auto i=m_vecBandInfos.end()-1;;--i)
 				{
 					MY_REBARBANDINFO *mri=*i;
 					if(mri->bRemovable)
@@ -142,6 +143,8 @@ public:
 
 						InsertMenuItem(menu,2,TRUE,&mi);
 					}
+
+					if(i==m_vecBandInfos.begin()) break;
 				}
 			}
 
