@@ -360,6 +360,9 @@ public:
 				AddSimpleReBarBandCtrl(mri);
 		}
 
+		if(m_bLock)
+			LockBands(TRUE);
+
 		return 0;
 	}
 	

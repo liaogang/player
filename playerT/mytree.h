@@ -102,6 +102,12 @@ public:
 		treeItem=0;
 	}
 
+	void Destroy()
+	{
+		if(IsWindow(hWnd))
+			DestroyWindow(hWnd);
+	}
+
 	~dataNode()
 	{
 	}
@@ -206,6 +212,12 @@ public:
 		_tcscpy(data.nodeName,paneN);
 
 		//AtlTrace(L"created : %s\n",paneN);
+	}
+
+	void Destroy()
+	{
+		data.Destroy();
+		delete this;
 	}
 
 	FILE& operator<<(FILE& f);

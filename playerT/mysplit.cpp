@@ -85,7 +85,7 @@ MYTREE * MYTree_RemoveFromRoot(MYTREE *tree)
 
 		if(tree->next)
 			tree->next->prev=NULL;
-		delete tree;
+		tree->Destroy();
 		--parent->childs;
 	}
 	else

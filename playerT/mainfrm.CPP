@@ -47,18 +47,18 @@ LRESULT CMainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& 
 	UINT nChar=uVirtKey;
 
 	//Next Tract
-	if(nChar == VK_MEDIA_NEXT_TRACK)
+	if( nChar == VK_MEDIA_NEXT_TRACK )
 		OnPlayNext(0,0,0,bHandled);
 
 	//Prev track
 	//if(nChar == VK_MEDIA_PREV_TRACK)
 
 	//Stop
-	if(nChar == VK_MEDIA_STOP)
+	if( nChar == VK_MEDIA_STOP )
 		OnStop(0,0,0,bHandled);
 
 	//Play or Pause
-	if(nChar == VK_MEDIA_PLAY_PAUSE    )
+	if( nChar == VK_MEDIA_PLAY_PAUSE )
 		OnPause(0,0,0,bHandled);
 
 
@@ -140,7 +140,6 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	m_pVolumeBar=new CMyVolumeBar;
 	m_pVolumeBar->CreateIsWnd(m_wndRebar);
-	m_pVolumeBar->Init();
 	m_wndRebar.AddSimpleReBarBand(*m_pVolumeBar,m_pVolumeBar->GetBandClassName(),TRUE,NULL,FALSE,70,TRUE);
 
 	m_wndRebar.Init();
@@ -154,7 +153,6 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	UIAddStatusBar(m_hWndStatusBar);
 	ShowStatusBar(m_bShowStatusBar);
-	UISetCheck(ID_VIEW_STATUS_BAR, m_bShowStatusBar);
 
 	InitUILayout();
 
@@ -177,6 +175,32 @@ HWND CMySimpleRebar::CreateIsWnd(HWND hParent)
 	return hWnd;
 }
 
+HWND CMyTrackBar::CreateIsWnd(HWND parent)
+{
+	HWND hWnd=baseclass::CreateIsWnd(parent);
+
+	m_CtrlTooltip.Create(hWnd);
+	m_CtrlTooltip.AddTool(hWnd, LPSTR_TEXTCALLBACK); 
+
+	IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
+	IWantToReceiveMessage(WM_PAUSED);
+	IWantToReceiveMessage(WM_PAUSE_START);
+	IWantToReceiveMessage(WM_TRACKSTOPPED);
+
+
+	CBasicPlayer *s=CBasicPlayer::shared();
+	if(s->stoped())
+		EnableWindow(FALSE);
+	else 
+	{
+		::PostMessage(m_hWnd,WM_NEW_TRACK_STARTED,NULL,NULL);
+		if(s->paused())
+			::PostMessage(m_hWnd,WM_PAUSED,NULL,NULL);
+	}
+
+	return hWnd;
+}
+
 void CMyVolumeBar::Init()
 {
 	SetPageSize(1);
@@ -188,96 +212,37 @@ void CMyVolumeBar::Init()
 
 vector<MY_REBARBANDINFO*> CMySimpleRebar::m_vecBandInfos;
 LRESULT CMySimpleRebar::OnCtrlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-	{
-
-
-		/////////////////////////////////////
-	//LRESULT lResult=FALSE;
-	//HDC dc=(HDC)wParam;
-	//HWND wnd=(HWND)lParam;
-	//RECT rc;
-	//::GetWindowRect(m_hWnd,&rc);
-
-	//if (wnd==pVolume->m_hWnd 
-	//	||wnd==pTrack->m_hWnd 
-	//	)
-	//{
-	//HDC dcMem;
-	//dcMem= ::CreateCompatibleDC(dc);
-	//HBITMAP bmp,oldBmp;
-	//bmp=::CreateCompatibleBitmap(dc,rc.right-rc.left,rc.bottom-rc.top);
-	//oldBmp=(HBITMAP)::SelectObject(dcMem,bmp);
-
-	//POINT pt={0,0};
-	//::MapWindowPoints(wnd,m_hWnd,&pt,1);
-	//::OffsetWindowOrgEx(dcMem,pt.x,pt.y,&pt);
-
-	//::SendMessage(m_hWnd,WM_ERASEBKGND, (WPARAM)dcMem, 0L);
-
-	//HBRUSH hBrushB1=::CreateSolidBrush(RGB(242,247,253));
-	//HBRUSH hBrushB2=::CreateSolidBrush(RGB(235,243,252));
-	//HBRUSH hBrushB3=::CreateSolidBrush(RGB(227,238,251));
-	//
-	//HBRUSH oldBrush=(HBRUSH)::SelectObject(dcMem,hBrushB3);
-	////::Rectangle(dcMem,rc.left,rc.top,rc.right,rc.bottom);
-	//::Rectangle(dcMem,0,0,500,500);
-	//::SelectObject(dcMem,oldBrush);
-
-
-	//
-	//::SetWindowOrgEx(dcMem,pt.x,pt.y,NULL);
-	//::DeleteDC(dcMem);
-
-	//static HBRUSH hBrush=0;
-	//if (hBrush)
-	//	::DeleteObject((HGDIOBJ)hBrush);
-
-	//hBrush = ::CreatePatternBrush(bmp);
-	//::DeleteObject(bmp);
-
-	//lResult=(LRESULT)hBrush;
-	//return lResult;
-	//	}
-
-
-
-	////////////////////////////////
+{
 	LRESULT lResult=FALSE;
 	HDC dc=(HDC)wParam;
 	HWND wnd=(HWND)lParam;
 
-// 	if (wnd==pVolume->m_hWnd 
-// 		||wnd==pTrack->m_hWnd 
-// 		)
-// 	{
-		//!m_hWnd ,¸¸¿Ø¼þ,Rebar
-		//!wnd    ,×Ó¿Ø¼þ,trackBar
 
-		RECT rc;
-		::GetWindowRect(m_hWnd,&rc);
 
-		HDC dcMem;
-		dcMem= ::CreateCompatibleDC(dc);
-		HBITMAP bmp,oldBmp;
-		bmp=::CreateCompatibleBitmap(dc,rc.right-rc.left,rc.bottom-rc.top);
-		oldBmp=(HBITMAP)::SelectObject(dcMem,bmp);
+	RECT rc;
+	::GetWindowRect(m_hWnd,&rc);
 
-		POINT pt={0,0};
-		::MapWindowPoints(wnd,m_hWnd,&pt,1);
-		::OffsetWindowOrgEx(dcMem,pt.x,pt.y,&pt);
-		::SendMessage(m_hWnd,WM_ERASEBKGND, (WPARAM)dcMem, 0L);
-		::SetWindowOrgEx(dcMem,pt.x,pt.y,NULL);
-		::DeleteDC(dcMem);
+	HDC dcMem;
+	dcMem= ::CreateCompatibleDC(dc);
+	HBITMAP bmp,oldBmp;
+	bmp=::CreateCompatibleBitmap(dc,rc.right-rc.left,rc.bottom-rc.top);
+	oldBmp=(HBITMAP)::SelectObject(dcMem,bmp);
 
-		static HBRUSH hBrush=0;
-		if (hBrush)
-			::DeleteObject((HGDIOBJ)hBrush);
+	POINT pt={0,0};
+	::MapWindowPoints(wnd,m_hWnd,&pt,1);
+	::OffsetWindowOrgEx(dcMem,pt.x,pt.y,&pt);
+	::SendMessage(m_hWnd,WM_ERASEBKGND, (WPARAM)dcMem, 0L);
+	::SetWindowOrgEx(dcMem,pt.x,pt.y,NULL);
+	::DeleteDC(dcMem);
 
-		hBrush = ::CreatePatternBrush(bmp);
-		::DeleteObject(bmp);
+	static HBRUSH hBrush=0;
+	if (hBrush)
+		::DeleteObject((HGDIOBJ)hBrush);
 
-		lResult=(LRESULT)hBrush;
-/*	}*/
+	hBrush = ::CreatePatternBrush(bmp);
+	::DeleteObject(bmp);
+
+	lResult=(LRESULT)hBrush;
 
 	return lResult;
 }

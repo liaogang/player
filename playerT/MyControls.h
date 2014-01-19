@@ -109,6 +109,11 @@ class CMyTrackBar
 	:public CMyTrackBarBase
 	,public CCustomDraw<CMyTrackBar>
 {
+private:
+	~CMyTrackBar()
+	{
+	}
+
 public:
 	typedef  CMyTrackBarBase baseclass;
 	
@@ -176,23 +181,9 @@ public:
 		}
 	}
 
+
 	CToolTipCtrl m_CtrlTooltip;
-	HWND CreateIsWnd(HWND parent)
-	{
-		HWND hWnd=baseclass::CreateIsWnd(parent);
-
-		EnableWindow(FALSE);
-
-		m_CtrlTooltip.Create(hWnd);
-		m_CtrlTooltip.AddTool(hWnd, LPSTR_TEXTCALLBACK); 
-
-		IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
-		IWantToReceiveMessage(WM_PAUSED);
-		IWantToReceiveMessage(WM_PAUSE_START);
-		IWantToReceiveMessage(WM_TRACKSTOPPED);
-
-		return hWnd;
-	}
+	HWND CreateIsWnd(HWND parent);
 	
 	LRESULT OnHscroll(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
@@ -248,9 +239,7 @@ public:
 
 		m_bPaused=false;
 		m_bStopped=false;
-
 		
-
 		return 0;
 	}
 
@@ -318,6 +307,12 @@ class CMyVolumeBar:
 	public CMyTrackBarBase
 	,public CCustomDraw<CMyVolumeBar>
 {
+private:
+	~CMyVolumeBar()
+	{
+	}
+
+
 public:
 	static BOOL bRegister;
 	CMyVolumeBar()
@@ -329,6 +324,7 @@ public:
 		}
 	}
 
+
 	static TCHAR *GetBandClassName()
 	{
 		return _T("ÒôÁ¿¿ØÖÆ");
@@ -338,6 +334,13 @@ public:
 	{
 		CMyVolumeBar *vol=new CMyVolumeBar;
 		return vol->CreateIsWnd(parent);
+	}
+
+	HWND CreateIsWnd(HWND parent)
+	{
+		CMyTrackBarBase::CreateIsWnd(parent);
+		Init();
+		return m_hWnd;
 	}
 
 public:
@@ -504,12 +507,18 @@ public:
 
 class CMyToolBar:public CWindowImpl<CMyToolBar,CToolBarCtrl>
 {
+private:
+	~CMyToolBar()
+	{
+		//prevent object create from stack
+	}
 public:
 	BEGIN_MSG_MAP_EX(CMyToolBar)
 		MSG_WM_RBUTTONDOWN(OnRButtonDown)
 	END_MSG_MAP()
 
 public:
+
 	static BOOL bRegister;
 	CMyToolBar()
 	{
@@ -543,6 +552,11 @@ public:
 
 class CMyComboBox:public CWindowImpl<CMyComboBox,CComboBox>
 {
+private:
+	~CMyComboBox()
+	{
+		//prevent object create from stack
+	}
 public:
 	DECLARE_WND_SUPERCLASS(_T("MyComboBox"),CComboBox::GetWndClassName())
 
@@ -564,6 +578,8 @@ public:
 			bRegister=TRUE;
 		}
 	}
+
+
 
 	static TCHAR *GetBandClassName()
 	{

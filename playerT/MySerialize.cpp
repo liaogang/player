@@ -448,9 +448,9 @@ bool SaveUICfg()
 	if (f)
 	{
 		*f<<(*GetMainFrame());
+
 		fclose(f);
 	}
-
 	return TRUE;
 }
 

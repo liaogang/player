@@ -65,10 +65,8 @@ public:
 	void SetFilePos(trackPosInfo *pos);
 	void GetPos(int *cur,int *max);
 	void WaitPlay();
-	BOOL stoped()
-	{
-		return m_bStopped;
-	}
+	BOOL stoped(){return m_bStopped;}
+	BOOL paused(){return m_bPaused;}
 
 	//save status and stop 
 	void Destroy();
