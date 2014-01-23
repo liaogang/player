@@ -1,13 +1,70 @@
-
-//#include "WTLTabViewCtrl.h"
 #include "globalStuffs.h"
-//#include "BasicPlayer.h"
 #include "MyRebar.h"
 #pragma once
 
 
-//-----------------------------------------
-//progress pos track bar
+
+template<typename T>
+class CMyRebarBandBase
+{
+private:
+
+	/*
+	enum
+	{
+		ENUM_REMOVEABLE = TRUE,
+		ENUM_NEWROW = FALSE ,
+		ENUM_WIDTH = 0 ,
+		ENUM_FULLWIDTHALWAYS = TRUE ,
+	};
+	*/
+
+// 	~CMyRebarBandBase()
+// 	{
+// 		//prevent object create from stack
+// 	}
+public:
+	static void RegisterSelf()
+	{
+		CMySimpleRebar::RegisterRebarBand(
+			T::GetBandClassName(),
+			CreateRebarBand,
+			T::ENUM_REMOVEABLE,
+			T::ENUM_NEWROW,
+			T::ENUM_WIDTH,
+			T::ENUM_FULLWIDTHALWAYS);
+	}
+
+// 	static TCHAR *GetBandClassName()
+// 	{
+// 		ATLASSERT( FALSE );// must be implemented in a derived class
+// 		return _T(" ");
+// 	}
+
+	static HWND CreateRebarBand(HWND parent)
+	{
+		T* pT = static_cast<T*>(new T);
+		return pT->CreateIsWnd(parent);
+	}
+
+	HWND CreateIsWnd(HWND parent)
+	{
+		ATLASSERT( FALSE );// must be implemented in a derived class
+		return NULL;
+	}
+
+// 	virtual void OnFinalMessage(_In_ HWND hWnd)
+// 	{
+// 		T* pT = static_cast<T*>(this);
+// 		pT->OnFinalMessage(hWnd);
+// 		delete pT;
+// 	}
+};
+
+
+
+
+
 class CMyTrackBarBase
 	:public CWindowImpl<CMyTrackBarBase,CTrackBarCtrl>
 {
@@ -21,6 +78,7 @@ public:
 		MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLButtonDown)
 		MSG_WM_RBUTTONDOWN(OnRButtonDown)
 	END_MSG_MAP()
+
 
 
 	void OnRButtonDown(UINT nFlags, CPoint point)
@@ -107,36 +165,24 @@ public:
 
 class CMyTrackBar
 	:public CMyTrackBarBase
-	,public CCustomDraw<CMyTrackBar>
+	,public CCustomDraw< CMyTrackBar >
+	,public CMyRebarBandBase< CMyTrackBar >
 {
-private:
-	~CMyTrackBar()
-	{
-	}
-
 public:
 	typedef  CMyTrackBarBase baseclass;
-	
-	static BOOL bRegister;
-	CMyTrackBar()
-	{
-		if(bRegister==FALSE)
-		{
-			CMySimpleRebar::RegisterRebarBand(GetBandClassName(),CreateTrackBarBand);
-			bRegister=TRUE;
-		}
-	}
 
 	static TCHAR *GetBandClassName()
 	{
 		return _T("定位");
 	}
 
-	static HWND CreateTrackBarBand(HWND parent)
+	enum
 	{
-		CMyTrackBar *track=new CMyTrackBar;
-		return track->CreateIsWnd(parent);
-	}
+		ENUM_REMOVEABLE = TRUE,
+		ENUM_NEWROW = FALSE ,
+		ENUM_WIDTH = 280 ,
+		ENUM_FULLWIDTHALWAYS = TRUE ,
+	};
 public:
 	DECLARE_WND_SUPERCLASS(NULL,CMyTrackBarBase::GetWndClassName())
 
@@ -304,37 +350,23 @@ public:
 
 
 class CMyVolumeBar:
-	public CMyTrackBarBase
-	,public CCustomDraw<CMyVolumeBar>
+	public CMyTrackBarBase,
+	public CCustomDraw<CMyVolumeBar>,
+	public CMyRebarBandBase<CMyVolumeBar>
 {
-private:
-	~CMyVolumeBar()
-	{
-	}
-
-
 public:
-	static BOOL bRegister;
-	CMyVolumeBar()
-	{
-		if(bRegister==FALSE)
-		{
-			CMySimpleRebar::RegisterRebarBand(GetBandClassName(),CreateVolumeBarBand);
-			bRegister=TRUE;
-		}
-	}
-
-
 	static TCHAR *GetBandClassName()
 	{
 		return _T("音量控制");
 	}
 
-	static HWND CreateVolumeBarBand(HWND parent)
+	enum
 	{
-		CMyVolumeBar *vol=new CMyVolumeBar;
-		return vol->CreateIsWnd(parent);
-	}
+		ENUM_REMOVEABLE = TRUE,
+		ENUM_NEWROW = FALSE ,
+		ENUM_WIDTH = 70 ,
+		ENUM_FULLWIDTHALWAYS = TRUE ,
+	};
 
 	HWND CreateIsWnd(HWND parent)
 	{
@@ -419,126 +451,29 @@ public:
 };
 
 
-class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
+
+
+class CMyToolBar:
+	public CWindowImpl<CMyToolBar,CToolBarCtrl>,
+	public CMyRebarBandBase<CMyToolBar>
 {
-public:
-	DECLARE_WND_SUPERCLASS(NULL,CStatusBarCtrl::GetWndClassName())
-
-	BEGIN_MSG_MAP_EX(CMyStatusBar)
-		MSG_WM_LBUTTONDBLCLK(OnLButtonDblClk)
-
-		//user message
-// 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnPlay)
-// 		MESSAGE_HANDLER(WM_PAUSED,OnPaused)
-// 		MESSAGE_HANDLER(WM_PAUSE_START,OnResume)
-// 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnStopped)
-		MESSAGE_HANDLER(WM_GET_BAND_CLASSNAME,OnGetBandClassName)
-		MESSAGE_HANDLER(WM_USER_TIMER,OnTimer)
-	END_MSG_MAP()
-
-
-	//双击状态栏,激活当前播放音轨
-	void OnLButtonDblClk(UINT nFlags, CPoint point);
-
-	void Init()
-	{
-// 		IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
-// 		IWantToReceiveMessage(WM_PAUSED);
-// 		IWantToReceiveMessage(WM_TRACKSTOPPED);
-// 		IWantToReceiveMessage(WM_PAUSE_START);
-
-		IWantToReceiveMessage(WM_USER_TIMER);
-	}
-
-	void UpdateTrackInfoText();
-
-	LRESULT OnGetBandClassName(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-	{
-		_tcscpy((TCHAR*)wParam,_T("ComboBox"));
-		return 0;
-	}
-
-	LRESULT OnPlay(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-	{
-		IWantToReceiveMessage(WM_USER_TIMER);
-		//UpdateTrackInfoText();
-
-		return 0;
-	}
-
-	LRESULT OnResume(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-	{
-		IWantToReceiveMessage(WM_USER_TIMER);
-		return 0;
-	}
-
-	LRESULT OnPaused(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-	{
-		IDonotWantToReceiveMessage(WM_USER_TIMER);
-		return 0;
-	}
-
-
-	LRESULT OnStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-	{
-		SetText(0,NULL);
-		IDonotWantToReceiveMessage(WM_USER_TIMER);
-		return 0;
-	}
-
-	
-	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-	{
-		UpdateTrackInfoText();
-		return 0;
-	}
-
-	virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
-	{
-// 		IDonotWantToReceiveMessage(WM_NEW_TRACK_STARTED);	
-// 		IDonotWantToReceiveMessage(WM_PAUSED);	
-// 		IDonotWantToReceiveMessage(WM_PAUSE_START);	
-// 		IDonotWantToReceiveMessage(WM_TRACKSTOPPED);
-
-		IDonotWantToReceiveMessage(WM_USER_TIMER);
-	}
-};
-
-
-class CMyToolBar:public CWindowImpl<CMyToolBar,CToolBarCtrl>
-{
-private:
-	~CMyToolBar()
-	{
-		//prevent object create from stack
-	}
 public:
 	BEGIN_MSG_MAP_EX(CMyToolBar)
 		MSG_WM_RBUTTONDOWN(OnRButtonDown)
 	END_MSG_MAP()
-
-public:
-
-	static BOOL bRegister;
-	CMyToolBar()
-	{
-		if(bRegister==FALSE)
-		{
-			CMySimpleRebar::RegisterRebarBand(GetBandClassName(),CreateToolBarBand);
-			bRegister=TRUE;
-		}
-	}
 
 	static TCHAR *GetBandClassName()
 	{
 		return _T("按钮");
 	}
 
-	static HWND CreateToolBarBand(HWND parent)
+	enum
 	{
-		CMyToolBar *tool=new CMyToolBar;
-		return tool->CreateIsWnd(parent);
-	}
+		ENUM_REMOVEABLE = TRUE,
+		ENUM_NEWROW = TRUE ,
+		ENUM_WIDTH = 0 ,
+		ENUM_FULLWIDTHALWAYS = TRUE ,
+	};
 
 	HWND CreateIsWnd(HWND parent);
 
@@ -546,17 +481,13 @@ public:
 	{
 		::SetCapture(::GetParent(m_hWnd));
 	}
-
 	
 };
 
-class CMyComboBox:public CWindowImpl<CMyComboBox,CComboBox>
+class CMyComboBox:
+	public CWindowImpl<CMyComboBox,CComboBox>,
+	public CMyRebarBandBase<CMyComboBox>
 {
-private:
-	~CMyComboBox()
-	{
-		//prevent object create from stack
-	}
 public:
 	DECLARE_WND_SUPERCLASS(_T("MyComboBox"),CComboBox::GetWndClassName())
 
@@ -568,31 +499,18 @@ public:
 		REFLECTED_COMMAND_CODE_HANDLER_EX(CBN_SELCHANGE,OnCbnSelchanged)
 	END_MSG_MAP()
 
-public:
-	static BOOL bRegister;
-	CMyComboBox()
+	enum
 	{
-		if(bRegister==FALSE)
-		{
-			CMySimpleRebar::RegisterRebarBand(GetBandClassName(),CreateCommoBoxBand);
-			bRegister=TRUE;
-		}
-	}
-
-
+		ENUM_REMOVEABLE = TRUE,
+		ENUM_NEWROW = FALSE ,
+		ENUM_WIDTH = 120 ,
+		ENUM_FULLWIDTHALWAYS = TRUE ,
+	};
 
 	static TCHAR *GetBandClassName()
 	{
 		return _T("播放次序");
 	}
-
-	static HWND CreateCommoBoxBand(HWND parent)
-	{
-		CMyComboBox *combo=new CMyComboBox;
-		return combo->CreateIsWnd(parent);
-	}
-
-
 
 	void OnRButtonDown(UINT nFlags, CPoint point)
 	{
@@ -748,14 +666,11 @@ void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 */
 
 
-class CMyCommandBarCtrl : public CCommandBarCtrlImpl<CMyCommandBarCtrl>
+class CMyCommandBarCtrl :
+	public CCommandBarCtrlImpl< CMyCommandBarCtrl >,
+	public CMyRebarBandBase< CMyCommandBarCtrl >
 {
 	typedef CCommandBarCtrlImpl<CMyCommandBarCtrl> theBase;
-private:
-	~CMyCommandBarCtrl()
-	{
-		//prevent object create from stack
-	}
 public:
 	DECLARE_WND_SUPERCLASS(_T("WTL_CommandBar"), GetWndClassName())
 	
@@ -770,32 +685,22 @@ public:
 		CHAIN_MSG_MAP_ALT(theBase, 3)
 	END_MSG_MAP()
 
-	static BOOL bRegister;
-
-	CMyCommandBarCtrl()
-	{
-		if(bRegister==FALSE)
-		{
-			CMySimpleRebar::RegisterRebarBand(GetBandClassName(),CreateCmdBarBand);
-			bRegister=TRUE;
-		}
-	}
-
-
 	static TCHAR *GetBandClassName()
 	{
 		return _T("菜单");
 	}
 
-	static HWND CreateCmdBarBand(HWND parent)
+	enum
 	{
-		CMyCommandBarCtrl *cmdbar=new CMyCommandBarCtrl;
-		return cmdbar->CreateIsWnd(parent);
-	}
+		ENUM_REMOVEABLE = FALSE,
+		ENUM_NEWROW = TRUE ,
+		ENUM_WIDTH = 37 ,
+		ENUM_FULLWIDTHALWAYS = TRUE ,
+	};
 
 	void OnFinalMessage(_In_ HWND /*hWnd*/)
 	{
-		delete this;
+		//delete this;
 	}
 
 	LRESULT OnRButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -826,3 +731,90 @@ public:
 };
 
 
+
+
+
+class CMyStatusBar:public CWindowImpl<CMyStatusBar,CStatusBarCtrl>
+{
+public:
+	DECLARE_WND_SUPERCLASS(NULL,CStatusBarCtrl::GetWndClassName())
+
+	BEGIN_MSG_MAP_EX(CMyStatusBar)
+		MSG_WM_LBUTTONDBLCLK(OnLButtonDblClk)
+
+		//user message
+		// 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnPlay)
+		// 		MESSAGE_HANDLER(WM_PAUSED,OnPaused)
+		// 		MESSAGE_HANDLER(WM_PAUSE_START,OnResume)
+		// 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnStopped)
+		MESSAGE_HANDLER(WM_GET_BAND_CLASSNAME,OnGetBandClassName)
+		MESSAGE_HANDLER(WM_USER_TIMER,OnTimer)
+	END_MSG_MAP()
+
+
+	//双击状态栏,激活当前播放音轨
+	void OnLButtonDblClk(UINT nFlags, CPoint point);
+
+	void Init()
+	{
+		// 		IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
+		// 		IWantToReceiveMessage(WM_PAUSED);
+		// 		IWantToReceiveMessage(WM_TRACKSTOPPED);
+		// 		IWantToReceiveMessage(WM_PAUSE_START);
+
+		IWantToReceiveMessage(WM_USER_TIMER);
+	}
+
+	void UpdateTrackInfoText();
+
+	LRESULT OnGetBandClassName(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		_tcscpy((TCHAR*)wParam,_T("ComboBox"));
+		return 0;
+	}
+
+	LRESULT OnPlay(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		IWantToReceiveMessage(WM_USER_TIMER);
+		//UpdateTrackInfoText();
+
+		return 0;
+	}
+
+	LRESULT OnResume(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		IWantToReceiveMessage(WM_USER_TIMER);
+		return 0;
+	}
+
+	LRESULT OnPaused(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		IDonotWantToReceiveMessage(WM_USER_TIMER);
+		return 0;
+	}
+
+
+	LRESULT OnStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		SetText(0,NULL);
+		IDonotWantToReceiveMessage(WM_USER_TIMER);
+		return 0;
+	}
+
+
+	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		UpdateTrackInfoText();
+		return 0;
+	}
+
+	virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
+	{
+		// 		IDonotWantToReceiveMessage(WM_NEW_TRACK_STARTED);	
+		// 		IDonotWantToReceiveMessage(WM_PAUSED);	
+		// 		IDonotWantToReceiveMessage(WM_PAUSE_START);	
+		// 		IDonotWantToReceiveMessage(WM_TRACKSTOPPED);
+
+		IDonotWantToReceiveMessage(WM_USER_TIMER);
+	}
+};

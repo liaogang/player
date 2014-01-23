@@ -18,7 +18,6 @@
 #define IDD_DIALOGLRC                   207
 #define IDD_DIALOG_MEDIAlIB             208
 #define IDD_DIALOG_LYRICS               209
-#define IDD_DIALOG_SEARCH               210
 #define IDD_DIALOG4                     211
 #define IDR_MENU1                       212
 #define IDR_MENU_SPECTRUM               212
@@ -36,6 +35,8 @@
 #define IDR_MENU_EDIT_MODE              224
 #define IDD_DLG_LRC_LIST                225
 #define IDD_DLG_NORMAL                  227
+#define IDD_DIALOG_SEARCH1              228
+#define IDD_DIALOG_SEARCH               228
 #define IDB_EXAMPLE                     231
 #define IDB_LISTITEMS                   232
 #define IDC_HYPERLINK                   233

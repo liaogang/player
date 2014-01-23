@@ -184,7 +184,6 @@ public:
 		}
 		else if (playorder==Random)
 		{
-			srand(time(NULL));
 			int n=rand() % (_end - _beg) - 1;
 			next=_beg + n;
 		}

@@ -64,7 +64,7 @@ public:
 	{
 		bHandled=FALSE;
 		GetWindowRect(&m_rc);
-		return 0;
+		return 1;
 	}
 
 	LRESULT OnSearch(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)

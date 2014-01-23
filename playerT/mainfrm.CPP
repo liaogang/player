@@ -104,7 +104,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 {
 	LoadAll();
 
-	InitData();
+	RegisterStuffs();
 
 	if(m_rcMain.right>0 && m_rcMain.bottom > 0)
 	::SetWindowPos(m_hWnd, NULL, m_rcMain.left, m_rcMain.top, m_rcMain.right - m_rcMain.left, m_rcMain.bottom - m_rcMain.top,SWP_NOZORDER);
@@ -114,35 +114,10 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	SetTimer((UINT_PTR)&m_nIDEvent,m_uElapse,NULL);
 
 
-	m_hWndToolBar=m_wndRebar.CreateIsWnd(m_hWnd);
 	SetMenu(NULL);
 
-	CMyTrackBar *m_pTrackBar;
-	CMyVolumeBar *m_pVolumeBar;
-	CMyComboBox *m_pComboBox;
-	CMyCommandBarCtrl *m_pCmdBar;
-
-	m_pCmdBar=new CMyCommandBarCtrl;
-	m_pCmdBar->CreateIsWnd(m_wndRebar);
-	m_wndRebar.AddSimpleReBarBand(*m_pCmdBar,m_pCmdBar->GetBandClassName(),FALSE,NULL,TRUE,0,TRUE);
-
-	CMyToolBar *pWndToolbar=new CMyToolBar;
-	pWndToolbar->CreateIsWnd(m_wndRebar);
-	m_wndRebar.AddSimpleReBarBand(*pWndToolbar, pWndToolbar->GetBandClassName(),TRUE,NULL,TRUE,0,TRUE);
-	
-	m_pTrackBar=new CMyTrackBar;
-	m_pTrackBar->CreateIsWnd(m_wndRebar);
-	m_wndRebar.AddSimpleReBarBand(*m_pTrackBar,m_pTrackBar->GetBandClassName(),TRUE,NULL,FALSE,280,TRUE);
-	
-	m_pComboBox=new CMyComboBox;
-	HWND comboBar=m_pComboBox->CreateIsWnd(m_wndRebar);
-	m_wndRebar.AddSimpleReBarBand(comboBar,m_pComboBox->GetBandClassName(),TRUE,NULL,FALSE,140,TRUE);
-
-	m_pVolumeBar=new CMyVolumeBar;
-	m_pVolumeBar->CreateIsWnd(m_wndRebar);
-	m_wndRebar.AddSimpleReBarBand(*m_pVolumeBar,m_pVolumeBar->GetBandClassName(),TRUE,NULL,FALSE,70,TRUE);
-
-	m_wndRebar.Init();
+	m_hWndToolBar=m_wndRebar.CreateIsWnd(m_hWnd);
+	m_wndRebar.ResetBands();
 
 
 	CreateSimpleStatusBar();
@@ -150,9 +125,9 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_pStatus->SubclassWindow(m_hWndStatusBar);
 	m_pStatus->Init();
 
-
 	UIAddStatusBar(m_hWndStatusBar);
 	ShowStatusBar(m_bShowStatusBar);
+
 
 	InitUILayout();
 
@@ -856,17 +831,27 @@ void CMainFrame::ShowSearchDialog()
 	{
 		m_pDlgSearch=new DialogSearch;
 		if(!m_pDlgSearch->Create(m_hWnd))
-			return;
+			{
+				DWORD a=GetLastError();
+				return;
+		}
 
-		if(m_rcSearch.right>0 && m_rcSearch.bottom > 0)
+		if(m_pDlgSearch->IsWindow() && m_rcSearch.right>0 && m_rcSearch.bottom > 0)
 			::SetWindowPos(m_pDlgSearch->m_hWnd, NULL, m_rcSearch.left, m_rcSearch.top, m_rcSearch.right - m_rcSearch.left, m_rcSearch.bottom - m_rcSearch.top,SWP_NOZORDER);
 	}
 	
 	m_pDlgSearch->ShowSelf();
 }
 
-void CMainFrame::InitData()
+void CMainFrame::RegisterStuffs()
 {
+	CMyCommandBarCtrl::RegisterSelf();
+	CMyToolBar::RegisterSelf();
+	CMyTrackBar::RegisterSelf();
+	CMyComboBox::RegisterSelf();
+	CMyVolumeBar::RegisterSelf();
+	
+
 	RegisterCreateWndFuns(_T("播放列表"),MYTREE_Set_Playlist);
 	RegisterCreateWndFuns(_T("封面面板"),MYTREE_Set_AlbumView);
 	RegisterCreateWndFuns(_T("歌词面板"),MYTREE_Set_LyricView);
@@ -1866,12 +1851,12 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	{	
 		m_rcConfig=m_pDlgConfig->m_rc;
 		m_dlgConfigShow=m_pDlgConfig->m_show;
-		RECT m_dlgLrcShow;
-		RECT m_dlgProcessShow;
-		RECT ;
-		RECT m_dlgFFTShow;
-		RECT m_dlgPLMngShow;
-		RECT m_dlgPLConsoleShow;
+// 		RECT m_dlgLrcShow;
+// 		RECT m_dlgProcessShow;
+// 		RECT ;
+// 		RECT m_dlgFFTShow;
+// 		RECT m_dlgPLMngShow;
+// 		RECT m_dlgPLConsoleShow;
 	}
 // 	if(m_dlgLrc)
 // 		m_dlgLrc->GetWindowRect(&m_rcLrc);
@@ -2182,10 +2167,3 @@ DWORD CMyVolumeBar::OnItemPrePaint(int /*idCtrl*/, LPNMCUSTOMDRAW pNMCD)
 
 	return lr;
 }
-
-
-BOOL CMyCommandBarCtrl::bRegister=FALSE;
-BOOL CMyTrackBar::bRegister=FALSE;
-BOOL CMyVolumeBar::bRegister=FALSE;
-BOOL CMyToolBar::bRegister=FALSE;
-BOOL CMyComboBox::bRegister=FALSE;

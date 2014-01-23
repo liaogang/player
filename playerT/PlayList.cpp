@@ -646,7 +646,6 @@ void PlayList::SortItems(CompareProc compFunc)
 
 	//两项相等的情况下,STL的DEBUG检验会失败.
 #ifdef _DEBUG
-	//sort(GetPlayList()->m_songList.begin(),GetPlayList()->m_songList.end(),CompareProc);
 	reverse(m_songList.begin(),m_songList.end());
 #else
 	sort(m_songList.begin(),m_songList.end(),compFunc);

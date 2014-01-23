@@ -336,7 +336,7 @@ public:
 	
 	
 	//when  player booted
-	void InitData();
+	void RegisterStuffs();
 	void InitUILayout();
 
 	int HotKeyId;

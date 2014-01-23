@@ -52,25 +52,35 @@ public:
 public:
 	HMENU menu;
 	BOOL m_bLock;
-
+	BOOL bFirstTimeReset;
 	static vector<MY_REBARBANDINFO*> m_vecBandInfos;
 
 public:
 	FILE& operator<<(FILE& f);
 	FILE& operator>>(FILE& f);
 
-	CMySimpleRebar():m_bLock(FALSE)
+	CMySimpleRebar():m_bLock(FALSE),bFirstTimeReset(TRUE)
 	{
 		menu=::GetSubMenu(::LoadMenu(NULL,MAKEINTRESOURCE(IDR_MENU_REBAR)),0);
 	}
 
-	static void RegisterRebarBand(TCHAR* szBandClassName,CreateReBarBandFuns func)
+	static void RegisterRebarBand(  TCHAR* szBandClassName,
+									CreateReBarBandFuns func,
+									BOOL bRemovable ,
+									BOOL bNewRow = FALSE , 
+									int cxWidth = 0 ,
+									BOOL bFullWidthAlways = TRUE)
 	{
 		MY_REBARBANDINFO *rbBand = static_cast<MY_REBARBANDINFO*>(malloc(sizeof(MY_REBARBANDINFO)));
 		memset(rbBand,0,sizeof(MY_REBARBANDINFO));
 		_tcscpy(rbBand->szClassName,szBandClassName);
 		rbBand->createFunc=func;
-		
+		rbBand->info.cbSize=sizeof(REBARBANDINFO);
+		rbBand->bRemovable=bRemovable;		if(bNewRow)
+		rbBand->info.fStyle=RBBS_BREAK;
+		rbBand->info.cx=cxWidth;		if(bFullWidthAlways)
+		rbBand->info.cxMinChild=cxWidth;
+
 		m_vecBandInfos.push_back(rbBand);
 	}
 
@@ -280,22 +290,22 @@ public:
 	}
 
 
-	//if param szClassName is null , the popup menu item for it is not added
-	BOOL AddSimpleReBarBand(HWND hWndBand,TCHAR *szClassName,BOOL bRemovable,LPCTSTR lpstrTitle = NULL, BOOL bNewRow = FALSE, int cxWidth = 0, BOOL bFullWidthAlways = FALSE)
-	{
-		ATLASSERT(::IsWindow(hWndBand));        // must be created
-
-		BOOL bRet= AddSimpleReBarBandCtrl(m_hWnd, hWndBand, 0, lpstrTitle, bNewRow, cxWidth, bFullWidthAlways);
-		
-		MY_REBARBANDINFO *info= ClassName2BandInfo(szClassName);
-		info->info.cbSize=sizeof(REBARBANDINFO);
-		info->info.fMask=RBBIM_ID|RBBIM_SIZE|RBBIM_STYLE|RBBIM_TEXT|RBBIM_ID|RBBIM_CHILDSIZE;
-		GetBandInfo(GetBandCount()-1,&info->info);
-		info->bRemovable=bRemovable;
-		info->bShow=TRUE;
-		
-		return bRet;
-	}
+	//if param bRemovable is FALSE , the popup menu item for it is not added
+// 	BOOL AddSimpleReBarBand(HWND hWndBand,TCHAR *szClassName,BOOL bRemovable,LPCTSTR lpstrTitle = NULL, BOOL bNewRow = FALSE, int cxWidth = 0, BOOL bFullWidthAlways = FALSE )
+// 	{
+// 		ATLASSERT(::IsWindow(hWndBand));        // must be created
+// 
+// 		BOOL bRet= AddSimpleReBarBandCtrl(m_hWnd, hWndBand, 0, lpstrTitle, bNewRow, cxWidth, bFullWidthAlways);
+// 		
+// 		MY_REBARBANDINFO *info= ClassName2BandInfo(szClassName);
+// 		//info->info.cbSize=sizeof(REBARBANDINFO);
+// 		info->info.fMask=RBBIM_ID|RBBIM_SIZE|RBBIM_STYLE|RBBIM_TEXT|RBBIM_ID|RBBIM_CHILDSIZE;
+// 		GetBandInfo(GetBandCount()-1,&info->info);
+// 		info->bRemovable=bRemovable;
+// 		info->bShow=TRUE;
+// 		
+// 		return bRet;
+// 	}
 
 
 
@@ -344,6 +354,14 @@ public:
 
 	LRESULT OnResetBands(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{	
+		ResetBands();
+
+		return 0;
+	}
+	
+	void ResetBands()
+	{
+		//Only add the removable bands
 		for(auto i=m_vecBandInfos.begin();i!=m_vecBandInfos.end();++i)
 		{
 			MY_REBARBANDINFO *mri=*i;
@@ -351,21 +369,26 @@ public:
 				DeleteBand(IdToIndex(mri->info.wID));
 		}
 
+		//Only add the removable bands.
+		//But if is the first time , add it all .
 		for(auto i=m_vecBandInfos.begin();i!=m_vecBandInfos.end();++i)
 		{
 			MY_REBARBANDINFO *mri=*i;
 
-			//if band added
-			if(mri->bRemovable && mri->info.cbSize!=0 )
+			if(bFirstTimeReset || mri->bRemovable  )
+			{
 				AddSimpleReBarBandCtrl(mri);
+				mri->info.fMask=RBBIM_ID|RBBIM_SIZE|RBBIM_STYLE|RBBIM_TEXT|RBBIM_ID|RBBIM_CHILDSIZE;
+				GetBandInfo(GetBandCount()-1,&mri->info);
+				mri->bShow=TRUE;
+			}
 		}
 
 		if(m_bLock)
 			LockBands(TRUE);
 
-		return 0;
+		bFirstTimeReset=FALSE;
 	}
-	
 
 	LRESULT OnShowBandX(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
