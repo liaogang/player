@@ -134,7 +134,18 @@ FILE& operator>>(FILE& f,PlayingStatus &s)
 	return f>>*t;
 }
 
+//MY_REBARBANDINFO
+FILE& operator<<(FILE& f,MY_REBARBANDINFO * mri)
+{
+	return f<<mri->szClassName<<mri->bandIndex<<mri->bFullWidthAlways<<mri->bRemovable<<mri->menuID<<mri->bShow
+	<<mri->info.cbSize<<mri->info.fMask<<mri->info.fStyle<<mri->info.cx<<mri->info.cxMinChild;
+}
 
+FILE& operator>>(FILE& f,MY_REBARBANDINFO * mri)
+{
+	return f>>mri->szClassName>>mri->bandIndex>>mri->bFullWidthAlways>>mri->bRemovable>>mri->menuID>>mri->bShow
+	>>mri->info.cbSize>>mri->info.fMask>>mri->info.fStyle>>mri->info.cx>>mri->info.cxMinChild; 
+}
 
 
 int SerializeAllTree(MYTREE *c,FILE& f)
@@ -580,44 +591,23 @@ FILE& MyConfigs::operator<<(FILE& f)
 
 FILE& CMySimpleRebar::operator>>(FILE& f)
 {
-	return f<<m_bLock;
+	f<<m_bLock;
 
-	int bandCount=GetBandCount();
-	f<<bandCount;
-
-	for (int nBand=0;nBand<bandCount;++nBand)
-	{
-		REBARBANDINFO rbBand={ RunTimeHelper::SizeOf_REBARBANDINFO() };
-		GetBandInfo(nBand,&rbBand);
-
-		HWND hWndBand=rbBand.hwndChild;
-		TCHAR szClassName[128]={0};
-		::SendMessage(hWndBand,WM_GET_BAND_CLASSNAME,WPARAM(szClassName),LPARAM(128));
-
-		//rbBand >> file
-
-		//szClassName >> fiile
-	}
-
+	for (auto i=m_vecBandInfos.begin();i!=m_vecBandInfos.end();++i)
+		f<<*i;
+	
 	return f;
 }
 
 FILE& CMySimpleRebar::operator<<(FILE& f)
 {
-	return f>>m_bLock;
+	bInitFromFile=TRUE;
 
-	int bandCount=0;
-	f>>bandCount;
+	f>>m_bLock;
 
-	for (int nBand=0;nBand<bandCount;++nBand)
-	{
-		REBARBANDINFO rbBand={ RunTimeHelper::SizeOf_REBARBANDINFO() };
-		TCHAR szClassName[128]={0};
-
-		//size+=::ReSerialize(pFile,rbBand);
-		f>>szClassName;
-	}
-
+	for (auto i=m_vecBandInfos.begin();i!=m_vecBandInfos.end();++i)
+		f>>*i;
+	
 	return f;
 }
 

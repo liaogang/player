@@ -239,6 +239,7 @@
     <ClCompile Include="..\mainfrm.CPP" />
     <ClCompile Include="..\MyConfigs.cpp" />
     <ClCompile Include="..\MyLib.cpp" />
+    <ClCompile Include="..\MyRebar.cpp" />
     <ClCompile Include="..\MySerialize.cpp" />
     <ClCompile Include="..\mysplit.cpp" />
     <ClCompile Include="..\player.cpp" />

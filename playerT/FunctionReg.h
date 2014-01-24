@@ -23,8 +23,3 @@ void CreateHWNDbyName(MYTREE *tree);
 
 
 
-//------------------------------------------------------
-typedef  HWND (*CreateReBarBandFuns)(HWND hWndParent);
-
-static void RegisterCreateRebarBandFuns(TCHAR* szBandClassName,CreateReBarBandFuns func);
-HWND CreateRebarBand(TCHAR *szRebarClassName);

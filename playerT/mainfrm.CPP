@@ -102,9 +102,9 @@ BOOL CMainFrame::OnIdle()
 
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	LoadAll();
-
 	RegisterStuffs();
+
+	LoadAll();
 
 	if(m_rcMain.right>0 && m_rcMain.bottom > 0)
 	::SetWindowPos(m_hWnd, NULL, m_rcMain.left, m_rcMain.top, m_rcMain.right - m_rcMain.left, m_rcMain.bottom - m_rcMain.top,SWP_NOZORDER);
@@ -117,8 +117,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	SetMenu(NULL);
 
 	m_hWndToolBar=m_wndRebar.CreateIsWnd(m_hWnd);
-	m_wndRebar.ResetBands();
-
+	m_wndRebar.Init();
 
 	CreateSimpleStatusBar();
 	m_pStatus=new CMyStatusBar;
@@ -185,42 +184,6 @@ void CMyVolumeBar::Init()
 	SetPos(CBasicPlayer::shared()->m_curVolume);
 }
 
-vector<MY_REBARBANDINFO*> CMySimpleRebar::m_vecBandInfos;
-LRESULT CMySimpleRebar::OnCtrlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-{
-	LRESULT lResult=FALSE;
-	HDC dc=(HDC)wParam;
-	HWND wnd=(HWND)lParam;
-
-
-
-	RECT rc;
-	::GetWindowRect(m_hWnd,&rc);
-
-	HDC dcMem;
-	dcMem= ::CreateCompatibleDC(dc);
-	HBITMAP bmp,oldBmp;
-	bmp=::CreateCompatibleBitmap(dc,rc.right-rc.left,rc.bottom-rc.top);
-	oldBmp=(HBITMAP)::SelectObject(dcMem,bmp);
-
-	POINT pt={0,0};
-	::MapWindowPoints(wnd,m_hWnd,&pt,1);
-	::OffsetWindowOrgEx(dcMem,pt.x,pt.y,&pt);
-	::SendMessage(m_hWnd,WM_ERASEBKGND, (WPARAM)dcMem, 0L);
-	::SetWindowOrgEx(dcMem,pt.x,pt.y,NULL);
-	::DeleteDC(dcMem);
-
-	static HBRUSH hBrush=0;
-	if (hBrush)
-		::DeleteObject((HGDIOBJ)hBrush);
-
-	hBrush = ::CreatePatternBrush(bmp);
-	::DeleteObject(bmp);
-
-	lResult=(LRESULT)hBrush;
-
-	return lResult;
-}
 
 HWND CMyToolBar::CreateIsWnd(HWND parent)
 {
@@ -1876,17 +1839,17 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 // 		m_pDlgConsole->GetWindowRect(&m_rcPLConsole);
 
 	CBasicPlayer::shared()->Destroy();
+	
+	m_wndRebar.CollectInfo();
 
 	SaveAll();
-
 
 	UnregisterHotKey(m_hWnd, HotKeyId); 
 
 	GlobalDeleteAtom(HotKeyId);
 
-
-
 	bHandled = FALSE;
+
 	return 1;
 }
 
@@ -2059,30 +2022,6 @@ HWND CMyTrackBarBase::CreateIsWnd(HWND parent)
 	return m_hWnd;
 }
 
-
-HWND CreateTrackBand(HWND hWndParent)
-{
-	CMyTrackBar *pB=new CMyTrackBar;
-	pB->CreateIsWnd(hWndParent);
-	return pB->m_hWnd;
-}
-
-
-HWND CreateComboBand(HWND hWndParent)
-{
-	CMyComboBox *pB=new CMyComboBox;
-	pB->CreateIsWnd(hWndParent);
-	return pB->m_hWnd;
-}
-
-
-HWND CreateVolumeBand(HWND hWndParent)
-{
-	CMyStatusBar *pB=new CMyStatusBar;
-	pB->Create(hWndParent,NULL,NULL,WS_CHILD  | WS_VISIBLE |TBS_TOOLTIPS  |TBS_NOTICKS |TBS_AUTOTICKS  | TBS_BOTH ,0);
-	pB->Init();
-	return pB->m_hWnd;
-}
 
 
 
