@@ -425,6 +425,24 @@ LRESULT CMainFrame::OnChangeLVFont(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCt
 	return 0;
 }
 
+LRESULT CMainFrame::OnRemoveDeadItems(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	PlayList *pl=MyLib::shared()->GetSelectedPL();
+	if(pl)
+		pl->RemoveDeadItems();
+
+	return 0;
+}
+
+LRESULT CMainFrame::OnRemoveDuplicates(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	PlayList *pl=MyLib::shared()->GetSelectedPL();
+	if(pl)
+		pl->RemoveDuplicates();
+
+	return 0;
+}
+
 LRESULT CMainFrame::OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
 	//msg send to playlist track num changed

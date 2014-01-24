@@ -389,8 +389,8 @@ BEGIN
             MENUITEM "专辑",                          ID_SORT_ALBUM
         END
         MENUITEM SEPARATOR
-        MENUITEM "删除重复项",                       ID_32954
-        MENUITEM "删除无效项",                       ID_EDIT_DEL_INVALIDE
+        MENUITEM "删除重复项",                       ID_EDIT_REMOVE_DUP
+        MENUITEM "删除无效项",                       ID_EDIT_REMOVE_DEAD
     END
     POPUP "视图"
     BEGIN

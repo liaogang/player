@@ -35,7 +35,6 @@
 #define IDR_MENU_EDIT_MODE              224
 #define IDD_DLG_LRC_LIST                225
 #define IDD_DLG_NORMAL                  227
-#define IDD_DIALOG_SEARCH1              228
 #define IDD_DIALOG_SEARCH               228
 #define IDB_EXAMPLE                     231
 #define IDB_LISTITEMS                   232
@@ -288,13 +287,16 @@
 #define ID_OTHER_32978                  32978
 #define ID_RELOAD_LYRICS                32980
 #define ID_Menu32981                    32981
+#define ID_REMOVE_DUP                   32982
+#define ID_EDIT_REMOVE_DEAD             32983
+#define ID_EDIT_REMOVE_DUP              32984
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        246
-#define _APS_NEXT_COMMAND_VALUE         32982
+#define _APS_NEXT_COMMAND_VALUE         32985
 #define _APS_NEXT_CONTROL_VALUE         1042
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

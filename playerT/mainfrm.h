@@ -174,7 +174,8 @@ public:
 		COMMAND_ID_HANDLER(ID_FILE_SAVEPLAYLIST,OnSavePlaylist)
 		COMMAND_ID_HANDLER(ID_LV_ENLARGE_FONT,OnChangeLVFont)
 		COMMAND_ID_HANDLER(ID_LV_DECREASE_FONT,OnChangeLVFont)
-		
+		COMMAND_ID_HANDLER(ID_EDIT_REMOVE_DEAD,OnRemoveDeadItems)
+		COMMAND_ID_HANDLER(ID_EDIT_REMOVE_DUP,OnRemoveDuplicates)
 		COMMAND_ID_HANDLER(ID_CONFIG_LAYOUT,OnConfigLayout)
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
@@ -310,7 +311,8 @@ public:
 	LRESULT OnSavePlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnChangeLVFont(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-	
+	LRESULT OnRemoveDeadItems(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnRemoveDuplicates(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 public:
 	void OnSelectionChanged();
 	void ChangeTitle();

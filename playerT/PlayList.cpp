@@ -10,6 +10,8 @@
 #include "globalStuffs.h"
 #include "forwardMsg.h"
 #include <io.h>
+#include <xutility>
+#include <algorithm>
 using namespace TagLib;
 
 UINT PlayListItem::m_globalid  = 0;
@@ -675,4 +677,56 @@ bool PlayListItem::operator==(const PlayListItem &other)
 	if(other.m_id == m_id)
 		return true;
 	return false;
+}
+
+
+int  PlayList::RemoveDeadItems()
+{
+	int count=0;
+	for ( auto i=m_songList.begin(); i!=m_songList.end(); ++i,++count )
+	{
+		PlayListItem *item=*i;
+		if(!item->IsFileExist())
+		{
+			i=m_songList.erase(i);
+			delete item;
+		}
+	}
+
+	return count;
+}
+
+bool PlayListItemComp(PlayListItem *a,PlayListItem *b)
+{
+	return 0>_tcscmp(a->GetFileTrack()->url.c_str(),b->GetFileTrack()->url.c_str());	
+}
+
+bool IsPlayListItemDup(PlayListItem *a,PlayListItem *b)
+{
+	return 0==_tcscmp(a->GetFileTrack()->url.c_str(),b->GetFileTrack()->url.c_str());	
+}
+
+int  PlayList::RemoveDuplicates()
+{
+	auto songlist2=m_songList;
+
+//#ifdef RELEASE
+	sort(songlist2.begin(),songlist2.end(),PlayListItemComp);
+//#endif
+
+	auto _First = songlist2.begin();
+	auto _Last = songlist2.end();
+	int count = 0 ;
+	if (_First != _Last)
+		for (_songContainer::iterator _Firstb ; (_Firstb = _First), ++_First != _Last; )
+			if (IsPlayListItemDup(*_Firstb, *_First))
+			{	
+				PlayListItem * item=*_Firstb;
+				
+				m_songList.erase( find( m_songList.begin(), m_songList.end(), item ) );
+				delete item;
+				++count;
+			}
+			
+	return count;
 }

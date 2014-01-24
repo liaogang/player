@@ -181,8 +181,6 @@ public:
 	  void TryLoadLrcFile(std::tstring &filename,BOOL forceLoad=FALSE){return filetrack->TryLoadLrcFile(filename,forceLoad);}
 	  BOOL  IsFileExist(){return filetrack->IsFileExist();}
 
-
-
 FileTrack* GetFileTrack(){return filetrack.get();}
 int GetIndex(){return index;}
 bool isValide(){return GetIndex()!=-1;}
@@ -247,7 +245,8 @@ public:
 	void DeleteTrackByPath(TCHAR *path);
 	void ChangeTrackPath(TCHAR *from,TCHAR *to);
 	//void DeleteTrack(PlayListItem* track);
-
+	int  RemoveDeadItems();
+	int  RemoveDuplicates();
 public:
 	HANDLE hAddDir;
 	HANDLE AddFolderByThread(LPCTSTR pszFolder);
