@@ -10,23 +10,19 @@
 #include "MySerialize.h"
 #include "MyControls.h"
 
-
 #ifndef _MAINFRAME_H
 #define _MAINFRAME_H
 //-----------------------------------------
 class CDialogConfig;
 class CAlbumCoverView;
 class CDialogLyric;
-class CMyTabBar;
+//class CMyTabBar;
 class CPlayListView;
-class CWTLTabViewCtrl;
 class CPlayListView;
 class CMyStatusBar;
 class DialogSearch;
 class CProcessingDlg;
-class CWndLyric;
 class CMySimpleRebar;
-class CMySplitterWindow;
 class DialogFFT;
 class DialogFFTOutline;
 class DialogPLManager;
@@ -57,7 +53,7 @@ public:
 
 	//µ¯³ö´°¿Ú
 	CDialogConfig   *m_pDlgConfig;
-	CDialogLyric *m_dlgLrc;
+	CDialogLyric *m_pDlgLrc;
 	CProcessingDlg *pDlgProcess;
 	DialogSearch *m_pDlgSearch;
 	DialogFFT *m_pDlgFFT;
@@ -91,7 +87,7 @@ public:
 	BOOL m_bShowStatusBar;
 
 public:
-	CMainFrame():m_dlgLrc(NULL),
+	CMainFrame():m_pDlgLrc(NULL),
 		m_pDlgSearch(NULL),pDlgProcess(NULL),
 		m_pDlgFFT(NULL),m_pDlgFFTOutline(NULL),
 		m_pDlgPLMng(NULL),m_pDlgConsole(NULL),

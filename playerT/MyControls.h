@@ -223,7 +223,7 @@ public:
 			m_uCurrTime+=m_uElapse;
 		
 			if(!m_bPressing)
-				SetPos(m_uCurrTime/1000);
+				SetPos(m_uCurrTime/100);
 		}
 	}
 
@@ -269,15 +269,15 @@ public:
 	}
 
 	UINT m_nIDEvent;
-	static const int m_uElapse=500;
+	static const int m_uElapse=20;
 	LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
 		EnableWindow(TRUE);
 
 		int totalSec=getTrackPosInfo()->used+getTrackPosInfo()->left;
 
-		SetRange(0,totalSec);
-		SetPos((int)getTrackPosInfo()->used);
+		SetRange(0,totalSec*10);
+		SetPos((int)getTrackPosInfo()->used*10);
 
 		m_uCurrTime=getTrackPosInfo()->used * 1000;
 
@@ -718,17 +718,17 @@ public:
 	}
 };
 
-class CMySplitterWindow:
-	public CSplitterWindowImpl<CSplitterWindowT<true>, true>
-{
-public:
-	typedef CSplitterWindowImpl<CSplitterWindowT<true>, true> _baseClass1;
-	DECLARE_WND_CLASS_EX(_T("WTL_SplitterWindow"), CS_DBLCLKS,NULL)
-	BEGIN_MSG_MAP(CMySplitterWindow)
-		REFLECT_NOTIFICATIONS()
-		CHAIN_MSG_MAP(_baseClass1)
-	END_MSG_MAP()
-};
+// class CMySplitterWindow:
+// 	public CSplitterWindowImpl<CSplitterWindowT<true>, true>
+// {
+// public:
+// 	typedef CSplitterWindowImpl<CSplitterWindowT<true>, true> _baseClass1;
+// 	DECLARE_WND_CLASS_EX(_T("WTL_SplitterWindow"), CS_DBLCLKS,NULL)
+// 	BEGIN_MSG_MAP(CMySplitterWindow)
+// 		REFLECT_NOTIFICATIONS()
+// 		CHAIN_MSG_MAP(_baseClass1)
+// 	END_MSG_MAP()
+// };
 
 
 

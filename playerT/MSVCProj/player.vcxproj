@@ -230,7 +230,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\BasicPlayer.cpp" />
+    <ClCompile Include="..\CMyLyric.cpp" />
     <ClCompile Include="..\DialogConfig.cpp" />
+    <ClCompile Include="..\DialogLrcList.cpp" />
     <ClCompile Include="..\fileMonitor.cpp" />
     <ClCompile Include="..\forwardMsg.cpp" />
     <ClCompile Include="..\FunctionReg.cpp" />

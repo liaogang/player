@@ -1,5 +1,8 @@
+#include "stdafx.h"
 #include "CCtrlViewBase.h"
 #include "globalStuffs.h"
+
+
 class DialogLrcList: 
 	public CDialogImpl<DialogLrcList>,
 	public CDialogResize<DialogLrcList>
@@ -94,44 +97,10 @@ public:
 		return 0;
 	}
 	
-	LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	{
-		if (wID==IDOK)
-		{
-			SdMsg(WM_LYRIC_RELOAD,FALSE);
-			Reload();
-		}
-		else
-		{
-			EndDialog(0);
-		}
+	LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnDel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
-		return 0;
-	}
-
-	LRESULT OnDel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-	{
-		int nItem=list.GetSelectedIndex();
-		LPTSTR path;
-		path=(LPTSTR)list.GetItemData(nItem);
-
-		if(IDOK==MessageBox(_T("是否删除文件?"),_T("提示"),MB_OKCANCEL))
-		{
-			if(::DeleteFile(path)==0)
-			{
-				::SetWindowText(GetDlgItem(IDC_SHOW_PATH),_T("删除文件失败"));
-				int error=GetLastError();
-			}
-			else
-			{
-				list.DeleteItem(nItem);
-				delete[] path;
-				MyLib::shared()->InitLrcLib();
-			}
-		}
-
-		return 0;
-	}
+	
 
 	LRESULT OnLoad(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
@@ -161,26 +130,5 @@ public:
 		return 1;
 	}
 
-	void Reload()
-	{
-		list.DeleteAllItems();
-
-		vector<LrcMatchItem> lrcList=GetLrcMatchList();
-		int nItem=0;
-		for (auto i=lrcList.begin();i!=lrcList.end();++i,++nItem)
-		{
-			LrcMatchItem m=*i;
-			list.AddItem(nItem ,0, m.path.c_str());
-			list.SetItemText(nItem,1,m.GetReason());
-
-			int len=m.path.length()+1;
-			TCHAR* tmp=new TCHAR[len];
-			wcscpy(tmp,m.path.c_str());
-			list.SetItemData(nItem,(DWORD)tmp);
-
-		}
-	}
-	
-
-
+	void Reload();
 };

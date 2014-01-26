@@ -1,3 +1,6 @@
+
+#include "StringConvertions.h"
+
 #define  HTTP_PORT 80
 #include <winsock2.h> 
 #pragma comment(lib,"WS2_32.lib") 

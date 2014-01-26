@@ -4,7 +4,6 @@
 #include "BasicPlayer.h"
 #include "customMsg.h"
 #include "StringConvertions.h"
-#include "DialogLyric.h"
 #include "CImg.h"
 #include "StringConvertions.h"
 #include "globalStuffs.h"
@@ -682,18 +681,33 @@ bool PlayListItem::operator==(const PlayListItem &other)
 
 int  PlayList::RemoveDeadItems()
 {
+	PlayListItem *playingItem=GetPlayingItem();
+	PlayListItem *selectedItem=GetSelectedItem();
+
+
+	int removed=0;
 	int count=0;
-	for ( auto i=m_songList.begin(); i!=m_songList.end(); ++i,++count )
+	for ( auto i=m_songList.begin(); i!=m_songList.end(); ++count )
 	{
 		PlayListItem *item=*i;
 		if(!item->IsFileExist())
 		{
 			i=m_songList.erase(i);
 			delete item;
+			++removed;
 		}
+		else
+			++i;
+
+		item->SetIndex(count);
 	}
 
-	return count;
+	if(playingItem)
+		SetPlayingIndex(playingItem->GetIndex());
+	if(selectedItem)
+		SetSelectedIndex(selectedItem->GetIndex());
+
+	return removed;
 }
 
 bool PlayListItemComp(PlayListItem *a,PlayListItem *b)
@@ -708,6 +722,9 @@ bool IsPlayListItemDup(PlayListItem *a,PlayListItem *b)
 
 int  PlayList::RemoveDuplicates()
 {
+	PlayListItem *playingItem=GetPlayingItem();
+	PlayListItem *selectedItem=GetSelectedItem();
+
 	auto songlist2=m_songList;
 
 //#ifdef RELEASE
@@ -716,7 +733,7 @@ int  PlayList::RemoveDuplicates()
 
 	auto _First = songlist2.begin();
 	auto _Last = songlist2.end();
-	int count = 0 ;
+	int removed = 0 ;
 	if (_First != _Last)
 		for (_songContainer::iterator _Firstb ; (_Firstb = _First), ++_First != _Last; )
 			if (IsPlayListItemDup(*_Firstb, *_First))
@@ -725,8 +742,21 @@ int  PlayList::RemoveDuplicates()
 				
 				m_songList.erase( find( m_songList.begin(), m_songList.end(), item ) );
 				delete item;
-				++count;
+				++removed;
 			}
 			
-	return count;
+
+	// reset the index
+	int count=0;
+	for (auto i=m_songList.begin();i!=m_songList.end();++i,++count)
+	{
+		(*i)->SetIndex(count);
+	}
+
+	if(playingItem)
+		SetPlayingIndex(playingItem->GetIndex());
+	if(selectedItem)
+		SetSelectedIndex(selectedItem->GetIndex());
+
+	return removed;
 }

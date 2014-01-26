@@ -77,6 +77,7 @@ playerT/BasicPlayer.h -text
 playerT/CAlbumCoverView.h -text
 playerT/CCtrlViewBase.h -text
 playerT/CImg.h -text
+playerT/CMyLyric.cpp -text
 playerT/CMyLyric.h -text
 playerT/CMyTabBar.h -text
 playerT/CPropertyDlgs.h -text
@@ -85,6 +86,7 @@ playerT/DialogConfig.cpp -text
 playerT/DialogConfig.h -text
 playerT/DialogFFT.h -text
 playerT/DialogFFTOutline.h -text
+playerT/DialogLrcList.cpp -text
 playerT/DialogLrcList.h -text
 playerT/DialogLyric.h -text
 playerT/DialogSearch.h -text
@@ -331,6 +333,7 @@ playerT/MyConfigs.h -text
 playerT/MyControls.h -text
 playerT/MyLib.cpp -text
 playerT/MyLib.h -text
+playerT/MyRebar.cpp -text
 playerT/MyRebar.h -text
 playerT/MySerialize.cpp -text
 playerT/MySerialize.h -text
@@ -361,7 +364,6 @@ playerT/WaveFile.h -text
 playerT/WaveFileEx.h -text
 playerT/WuLines.h -text
 playerT/aboutdlg.h -text
-playerT/atlsplit.h -text
 playerT/customMsg.h -text
 playerT/dialogsearch.CPP -text
 playerT/dlgLrcSearch.h -text

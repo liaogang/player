@@ -184,6 +184,15 @@ public:
 		}
 		else if (playorder==Random)
 		{
+			int s=0;
+			if(s==3)
+			{
+				srand(time(NULL));
+				s=0;
+			}
+
+			++s;
+
 			int n=rand() % (_end - _beg) - 1;
 			next=_beg + n;
 		}

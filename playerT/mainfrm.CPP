@@ -537,16 +537,14 @@ LRESULT CMainFrame::OnConfigMediaLib(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 SearchLyric search1;
 LRESULT CMainFrame::OnShowLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	static CDialogLyric *dlg=NULL;
-	if (!dlg){
-		dlg=new CDialogLyric;
-		dlg->Create(this->m_hWnd);
-		m_dlgLrc=dlg;
+	if(m_pDlgLrc==NULL)
+	{
+		m_pDlgLrc=new CDialogLyric;
+		m_pDlgLrc->Create(m_hWnd);
 	}
 
-	dlg->ShowWindow(SW_SHOW);
-	
-	
+	m_pDlgLrc->Show();
+
 	return 0;
 }
 
@@ -1738,7 +1736,7 @@ void MYTREE_Add_AlbumView(MYTREE* tree)
 
 void MYTREE_Set_LyricView(MYTREE* tree)
 {
-	CWndLyric *w=new CWndLyric;
+	CMyLyricWnd *w=new CMyLyricWnd;
 	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
 	tree->setWnd(w->m_hWnd);
 }
