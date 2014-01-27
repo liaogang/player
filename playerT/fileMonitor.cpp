@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "fileMonitor.h"
-#include "PlayList.h"
 #include "StringConvertions.h"
 #include "PlayListView.h"
 #include "forwardMsg.h"

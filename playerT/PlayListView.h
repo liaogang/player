@@ -27,17 +27,13 @@ class CPlayListView:
 	public CListImpl< CPlayListView >
 {
 private:
-	PlayList *  m_pPlayList;
-protected:
-	
-public:
-	inline int GetPlayingIdx(){return GetPlayList()->GetPlayingIndex();}
-	inline void SetPlayingIdx(int i){GetPlayList()->SetPlayingIndex(i);}
-	inline void SetPlayList(PlayList * pPlayList){m_pPlayList=pPlayList;}
-	inline PlayList * GetPlayList(){return m_pPlayList;}
+	LPCPlayList  m_pPlayList;
 
+public:
 	DECLARE_WND_CLASS( _T( "listctrl" ) )
 
+	inline void SetPlayList(LPCPlayList pPlayList){m_pPlayList=pPlayList;}
+	inline LPCPlayList GetPlayList(){return m_pPlayList;}
 public:
 	HMENU menu;
 	COLORREF clText1,clText2;
@@ -136,35 +132,33 @@ public:
 
 
 	UINT m_Order;
-	static bool CompareProc(PlayListItem *item1, PlayListItem *item2)
+	static bool CompareProc(LPCPlayListItem track1, LPCPlayListItem track2)
 	{
 		bool result;
 
 		const TCHAR  * str1;
 		const TCHAR  * str2;
 
-		FileTrack *track1=item1->GetFileTrack();
-		FileTrack *track2=item2->GetFileTrack();
 
 		switch(columnIndexClicked)
 		{
 		case COLUMN_INDEX_TITLE:
-			str1=track1->title.c_str();
-			str2=track2->title.c_str();
+			str1=track1->GetTitle().c_str();
+			str2=track2->GetTitle().c_str();
 			break;
 		case COLUMN_INDEX_ARTIST:
-			str1=track1->artist.c_str();
-			str2=track2->artist.c_str();
+			str1=track1->GetArtist().c_str();
+			str2=track2->GetArtist().c_str();
 			break;
 		case COLUMN_INDEX_ALBUM:
-			str1=track1->album.c_str();
-			str2=track2->album.c_str();
+			str1=track1->GetAlbum().c_str();
+			str2=track2->GetAlbum().c_str();
 			break;
 		case COLUMN_INDEX_YEAR:
 			{
 				UINT uYear1,uYear2;
-				str1=track1->year.c_str();
-				str2=track2->year.c_str();
+				str1=track1->GetYear().c_str();
+				str2=track2->GetYear().c_str();
 				if(str1==_T("?"))
 					uYear1=0;
 				else if(str2==_T("?"))
@@ -178,8 +172,8 @@ public:
 				goto theEnd;
 			}
 		case COLUMN_INDEX_GENRE:
-			str1=track1->genre.c_str();
-			str2=track2->genre.c_str();
+			str1=track1->GetGenre().c_str();
+			str2=track2->GetGenre().c_str();
 			break;
 		}
 
@@ -227,7 +221,7 @@ theEnd:
 		for (auto i=items.begin();i!=items.end();i++)
 			SelectItem(*i,NULL_SUBITEM,MK_CONTROL);
 
-		EnsureVisibleAndCentrePos(*(items.begin()));
+		EnsureVisibleAndCentrePos(items[0]);
 	}
 
 
@@ -459,7 +453,7 @@ public:
 	//inline void InsertTrackItem(PlayListItem *track,int item,BOOL SetIndex=TRUE){InsertTrackItem(*track,item,SetIndex);}
 
 
-	void LoadPlayList(PlayList *pPlayList)
+	void LoadPlayList(LPCPlayList pPlayList)
 	{
 		SetPlayList(pPlayList);
 
@@ -493,7 +487,7 @@ public:
 	CString GetItemText( int nItem, int nSubItem ) // required by CListImpl
 	{
 		CString result;
-		FileTrack *track=GetPlayList()->GetItem(nItem)->GetFileTrack();
+		LPCPlayListItem track=GetPlayList()->GetItem(nItem);
 		if(!track) return result;
 
 		int iItemIndx=nItem;
@@ -502,27 +496,27 @@ public:
 		case COLUMN_INDEX_INDEX:
 			{
 				TCHAR strIndex[4]={0};
-				_itow(iItemIndx+1,strIndex,10);
+				_itow_s(iItemIndx+1,strIndex,10);
 				result=strIndex;
 			}
 			break;
 		case COLUMN_INDEX_TITLE: //fill in main text
-			result=track->title.c_str();
+			result=track->GetTitle().c_str();
 			break;
 		case COLUMN_INDEX_ARTIST: //fill in sub item 1 text
-			result=track->artist.c_str();
+			result=track->GetArtist().c_str();
 			break;
 		case COLUMN_INDEX_ALBUM: //fill in sub item 2 text
 
-			result=track->album.c_str();
+			result=track->GetAlbum().c_str();
 			break;
 		case COLUMN_INDEX_YEAR:
 
-			result=track->year.c_str();
+			result=track->GetYear().c_str();
 			break;
 		case COLUMN_INDEX_GENRE:
 
-			result=track->genre.c_str();
+			result=track->GetGenre().c_str();
 			break;
 		}
 
@@ -548,51 +542,37 @@ public:
 
 
 
-	void Reload(PlayList* pPlayList,bool ActivePlaying)
+	void Reload(LPCPlayList pPlayList,int itemActive=-1)
 	{
 		//resotre the curr croll bar's pos
 		if(GetPlayList())
 			GetPlayList()->SetTopVisibleIndex(GetTopItem());
 
-
 		m_bC=FALSE;
 
 		//if some play list is deleted.
-		if(!pPlayList)
+		if(pPlayList == NULL)
 		{
 			LoadPlayList(pPlayList);
 			return;
 		}
 
-		if ( /*m_bSearch ||*/1 || GetPlayList()!=pPlayList)
+		if ( GetPlayList()!=pPlayList)
 		{
 			ClearAllSel();
 			LoadPlayList(pPlayList);
 		}
 
-		if(ActivePlaying)
+		if(itemActive!=-1)
 		{
-			int index=GetPlayList()->GetPlayingIndex();
-			SelectAndFocusItem(index);
+			SelectAndFocusItem(itemActive);
 		}
 		else
 		{
 			//so we resotre the last scroll pos and,
 			//highlight last selected item
-			int selItem;
-
-			if(GetPlayingIdx()==-1)
-			{
-				selItem=0;
-			}
-			else
-			{
-				selItem=GetPlayingIdx();
-				SelectAndFocusItem(selItem);
-			}
-
-
 			ScrollByTop(GetPlayList()->GetTopVisibleIndex());
+			SelectAndFocusItem(GetPlayList()->GetSelectedIndex());
 		}
 
 
@@ -619,15 +599,15 @@ public:
 
 		if(nItem!=-1)
 		{
-			FileTrack *track=GetPlayList()->GetItem(nItem)->GetFileTrack();
+			LPCPlayListItem track=GetPlayList()->GetItem(nItem);
 
 			std::tstring parameters=_T("/select,");
-			parameters+=track->url;
+			parameters+=track->GetUrl();
 
 			std::tstring dir;
-			int index=track->url.find_last_of(_T("\\"));
-			if (index!=track->url.npos)
-				dir+=track->url.substr(0,index);
+			int index=track->GetUrl().find_last_of(_T("\\"));
+			if (index!=track->GetUrl().npos)
+				dir+=track->GetUrl().substr(0,index);
 
 			/*   example
 			*   "/select,C:\a.txt"
@@ -687,7 +667,7 @@ public:
 
 	void OnFinalMessage(_In_ HWND /*hWnd*/)
 	{
-		if(GetPlayList() && GetPlayList()->m_bSearch)
+		if(GetPlayList() && GetPlayList()->IsSearch())
 			;
 		else
 			delete this;
@@ -715,12 +695,12 @@ public:
 	LRESULT OnDbClicked(int /**/,LPNMHDR pnmh,BOOL bHandled);
 
 	//the target play-list witch is being searching
-	PlayList *playlistParent;
+	LPCPlayList playlistParent;
 
 
-	map<PlayListItem*,PlayListItem*> playListItemMap;
-	typedef pair<PlayListItem*,PlayListItem*> playListItemPair;
-	void Add2Map(PlayListItem *itemInSearch,PlayListItem *itemInParent)
+	map<LPCPlayListItem,LPCPlayListItem> playListItemMap;
+	typedef pair<LPCPlayListItem,LPCPlayListItem> playListItemPair;
+	void Add2Map(LPCPlayListItem itemInSearch,LPCPlayListItem itemInParent)
 	{
 		playListItemMap.insert(playListItemPair(itemInSearch,itemInParent));
 	}
@@ -730,9 +710,9 @@ public:
 		playListItemMap.clear();
 	}
 
-	PlayListItem * GetItemInParent(PlayListItem *itemInSearch)
+	LPCPlayListItem GetItemInParent(LPCPlayListItem itemInSearch)
 	{
-		PlayListItem *itemInParent=NULL;
+		LPCPlayListItem itemInParent=NULL;
 
 		auto it=playListItemMap.find(itemInSearch);
 		if(it!=playListItemMap.end())

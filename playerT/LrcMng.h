@@ -23,9 +23,9 @@
 #include <fstream>
 #include <string>
 #include "StringConvertions.h"
-
+#include "PlayList.h"
 using namespace std;
-class FileTrack;
+
 
 
 enum TagType
@@ -128,7 +128,7 @@ public:
 	
 
 public:
-	UINT MatchTrackAndLrcTags(FileTrack *track,std::tstring &lrcpath);
+	UINT MatchTrackAndLrcTags(CPlayListItem * track,std::tstring &lrcpath);
 	void Clear()
 	{
 		lib.clear();

@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "PlayList.h"
+
 #include "MyLib.h"
 #include "BasicPlayer.h"
 #include "customMsg.h"
@@ -11,13 +12,35 @@
 #include <io.h>
 #include <xutility>
 #include <algorithm>
+
+
+#include "LrcMng.h"
+//for parse the ID3 tag
+#include <direct.h>
+#include <stdlib.h>
+#include <mpegfile.h>
+#include <id3v2tag.h>
+#include <id3v2frame.h>
+#include <id3v2header.h>
+#include <id3v1tag.h>
+#include <apetag.h>
+#include <fileref.h>
+#include <tbytevector.h>
+#include <attachedpictureframe.h>
 using namespace TagLib;
 
-UINT PlayListItem::m_globalid  = 0;
+
+LPCPlayListItem MakeDuplicate(const LPCPlayListItem item)
+{
+	LPCPlayListItem dup(new CPlayListItem(* item.get()));
+	return dup;
+}
+
+
 
 struct PLANDPATH
 {
-	PlayList* pPlaylist;
+	CPlayList* pPlaylist;
 	LPCTSTR pszFolder;
 };
 
@@ -39,98 +62,6 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 
 
 
-
-//-----------------------------------------
-//PlayList
- PlayList::PlayList(void):
-	topVisibleIndex(0),
-	selectedIndex(-1),m_bSearch(FALSE),m_bAuto(FALSE),nItemPlaying(-1)
-{
-}
-
-
-	PlayList::PlayList(std::tstring &name):m_playlistName(name),topVisibleIndex(0),
-		selectedIndex(-1),m_bSearch(FALSE),m_bAuto(FALSE),nItemPlaying(-1)
-{
-	m_playlistName=name;
-	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)TRUE);
-}
-
-
-
-PlayList::~PlayList(void)
-{	
-	DeleteAllItems();
-	SdMsg(WM_PL_CHANGED,FALSE,(WPARAM)this,(LPARAM)FALSE);
-}
-
-void PlayList::ChangeTrackPath(TCHAR *from,TCHAR *to)
-{
-	for (auto i=m_songList.begin();i!=m_songList.end();++i)
-	{
-		PlayListItem *item=*i;
-		if (_tcscmp(from,item->GetFileTrack()->url.c_str())==0)
-		{
-			item->GetFileTrack()->url=to;
-			break;
-		}
-	}
-}
-
-void PlayList::DeleteTrackByPath(TCHAR *path)
-{
-	if(GetItemCount()>0)
-		for (auto i=m_songList.begin();i!=m_songList.end();++i)
-		{
-			PlayListItem *item=*i;
-			if (_tcscmp(path,item->GetFileTrack()->url.c_str())==0)
-			{
-				//先删除视图里的显视,再删除数据
-				NotifyMsg(WM_PL_TRACKNUM_CHANGED,(WPARAM)this,(LPARAM)-1);
-				m_songList.erase(i);
-				break;
-			}
-		}
-}
-
-void PlayList::DeleteItem(int nItem)
-{
-	delete GetItem(nItem);
-
-	m_songList.erase(m_songList.begin()+nItem);
-}
-
-// void PlayList::DeleteTrack(int nItem,int nLastItem)
-// {
-// 	m_songList.erase(m_songList.begin()+nItem,m_songList.begin()+nLastItem);
-// }
-
-void PlayList::DeleteAllItems()
-{
-	for (auto i=m_songList.begin();i!=m_songList.end();++i)
-		delete (*i);
-	
-	m_songList.clear();
-}
-
-// void PlayList::DeleteTrack(PlayListItem* track)
-// {
-// 	if(track)
-// 		m_songList.erase(m_songList.begin()+track->indexInListView);
-// }
-
-HANDLE PlayList::AddFolderByThread(LPCTSTR pszFolder)
-{
-	PLANDPATH* p=new PLANDPATH;
-	p->pPlaylist=this;
-	p->pszFolder=pszFolder;
-
-	return hAddDir=::CreateThread(NULL,NULL,AddFolderThreadProc,(LPVOID)p,
-		NULL,NULL);
-}
-
-
-
 //ignore case
 BOOL StrIsEndedWith(TCHAR *_str,TCHAR *_end)
 {
@@ -139,12 +70,12 @@ BOOL StrIsEndedWith(TCHAR *_str,TCHAR *_end)
 
 	if (strLen<endLen)
 		return FALSE;
-	
-	
+
+
 	for (int i=1;i<=endLen;i++)
 		if (tolower((int)_end[endLen-i] ) !=  tolower((int)_str[strLen-i] ))
 			return FALSE;
-	
+
 	return TRUE;
 }
 
@@ -156,16 +87,16 @@ HRESULT GetFolderDescriptionId(LPCWSTR pszPath, SHDESCRIPTIONID *pdid)
 	if (SUCCEEDED(hr = SHParseDisplayName(pszPath, NULL,
 		&pidl, 0, NULL))) 
 	{
-			IShellFolder *psf;
-			LPCITEMIDLIST pidlChild;
-			if (SUCCEEDED(hr = SHBindToParent(pidl, IID_IShellFolder,
-				(void**)&psf, &pidlChild))) 
-			{
-					hr = SHGetDataFromIDList(psf, pidlChild,
-						SHGDFIL_DESCRIPTIONID, pdid, sizeof(*pdid));
-					psf->Release();
-			}
-			CoTaskMemFree(pidl);
+		IShellFolder *psf;
+		LPCITEMIDLIST pidlChild;
+		if (SUCCEEDED(hr = SHBindToParent(pidl, IID_IShellFolder,
+			(void**)&psf, &pidlChild))) 
+		{
+			hr = SHGetDataFromIDList(psf, pidlChild,
+				SHGDFIL_DESCRIPTIONID, pdid, sizeof(*pdid));
+			psf->Release();
+		}
+		CoTaskMemFree(pidl);
 	}
 	return hr;
 }
@@ -178,7 +109,7 @@ BOOL IsRecycle(TCHAR *fn)
 	if (SUCCEEDED(GetFolderDescriptionId(fn, &did)) &&
 		did.clsid == CLSID_RecycleBin) 
 		bResult=TRUE;
-	
+
 
 	return bResult;
 }
@@ -189,19 +120,435 @@ BOOL IsDots(TCHAR* fn)
 	BOOL bResult=FALSE;
 	if (fn[0]=='.')
 		if (fn[1]=='\0' ||
-		   (fn[1]=='.'&& fn[2]=='\0'))
-				bResult=TRUE;
+			(fn[1]=='.'&& fn[2]=='\0'))
+			bResult=TRUE;
 	return bResult;
 }
 
 
-void PlayList::AddItem(_songContainerItem item)
+
+BOOL HaveHeywordsNoCase(const std::tstring &my,const TCHAR *keywordsLower)
 {
+	TCHAR buf[128];
+	_tcscpy(buf,my.c_str());
+	_tcslwr(buf);
+	
+	return _tcsstr(buf,keywordsLower)!=NULL;
+}
+
+
+bool PlayListItemComp(const LPCPlayListItem a,const LPCPlayListItem b)
+{
+	return 0;
+	//return 0>_tcscmp(a->GetFileTrack()->url.c_str(),b->GetFileTrack()->url.c_str());	
+}
+
+bool IsPlayListItemDup(const LPCPlayListItem a,const LPCPlayListItem b)
+{
+	return 0;
+	//return 0==_tcscmp(a->GetFileTrack()->url.c_str(),b->GetFileTrack()->url.c_str());	
+}
+
+
+
+
+CPlayListItem::~CPlayListItem()
+{
+	if (img)
+	{
+		delete img;
+		img=NULL;
+	}
+
+	// 	if (pPicBuf)
+	// 	{	
+	// 		delete pPicBuf;
+	// 		pPicBuf=NULL;
+	// 	}
+}
+
+void  CPlayListItem::ClearImgBuf()
+{
+	if (img)
+	{
+		delete img;
+		img=NULL;
+	}
+}
+
+
+void CPlayListItem::Buf2Img(BYTE* lpRsrc,DWORD len)
+{
+	// 	TCHAR *picName=_T("runningArtWork.jpeg");
+	// 	FILE *file=_tfopen(picName,L"wb");
+	// 	if(file)
+	// 	{
+	// 	 	::fwrite(pPicBuf->data(),1,pPicBuf->size(),file);
+	// 	 	fclose(file);
+	// 	}
+
+	// 	CImg img1;
+	// 	img1.load_jpeg(picName);
+	// 	img1.draw_image()
+
+	//idev3 album picture info
+	img=new CImage;  
+	// 	if (S_OK != img->Load(picName) ){
+	// 	 	delete img;
+	// 	 	img=NULL;}
+
+	// Allocate global memory on which to create stream
+	HGLOBAL m_hMem = GlobalAlloc(GMEM_FIXED, len);
+	BYTE* pmem = (BYTE*)GlobalLock(m_hMem);
+	memcpy(pmem,lpRsrc,len);
+	IStream* pstm;
+	CreateStreamOnHGlobal(m_hMem,FALSE,&pstm);
+	if (S_OK != img->Load(pstm))
+	{
+		delete img;
+		img=NULL;
+	}
+
+	GlobalUnlock(m_hMem);
+	GlobalFree(m_hMem);
+
+};
+
+
+
+BOOL  CPlayListItem::IsFileExist() const
+{
+	//check if the file is exist
+	return _taccess(url.c_str(), 0 )!=-1;
+}
+
+BOOL CPlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
+{
+	if( !forceRescan && m_bStatus!=UNKNOWN)
+		return TRUE;
+
+	MPEG::File f(url.c_str());
+
+	APE::Tag *apeTag=f.APETag();
+	if (apeTag)
+		if(m_bStatus==UNKNOWN)
+			title=apeTag->title().toWString();
+
+
+
+	ID3v2::Tag *id3v2tag = f.ID3v2Tag();
+	BOOL bInvalidID3V2=FALSE;
+	if(id3v2tag) 
+	{
+		if(forceRescan ||
+			(!forceRescan && m_bStatus==UNKNOWN) )
+		{
+			title=id3v2tag->title().toWString();
+			artist=id3v2tag->artist().toWString();
+
+			if ( title.empty() || artist.empty() )
+			{
+				bInvalidID3V2=TRUE;
+			}
+			else
+			{
+				m_bStatus=ID3V2;
+				album=id3v2tag->album().toWString();
+				genre=id3v2tag->genre().toWString();
+
+				TCHAR cYear[MAX_PATH]={_T("?")};
+				uYear=id3v2tag->year();
+
+				if(uYear!=0)
+					_itow(id3v2tag->year(),cYear,10);
+				year=cYear;
+
+
+				lyricInner=id3v2tag->lyric().toWString();
+
+				if (!lyricInner.empty())
+					m_bLrcInner=TRUE;
+			}
+
+			if(  m_bStatus==ID3V2  && bRetainPic)
+			{
+				// we will use bytevector to retain to memory in frame
+				pPicBuf=NULL;
+
+
+				ID3v2::AttachedPictureFrame::Type type=static_cast<ID3v2::AttachedPictureFrame::Type>(id3v2tag->retainPicBuf(&pPicBuf));
+				//AtlTrace("picture type :%d \n",(int)type);
+				if (pPicBuf)
+					Buf2Img((BYTE*)pPicBuf->data(),pPicBuf->size());
+			}
+		}
+	}
+	else
+	{
+		bInvalidID3V2=TRUE;
+	}
+
+	ID3v1::Tag *id3v1tag=NULL;
+	if(bInvalidID3V2 &&( (!forceRescan && m_bStatus==UNKNOWN ) || forceRescan))
+	{
+		id3v1tag = f.ID3v1Tag();
+		if(id3v1tag) 
+		{
+			//the id3v1tag string may be wrongly
+			//like 我很好0000fsadfsdf...
+			title=id3v1tag->title().toWString();
+			artist=id3v1tag->artist().toWString();
+			album=id3v1tag->album().toWString();
+			genre=id3v1tag->genre().toWString();
+
+			TCHAR cYear[MAX_PATH]={_T("?")};
+			uYear=id3v1tag->year();
+			if(uYear!=0)
+				_itow(id3v1tag->year(),cYear,10);
+			year=cYear;
+
+			TrimRightByNull(title);
+			TrimRightByNull(artist);
+			TrimRightByNull(album);
+			TrimRightByNull(genre);
+		}
+	}
+
+
+	if(id3v2tag || id3v1tag)
+	{
+		//if the title is empty ,we will use the filename
+		//without suffix
+		if (title.empty())
+		{
+			int a=url.find_last_of('\\');
+			int b=url.find_last_of('.');
+			if (a<b && b!=url.npos)
+				title=url.substr(a+1,b-(a+1));
+		}
+	}
+
+
+	return id3v2tag || id3v1tag;
+}
+
+
+
+
+void CPlayListItem::TryLoadLrcFile(std::tstring &filename,BOOL forceLoad)
+{
+	if (forceLoad || LrcFileMacth(filename))//filename match
+	{
+		LrcMatchItem matchitem;
+		matchitem.path=filename;
+
+		LrcMng *m=LrcMng::Get();
+		matchitem.match_type=(_match_type)m->MatchTrackAndLrcTags(this,filename);
+
+		AddToLrcMatchList(matchitem);
+		if (matchitem.match_type <GetHighestMatchLrc().match_type)
+			SetHighestMatchLrc(matchitem);
+	}
+
+}
+
+
+//通过歌词文件名判断,是否与当前歌曲匹配
+BOOL CPlayListItem::LrcFileMacth(std::tstring &lrcFile) const
+{
+	if( search(lrcFile.begin(),lrcFile.end(),title.begin(),title.end())!=lrcFile.end() )
+		return TRUE;
+
+	// 	if( search(filename.begin(),filename.end(),artist.begin(),artist.end()) !=filename.end())
+	// 		return TRUE;
+
+	int indexA=url.find_last_of('\\');
+	int indexB=url.find_last_of('.');
+	if(indexA==url.npos || 
+		indexB==url.npos ||
+		indexA>indexB) return FALSE;
+	else
+	{
+		if(indexB!=url.length())
+		{
+			std::tstring filename=url.substr(indexA+1,indexB-indexA);
+			if( search(lrcFile.begin(),lrcFile.end(),filename.begin(),filename.end()) !=lrcFile.end())
+				return TRUE;	
+		}
+	}
+
+	return FALSE;
+}
+
+
+
+BOOL CPlayListItem::GetLrcFileFromLib(BOOL forceResearch)
+{
+	if (!forceResearch && m_bLrcFromLrcFile)
+		return TRUE;
+
+	ClearLrcMatchList();
+	//clear highest match item , set not perfect
+	LrcMatchItem item;
+	item.match_type=invalide;
+	SetHighestMatchLrc(item);
+
+	for (auto i=MyLib::shared()->GetDataPaths().begin();i!=MyLib::shared()->GetDataPaths().end();i++)
+	{
+		TryLoadLrcFile(*i);
+		if (!GetSearchLrcUntilEnd() && GetHighestMatchLrc().match_type==perfect)
+			break;
+	}
+
+
+	//we finded
+	auto matchlist=GetLrcMatchList();
+	auto highest=GetHighestMatchLrc();
+	if (matchlist.size()>0 && highest.match_type!=invalide)
+	{
+		lycPath=highest.path;
+		m_bLrcFromLrcFile=TRUE;
+
+		LrcMng::Get()->Open((LPTSTR)lycPath.c_str());
+
+		//lyricFromLrcFile=LrcMng::Get()->lib;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+
+
+BOOL CPlayListItem::HaveKeywords(TCHAR *keywords) const
+{	
+	BOOL have=FALSE;
+	TCHAR keywordsLower[128];
+	_tcscpy(keywordsLower,keywords);
+	_tcslwr(keywordsLower);
+
+	if(
+		HaveHeywordsNoCase(title,keywordsLower)||
+		HaveHeywordsNoCase(artist,keywordsLower)||
+		HaveHeywordsNoCase(album,keywordsLower)||
+		HaveHeywordsNoCase(genre,keywordsLower)||
+		HaveHeywordsNoCase(comment,keywordsLower)
+		)
+		have=TRUE;
+
+	if(!m_bLrcFromLrcFile && m_bLrcInner)
+		if(HaveHeywordsNoCase(title,keywordsLower))
+			have=TRUE;
+	return have;
+}
+
+
+//-----------------------------------------
+//CPlayList
+ CPlayList::CPlayList(void):
+	topVisibleIndex(0),
+	nItemSelected(NULL),m_bSearch(FALSE),m_bAuto(FALSE)
+{
+}
+
+
+	CPlayList::CPlayList(std::tstring &name):m_playlistName(name),topVisibleIndex(0),
+		nItemSelected(NULL),m_bSearch(FALSE),m_bAuto(FALSE)
+{
+	m_playlistName=name;
+	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)TRUE);
+}
+
+
+
+CPlayList::~CPlayList(void)
+{	
+	DeleteAllItems();
+	SdMsg(WM_PL_CHANGED,FALSE,(WPARAM)this,(LPARAM)FALSE);
+}
+
+LPCPlayListItem CPlayList::GetItem(int nItem) const 
+{
+	if(nItem<0 || nItem >= GetItemCount())
+	{
+		return NULL;
+	}
+	else
+		return m_songList[nItem];
+}
+
+void CPlayList::ChangeTrackPath(TCHAR *from,TCHAR *to)
+{
+	for (auto i=m_songList.begin();i!=m_songList.end();++i)
+	{
+		LPCPlayListItem item=*i;
+		if (_tcscmp(from,item->GetUrl().c_str())==0)
+		{
+			item->GetUrl()=to;
+			break;
+		}
+	}
+}
+
+void CPlayList::DeleteTrackByPath(TCHAR *path)
+{
+	if(GetItemCount()>0)
+		for (auto i=m_songList.begin();i!=m_songList.end();++i)
+		{
+			LPCPlayListItem item=*i;
+			if (_tcscmp(path,item->GetUrl().c_str())==0)
+			{
+				//先删除视图里的显视,再删除数据
+				NotifyMsg(WM_PL_TRACKNUM_CHANGED,(WPARAM)this,(LPARAM)-1);
+				m_songList.erase(i);
+				break;
+			}
+		}
+}
+
+void CPlayList::DeleteItem(int nItem)
+{
+	m_songList.erase(m_songList.begin()+nItem);
+}
+
+// void CPlayList::DeleteTrack(int nItem,int nLastItem)
+// {
+// 	m_songList.erase(m_songList.begin()+nItem,m_songList.begin()+nLastItem);
+// }
+
+void CPlayList::DeleteAllItems()
+{
+	m_songList.clear();
+}
+
+// void CPlayList::DeleteTrack(CPlayListItem* track)
+// {
+// 	if(track)
+// 		m_songList.erase(m_songList.begin()+track->indexInListView);
+// }
+
+HANDLE CPlayList::AddFolderByThread(LPCTSTR pszFolder)
+{
+	PLANDPATH* p=new PLANDPATH;
+	p->pPlaylist=this;
+	p->pszFolder=pszFolder;
+
+	return hAddDir=::CreateThread(NULL,NULL,AddFolderThreadProc,(LPVOID)p,
+		NULL,NULL);
+}
+
+
+
+
+
+void CPlayList::AddItem(LPCPlayListItem item)
+{
+	item->SetPlayList(this);
 	item->SetIndex(m_songList.size());
 	m_songList.push_back(item);
 }
 
-BOOL PlayList::AddFile(TCHAR *filepath)
+BOOL CPlayList::AddFile(TCHAR *filepath)
 {
 // 	//if 'filepath' not include the dir name , added it. 
 // 	if(!_tcschr(filepath,'\\'))
@@ -213,14 +560,14 @@ BOOL PlayList::AddFile(TCHAR *filepath)
 // 	}
 
 	std::tstring str(filepath);
-	PlayListItem * pItem=new PlayListItem(this,str);
+	LPCPlayListItem  item(new CPlayListItem(this,str));
 	
-	OutputDebugString(filepath);
+	//OutputDebugString(filepath);
 	
-	if(pItem->ScanId3Info())
+	if(item->ScanId3Info())
 	{	
-		pItem->SetIndex(m_songList.size());
-		m_songList.push_back(pItem);
+		item->SetIndex(m_songList.size());
+		m_songList.push_back(item);
 		NotifyMsg(WM_FILE_FINDED,(WPARAM)filepath,(LPARAM)2);
 		ATLTRACE2(L"succeed\n");
 		return TRUE;
@@ -229,7 +576,7 @@ BOOL PlayList::AddFile(TCHAR *filepath)
 	return FALSE;
 }
 
-int PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
+int CPlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 {
 	//忽略了子目录下的mp3文件
 	TCHAR* oldPath=new TCHAR[MAX_PATH];
@@ -299,352 +646,64 @@ int PlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 }
 
 
-_songContainerItem PlayList::GetNextTrackByOrder(BOOL bMoveCur)
+LPCPlayListItem CPlayList::GetNextTrackByOrder(int curr) const
 {
-	//_songContainerItem item;
-	_songContainer::iterator cur,next;
+	int count=GetItemCount();
+	auto playorder=MyLib::shared()->GetPlayOrder();
+	int next=0;
 
-	if(GetPlayingIndex()==-1)return NULL;
-
-	_songContainerItem item=GetItem(GetPlayingIndex());
-	if(item->isValide())
-		cur = m_songList.begin()+item->GetIndex();
-	else
+	if (playorder==Default)
 	{
-		if(selectedIndex==-1)
+		next=++curr;
+	}
+	else if (playorder==Repeat_playlist)
+	{
+		next=++curr;
+		if(next==count)
+			next=0;
+	}
+	else if (playorder==Repeat_track)
+	{
+		next=curr;
+	}
+	else if (playorder==Random)
+	{
+		int s=0;
+		if(s==3)
 		{
-
-			if(m_songList.size()>0)
-			return m_songList[0];
+			srand(time(NULL));
+			s=0;
 		}
-		else
-			return m_songList[selectedIndex] ;
+
+		++s;
+
+		int n=rand() % (count) - 1;
+		next= n;
 	}
-
-	//MyLib::shared()->lastPlayingItem=GetPlayingItem();
-
-	next=MyLib::shared()->GetNextByOrder(m_songList.begin(), cur ,m_songList.end());
-	if(next==m_songList.end())return NULL;
-	//if(bMoveCur)curPlayingItem=*next;
-	return *next;
-}
-
-
-FileTrack::~FileTrack()
-{
-	if (img)
+	else if (playorder==Shuffle_tracks)
 	{
-		//delete img;
-		img=NULL;
+		next=++curr;
+	}
+	else if (playorder==Shuffle_albums)
+	{
+		next=++curr;
+	}
+	else if (playorder==Shuffle_folders)
+	{
+		next=++curr;
 	}
 
-// 	if (pPicBuf)
-// 	{	
-// 		delete pPicBuf;
-// 		pPicBuf=NULL;
-// 	}
+	return GetItem(next);
 }
 
 
 
 
-void FileTrack::Buf2Img(BYTE* lpRsrc,DWORD len)
+
+
+
+void CPlayList::SortItems(CompareProc compFunc)
 {
-// 	TCHAR *picName=_T("runningArtWork.jpeg");
-// 	FILE *file=_tfopen(picName,L"wb");
-// 	if(file)
-// 	{
-// 	 	::fwrite(pPicBuf->data(),1,pPicBuf->size(),file);
-// 	 	fclose(file);
-// 	}
-	
-// 	CImg img1;
-// 	img1.load_jpeg(picName);
-// 	img1.draw_image()
-	
-	//idev3 album picture info
-	img=new CImage;  
-// 	if (S_OK != img->Load(picName) ){
-// 	 	delete img;
-// 	 	img=NULL;}
-
-	// Allocate global memory on which to create stream
-	HGLOBAL m_hMem = GlobalAlloc(GMEM_FIXED, len);
-	BYTE* pmem = (BYTE*)GlobalLock(m_hMem);
-	memcpy(pmem,lpRsrc,len);
-	IStream* pstm;
-	CreateStreamOnHGlobal(m_hMem,FALSE,&pstm);
-	if (S_OK != img->Load(pstm)){
-		delete img;
-		img=NULL;}
-};
-
-
-
-BOOL  FileTrack::IsFileExist()
-{
-	//check if the file is exist
-	return _taccess(url.c_str(), 0 )!=-1;
-}
-
-BOOL FileTrack::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
-{
-	if( !forceRescan && m_bStatus!=UNKNOWN)
-		return TRUE;
-
-	MPEG::File f(url.c_str());
-
-	APE::Tag *apeTag=f.APETag();
-	if (apeTag)
-		if(m_bStatus==UNKNOWN)
-			title=apeTag->title().toWString();
-		
-
-
-	ID3v2::Tag *id3v2tag = f.ID3v2Tag();
-	BOOL bInvalidID3V2=FALSE;
-	if(id3v2tag) 
-	{
-		if(forceRescan ||
-			(!forceRescan && m_bStatus==UNKNOWN) )
-		{
-			title=id3v2tag->title().toWString();
-			artist=id3v2tag->artist().toWString();
-			
-			if ( title.empty() || artist.empty() )
-			{
-				bInvalidID3V2=TRUE;
-			}
-			else
-			{
-				m_bStatus=ID3V2;
-				album=id3v2tag->album().toWString();
-				genre=id3v2tag->genre().toWString();
-				
-				TCHAR cYear[MAX_PATH]={_T("?")};
-				uYear=id3v2tag->year();
-
-				if(uYear!=0)
-					_itow(id3v2tag->year(),cYear,10);
-				year=cYear;
-				
-
-				lyricInner=id3v2tag->lyric().toWString();
-
-				if (!lyricInner.empty())
-					m_bLrcInner=TRUE;
-			}
-
-			if(  m_bStatus==ID3V2  && bRetainPic)
-			{
-				// we will use bytevector to retain to memory in frame
-				pPicBuf=NULL;
-				
-
-				ID3v2::AttachedPictureFrame::Type type=static_cast<ID3v2::AttachedPictureFrame::Type>(id3v2tag->retainPicBuf(&pPicBuf));
-				//AtlTrace("picture type :%d \n",(int)type);
-				if (pPicBuf)
-					Buf2Img((BYTE*)pPicBuf->data(),pPicBuf->size());
-			}
-		}
-	}
-	else
-	{
-		bInvalidID3V2=TRUE;
-	}
-	
-	ID3v1::Tag *id3v1tag=NULL;
-	if(bInvalidID3V2 &&( (!forceRescan && m_bStatus==UNKNOWN ) || forceRescan))
-	{
-		id3v1tag = f.ID3v1Tag();
-		if(id3v1tag) 
-		{
-			//the id3v1tag string may be wrongly
-			//like 我很好0000fsadfsdf...
-			title=id3v1tag->title().toWString();
-			artist=id3v1tag->artist().toWString();
-			album=id3v1tag->album().toWString();
-			genre=id3v1tag->genre().toWString();
-
-			TCHAR cYear[MAX_PATH]={_T("?")};
-			uYear=id3v1tag->year();
-			if(uYear!=0)
-				_itow(id3v1tag->year(),cYear,10);
-			year=cYear;
-
-			TrimRightByNull(title);
-			TrimRightByNull(artist);
-			TrimRightByNull(album);
-			TrimRightByNull(genre);
-		}
-	}
-
-
-	if(id3v2tag || id3v1tag)
-	{
-		//if the title is empty ,we will use the filename
-		//without suffix
-		if (title.empty())
-		{
-			int a=url.find_last_of('\\');
-			int b=url.find_last_of('.');
-			if (a<b && b!=url.npos)
-				title=url.substr(a+1,b-(a+1));
-		}
-	}
-
-
-	return id3v2tag || id3v1tag;
-}
-
-
-
-
-void FileTrack::TryLoadLrcFile(std::tstring &filename,BOOL forceLoad)
-{
-	if (forceLoad || LrcFileMacth(filename))//filename match
-	{
-		LrcMatchItem matchitem;
-		matchitem.path=filename;
-
-		LrcMng *m=LrcMng::Get();
-		matchitem.match_type=(_match_type)m->MatchTrackAndLrcTags(this,filename);
-
-		AddToLrcMatchList(matchitem);
-		if (matchitem.match_type <GetHighestMatchLrc().match_type)
-			SetHighestMatchLrc(matchitem);
-	}
-	
-}
-
-
-//通过歌词文件名判断,是否与当前歌曲匹配
-BOOL FileTrack::LrcFileMacth(std::tstring &lrcFile)
-{
-	if( search(lrcFile.begin(),lrcFile.end(),title.begin(),title.end())!=lrcFile.end() )
-		return TRUE;
-
-// 	if( search(filename.begin(),filename.end(),artist.begin(),artist.end()) !=filename.end())
-// 		return TRUE;
-
-	int indexA=url.find_last_of('\\');
-	int indexB=url.find_last_of('.');
-	if(indexA==url.npos || 
-		indexB==url.npos ||
-		indexA>indexB) return FALSE;
-	else
-	{
-		if(indexB!=url.length())
-		{
-			std::tstring filename=url.substr(indexA+1,indexB-indexA);
-			if( search(lrcFile.begin(),lrcFile.end(),filename.begin(),filename.end()) !=lrcFile.end())
-				return TRUE;	
-		}
-	}
-
-	return FALSE;
-}
-
-
-
-BOOL FileTrack::GetLrcFileFromLib(BOOL forceResearch)
-{
-	if (!forceResearch && m_bLrcFromLrcFile)
-		return TRUE;
-	
-	ClearLrcMatchList();
-	//clear highest match item , set not perfect
-	LrcMatchItem item;
-	item.match_type=invalide;
-	SetHighestMatchLrc(item);
-
-	for (auto i=MyLib::shared()->dataPaths.begin();i!=MyLib::shared()->dataPaths.end();i++)
-	{
-		TryLoadLrcFile(*i);
-		if (!GetSearchLrcUntilEnd() && GetHighestMatchLrc().match_type==perfect)
-			break;
-	}
-
-	
-	//we finded
-	auto matchlist=GetLrcMatchList();
-	auto highest=GetHighestMatchLrc();
-	if (matchlist.size()>0 && highest.match_type!=invalide)
-	{
-		lycPath=highest.path;
-		m_bLrcFromLrcFile=TRUE;
-
-		LrcMng::Get()->Open((LPTSTR)lycPath.c_str());
-		
-		//lyricFromLrcFile=LrcMng::Get()->lib;
-		return TRUE;
-	}
-	
-	return FALSE;
-}
-
-BOOL HaveHeywordsNoCase(std::tstring &my,TCHAR *keywords)
-{
-	std ::tstring tmp(my);	
-	
-	_tcsupr(const_cast<TCHAR*>(tmp.c_str()) );
-	_tcsupr(keywords);
-
-	return tmp.find(keywords)!=std::tstring::npos;
-}
-
-
-BOOL FileTrack::HaveKeywords(TCHAR *keywords)
-{	
-	BOOL have=FALSE;
-	if(
-		HaveHeywordsNoCase(title,keywords)||
-		HaveHeywordsNoCase(artist,keywords)||
-		HaveHeywordsNoCase(album,keywords)||
-		HaveHeywordsNoCase(genre,keywords)||
-		HaveHeywordsNoCase(comment,keywords)
-		)
-		have=TRUE;
-
-	if(!m_bLrcFromLrcFile && m_bLrcInner)
-		if(HaveHeywordsNoCase(title,keywords))
-			have=TRUE;
-	return have;
-}
-
-
-UINT LrcMng::MatchTrackAndLrcTags(FileTrack *track,std::tstring &lrcpath)
-{
-	UINT matchFlag=perfect;
-
-	if(! Open((LPTSTR)lrcpath.c_str()) )
-	{
-		matchFlag=invalide;
-		return matchFlag;
-	}
-		
-
-	if (ti.empty())
-		matchFlag|=without_title;
-	else
-		if(StrCmpIgnoreCaseAndSpace(track->title,ti) !=0)
-			matchFlag|= title_mismatch;
-
-	if (ar.empty() )
-		matchFlag|=without_artist;
-	else
-		if(StrCmpIgnoreCaseAndSpace(track->artist,ar) !=0 )
-			matchFlag|=artist_mismatch;
-
-	return matchFlag;
-}
-
-
-void PlayList::SortItems(CompareProc compFunc)
-{
-	PlayListItem *itemPlaying=GetPlayingItem();;
-	PlayListItem *itemSelecting=GetSelectedItem();
-
 	//两项相等的情况下,STL的DEBUG检验会失败.
 #ifdef _DEBUG
 	reverse(m_songList.begin(),m_songList.end());
@@ -657,43 +716,27 @@ void PlayList::SortItems(CompareProc compFunc)
 	int i=0;
 	for (auto iter=m_songList.begin();iter!=m_songList.end();++i,++iter)
 		(*iter)->SetIndex(i);
-	
-
-	if(itemPlaying)
-		SetPlayingIndex(itemPlaying->GetIndex());
-	if(itemSelecting)
-		SetSelectedIndex(itemSelecting->GetIndex());
 }
 
 
-void PlayList::ReverseItems()
+void CPlayList::ReverseItems()
 {
 	reverse(m_songList.begin(),m_songList.end());
 }
 
-bool PlayListItem::operator==(const PlayListItem &other)
+
+
+int  CPlayList::RemoveDeadItems()
 {
-	if(other.m_id == m_id)
-		return true;
-	return false;
-}
-
-
-int  PlayList::RemoveDeadItems()
-{
-	PlayListItem *playingItem=GetPlayingItem();
-	PlayListItem *selectedItem=GetSelectedItem();
-
-
 	int removed=0;
 	int count=0;
-	for ( auto i=m_songList.begin(); i!=m_songList.end(); ++count )
+	auto end=m_songList.end();
+	for ( auto i=m_songList.begin(); i!=end; ++count )
 	{
-		PlayListItem *item=*i;
+		LPCPlayListItem item=*i;
 		if(!item->IsFileExist())
 		{
 			i=m_songList.erase(i);
-			delete item;
 			++removed;
 		}
 		else
@@ -702,29 +745,13 @@ int  PlayList::RemoveDeadItems()
 		item->SetIndex(count);
 	}
 
-	if(playingItem)
-		SetPlayingIndex(playingItem->GetIndex());
-	if(selectedItem)
-		SetSelectedIndex(selectedItem->GetIndex());
-
 	return removed;
 }
 
-bool PlayListItemComp(PlayListItem *a,PlayListItem *b)
-{
-	return 0>_tcscmp(a->GetFileTrack()->url.c_str(),b->GetFileTrack()->url.c_str());	
-}
 
-bool IsPlayListItemDup(PlayListItem *a,PlayListItem *b)
-{
-	return 0==_tcscmp(a->GetFileTrack()->url.c_str(),b->GetFileTrack()->url.c_str());	
-}
 
-int  PlayList::RemoveDuplicates()
+int  CPlayList::RemoveDuplicates()
 {
-	PlayListItem *playingItem=GetPlayingItem();
-	PlayListItem *selectedItem=GetSelectedItem();
-
 	auto songlist2=m_songList;
 
 //#ifdef RELEASE
@@ -738,25 +765,46 @@ int  PlayList::RemoveDuplicates()
 		for (_songContainer::iterator _Firstb ; (_Firstb = _First), ++_First != _Last; )
 			if (IsPlayListItemDup(*_Firstb, *_First))
 			{	
-				PlayListItem * item=*_Firstb;
-				
-				m_songList.erase( find( m_songList.begin(), m_songList.end(), item ) );
-				delete item;
+				m_songList.erase( find( m_songList.begin(), m_songList.end(), *_Firstb ) );
 				++removed;
 			}
 			
 
 	// reset the index
 	int count=0;
-	for (auto i=m_songList.begin();i!=m_songList.end();++i,++count)
-	{
+	auto end=m_songList.end();
+	for (auto i=m_songList.begin();i!=end;++i,++count)
 		(*i)->SetIndex(count);
+	
+	return removed;
+}
+
+
+
+
+
+UINT LrcMng::MatchTrackAndLrcTags(CPlayListItem * track,std::tstring &lrcpath)
+{
+	UINT matchFlag=perfect;
+
+	if(! Open((LPTSTR)lrcpath.c_str()) )
+	{
+		matchFlag=invalide;
+		return matchFlag;
 	}
 
-	if(playingItem)
-		SetPlayingIndex(playingItem->GetIndex());
-	if(selectedItem)
-		SetSelectedIndex(selectedItem->GetIndex());
 
-	return removed;
+	if (ti.empty())
+		matchFlag|=without_title;
+	else
+		if(StrCmpIgnoreCaseAndSpace(track->GetTitle(),ti) !=0)
+			matchFlag|= title_mismatch;
+
+	if (ar.empty() )
+		matchFlag|=without_artist;
+	else
+		if(StrCmpIgnoreCaseAndSpace(track->GetArtist(),ar) !=0 )
+			matchFlag|=artist_mismatch;
+
+	return matchFlag;
 }

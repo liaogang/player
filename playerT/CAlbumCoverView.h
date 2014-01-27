@@ -89,7 +89,7 @@ public:
 		CFileDialog dlg(FALSE,szDefaultExt,NULL,OFN_OVERWRITEPROMPT,szFilter ,m_hWnd);
 		if(dlg.DoModal()==IDOK)
 		{
-			track->img->Save(dlg.m_ofn.lpstrFile);
+			track->GetImg()->Save(dlg.m_ofn.lpstrFile);
 		}
 
 		return 0;
@@ -103,7 +103,7 @@ public:
 
 
 	BOOL bHasPic;
-	FileTrack* track;
+	LPCPlayListItem track;
 	RECT rc;
 
 	void TrackChanged()
@@ -112,8 +112,8 @@ public:
 
 		if (MyLib::shared()->isPlaying())
 		{
-			track=MyLib::shared()->GetPlayingPL()->GetPlayingItem()->GetFileTrack();
-			if (track->img)
+			track=MyLib::shared()->GetPlayingItem();
+			if (track->GetImg())
 				bHasPic=TRUE;
 		}
 
@@ -147,10 +147,10 @@ public:
 			oldBrush=(HBRUSH)::SelectObject(ps.hdc,brush);
 			oldPen=(HPEN )::SelectObject(ps.hdc,newPen);
 
-			int iw=track->img->GetWidth();
-			int ih=track->img->GetHeight();
+			int iw=track->GetImg()->GetWidth();
+			int ih=track->GetImg()->GetHeight();
 
-			track->img->Draw(ps.hdc,WIDTH(rc)/2-iw/2,HEIGHT(rc)/2-ih/2,iw,ih,0,0,iw,ih);
+			track->GetImg()->Draw(ps.hdc,WIDTH(rc)/2-iw/2,HEIGHT(rc)/2-ih/2,iw,ih,0,0,iw,ih);
 
 
 

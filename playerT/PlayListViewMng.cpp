@@ -5,8 +5,8 @@ void PlayListViewMng::AddItem(CPlayListView* playlistview)
 {
 	dataCollection.push_back(playlistview);
 	
-	if (SelectedPlaylist())
-		playlistview->Reload(SelectedPlaylist(),false);
+	if (MyLib::shared()->GetSelectedIndex() != -1)
+		playlistview->Reload(MyLib::shared()->GetSelectedPL(),false);
 }
 
 void PlayListViewMng::ClearAllItem()
@@ -16,15 +16,15 @@ void PlayListViewMng::ClearAllItem()
 }
 
 
-void PlayListViewMng::Reload(PlayList *pPL)
-{
-	for (container::iterator i=dataCollection.begin();
-		i!=dataCollection.end();++i)
-	{
-		CPlayListView* plv=*i;
-		plv->Reload(pPL,false);
-	}
-}
+// void PlayListViewMng::Reload(LPCPlayList pPL)
+// {
+// 	for (container::iterator i=dataCollection.begin();
+// 		i!=dataCollection.end();++i)
+// 	{
+// 		CPlayListView* plv=*i;
+// 		plv->Reload(pPL,false);
+// 	}
+// }
 
 
 
@@ -40,7 +40,7 @@ void PlayListViewMng::EnlargeLVFont(int value)
 		(*i)->EnlargeLVFont(value);
 }
 
-void PlayListViewMng::DeleteOneTrackFirst(PlayList *pPL)
+void PlayListViewMng::DeleteOneTrackFirst(LPCPlayList pPL)
 {
 	for (auto it=dataCollection.begin();it!=dataCollection.end();++it)
 	{

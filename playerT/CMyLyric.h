@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "PlayList.h"
 #include "DialogLrcList.h"
 #include "dlgLrcSearch.h"
 #include "LrcMng.h"
@@ -31,7 +32,7 @@ public:
 	UINT m_uCurrTime;
 	SIZE sz;
 	BOOL bLrcReady;
-	FileTrack* track;
+	LPCPlayListItem track;
 	std::wstring title;
 	RECT m_rcClient;
 	HDC m_memDCNormal,m_memDCHighlight;

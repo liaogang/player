@@ -121,27 +121,26 @@ LRESULT CMyLyricWnd::OnShowDlgLrcSearch(WORD /*wNotifyCode*/, WORD wID, HWND /*h
 
 	if(MyLib::shared()->isPlaying())
 	{
-		_songContainerItem playlistitem=MyLib::shared()->GetPlayingPL()->GetPlayingItem();
-		FileTrack* track=playlistitem->GetFileTrack();
+		LPCPlayListItem  track=MyLib::shared()->GetPlayingItem();
 		if (track)
 		{
-			if(MyLib::shared()->lrcDirs.size()>0)
-				wcscpy(path,(WCHAR*)(*(MyLib::shared()->lrcDirs.begin())).c_str());
+			if(!MyLib::shared()->GetLrcDirs().empty())
+				wcscpy(path,(WCHAR*)(*(MyLib::shared()->GetLrcDirs().begin())).c_str());
 			else
 			{
-				int idx=track->url.find_last_of('\\');
-				ATLASSERT(idx!=track->url.npos);
+				int idx=track->GetUrl().find_last_of('\\');
+				ATLASSERT(idx!=track->GetUrl().npos);
 
-				if (idx!=track->url.npos)
-					wcscpy(path,track->url.c_str()+idx+1);
+				if (idx!=track->GetUrl().npos)
+					wcscpy(path,track->GetUrl().c_str()+idx+1);
 			}
 
 			//we use path\artist - title.lrc
-			wcscat(wcscat(path,L"\\"),track->artist.c_str());
-			wcscat(wcscat(path,L" - "),track->title.c_str());
+			wcscat(wcscat(path,L"\\"),track->GetArtist().c_str());
+			wcscat(wcscat(path,L" - "),track->GetTitle().c_str());
 			wcscat(path,L".lrc");
 
-			dlgLrcSearch.ReInit((WCHAR*)track->artist.c_str(),(WCHAR*)track->title.c_str(),path);
+			dlgLrcSearch.ReInit((WCHAR*)track->GetArtist().c_str(),(WCHAR*)track->GetTitle().c_str(),path);
 		}//if(item)
 	}
 
@@ -281,7 +280,7 @@ void CMyLyricWnd::PrepareShowLyric()
 	if(!MyLib::shared()->isPlaying())
 		return;
 
-	track=MyLib::shared()->GetPlayingPL()->GetPlayingItem()->GetFileTrack();
+	track=MyLib::shared()->GetPlayingItem();
 
 	LrcMng *sLM=LrcMng::Get();
 	if( track->GetLrcFileFromLib(TRUE) )
@@ -313,11 +312,11 @@ void CMyLyricWnd::PrepareShowLyric()
 
 	Invalidate();
 
-	if(track->lycPath.empty())
+	if(track->GetLycPath().empty())
 		ResetTitle();
 	else
 	{
-		title=track->lycPath;
+		title=track->GetLycPath();
 		ChangedTitle();
 	}
 }
@@ -349,11 +348,11 @@ void CMyLyricWnd::Init()
 
 LRESULT CMyLyricWnd::OnOpenLrcFile(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if(track->m_bLrcFromLrcFile)
+	if(track->IsLyricFromFile())
 	{
 		ShellExecute(NULL,L"open",
 			L"explorer",
-			track->lycPath.c_str(),
+			track->GetLycPath().c_str(),
 			L"",
 			SW_SHOW);
 	}
@@ -364,9 +363,9 @@ LRESULT CMyLyricWnd::OnOpenLrcFile(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCt
 
 LRESULT CMyLyricWnd::OnMenuFolderOpen(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if(track->m_bLrcFromLrcFile){
+	if(track->IsLyricFromFile()){
 		std::tstring tmp=L"/select,";
-		tmp+=track->lycPath.c_str();
+		tmp+=track->GetLycPath().c_str();
 
 		ShellExecute(NULL,L"open",
 			L"explorer",

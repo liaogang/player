@@ -45,14 +45,14 @@ public:
 	}
 
 
-	PlayList*   pList;
+	LPCPlayList  pList;
 	LRESULT OnAbort(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	void ShowFileName(TCHAR* filename,BOOL started)
 	{
 		if (started==1)
 		{
-			pList=(PlayList*)filename;
+			pList=(CPlayList*)filename;
 			::ShowWindow(GetDlgItem(IDC_STATIC1),SW_SHOW);
 		}
 		else if (started==0)

@@ -5,21 +5,6 @@
 #include "customMsg.h"
 
 
-
-//file track 是NEW出来的一块随机内存
-PlayListItem* playingItem=nullptr;
-PlayListItem* GetPlayingItem()
-{
-	return playingItem;
-}
-
-void  SetPlayingItem(PlayListItem * item)
-{
-	playingItem=item;
-}
-
-
-
 MYTREE* CreateRootTree()
 {
 	MYTREE *root=new MYTREE(_T("root"));

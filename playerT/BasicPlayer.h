@@ -1,8 +1,7 @@
 #include "Thread.h"
 #include "CriticalSection.h"
-
 #include "customMsg.h"
-
+#include "PlayList.h"
 #pragma once
 
 class CPlayerThread;
@@ -10,8 +9,9 @@ class CSpectrumAnalyser;
 class MusicFile;
 class CMainFrame;
 class CPlayerController;
-class FileTrack;
+class CPlayListItem;
 struct trackPosInfo;
+
 class CBasicPlayer
 {
 	friend class MyLib;
@@ -58,7 +58,7 @@ public:
 	void TimerVolGrowUp();
 
 	void SetVolumeByEar(int vol);
-	BOOL open(FileTrack * track);
+	BOOL open(LPCPlayListItem track);
 	void ResetFile();
 	void SetPos(int cur,int max);
 	void SetFilePos(double cur,double max);

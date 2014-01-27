@@ -17,7 +17,7 @@ m_lpDSBuffer(NULL),m_lpDsound(NULL),m_dwCurWritePos(-1),m_bKeepPlaying(TRUE),pPo
 	memset(pBufFFT1,0,gDefaultBufferSize);
 
 	pPosInfo=new trackPosInfo;
-} 
+}
 
 CPlayerThread::~CPlayerThread(void)
 {

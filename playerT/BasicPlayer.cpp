@@ -363,9 +363,9 @@ void CBasicPlayer::stop()
 	}
 }
 
-BOOL CBasicPlayer::open( FileTrack *track)
+BOOL CBasicPlayer::open(LPCPlayListItem track)
 {
-	return open(track->url.c_str());
+	return open(track->GetUrl().c_str());
 }
 
 //set pos in playing

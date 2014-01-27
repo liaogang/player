@@ -1,7 +1,10 @@
+#pragma once
 #include "stdafx.h"
 #include <vector>
-#pragma once
-class PlayList;
+#include "PlayList.h"
+
+//typedef  CPlayList*  LPCPlayList;
+
 DWORD WINAPI ThreadProc(LPVOID lpParameter);
 class fileMonitor
 {
@@ -70,7 +73,7 @@ public:
 	HANDLE hDir;
 	HANDLE hWatch;
 	bool bShouldWatch;
-	PlayList *pPL;
+	CPlayList* pPL;
 	TCHAR szPath[MAX_PATH];
 	TCHAR pathFrom[MAX_PATH];
 	TCHAR pathTo[MAX_PATH];
@@ -79,7 +82,7 @@ public:
 class fileMonitors
 {
 public:
-	fileMonitors(PlayList *pPL):pPL(pPL)
+	fileMonitors(LPCPlayList pPL):pPL(pPL)
 	{
 
 	}
@@ -124,7 +127,7 @@ public:
 		
 	}
 
-	PlayList *pPL;
+	 CPlayList* pPL;
 private:
 	std::vector<fileMonitor*> m_fileMonitors;
 };

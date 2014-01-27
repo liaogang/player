@@ -10,13 +10,12 @@
 #include <iostream>
 
 ADDTOSERIALIZE(CMainFrame)
-ADDTOSERIALIZE(PlayList)
-ADDTOSERIALIZE(FileTrack)
+ADDTOSERIALIZE(CPlayListItem)
+ADDTOSERIALIZE(CPlayList)
 ADDTOSERIALIZE(MyConfigs)
 ADDTOSERIALIZE(CMySimpleRebar)
 ADDTOSERIALIZE(MYTREE)
 ADDTOSERIALIZE(dataNode)
-ADDTOSERIALIZE(PlayListItem)
 
 //double
 FILE& operator<<(FILE& f,double t)
@@ -202,7 +201,7 @@ int ReSerializeAllTree(MYTREE *parent,FILE & f)
 
 
 
-BOOL MyLib::SavePlaylist(PlayList *pl,LPTSTR filepath)
+BOOL MyLib::SavePlaylist(LPCPlayList pl,LPTSTR filepath)
 {
 	BOOL result=TRUE;
 	FILE  * f = _tfopen( filepath , _T("wb") );
@@ -214,29 +213,29 @@ BOOL MyLib::SavePlaylist(PlayList *pl,LPTSTR filepath)
 	return result;
 }
 
-PlayList* MyLib::LoadPlaylist(LPTSTR filepath,TCHAR* PlName)
+LPCPlayList MyLib::LoadPlaylist(LPTSTR filepath,TCHAR* PlName)
 {
-	PlayList *playlist=NULL;
+	LPCPlayList playlist=NULL;
 	BOOL result=TRUE;
 
 
 	FILE  * f = _tfopen( filepath , _T("rb") );
 	if (f)
 	{
-		playlist=new PlayList();
+		playlist=new CPlayList();
 		if(PlName!=NULL)
 		{
 			tstring PLName2=PlName;
-			playlist->m_playlistName=PlName;
+			playlist->SetPlaylistName(PlName);
 		}
 
 		*f>>*playlist;
 
 		m_playLists.push_back(playlist);
-		SetSelectedPlaylist(playlist);
+		MyLib::shared()->SetSelectedPL(playlist);
+		
 
-
-		if(playlist->m_bAuto)
+		if(playlist->IsAuto())
 		{
 			MyLib::shared()->SetAutoPlaylist(playlist);
 			//MyLib::shared()->InitMonitor(playlist);
@@ -291,14 +290,14 @@ bool SaveAllPlayList()
 	FILE  * f = _tfopen( PLAYLISTINDEXFILE , _T("wb") );
 	if (f)
 	{
-		int totalNum=MyLib::shared()->m_playLists.size();
+		int totalNum=MyLib::shared()->GetItemCount();
 		*f<<totalNum;
 
 		for (int i=0;i<totalNum;++i)
 		{
 			int nIndex=i+1;
-			auto i2=MyLib::shared()->m_playLists[i];
-			tstring name=(*i2).m_playlistName;
+			auto i2=MyLib::shared()->GetItem(i);
+			tstring name=(*i2).GetPlaylistName();
 
 			*f<<nIndex<<name;
 
@@ -329,20 +328,21 @@ bool SaveCoreCfg()
 		int len;
 		/*******************************************/
 		//lrc section
-		len=MyLib::shared()->lrcDirs.size();
+		auto lrcDirs=MyLib::shared()->GetLrcDirs();
+		len=lrcDirs.size();
 		*f<<len;
 		
-		for (auto k=MyLib::shared()->lrcDirs.begin();k!=MyLib::shared()->lrcDirs.end();++k)
+		for (auto k=lrcDirs.begin();k!=lrcDirs.end();++k)
 		{	
 			*f<<(*k);
 		}
 		
 		
 		//Media paths
-		len=MyLib::shared()->mediaPaths.size();
+		len=MyLib::shared()->GetMediaPaths().size();
 		*f<<len;
 
-		for (auto k=MyLib::shared()->mediaPaths.begin();k!=MyLib::shared()->mediaPaths.end();++k)
+		for (auto k=MyLib::shared()->GetMediaPaths().begin();k!=MyLib::shared()->GetMediaPaths().end();++k)
 			 *f<<(*k);
 
 		//***************************************//
@@ -375,7 +375,7 @@ bool LoadCoreCfg()
 
 			*f>>lrcDir;
 			if(!lrcDir.empty())
-				s->lrcDirs.push_back(lrcDir);
+				s->AddFolder2LrcSearchLib(lrcDir.c_str());
 		}
 
 		 s->InitLrcLib();
@@ -533,7 +533,7 @@ FILE& CMainFrame::operator<<(FILE& f)
 }
 
 
-FILE& PlayList::operator>>(FILE& f)
+FILE& CPlayList::operator>>(FILE& f)
 {
 	f<<m_playlistName<<m_bAuto;
 
@@ -549,29 +549,28 @@ FILE& PlayList::operator>>(FILE& f)
 	return f;
 }
 
-FILE& PlayList::operator<<(FILE& f)
+FILE& CPlayList::operator<<(FILE& f)
 {
 	int count=0;
 	f>>m_playlistName>>m_bAuto>>count;
 
 	if(count>=0)
 		while(count--){
-			PlayListItem *item=new PlayListItem(this);
+			LPCPlayListItem item(new CPlayListItem);
 			f>>*item;
-			item->SetIndex(m_songList.size());
-			m_songList.push_back(item);
+			AddItem(item);
 		}
 
 		return f;
 }
 
 
-FILE& FileTrack::operator>>(FILE& f)
+FILE& CPlayListItem::operator>>(FILE& f)
 {
 	return f<<url<<playCount<<starLvl<<title<<artist<<album<<genre<<year;
 }
 
-FILE& FileTrack::operator<<(FILE& f)
+FILE& CPlayListItem::operator<<(FILE& f)
 {
 	return f>>url>>playCount>>starLvl>>title>>artist>>album>>genre>>year;
 }

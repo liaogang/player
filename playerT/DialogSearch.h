@@ -35,7 +35,7 @@ public:
 	END_DLGRESIZE_MAP()
 
 	CPlayListViewS m_list;
-	PlayList *searchPl;
+	LPCPlayList searchPl;
 	RECT m_rc;
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -45,8 +45,8 @@ public:
 
 		m_list.SubclassWindow(::GetDlgItem(m_hWnd,IDC_LIST));
 		
-		searchPl=new PlayList;
-		searchPl->m_bSearch=TRUE;
+		searchPl=new CPlayList;
+		searchPl->SetSearch(TRUE);
 		m_list.SetPlayList(searchPl);
 
 		m_list.Init(true);
@@ -69,12 +69,11 @@ public:
 
 	LRESULT OnSearch(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		PlayList *pSelectedPl=SelectedPlaylist();
+		LPCPlayList pSelectedPl=MyLib::shared()->GetSelectedPL();
 		if(pSelectedPl==NULL) return 0;
 
 		m_list.ClearMap();
 		m_list.ClearAllItem();
-		m_list.SetPlayingIdx(0);
 		m_list.playlistParent=pSelectedPl;
 		searchPl->DeleteAllItems();
 
@@ -104,13 +103,12 @@ public:
 		int count=pSelectedPl->GetItemCount();
 		for (int i=0;i<count;++i)
 		{
-			_songContainerItem item=pSelectedPl->GetItem(i);
-			FileTrack *track=item->GetFileTrack();
+			LPCPlayListItem track=pSelectedPl->GetItem(i);
 			if (track->HaveKeywords(const_cast<TCHAR*>( strBuf.c_str()) ))
 			{
-				auto cp=item->Duplicate();
+				auto cp=MakeDuplicate(track);
 				searchPl->AddItem(cp);
-				m_list.Add2Map(cp,item);
+				m_list.Add2Map(cp,track);
 			}
 		}
 

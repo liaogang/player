@@ -1,281 +1,191 @@
 #pragma once
 #include "MySerialize.h"
-#include "LrcMng.h"
-#include "fileMonitor.h"
-
-
-#include <iostream>
-#include <fstream>
 #include <string>
-#include <list>
+#include <vector>
 
 //for parse the ID3 tag
 #include <direct.h>
 #include <stdlib.h>
-#include <tbytevector.h>
 #include <mpegfile.h>
 #include <id3v2tag.h>
 #include <id3v2frame.h>
 #include <id3v2header.h>
+#include <taglib.h>
+#include <tbytevector.h>
 #include <id3v1tag.h>
 #include <apetag.h>
-#include <taglib.h>
 #include <fileref.h>
 #include <tbytevector.h>
 #include <attachedpictureframe.h>
 
-class PlayList;
-class CPlayListView;
-/*
-PlayListItem is outside of playlistitemproxy
-PlayListItemProxy is true data item ,datas from file
-, count based
-if count =0 , it will dealloced
-*/
+class CPlayList;
+class CPlayListItem;
+typedef shared_ptr<CPlayListItem>  LPCPlayListItem;
+typedef vector<LPCPlayListItem> _songContainer;
+typedef  CPlayList *  LPCPlayList;
+typedef  bool (*CompareProc)(LPCPlayListItem a, LPCPlayListItem b);
 
 
-class FileTrack: public SerializeObj<FileTrack>
-{
+
+class CPlayListItem:public SerializeObj<CPlayListItem>
+ {
 public:
-	FILE& operator<<(FILE& f);
-	FILE& operator>>(FILE& f);
-private:
-	//PlayListItem *parent;
-public:
-	FileTrack():playCount(0),starLvl(0)
+	CPlayListItem():m_iIndex(-1),playCount(0),starLvl(0)
 		,pPicBuf(NULL),img(NULL)
 		,m_bLrcInner(FALSE),m_bLrcFromLrcFile(FALSE)
-		,bUnsynLyc(FALSE),m_bStatus(UNKNOWN),year(_T("???")),uYear(0)
+		,bUnsynLyc(FALSE),m_bStatus(UNKNOWN),year(_T("???")),uYear(0),m_pPL(NULL)
 	{
 
 	}
 
-
-	FileTrack(std::tstring &url):url(url),
+	CPlayListItem(std::tstring &url):url(url),
 		playCount(0),starLvl(0)
 		,pPicBuf(NULL),img(NULL)
 		,m_bLrcInner(FALSE),m_bLrcFromLrcFile(FALSE)
-		,bUnsynLyc(FALSE),m_bStatus(UNKNOWN),year(_T("???")),uYear(0)
+		,bUnsynLyc(FALSE),m_bStatus(UNKNOWN),year(_T("???")),uYear(0),m_pPL(NULL)
 	{
 
 	}
 
-	~FileTrack();
-
-
-public:
-	std::tstring url;
-	UINT          playCount;
-	UINT		  starLvl;
-	
-	std::tstring  title,artist,album,genre,year,comment;
-	UINT                                   uYear;
-	TagLib::ByteVector *pPicBuf;
-	CImage *img;
-	//cimg_library_suffixed::CImg   *img;
-
-	//lyrics stuffs
-	BOOL m_bLrcInner;
-	std::tstring  lyricInner;
-
-	BOOL m_bLrcFromLrcFile;
-	std::tstring  lycPath;
-
-	BOOL bUnsynLyc;
-public:
-
-	enum ID3Status
+	CPlayListItem(LPCPlayList pPl,std::tstring &url):url(url),
+		playCount(0),starLvl(0)
+		,pPicBuf(NULL),img(NULL)
+		,m_bLrcInner(FALSE),m_bLrcFromLrcFile(FALSE)
+		,bUnsynLyc(FALSE),m_bStatus(UNKNOWN),year(_T("???")),uYear(0),m_pPL(pPl)
 	{
-		UNKNOWN,
-		INVALIE,
-		ID3V2,
-		ID3V1
-	};
-	ID3Status m_bStatus;
 
-	BOOL  IsFileExist();
-	BOOL  ScanId3Info( BOOL bRetainPic=FALSE,BOOL forceRescan=TRUE);
-	const TCHAR* GetTitle(){return title.c_str();}
-	BOOL  GetLrcFileFromLib(BOOL forceResearch=FALSE);
-	BOOL  HaveKeywords(TCHAR *keywords);
-	void TryLoadLrcFile(std::tstring &filename,BOOL forceLoad=FALSE);
-public:
-	//void SetParent(PlayListItem *p){parent=p;}
-	//PlayListItem *GetParent(){return parent;}
-private:
-	void Buf2Img(BYTE* lpRsrc,DWORD len);
-	BOOL LrcFileMacth(std::tstring &filename);
-};
-
-
-
-class PlayListItem
- {
-	 static UINT m_globalid;
-public:
-	 UINT m_id;
-public:
-	PlayListItem():index(-1)
-	{
-		m_id=m_globalid++;
 	}
 
-	PlayListItem(PlayList *playlist,std::tstring url)
-		:pPL(playlist),filetrack(new FileTrack(url)),index(-1)
-	  {
-		  //pfiletrack=&filetrack;
-		  //filetrack->SetParent(this);
-		  m_id=m_globalid++;
-	  }
+	~CPlayListItem();
+ private:
+	 std::tstring url;
+	 UINT          playCount;
+	 UINT		  starLvl;
 
-	  PlayListItem(PlayList *playlist)
-		  :pPL(playlist),filetrack(new FileTrack()),index(-1)
-	  {
-		  // pfiletrack=&filetrack;
-		  //filetrack->SetParent(this);
-		  m_id=m_globalid++;
-	  }
+	 std::tstring  title,artist,album,genre,year,comment;
+	 UINT                                   uYear;
 
+	 TagLib::ByteVector *pPicBuf;
+	 CImage *img;
+	 //cimg_library_suffixed::CImg   *img;
 
-	  ~PlayListItem()
-	  {
+	 //lyrics stuffs
+	 BOOL m_bLrcInner;
+	 std::tstring  lyricInner;
 
-	  };
+	 BOOL m_bLrcFromLrcFile;
+	 std::tstring  lycPath;
 
-	  //Move赋值拷贝
-	  PlayListItem& operator=(PlayListItem&& b)
-	  {
-		  if (this!=&b)
-		  {
-			  this->SetPlayList(b.GetPlayList());
-			  this->filetrack=b.filetrack;
-		  }
+	 BOOL bUnsynLyc;
 
-		  return *this;
-	  }
-
-	  //copy a new one
-	  PlayListItem* Duplicate()
-	  {
-		  PlayListItem *item=new PlayListItem;
-		  *item=*this;
-		  return item;
-	  }
-
-	  bool operator==(const PlayListItem &other);
+	 enum ID3Status
+	 {
+		 UNKNOWN,
+		 INVALIE,
+		 ID3V2,
+		 ID3V1
+	 };
+	 ID3Status m_bStatus;
+ 
+	 CPlayList *m_pPL;
+	 int m_iIndex;
 
 
-	  inline PlayList * GetPlayList(){return this->pPL;}
-	  inline void  SetPlayList(PlayList *pPL){this->pPL=pPL;}
+ public:
+	 FILE& operator<<(FILE& f);
+	 FILE& operator>>(FILE& f);
 
-	  //proxy functions
-	  FILE& operator<<(FILE& f){return *GetFileTrack()<<f;}
-	  FILE& operator>>(FILE& f){return *GetFileTrack()>>f;}
+	 BOOL  IsFileExist() const;
+	 BOOL  ScanId3Info ( BOOL bRetainPic=FALSE,BOOL forceRescan=TRUE);
+	 void  ClearImgBuf();
+	 BOOL  GetLrcFileFromLib (BOOL forceResearch=FALSE);
+	 BOOL  HaveKeywords (TCHAR *keywords) const;
+	 void TryLoadLrcFile(std::tstring &filename,BOOL forceLoad=FALSE) ;
 
+	bool isValide() const {return GetIndex()!=-1;}
 
-
-	  BOOL  ScanId3Info( BOOL bRetainPic=FALSE,BOOL forceRescan=TRUE){return filetrack->ScanId3Info(bRetainPic,forceRescan);}
-	  const TCHAR* GetTitle(){return filetrack->GetTitle();}
-	  BOOL  GetLrcFileFromLib(BOOL forceResearch=FALSE){return filetrack->GetLrcFileFromLib(forceResearch);}
-	  BOOL  HaveKeywords(TCHAR *keywords){return filetrack->HaveKeywords(keywords);}
-	  void TryLoadLrcFile(std::tstring &filename,BOOL forceLoad=FALSE){return filetrack->TryLoadLrcFile(filename,forceLoad);}
-	  BOOL  IsFileExist(){return filetrack->IsFileExist();}
-
-FileTrack* GetFileTrack(){return filetrack.get();}
-int GetIndex(){return index;}
-bool isValide(){return GetIndex()!=-1;}
-void SetIndex(int index){this->index=index;}
-private:
-	PlayList *pPL;
-
-	shared_ptr<FileTrack> filetrack;
-	
-	//index in playlist
-	int index;
+	inline CPlayList * GetPlayList() const {return m_pPL;}
+	inline void  SetPlayList(CPlayList *pPL){m_pPL=pPL;}
+	int GetIndex() const     {return m_iIndex;}
+	void SetIndex(int _index){m_iIndex=_index;}
+	tstring GetUrl() const {return url;}
+	tstring GetTitle() const{return title;}
+	tstring GetArtist()const{return artist;}
+	tstring GetAlbum()const{return album;}
+	tstring GetGenre()const{return genre;}
+	tstring GetYear()const{return year;}
+	tstring GetComment()const{return comment;}
+	tstring GetLycPath()const{return lycPath;}
+	BOOL    IsLyricFromFile() const {return m_bLrcFromLrcFile;}
+	CImage* GetImg(){return img;}
+ private:
+	 void Buf2Img(BYTE* lpRsrc,DWORD len);
+	 BOOL LrcFileMacth(std::tstring &filename) const;
 };
 
 
 
-typedef PlayListItem*  _songContainerItem;
-#define NULLITEM NULL;
-typedef  bool (*CompareProc)(PlayListItem *a, PlayListItem *b);
-class PlayList:
-	public SerializeObj<PlayList>
+
+
+class CPlayList:
+	public SerializeObj<CPlayList>
 {
 public:
-	PlayList(void);
-	PlayList(std::tstring &name);
-	~PlayList(void);
+	CPlayList(void);
+	CPlayList(std::tstring &name);
+	~CPlayList(void);
+private:
+	_songContainer m_songList;
+	std::tstring       m_playlistName;
+	HANDLE hAddDir;
+	BOOL m_bAuto;//自动播放列表？
+	BOOL m_bSearch;//是否为搜索列表
+	int topVisibleIndex;//this data will used in list view when display
+	int nItemSelected;
 public:
 	FILE& operator<<(FILE& f);
 	FILE& operator>>(FILE& f);
 
-public:
-	typedef vector<_songContainerItem> _songContainer;
-private:
-	_songContainer m_songList;
-public:
-	int GetItemCount(){return m_songList.size();}
 
-	_songContainerItem GetItem(int nItem)
-	{
-		if(nItem<0 || nItem >= GetItemCount())
-		{
-			return NULLITEM;
-		}
-		else
-			return m_songList[nItem];
-	}
+	void SetSelectedIndex(int i){nItemSelected=i;}
+	void SetTopVisibleIndex(int i){topVisibleIndex=i;}
+	void SetAuto(BOOL a){m_bAuto=a;}
+	void SetSearch(BOOL s)  {m_bSearch=s;}
+	void SetPlaylistName(std::tstring name){m_playlistName=name;}
 
-	std::tstring       m_playlistName;
+
+	BOOL IsAuto()const {return m_bAuto;}
+	BOOL IsSearch() const {return m_bSearch;}
+	int  GetSelectedIndex() const {return nItemSelected;}
+	LPCPlayListItem GetSelectedItem() const{return GetItem(nItemSelected);}
+	int  GetTopVisibleIndex() const{return topVisibleIndex;}
+	std::tstring GetPlaylistName(){return m_playlistName;}
+
+
+
+	int GetItemCount() const {return m_songList.size();}
+	LPCPlayListItem GetItem(int nItem) const ;
+
 	void Rename(TCHAR *newName){m_playlistName=newName;}
-
-
-public:
-	//_songContainerItem nextTrack();
-	
-	void SortItems(CompareProc compFunc);
-
-	void ReverseItems();
-public:
 	//operation
+	void SortItems(CompareProc compFunc);
+	void ReverseItems();
 	void DeleteItem(int nItem);
-	//void DeleteTrack(int nItem,int nLastItem);
 	void DeleteAllItems();
 	void DeleteTrackByPath(TCHAR *path);
 	void ChangeTrackPath(TCHAR *from,TCHAR *to);
-	//void DeleteTrack(PlayListItem* track);
 	int  RemoveDeadItems();
 	int  RemoveDuplicates();
-public:
-	HANDLE hAddDir;
+	LPCPlayListItem GetNextTrackByOrder(int curr) const;
+
 	HANDLE AddFolderByThread(LPCTSTR pszFolder);
 	void TerminateAddDirThread();
 
 	//return file added
 	int AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir=FALSE);
 	BOOL AddFile(TCHAR *filepath);
-	void AddItem(_songContainerItem item);
-	_songContainerItem GetNextTrackByOrder(BOOL bMoveCur=TRUE);
-
-public:
-
-	//自动播放列表？
-	BOOL m_bAuto,m_bSearch;//是否为搜索列表
-	inline int GetPlayingIndex(){return nItemPlaying;}
-	inline void SetPlayingIndex(int nItem){nItemPlaying=nItem;}
-	PlayListItem *GetPlayingItem(){return GetItem(GetPlayingIndex());}
-
-
-	void SetSelectedIndex(int i){selectedIndex=i;}
-	int  GetSelectedIndex(){return selectedIndex;}
-	PlayListItem *GetSelectedItem(){return GetItem(GetSelectedIndex());}
-
-	void SetTopVisibleIndex(int i){topVisibleIndex=i;}
-	int  GetTopVisibleIndex(){return topVisibleIndex;}
-private:
-	int nItemPlaying;//正在播放的项目
-	//this data will used in list view when display
-	int topVisibleIndex;
-	int selectedIndex;	
+	void AddItem(LPCPlayListItem item);
 };
+
+
+LPCPlayListItem MakeDuplicate(const LPCPlayListItem item);

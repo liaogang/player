@@ -1,60 +1,40 @@
 #include "MyLib.h"
+#include "fileMonitor.h"
 #include "BasicPlayer.h"
 #include "PlayListViewMng.h"
 #include "globalStuffs.h"
-//-----------------------------------------
-//
 
-PlayList* SelectedPlaylist()
-{
-	return MyLib::shared()->GetSelectedPL();
-}
+#include <time.h>
 
-void SetSelectedPlaylist(PlayList* pl)
-{
-	MyLib::shared()->SetSelectedPL(pl);
-}
 
-PlayList* PlayingPlaylist()
-{
-	return MyLib::shared()->GetPlayingPL();
-}
 
-void SetPlayingPlaylist(PlayList* pl)
+LPCPlayList  MyLib::NewPlaylist(std::tstring playlistname,bool bAutoPL)
 {
-	MyLib::shared()->SetPlayingIndex(pl);
-}
-
-PlayList*  MyLib::NewPlaylist(std::tstring playlistname,bool bAutoPL)
-{
-	PlayList *l=new PlayList(playlistname);
+	LPCPlayList l=new CPlayList(playlistname);
 	m_playLists.push_back(l);
 
 	if(bAutoPL)
-		l->m_bAuto=bAutoPL;
+		l->SetAuto(bAutoPL);
 
 	return l;
 }
 
-PlayList* MyLib::AddFolderToCurrentPlayList(LPCTSTR pszFolder)
+LPCPlayList MyLib::AddFolderToCurrentPlayList(LPCTSTR pszFolder)
 {
-	PlayList *p=SelectedPlaylist();
+	LPCPlayList p=MyLib::shared()->GetSelectedPL();
 	p->AddFolderByThread(pszFolder);
 	return p;
 }
 
-static MyLib* gMylib=NULL;
+static MyLib gMylib;
 MyLib* MyLib::shared()
 {
-	if(gMylib==NULL)
-		gMylib=new MyLib();
-
-	return gMylib;
+	return &gMylib;
 }
 
 MyLib::~MyLib()
 {
-	CBasicPlayer::shared()->stop();
+	stop();
 
 	PLList::iterator i;
 	for (i=m_playLists.begin();i!=m_playLists.end();i++)
@@ -64,78 +44,36 @@ MyLib::~MyLib()
 
 
 //-----------------------------------------
-BOOL MyLib::play(PlayListItem *item)
-{	
-	if( item && item->isValide())
-	{
-		PlayList *pl=item->GetPlayList();
-		SetPlayingIndex(pl);
-		pl->SetPlayingIndex(item->GetIndex());
 
-		if(item->IsFileExist())
-			return play(item->GetFileTrack());
-	}
-	return FALSE;
-}
 
 
 BOOL MyLib::play( )
 {
+	stop();
 	ClearPlayQueue();
 
-	PlayList *pl=GetSelectedPL();
+	 LPCPlayList pl=GetSelectedPL();
 	return pl?play(pl->GetSelectedItem()):FALSE;
 }
 
-void MyLib::playNext(BOOL scanID3)
+BOOL MyLib::playNext(BOOL scanID3)
 {	
 	if (!playQueue.empty())
-	{
-		play(PopTrackFromPlayQueue());
-		return;
-	}
-
-	PlayListItem *nextItem;
-	PlayListItem *currItem=NULL;
-
-	PlayList *pl=GetPlayingPL();
-	if(pl)
-		currItem=pl->GetItem(pl->GetPlayingIndex());
-	
-	if(!currItem || !currItem->isValide())
-	{
-		PlayList *spl=SelectedPlaylist();
-		if(spl && spl->GetItemCount()>0)
-		{	
-			int np=spl->GetPlayingIndex();
-			if(np==-1)
-				np=spl->GetSelectedIndex();
-			if(np==-1)
-				np=0;
-
-			currItem=spl->GetItem(np);
-		}
-	}
-
-
-	if(!currItem || !currItem->isValide())
-		return;
-
-	PlayList *pPl=currItem->GetPlayList();
-
-	if(IsValidePlayList(pPl))
-		nextItem=pPl->GetNextTrackByOrder();
+		return play(PopTrackFromPlayQueue());
 	else
-		return;
-	
-	if(nextItem)
-		play(nextItem);
+	{
+		LPCPlayListItem playItem=GetPlayingItem();
+		if(playItem !=NULL && playItem->isValide() && IsValidePlayList(playItem->GetPlayList() ) )
+			return play( playItem->GetPlayList()->GetNextTrackByOrder(playItem->GetIndex()));
+	}
+
+	return FALSE;
 }
 
 
 
-static PlayList *pPlayListAuto=NULL;
-PlayList* MyLib::GetAutoPlaylist()
+static LPCPlayList pPlayListAuto=NULL;
+LPCPlayList MyLib::GetAutoPlaylist()
 {
 	if (!pPlayListAuto)
 	{
@@ -147,13 +85,13 @@ PlayList* MyLib::GetAutoPlaylist()
 }
 
 
-void MyLib::SetAutoPlaylist(PlayList *pl)
+void MyLib::SetAutoPlaylist(LPCPlayList pl)
 {
 	pPlayListAuto=pl;
 }
 
 
-void MyLib::InitMonitor(PlayList *pl)
+void MyLib::InitMonitor(LPCPlayList pl)
 {
 	pPlayListAuto=pl;
 	m_pFileMonitor=new fileMonitors(pPlayListAuto);
@@ -180,33 +118,33 @@ void MyLib::DelMediaPath(std::tstring &path)
 
 
 //后端插入,前端取出
-void MyLib::PushPlayQueue(_songContainerItem item)
+void MyLib::PushPlayQueue(LPCPlayListItem item)
 {
 	playQueue.push_back(item);
 }
 
-_songContainerItem MyLib::PopTrackFromPlayQueue()
+LPCPlayListItem MyLib::PopTrackFromPlayQueue()
 {
 	PlayQueueContainer::iterator i=playQueue.begin();
-	_songContainerItem item=*i;
+	LPCPlayListItem item=*i;
 	playQueue.erase(i);
 
 	return item;
 }
 
-vector<int> MyLib::GetIndexInPlayQueue(_songContainerItem item)
+vector<int> MyLib::GetIndexInPlayQueue(LPCPlayListItem item)
 {
 	vector<int> v;
 	int idx=0;
 	for(PlayQueueContainer::iterator i=playQueue.begin();
 		i!=playQueue.end();++i,++idx)
-		if( *(*i) == *item)
+		if( *i == item)
 			v.push_back(idx);
 	
 	return v;
 }
 
-void MyLib::DeleteFromPlayQueue(_songContainerItem item)
+void MyLib::DeleteFromPlayQueue(LPCPlayListItem item)
 {
 	for(PlayQueueContainer::iterator i=playQueue.begin();
 		i!=playQueue.end();)
@@ -214,7 +152,7 @@ void MyLib::DeleteFromPlayQueue(_songContainerItem item)
 		PlayQueueContainer::iterator k=i;
 		++i;
 
-		if(*(*k) == *item)
+		if(*k == item)
 			playQueue.erase(k);
 	}
 }
@@ -272,24 +210,25 @@ void MyLib::ImportLycByPath(std::tstring path)
 
 
 
-void MyLib::DeletePlayList(PlayList *pl)
+void MyLib::DeletePlayList(LPCPlayList pl)
 {
 	auto i= find(m_playLists.begin(),m_playLists.end(),pl);
 	if(i!=m_playLists.end())
 	{
 		m_playLists.erase(i);
 		delete pl;
-		if(pl->m_bAuto)
+		if(pl->IsAuto())
 		{
 			delete m_pFileMonitor;
 			m_pFileMonitor=NULL;
 			SetAutoPlaylist(NULL);
 		}
 	}
-
 }
 
 void MyLib::DeletePlayList(int nIndex)
 {
 	DeletePlayList(Index2Playlist(nIndex));
 }
+
+

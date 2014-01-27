@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "MyLib.h"
+#include "PlayList.h"
 //IDR_MENU_PL_MNG
 HMENU LoadPlaylistManagerMenu(BOOL bDestroy=FALSE);
 
@@ -26,9 +27,9 @@ public:
 
 	CMainFrame *pMain;
     void ReFillPlaylist();
-	void AddPlayList(PlayList *pPL);
-	void DelPlayList(PlayList *pPL);
-	void UpdateByPLTrack(PlayList *pPL);
+	void AddPlayList(LPCPlayList pPL);
+	void DelPlayList(LPCPlayList pPL);
+	void UpdateByPLTrack(LPCPlayList pPL);
 
 	LRESULT OnCustomDraw(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 	{
@@ -44,7 +45,7 @@ public:
 			break;
 		case CDDS_ITEMPREPAINT:
 			{
-				int i=MyLib::shared()->GetPlayingIndex();
+				int i=MyLib::shared()->GetSelectedIndex();
 				if(nItem==i)
 				pLVCD->clrTextBk=RGB(230,244,255);
 			}
@@ -126,7 +127,7 @@ public:
 
 		if(pszText)
 		{
-			PlayList * pPl=(PlayList *)GetItemData(GetFirstSelItem());
+			LPCPlayList pPl=(LPCPlayList)GetItemData(GetFirstSelItem());
 			pPl->Rename(pszText);
 			UpdateByPLTrack(pPl);
 		}
@@ -179,9 +180,9 @@ public:
 
 	LRESULT OnActivePlaylist(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		PlayList *l=(PlayList*)GetItemData(GetFirstSelItem());
+		LPCPlayList l=(LPCPlayList)GetItemData(GetFirstSelItem());
 
-		SetPlayingPlaylist(l);
+		MyLib::shared()->SetSelectedPL(l);
 
 		AllPlayListViews()->Reload(l);
 
@@ -190,9 +191,9 @@ public:
 	
 	LRESULT OnNewPlaylist(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		PlayList *pPl=MyLib::shared()->NewPlaylist();
+		LPCPlayList pPl=MyLib::shared()->NewPlaylist();
 		AllPlayListViews()->Reload(pPl);
-		SetSelectedPlaylist(pPl);
+		MyLib::shared()->SetSelectedPL(pPl);
 		return 0;
 	}
 

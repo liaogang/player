@@ -3,18 +3,13 @@
 #pragma once
 class CMainFrame;
 class CMultiSpliltWnd;
-class PlayList;
-class PlayListItem;
+class CPlayList;
+class CPlayListItem;
 
 CMainFrame* GetMainFrame();
 CMultiSpliltWnd* GetSplitter();
 
 
-
-
-
-//PlayListItem *  GetPlayingItem();
-//void  SetPlayingItem(PlayListItem * item);
 
 
 class MYTREE;

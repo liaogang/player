@@ -1,7 +1,7 @@
+#pragma once;
 #include <vector>
-
+#include "PlayList.h"
 class PlayListViewBase;
-class PlayList;
 class CPlayListView;
 #pragma once
 class PlayListViewMng
@@ -28,9 +28,9 @@ public:
 
 	 void ClearAllItem();
 
-	 void Reload(PlayList *pPL);
+	 //void Reload(LPCPlayList pPL);
 
-	 void Reload(PlayList *pPL,bool activeplaying);
+	 void Reload(LPCPlayList pPL,int itemActive=-1);
 
 	 void EnsureVisibleAndCentrePos(int index);
 
@@ -40,7 +40,7 @@ public:
 
 	 void EnlargeLVFont(int value);
 
-	 void DeleteOneTrackFirst(PlayList *pPL);
+	 void DeleteOneTrackFirst(LPCPlayList pPL);
 
 
 	 void SelectItems(std::vector<int> &items);
