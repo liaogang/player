@@ -646,10 +646,9 @@ int CPlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 }
 
 
-LPCPlayListItem CPlayList::GetNextTrackByOrder(int curr) const
+LPCPlayListItem CPlayList::GetNextTrackByOrder(int curr , PlayOrder playorder) const
 {
 	int count=GetItemCount();
-	auto playorder=MyLib::shared()->GetPlayOrder();
 	int next=0;
 
 	if (playorder==Default)

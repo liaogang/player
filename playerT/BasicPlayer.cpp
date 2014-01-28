@@ -1,15 +1,13 @@
-#include "stdafx.h"
-
 #include "BasicPlayer.h"
 #include "MusicFile.h"
 #include "PlayerThread.h"
 #include "SpectrumAnalyser.h"
 #include "Mp3File.h"
 #include "WaveFileEx.h"
-#include "PlayList.h"
 #include "forwardMsg.h"
 #include "globalStuffs.h"
 #include <complex>
+
 using namespace std;
 
 static TrackFormatInfo *gTrackFormatInfo;
@@ -348,7 +346,6 @@ void CBasicPlayer::stop()
 	{
 		m_cs.Enter();
 		m_bStopped=TRUE;
-		
 		m_pPlayerThread->m_lpDSBuffer->Stop();
 
 		if(m_lastStatus!=status_invalide)//cllocect info
@@ -363,10 +360,6 @@ void CBasicPlayer::stop()
 	}
 }
 
-BOOL CBasicPlayer::open(LPCPlayListItem track)
-{
-	return open(track->GetUrl().c_str());
-}
 
 //set pos in playing
 void CBasicPlayer::SetPos(int cur,int max)

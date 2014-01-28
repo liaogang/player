@@ -104,12 +104,12 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 {
 	RegisterStuffs();
 
-	LoadAll();
+	SetWindowText(GetAppName());
 
 	if(m_rcMain.right>0 && m_rcMain.bottom > 0)
 	::SetWindowPos(m_hWnd, NULL, m_rcMain.left, m_rcMain.top, m_rcMain.right - m_rcMain.left, m_rcMain.bottom - m_rcMain.top,SWP_NOZORDER);
 
-	SetWindowText(GetAppName());
+	LoadAll();
 
 	SetTimer((UINT_PTR)&m_nIDEvent,m_uElapse,NULL);
 
@@ -283,6 +283,7 @@ LRESULT CMyTrackBar::OnMouseReleased(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandle
 
 LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	MyLib::shared()->stop();
 	MyLib::shared()->play();
 	
 	return 0;
@@ -336,15 +337,14 @@ LRESULT CMainFrame::OnOpen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 
 LRESULT CMainFrame::OnPause(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	MyLib::pause();
+	MyLib::shared()->pause();
 	ChangeTitle();
 	return 0;
 }
 
 LRESULT CMainFrame::OnStop(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	MyLib::stop();
-	ChangeTitle();
+	MyLib::shared()->stop();
 	return 0;
 }
 
@@ -352,6 +352,14 @@ LRESULT CMainFrame::OnPlayNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 {
 	MyLib::shared()->stop();
 	MyLib::shared()->playNext();
+	return 0;
+}
+
+
+LRESULT CMainFrame::OnPlayRandom(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	MyLib::shared()->stop();
+	MyLib::shared()->playRandomNext();
 	return 0;
 }
 
@@ -933,8 +941,10 @@ void CMyVolumeBar::OnPos(int pos)
 			MyLib::shared()->SetSelectedPL(l);
 
 			AllPlayListViews()->Reload(l);
-
 		}
+
+		Invalidate();
+		//RedrawItems(0,-1);
 
 		SetMsgHandled(FALSE);
 		return 0;
@@ -1166,56 +1176,6 @@ void CDlgLrcSearch::DownLoad()
 }
 
 
-
-
-BOOL MyLib::play(LPCPlayListItem item)
-{	
-	if( item && item->isValide())
-	{
-		if(item->IsFileExist())
-		{
-			if(!item->ScanId3Info(TRUE,TRUE))
-				return FALSE;
-
-			CBasicPlayer* s=CBasicPlayer::shared();
-
-			if(!s->stoped())
-				s->stop();
-
-			if(s->open(item))
-			{
-				SetPlayingItem(item);
-				s->play();
-				return TRUE;
-			}
-		}
-	}
-	return FALSE;
-}
-
-
-
-
-void MyLib::pause()
-{
-	CBasicPlayer::shared()->pause();
-
-	
-}
-
-void MyLib::stop()
-{
-	MyLib::shared()->GetPlayingItem()->ClearImgBuf();
-	CBasicPlayer::shared()->stop();
-}
-
-bool MyLib::isPlaying() const
-{
-	CBasicPlayer *p=CBasicPlayer::shared();
-	int a=p->stoped();
-	return !p->stoped();
-}
-
 BOOL CPlayListView::IsAllSelectedItemInPlayQueue()
 {
 	MyLib *s=MyLib::shared();
@@ -1348,7 +1308,7 @@ LRESULT CPlayListViewS::OnSelected(int /**/,LPNMHDR pnmh,BOOL bHandled)
 		LPCPlayListItem itemInParent=GetItemInParent(GetPlayList()->GetItem(nItem));
 		if(count==0)
 		{
-			MyLib::shared()->SetPlayingItem(itemInParent);
+			MyLib::shared()->SetItemToPlay(itemInParent);
 			playlistParent->SetTopVisibleIndex(itemInParent->GetIndex());
 			playlistParent->SetSelectedIndex(itemInParent->GetIndex());
 		}
@@ -1989,7 +1949,7 @@ void ValidateCfg()
 	MyLib* s= MyLib::shared();
 	LPCPlayList pl= s->Index2Playlist(c->playlistIndex);
 	if(pl)
-		s->SetPlayingItem(pl->GetItem(c->trackIndex));
+		s->SetItemToPlay(pl->GetItem(c->trackIndex));
 	
 	if(c->getResumeOnReboot() )
 	{

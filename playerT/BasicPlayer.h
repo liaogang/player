@@ -1,8 +1,10 @@
+#pragma once
+#include "stdafx.h"
 #include "Thread.h"
 #include "CriticalSection.h"
 #include "customMsg.h"
-#include "PlayList.h"
-#pragma once
+
+
 
 class CPlayerThread;
 class CSpectrumAnalyser;
@@ -50,6 +52,7 @@ public:
 
 	PlayingStatus m_lastStatus;
 	trackPosInfo m_lastPos;
+
 	//void InitSlowDown(BOOL bSlowDown=TRUE,BOOL bCloseFile=FALSE);
 	void SlowDownVol();
 	void GrowUpVol();
@@ -58,7 +61,7 @@ public:
 	void TimerVolGrowUp();
 
 	void SetVolumeByEar(int vol);
-	BOOL open(LPCPlayListItem track);
+	
 	void ResetFile();
 	void SetPos(int cur,int max);
 	void SetFilePos(double cur,double max);

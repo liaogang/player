@@ -52,22 +52,58 @@ BOOL MyLib::play( )
 	stop();
 	ClearPlayQueue();
 
-	 LPCPlayList pl=GetSelectedPL();
-	return pl?play(pl->GetSelectedItem()):FALSE;
-}
-
-BOOL MyLib::playNext(BOOL scanID3)
-{	
-	if (!playQueue.empty())
-		return play(PopTrackFromPlayQueue());
-	else
+	if(itemToPlay==NULL)
 	{
-		LPCPlayListItem playItem=GetPlayingItem();
-		if(playItem !=NULL && playItem->isValide() && IsValidePlayList(playItem->GetPlayList() ) )
-			return play( playItem->GetPlayList()->GetNextTrackByOrder(playItem->GetIndex()));
+		LPCPlayList pl=GetSelectedPL();
+		itemToPlay = pl->GetSelectedItem() ;
+		if(itemToPlay==NULL)
+			return FALSE;
+	}
+
+	if( itemToPlay->isValide() && itemToPlay->IsFileExist() && itemToPlay->ScanId3Info(TRUE,TRUE))
+	{
+		CBasicPlayer* s=CBasicPlayer::shared();
+
+		if(!s->stoped())
+			s->stop();
+
+		if(s->open(itemToPlay->GetUrl().c_str()))
+		{
+			itemPlaying=itemToPlay;
+			itemToPlay=NULL;
+			s->play();
+			return TRUE;
+		}
 	}
 
 	return FALSE;
+}
+
+BOOL MyLib::playNext(BOOL scanID3 )
+{
+	auto playorder=MyLib::shared()->GetPlayOrder();
+	return playNext(scanID3,playorder);
+}
+
+
+BOOL MyLib::playRandomNext(BOOL scanID3)
+{
+	return playNext(scanID3,Random);
+}
+
+BOOL MyLib::playNext(BOOL scanID3 ,PlayOrder playorder)
+{	
+	if (!playQueue.empty())
+		itemToPlay = PopTrackFromPlayQueue();
+	
+	if(itemPlaying !=NULL && itemPlaying->isValide() && IsValidePlayList(itemPlaying->GetPlayList() ) )
+	{
+	
+		itemToPlay=itemPlaying->GetPlayList()->GetNextTrackByOrder(itemPlaying->GetIndex(),playorder);
+		return play();
+	}
+	else
+		return FALSE;
 }
 
 
@@ -232,3 +268,29 @@ void MyLib::DeletePlayList(int nIndex)
 }
 
 
+
+
+
+
+
+
+
+void MyLib::pause()
+{
+	CBasicPlayer::shared()->pause();
+}
+
+void MyLib::stop()
+{
+	if(itemPlaying)
+		MyLib::shared()->GetPlayingItem()->ClearImgBuf();
+
+	CBasicPlayer::shared()->stop();
+}
+
+bool MyLib::isPlaying() const
+{
+	CBasicPlayer *p=CBasicPlayer::shared();
+	int a=p->stoped();
+	return !p->stoped();
+}

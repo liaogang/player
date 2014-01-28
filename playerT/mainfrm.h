@@ -162,6 +162,7 @@ public:
 		COMMAND_ID_HANDLER(ID_PAUSE, OnPause)
 		COMMAND_ID_HANDLER(ID_STOP, OnStop)
 		COMMAND_ID_HANDLER(ID_PLAY_NEXT, OnPlayNext)
+		COMMAND_ID_HANDLER(ID_PLAY_RANDOM, OnPlayRandom)
 		COMMAND_ID_HANDLER(ID_CONFIG, OnConfig)
 		COMMAND_ID_HANDLER(ID_SAVE_CONFIG, OnSaveConfig)
 		COMMAND_ID_HANDLER(ID_FILE_OPENDIRECTORY, OnFileOpendirectory)
@@ -288,6 +289,7 @@ public:
 	LRESULT OnPause(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnStop(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnPlayNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnPlayRandom(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnSaveConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnConfigLayout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

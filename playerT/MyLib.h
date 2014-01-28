@@ -20,16 +20,7 @@ static const TCHAR *gPlayOrderStr[] =
 	_T("Shuffle (folders)"),
 };
 
-enum PlayOrder
-{
-	Default,
-	Repeat_playlist,
-	Repeat_track,
-	Random,
-	Shuffle_tracks,
-	Shuffle_albums,
-	Shuffle_folders,
-};
+
 
 
 
@@ -53,13 +44,14 @@ private:
 	PlayOrder playorder;
 
 	int m_IndexSelecting; // the playlist selected
-	LPCPlayListItem itemPlaying; // the playlistitem playing
+	LPCPlayListItem itemToPlay; // the playlistitem to play
+	LPCPlayListItem itemPlaying;
 public:
 	void SetSelectedIndex(int i){m_IndexSelecting=i;}
 	void SetSelectedPL(LPCPlayList pl){SetSelectedIndex(Playlist2Index(pl));}
 	void SetAutoPlaylist(LPCPlayList pl);
 	void SetPlayOrder(int o){playorder=static_cast<PlayOrder>(o);}
-	void SetPlayingItem(LPCPlayListItem item){itemPlaying=item;}
+	void SetItemToPlay(LPCPlayListItem item){itemToPlay=item;}
 
 	int  GetSelectedIndex() const {return m_IndexSelecting;}
 	LPCPlayList GetSelectedPL() const {return Index2Playlist(GetSelectedIndex());}
@@ -148,16 +140,14 @@ public:
 
 	static LPCPlayList AddFolderToCurrentPlayList(LPCTSTR pszFolder);
 	BOOL play();
-	BOOL play(LPCPlayListItem item);//set active track, play 
-
-	static void pause();
-	static void stop();
+	void pause();
+	void stop();
 	BOOL playNext(BOOL scanID3=TRUE);
-	
+	BOOL playNext(BOOL scanID3 ,PlayOrder playorder);
+	BOOL playRandomNext(BOOL scanID3=TRUE);
 
 	static	BOOL SavePlaylist(LPCPlayList pl,LPTSTR filepath);
 	LPCPlayList LoadPlaylist(LPTSTR filepath,TCHAR* PlName=NULL);
-
 	void SetPlayOrder(enum PlayOrder index){playorder=index;}
 };
 

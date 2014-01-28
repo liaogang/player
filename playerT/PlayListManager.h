@@ -174,7 +174,7 @@ public:
 			MyLib::shared()->DeletePlayList(*i);
 		}
 
-		
+		Invalidate();
 		return 0;
 	}
 
@@ -194,6 +194,7 @@ public:
 		LPCPlayList pPl=MyLib::shared()->NewPlaylist();
 		AllPlayListViews()->Reload(pPl);
 		MyLib::shared()->SetSelectedPL(pPl);
+		Invalidate();
 		return 0;
 	}
 

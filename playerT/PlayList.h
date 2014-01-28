@@ -25,7 +25,16 @@ typedef vector<LPCPlayListItem> _songContainer;
 typedef  CPlayList *  LPCPlayList;
 typedef  bool (*CompareProc)(LPCPlayListItem a, LPCPlayListItem b);
 
-
+enum PlayOrder
+{
+	Default,
+	Repeat_playlist,
+	Repeat_track,
+	Random,
+	Shuffle_tracks,
+	Shuffle_albums,
+	Shuffle_folders,
+};
 
 class CPlayListItem:public SerializeObj<CPlayListItem>
  {
@@ -176,7 +185,7 @@ public:
 	void ChangeTrackPath(TCHAR *from,TCHAR *to);
 	int  RemoveDeadItems();
 	int  RemoveDuplicates();
-	LPCPlayListItem GetNextTrackByOrder(int curr) const;
+	LPCPlayListItem GetNextTrackByOrder(int curr ,PlayOrder playorder) const;
 
 	HANDLE AddFolderByThread(LPCTSTR pszFolder);
 	void TerminateAddDirThread();
