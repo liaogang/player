@@ -93,7 +93,6 @@ public:
 		WAVEFORMATEX* format=GetFormat();
 
 		return format->wBitsPerSample/8 * samplesPerFrame() * channels ;
-
 	}
 
 	virtual void  SetPos(int cur,int max)

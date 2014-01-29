@@ -99,7 +99,7 @@ public:
 
 		//HDC hdc=GetDC();
 		//CBasicPlayer::shared()->m_pSpectrumAnalyser->DCRECTInit(m_hWnd,hdc,rc);
-		CBasicPlayer::shared()->m_pSpectrumAnalyser->Init(FALSE);
+		//CBasicPlayer::shared()->m_pSpectrumAnalyser->Init(FALSE);
 		//ReleaseDC(hdc);
 		bHandled=FALSE;
 		return 0;

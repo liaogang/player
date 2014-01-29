@@ -1,20 +1,33 @@
 #pragma once
-struct trackPosInfo;
+#include "stdafx.h"
 #include "Thread.h"
 #include "CriticalSection.h"
+
+struct trackPosInfo;
 class CBasicPlayer;
+class MusicFile;
+
 class CPlayerThread : public CThread
 {
 public:
-	CCriticalSection m_cs;
+	CCriticalSection *m_cs;
+	LPDIRECTSOUNDBUFFER m_lpDSBuffer;
+
 	BOOL  m_bKeepPlaying;
-	BOOL  m_bSleep;
+	void  SetFlagToExit(){m_bKeepPlaying=FALSE;}
+
 	DWORD m_dwSizeRead;
 	DWORD m_dwSizeToWrite;
-	BOOL m_bNewTrack;
-	CBasicPlayer *m_pPlayer;
-	LPDIRECTSOUNDBUFFER m_lpDSBuffer;
-	LPDIRECTSOUND m_lpDsound;
+
+	BOOL *m_pStopped;
+
+	MusicFile *m_pFile;
+	WORD m_wBitsPerSample;
+	//BOOL m_bFileEnded;
+	int m_iBytePerFrame;
+	int m_iTotalFrames;
+
+
 	DWORD m_dwTime;
 	trackPosInfo *pPosInfo;
 	/*retain 2 times len of */
@@ -26,7 +39,7 @@ public:
 	int   playPosInFFt; //play pos in bufFft
 
 public:
-	CPlayerThread(CBasicPlayer *pPlayer);
+	CPlayerThread::CPlayerThread(MusicFile * pFile,CCriticalSection *cs,BOOL *pStop);
 	~CPlayerThread();
 
 	void Excute(); 

@@ -194,6 +194,7 @@ public:
 		MESSAGE_HANDLER(WM_PAUSED,OnPaused)
 		MESSAGE_HANDLER(WM_PAUSE_START,OnPauseStarted)
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
+		MESSAGE_HANDLER(WM_TRACK_POS_CHANGED,OnTrackPosChanged)
 		//
 		
 		MSG_WM_TIMER(OnTimer)
@@ -223,7 +224,7 @@ public:
 			m_uCurrTime+=m_uElapse;
 		
 			if(!m_bPressing)
-				SetPos(m_uCurrTime/100);
+				UpdatePos();
 		}
 	}
 
@@ -269,17 +270,15 @@ public:
 	}
 
 	UINT m_nIDEvent;
-	static const int m_uElapse=20;
+	static const int m_uElapse=400;
 	LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
 		EnableWindow(TRUE);
 
-		int totalSec=getTrackPosInfo()->used+getTrackPosInfo()->left;
-
-		SetRange(0,totalSec*10);
-		SetPos((int)getTrackPosInfo()->used*10);
-
-		m_uCurrTime=getTrackPosInfo()->used * 1000;
+		
+		SetMaxRange();
+		UpdateTime();
+		UpdatePos();
 
 		SetTimer((UINT_PTR)&m_nIDEvent,m_uElapse,NULL);
 
@@ -289,6 +288,30 @@ public:
 		return 0;
 	}
 
+	void UpdatePos()
+	{
+		SetPos(m_uCurrTime / 1000);
+	}
+
+	void UpdateTime()
+	{
+		m_uCurrTime=getTrackPosInfo()->used * 1000;
+	}
+
+	void SetMaxRange()
+	{
+		trackPosInfo *info=getTrackPosInfo();
+		int totalSec=info->used + info->left;
+		SetRange(0,totalSec);
+	}
+	
+
+	LRESULT OnTrackPosChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		UpdateTime();
+		UpdatePos();
+		return 0;
+	}
 
 	LRESULT OnPaused(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
@@ -299,9 +322,8 @@ public:
 	LRESULT OnPauseStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
 		m_bPaused=false;
-		SetPos((int)getTrackPosInfo()->used);
-
-		m_uCurrTime=getTrackPosInfo()->used * 1000;
+		UpdateTime();
+		UpdatePos();
 		return 0;
 	}
 	

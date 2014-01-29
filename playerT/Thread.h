@@ -24,7 +24,7 @@ public:
 
 	~CThread(void)
 	{
-		if (!m_hThread)
+		if (m_hThread)
 			CloseHandle(m_hThread);
 	}
 
@@ -47,14 +47,19 @@ public:
 
 	BOOL Suspended() { return m_bSuspend; }
 
+	BOOL ExitThread()
+	{
+		//ExitThread(m_hThread);
+	}
 
 	BOOL Teminate()
 	{
-		TerminateThread(m_hThread,NULL);
+		//ExitThread(m_hThread);
+		//TerminateThread(m_hThread,NULL);
 		return 0;
 	}
 
-	BOOL Init(BOOL bCreateSuspened=TRUE)
+	BOOL Start(BOOL bCreateSuspened=TRUE)
 	{
 		m_hThread=CreateThread(NULL,0,ThreadProc,(void*)this,
 			bCreateSuspened?CREATE_SUSPENDED:0,&m_dwThreadID);

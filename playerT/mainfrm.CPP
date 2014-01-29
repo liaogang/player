@@ -156,6 +156,7 @@ HWND CMyTrackBar::CreateIsWnd(HWND parent)
 	m_CtrlTooltip.Create(hWnd);
 	m_CtrlTooltip.AddTool(hWnd, LPSTR_TEXTCALLBACK); 
 
+	IWantToReceiveMessage(WM_TRACK_POS_CHANGED);
 	IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
 	IWantToReceiveMessage(WM_PAUSED);
 	IWantToReceiveMessage(WM_PAUSE_START);
@@ -261,7 +262,6 @@ LRESULT CMyTrackBar::OnMouseReleased(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandle
 	
 	CBasicPlayer::shared()->SetPos(pos,posMax);
 
-	m_uCurrTime=pos * 1000 ;
 
 	return 0;
 }
@@ -351,7 +351,12 @@ LRESULT CMainFrame::OnStop(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 LRESULT CMainFrame::OnPlayNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	MyLib::shared()->stop();
-	MyLib::shared()->playNext();
+
+	if(MyLib::shared()->GetPlayOrder() == Repeat_track)
+		MyLib::shared()->playNext(TRUE,Default);
+	else
+		MyLib::shared()->playNext(TRUE);
+
 	return 0;
 }
 
@@ -606,9 +611,6 @@ LRESULT CMyComboBox::OnCbnSelchanged(UINT,int id, HWND hWndCtl)
 
 LRESULT CMainFrame::OnTrackReachEnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
-	CBasicPlayer* s=CBasicPlayer::shared();
-	s->stop();
-
 	MyLib::shared()->playNext();
 
 	return 0;

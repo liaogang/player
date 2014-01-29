@@ -78,18 +78,16 @@ void CALLBACK GrowUpVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD
 
  CBasicPlayer :: CBasicPlayer(void):
  m_bStopped(TRUE),m_bPaused(TRUE),
-	 m_pFile(NULL),m_bFileEnd(TRUE)
-	 ,m_curVolume(50),m_lastStatus(status_invalide)
+	 m_pFile(NULL),m_curVolume(50),
+	 m_lastStatus(status_invalide)
 {
 	//m_eventSlowDown=::CreateEvent(0,TRUE,TRUE,0);
 	//nosignaled state,to enter the slowdown
 	//signaled,to leave the slowdown
 
 	InitSlowDownVolBuffer();
-	m_pPlayerThread=new CPlayerThread(this);
-	m_pSpectrumAnalyser=new CSpectrumAnalyser(this);
-
 	
+	//m_pSpectrumAnalyser=new CSpectrumAnalyser(this);
 }
 
 CBasicPlayer :: ~CBasicPlayer(void)
@@ -139,7 +137,6 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
 	
 	if(m_pFile)
 		delete m_pFile;
-	m_bFileEnd=FALSE;
 	
 	if (_tcscmp(p,_T("wav"))==0 || _tcscmp(p,_T("WAV"))==0)
 		m_pFile=new WaveFile();
@@ -171,9 +168,7 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
 
 
 void CBasicPlayer::play()
-{
-	if (m_bFileEnd)	return;
-	
+{	
 	if (!m_bStopped)
 		if (m_bPaused){      //Î´Í£Ö¹ÇÒÔÝÍ£
 			pause();        //¼ÌÐø
@@ -182,12 +177,15 @@ void CBasicPlayer::play()
 		else               //ÕýÔÚ²¥·Å
 			stop();        //ÏÈÍ£Ö¹
 
+	m_pPlayerThread=new CPlayerThread(m_pFile,&m_cs,&m_bStopped);
+
+	m_pPlayerThread->Start(TRUE);
 
 	m_pPlayerThread->Reset();
 
 	m_pPlayerThread->CleanDSBuffer();
 
-	m_pPlayerThread->Init(FALSE);
+	m_pPlayerThread->Resume();
 	
 	m_bStopped=FALSE;
 
@@ -208,7 +206,6 @@ void CBasicPlayer::play()
 	}
 	
 	m_lastStatus=status_invalide;
-
 }
 
 
@@ -230,7 +227,7 @@ void CBasicPlayer::SlowDownVol()
 		if(m_bCloseFileInSlowDown)
 		{
 			NotifyMsg(WM_TRACKSTOPPED);
-			m_pPlayerThread->Teminate();
+			m_pPlayerThread->SetFlagToExit();
 			m_pFile->Close();	
 		}
 		else
@@ -353,7 +350,8 @@ void CBasicPlayer::stop()
 
 		NotifyMsg(WM_TRACKSTOPPED);
 
-		m_pPlayerThread->Teminate();
+		m_pPlayerThread->SetFlagToExit();
+
 		m_pFile->Close();
 
 		m_cs.Leave();

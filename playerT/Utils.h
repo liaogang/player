@@ -26,8 +26,10 @@ LPDIRECTSOUND DSoundDeviceCreate(LPGUID lpGuid =NULL );
 
 
 
-LPDIRECTSOUNDBUFFER DSoundBufferCreate(LPDIRECTSOUND lpDSound,WAVEFORMATEX *pwfx)
+LPDIRECTSOUNDBUFFER DSoundBufferCreate(WAVEFORMATEX *pwfx)
 {
+	static LPDIRECTSOUND lpDsound=DSoundDeviceCreate();
+
 	//DSBSIZE_MIN  DSBSIZE_MAX
 	//创建次缓冲区
 	DSBUFFERDESC dsBufferDesc;
@@ -38,7 +40,11 @@ LPDIRECTSOUNDBUFFER DSoundBufferCreate(LPDIRECTSOUND lpDSound,WAVEFORMATEX *pwfx
 	dsBufferDesc.lpwfxFormat=pwfx;
 
 	LPDIRECTSOUNDBUFFER lpDSBuffer=NULL;
-	if(FAILED(lpDSound->CreateSoundBuffer(&dsBufferDesc,&lpDSBuffer,NULL)))return NULL;
+	if(FAILED(lpDsound->CreateSoundBuffer(&dsBufferDesc,&lpDSBuffer,NULL)))
+	{
+		lpDSBuffer->Release();
+		return NULL;
+	}
 
 	//-------------------
 	//ds缓冲区大小    1秒    11.025次读文件
