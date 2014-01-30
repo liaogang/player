@@ -193,6 +193,7 @@ public:
 	//return file added
 	int AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir=FALSE);
 	BOOL AddFile(TCHAR *filepath);
+	void Reserve(int count);
 	void AddItem(LPCPlayListItem item);
 };
 

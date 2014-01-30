@@ -6,9 +6,9 @@ using namespace std;
 
 
 #define ADDTOSERIALIZE(CLASSNAME) \
-FILE& operator<<(FILE& f,CLASSNAME &t) \
+inline FILE& operator<<(FILE& f,CLASSNAME &t) \
 {return t>>f;} \
-FILE& operator>>(FILE& f,CLASSNAME &t) \
+inline FILE& operator>>(FILE& f,CLASSNAME &t) \
 {return t<<f;}
 
 

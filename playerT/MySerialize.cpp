@@ -385,6 +385,7 @@ bool LoadCoreCfg()
 		 if(size>0)
 		{
 			 s->InitMonitor(s->GetAutoPlaylist());
+			 s->SetMediaPathCount(size);
 			 while (size--)
 			 {
 				 std::tstring mediaPath;
@@ -541,11 +542,11 @@ FILE& CPlayList::operator>>(FILE& f)
 	int count=m_songList.size();
 	f<<count;
 
-	_songContainer::iterator i;
-	for (i=m_songList.begin();i!=m_songList.end();++i)
+	_songContainer::iterator i = m_songList.begin();
+	_songContainer::iterator end= m_songList.end();
+	for (;i!=end;++i)
 		f<<*(*i);
 	
-
 	return f;
 }
 
@@ -555,11 +556,15 @@ FILE& CPlayList::operator<<(FILE& f)
 	f>>m_playlistName>>m_bAuto>>count;
 
 	if(count>=0)
-		while(count--){
+	{
+		Reserve(count);
+		while(count--)
+		{
 			LPCPlayListItem item(new CPlayListItem);
 			f>>*item;
 			AddItem(item);
 		}
+	}
 
 		return f;
 }

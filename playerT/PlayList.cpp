@@ -538,7 +538,10 @@ HANDLE CPlayList::AddFolderByThread(LPCTSTR pszFolder)
 }
 
 
-
+void CPlayList::Reserve(int count)
+{
+	m_songList.reserve(count);
+}
 
 
 void CPlayList::AddItem(LPCPlayListItem item)

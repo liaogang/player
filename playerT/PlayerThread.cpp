@@ -251,12 +251,15 @@ NormalEnd:
 	return;
 
 fileEnd:
-	m_cs->Leave();	
-	NotifyMsg(WM_TRACKSTOPPED);
-	NotifyMsg(WM_TRACK_REACH_END);
 	m_lpDSBuffer->Stop();
 	m_bKeepPlaying=FALSE;
 	*m_pStopped=TRUE;
+	m_pFile->Close();
+	m_pFile=NULL;
+	m_cs->Leave();	
+	NotifyMsg(WM_TRACKSTOPPED);
+	NotifyMsg(WM_TRACK_REACH_END);
+
 
 	return;
 }

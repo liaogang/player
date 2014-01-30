@@ -112,6 +112,7 @@ public:
 
 	//自动播放列表,媒体库专用.
 	void InitMonitor(LPCPlayList pl);
+	void SetMediaPathCount(int count);
 	void ClearMediaPath();
 	void AddMediaPath(std::tstring &path);
 	void DelMediaPath(std::tstring &path);

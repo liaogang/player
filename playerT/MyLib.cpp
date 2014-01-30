@@ -1,7 +1,6 @@
 #include "MyLib.h"
 #include "fileMonitor.h"
 #include "BasicPlayer.h"
-#include "PlayListViewMng.h"
 #include "globalStuffs.h"
 
 #include <time.h>
@@ -133,6 +132,10 @@ void MyLib::InitMonitor(LPCPlayList pl)
 	m_pFileMonitor=new fileMonitors(pPlayListAuto);
 }
 
+void MyLib::SetMediaPathCount(int count)
+{
+	mediaPaths.resize(count);	
+}
 
 void MyLib::ClearMediaPath()
 {
