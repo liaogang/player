@@ -57,7 +57,7 @@ public:
 
 public:
 	FILE& operator<<(FILE& f);
-	FILE& operator>>(FILE& f);
+	FILE& operator>>(FILE& f) const ;
 
 	CMySimpleRebar();
 

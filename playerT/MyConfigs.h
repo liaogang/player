@@ -11,7 +11,7 @@ public:
 	}
 public:
 	FILE& operator<<(FILE& f);
-	FILE& operator>>(FILE& f);
+	FILE& operator>>(FILE& f) const ;
 public:
 	
 	inline int getResumeOnReboot(){return bResumeOnReboot;}

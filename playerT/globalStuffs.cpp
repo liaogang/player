@@ -5,30 +5,21 @@
 #include "customMsg.h"
 
 
-MYTREE* CreateRootTree()
-{
-	MYTREE *root=new MYTREE(_T("root"));
-	root->data.type=left_right;
-	root->setroot();
 
-	wcscpy(root->data.nodeName,L"Ë®Æ½·ÖÀëÆ÷");
 
-	return root;
-}
-
-static MYTREE *gRootTree=NULL;
-void SetRootTree(MYTREE *root)
-{
-	gRootTree=root;
-}
-
-MYTREE *UISplitterTreeRoot()
-{
-	if(gRootTree==NULL)
-		gRootTree=CreateRootTree();
-
-	return gRootTree;
-}
+// static MYTREE *gRootTree=NULL;
+// void SetRootTree(MYTREE *root)
+// {
+// 	gRootTree=root;
+// }
+// 
+// MYTREE *UISplitterTreeRoot()
+// {
+// 	if(gRootTree==NULL)
+// 		gRootTree=CreateRootTree();
+// 
+// 	return gRootTree;
+// }
 
 
 

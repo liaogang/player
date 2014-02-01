@@ -12,9 +12,9 @@ CMultiSpliltWnd* GetSplitter();
 
 
 
-class MYTREE;
-void SetRootTree(MYTREE *root);
-MYTREE *UISplitterTreeRoot();
+// class MYTREE;
+// void SetRootTree(MYTREE *root);
+// MYTREE *UISplitterTreeRoot();
 
 
 

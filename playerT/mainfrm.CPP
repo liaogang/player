@@ -5,7 +5,6 @@
 #include "MyControls.h"
 #include "PlayList.h"
 #include "BasicPlayer.h"
-#include "mysplit.h"
 #include "globalStuffs.h"
 
 
@@ -201,8 +200,8 @@ void CMainFrame::InitUILayout()
 	const DWORD dwSplitStyle = WS_CHILD|WS_VISIBLE | WS_CLIPCHILDREN |WS_CLIPSIBLINGS  ;
 	const DWORD dwSplitExStyle =WS_EX_CLIENTEDGE;
 
-	m_pWndMultiSplitter=new CMultiSpliltWnd;
-	m_hWndClient=m_pWndMultiSplitter->Create(m_hWnd,rcDefault,NULL,dwSplitStyle,0);
+
+	m_hWndClient=m_WndMultiSplitter.Create(m_hWnd,rcDefault,NULL,dwSplitStyle,0);
 }
 
 
@@ -1589,7 +1588,7 @@ BOOL CPropertyDlgUILayout::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 {
 	tree.SubclassWindow(GetDlgItem(IDC_TREE));
 
-	MyRoot=GetSplitter()->rootTree;
+	MyRoot=GetSplitter()->GetRootTree();
 	HTREEITEM rootItem= tree.InsertItem(MyRoot->data.nodeName,TVI_ROOT,TVI_LAST);
 	MyRoot->data.treeItem=rootItem;
 	tree.SetItemData(rootItem,(DWORD)MyRoot);
@@ -1604,7 +1603,7 @@ BOOL CPropertyDlgUILayout::OnInitDialog(CWindow wndFocus, LPARAM lInitParam)
 
 CMultiSpliltWnd* GetSplitter()
 {
-	return GetMainFrame()->m_pWndMultiSplitter;
+	return & GetMainFrame()->m_WndMultiSplitter;
 }
 
 

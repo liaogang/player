@@ -102,7 +102,7 @@ public:
 
  public:
 	 FILE& operator<<(FILE& f);
-	 FILE& operator>>(FILE& f);
+	 FILE& operator>>(FILE& f) const ;
 
 	 BOOL  IsFileExist() const;
 	 BOOL  ScanId3Info ( BOOL bRetainPic=FALSE,BOOL forceRescan=TRUE);
@@ -153,7 +153,7 @@ private:
 	int nItemSelected;
 public:
 	FILE& operator<<(FILE& f);
-	FILE& operator>>(FILE& f);
+	FILE& operator>>(FILE& f) const ;
 
 
 	void SetSelectedIndex(int i){nItemSelected=i;}

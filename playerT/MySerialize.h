@@ -6,9 +6,9 @@ using namespace std;
 
 
 #define ADDTOSERIALIZE(CLASSNAME) \
-inline FILE& operator<<(FILE& f,CLASSNAME &t) \
+inline FILE& operator<<(FILE& f,const CLASSNAME &t) \
 {return t>>f;} \
-inline FILE& operator>>(FILE& f,CLASSNAME &t) \
+inline FILE& operator>>(FILE& f,CLASSNAME &t)\
 {return t<<f;}
 
 
@@ -27,7 +27,7 @@ public:
 
 
 	//save to
-	FILE& operator>>(FILE& f)
+	FILE& operator>>(FILE& f) const
 	{
 		// must be implemented in a derived class
 		ATLASSERT(0);

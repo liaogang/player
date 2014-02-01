@@ -16,40 +16,41 @@ ADDTOSERIALIZE(MyConfigs)
 ADDTOSERIALIZE(CMySimpleRebar)
 ADDTOSERIALIZE(MYTREE)
 ADDTOSERIALIZE(dataNode)
+ADDTOSERIALIZE(CMultiSpliltWnd)
 
 //double
-FILE& operator<<(FILE& f,double t)
+FILE& operator<<(FILE& f,const double t)
 {
 	fwrite(&t,sizeof(double),1,&f);
 	return f;
 }
 
-FILE& operator>>(FILE& f,double& t)
+FILE& operator>>(FILE& f,double& t) 
 {
 	fread(&t,sizeof(double),1,&f);
 	return f;
 }
 //int
-FILE& operator<<(FILE& f,int t)
+FILE& operator<<(FILE& f,const int t)
 {
 	fwrite(&t,sizeof(int),1,&f);
 	return f;
 }
 
-FILE& operator>>(FILE& f,int& t)
+FILE& operator>>(FILE& f,int& t) 
 {
 	fread(&t,sizeof(int),1,&f);
 	return f;
 }
 
 //UINT
-FILE& operator<<(FILE& f,UINT t)
+FILE& operator<<(FILE& f,const UINT t)
 {
 	fwrite(&t,sizeof(UINT),1,&f);
 	return f;
 }
 
-FILE& operator>>(FILE& f,UINT& t)
+FILE& operator>>(FILE& f,UINT& t) 
 {
 	fread(&t,sizeof(UINT),1,&f);
 	return f;
@@ -57,13 +58,13 @@ FILE& operator>>(FILE& f,UINT& t)
 
 
 //long
-FILE& operator<<(FILE& f,long t)
+FILE& operator<<(FILE& f,const long t)
 {
 	fwrite(&t,sizeof(long),1,&f);
 	return f;
 }
 
-FILE& operator>>(FILE& f,long& t)
+FILE& operator>>(FILE& f,long& t) 
 {
 	fread(&t,sizeof(long),1,&f);
 	return f;
@@ -72,7 +73,7 @@ FILE& operator>>(FILE& f,long& t)
 
 
 //write zero terminated str array
-FILE& operator<<(FILE& f,TCHAR * str)
+FILE& operator<<(FILE& f,const TCHAR * str)
 {
 	int l=_tcslen(str)+1;
 	f<<l;
@@ -80,7 +81,7 @@ FILE& operator<<(FILE& f,TCHAR * str)
 	return f;
 }
 
-FILE& operator>>(FILE& f,TCHAR * str)
+FILE& operator>>(FILE& f,TCHAR * str) 
 {
 	int l=0;
 	f>>l;
@@ -89,7 +90,7 @@ FILE& operator>>(FILE& f,TCHAR * str)
 }
 
 //tstring
-FILE& operator<<(FILE& f,tstring &str)
+FILE& operator<<(FILE& f,const tstring &str)
 {
 	int l=str.length();
 	f<<l+1;
@@ -99,7 +100,7 @@ FILE& operator<<(FILE& f,tstring &str)
 	return f;
 }
 
-FILE& operator>>(FILE& f,tstring &str)
+FILE& operator>>(FILE& f,tstring &str) 
 {
 	TCHAR buf[128];
 	f>>buf;
@@ -109,12 +110,12 @@ FILE& operator>>(FILE& f,tstring &str)
 
 
 //RECT
-FILE& operator<<(FILE& f,RECT &r)
+FILE& operator<<(FILE& f,const RECT &r)
 {
 	return f<<r.left<<r.top<<r.right<<r.bottom;
 }
 
-FILE& operator>>(FILE& f,RECT &r)
+FILE& operator>>(FILE& f,RECT &r) 
 {
 	return f>>r.left>>r.top>>r.right>>r.bottom;
 }
@@ -122,7 +123,7 @@ FILE& operator>>(FILE& f,RECT &r)
 
 
 //enum PlayingStatus
-FILE& operator<<(FILE& f,PlayingStatus s)
+FILE& operator<<(FILE& f,const PlayingStatus s)
 {
 	return f<<static_cast<int>(s);
 }
@@ -134,7 +135,7 @@ FILE& operator>>(FILE& f,PlayingStatus &s)
 }
 
 //MY_REBARBANDINFO
-FILE& operator<<(FILE& f,MY_REBARBANDINFO * mri)
+FILE& operator<<(FILE& f,const MY_REBARBANDINFO * mri)
 {
 	return f<<mri->szClassName<<mri->bandIndex<<mri->bFullWidthAlways<<mri->bRemovable<<mri->menuID<<mri->bShow
 	<<mri->info.cbSize<<mri->info.fMask<<mri->info.fStyle<<mri->info.cx<<mri->info.cxMinChild;
@@ -485,56 +486,22 @@ bool LoadUICfg()
 
 
 
-FILE& CMainFrame::operator>>(FILE& f)
+FILE& CMainFrame::operator>>(FILE& f) const
 {
-	/***************   Main Window ******************/
-	f<<m_rcMain<<m_rcConfig<<m_rcLrc<<m_rcProcess<<m_rcSearch<<m_rcFFT<<m_rcPLMng<<m_rcPLConsole;
-
-	f<<m_bShowStatusBar;
-	/********************Rebar section*************************/
-	f<<m_wndRebar;
-
-
-	//put this section to the end . 
-	//it won't calc the total size.
-	/**********user interface split windows's section************/
-	MYTREE* root=UISplitterTreeRoot();
-
-	SerializeAllTree(root,f);
-
-	return f;
+	return f<<m_rcMain<<m_rcConfig<<m_rcLrc<<m_rcProcess<<m_rcSearch<<m_rcFFT<<m_rcPLMng<<m_rcPLConsole
+			<<m_bShowStatusBar
+			<<m_wndRebar<<m_WndMultiSplitter;
 }
 
 FILE& CMainFrame::operator<<(FILE& f)
 {
-	/***************   Main Window ******************/
-	f>>m_rcMain>>m_rcConfig>>m_rcLrc>>m_rcProcess>>m_rcSearch>>m_rcFFT>>m_rcPLMng>>m_rcPLConsole;
-
-	f>>m_bShowStatusBar;
-	/********************Rebar section*************************/
-	
-	f>>m_wndRebar;
-
-
-
-	/**********user interface split windows's section************/
-	MYTREE *root=new MYTREE(_T(""));
-	root->data.SplitterBarRects.clear();
-
-	root->setroot();
-
-	f>>*root;
-
-
-	ReSerializeAllTree(root,f);
-
-	SetRootTree(root);
-
-	return f;
+	return  f>>m_rcMain>>m_rcConfig>>m_rcLrc>>m_rcProcess>>m_rcSearch>>m_rcFFT>>m_rcPLMng>>m_rcPLConsole
+			 >>m_bShowStatusBar
+			 >>m_wndRebar>>m_WndMultiSplitter;
 }
 
 
-FILE& CPlayList::operator>>(FILE& f)
+FILE& CPlayList::operator>>(FILE& f) const
 {
 	f<<m_playlistName<<m_bAuto;
 
@@ -542,8 +509,8 @@ FILE& CPlayList::operator>>(FILE& f)
 	int count=m_songList.size();
 	f<<count;
 
-	_songContainer::iterator i = m_songList.begin();
-	_songContainer::iterator end= m_songList.end();
+	_songContainer::const_iterator i = m_songList.begin();
+	_songContainer::const_iterator end= m_songList.end();
 	for (;i!=end;++i)
 		f<<*(*i);
 	
@@ -570,7 +537,7 @@ FILE& CPlayList::operator<<(FILE& f)
 }
 
 
-FILE& CPlayListItem::operator>>(FILE& f)
+FILE& CPlayListItem::operator>>(FILE& f) const
 {
 	return f<<url<<playCount<<starLvl<<title<<artist<<album<<genre<<year;
 }
@@ -581,7 +548,7 @@ FILE& CPlayListItem::operator<<(FILE& f)
 }
 
 
-FILE& MyConfigs::operator>>(FILE& f)
+FILE& MyConfigs::operator>>(FILE& f) const
 {
 	return f<<bResumeOnReboot<<playlistIndex<<trackIndex<<playingStatus<<pos.used<<pos.left<<playersVolume<<playorder;
 }
@@ -593,7 +560,7 @@ FILE& MyConfigs::operator<<(FILE& f)
 
 
 
-FILE& CMySimpleRebar::operator>>(FILE& f)
+FILE& CMySimpleRebar::operator>>(FILE& f) const
 {
 	f<<m_bLock;
 
@@ -616,7 +583,7 @@ FILE& CMySimpleRebar::operator<<(FILE& f)
 }
 
 
-FILE& MYTREE::operator>>(FILE& f)
+FILE& MYTREE::operator>>(FILE& f) const
 {
 	return f<<childs<<data;
 }
@@ -628,7 +595,7 @@ FILE& MYTREE::operator<<(FILE& f)
 
 
 
-FILE& dataNode::operator>>(FILE& f)
+FILE& dataNode::operator>>(FILE& f) const
 {
 	f<<nodeName<<rc;
 	f<<(type==left_right?1:0);
@@ -660,3 +627,19 @@ FILE& dataNode::operator<<(FILE& f)
 	return f;
 }
 
+
+FILE& CMultiSpliltWnd::operator>>(FILE& f) const
+{
+	SerializeAllTree(rootTree,f);
+	return f;
+}
+
+FILE& CMultiSpliltWnd::operator<<(FILE& f)
+{
+	MYTREE *root=CreateRootTree();
+	f>>*root;
+
+	ReSerializeAllTree(root,f);
+
+	return f;
+}

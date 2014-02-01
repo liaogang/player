@@ -134,7 +134,7 @@ public:
 
 
 	FILE& operator<<(FILE& f);
-	FILE& operator>>(FILE& f);
+	FILE& operator>>(FILE& f) const ;
 	
 	//∏≥÷µππ‘Ï
 	dataNode ( dataNode & b)
@@ -221,7 +221,7 @@ public:
 	}
 
 	FILE& operator<<(FILE& f);
-	FILE& operator>>(FILE& f);
+	FILE& operator>>(FILE& f) const ;
 
 
 	bool wndEmpty()
@@ -883,3 +883,6 @@ public:
 
 
 
+
+
+MYTREE* CreateRootTree();

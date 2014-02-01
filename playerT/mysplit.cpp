@@ -140,10 +140,11 @@ HCURSOR CMultiSpliltWnd::m_hCursorUpDown=NULL;
 
 LRESULT CMultiSpliltWnd::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
-	rootTree=UISplitterTreeRoot();
+	if(rootTree == NULL)
+		rootTree=CreateRootTree();
+
 	if (rootTree->hasChild())//reserialize from  file
 		CreateHWNDbyName(rootTree);
-
 
 	UpdateLayout(rootTree);
 
@@ -158,3 +159,15 @@ LRESULT CMultiSpliltWnd::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPa
 	return 1;
 }
 
+
+
+MYTREE* CreateRootTree()
+{
+	MYTREE *root=new MYTREE(_T("root"));
+	root->data.type=left_right;
+	root->setroot();
+
+	wcscpy(root->data.nodeName,L"Ë®Æ½·ÖÀëÆ÷");
+
+	return root;
+}

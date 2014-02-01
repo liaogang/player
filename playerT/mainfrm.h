@@ -9,6 +9,7 @@
 #include "forwardMsg.h"
 #include "MySerialize.h"
 #include "MyControls.h"
+#include "mysplit.h"
 
 #ifndef _MAINFRAME_H
 #define _MAINFRAME_H
@@ -16,7 +17,6 @@
 class CDialogConfig;
 class CAlbumCoverView;
 class CDialogLyric;
-//class CMyTabBar;
 class CPlayListView;
 class CPlayListView;
 class CMyStatusBar;
@@ -49,7 +49,7 @@ public:
 	CMyStatusBar *m_pStatus;
 
 	//主视图
-	CMultiSpliltWnd *m_pWndMultiSplitter;
+	CMultiSpliltWnd m_WndMultiSplitter;
 
 	//弹出窗口
 	CDialogConfig   *m_pDlgConfig;
@@ -183,7 +183,7 @@ public:
 
 
 	FILE& operator<<(FILE& f);
-	FILE& operator>>(FILE& f);
+	FILE& operator>>(FILE& f) const ;
 
 
 	void OnTimer(UINT_PTR /*nIDEvent*/)

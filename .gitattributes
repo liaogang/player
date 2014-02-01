@@ -337,6 +337,8 @@ playerT/MyRebar.cpp -text
 playerT/MyRebar.h -text
 playerT/MySerialize.cpp -text
 playerT/MySerialize.h -text
+playerT/NTRAY.CPP -text
+playerT/NTRAY.H -text
 playerT/PlayList.cpp -text
 playerT/PlayList.h -text
 playerT/PlayListManager.h -text

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "globalStuffs.h"
-#include "MySerialize.h"
 #include "mytree.h"
 
 
@@ -21,10 +20,13 @@ class CPlaceHolderWnd;
 
 
 class CMultiSpliltWnd:
-	public ATL::CWindowImpl< CMultiSpliltWnd>
+	public ATL::CWindowImpl< CMultiSpliltWnd>,
+	public SerializeObj<CMultiSpliltWnd>
 {
-public:
+private:
 	MYTREE *rootTree;
+public:
+	
 	MYTREE *rclickTree;
 	//CMainFrame *pMain;
 	bool m_bFullDrag;
@@ -45,11 +47,7 @@ public:
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
-
-		//MSG_WM_RBUTTONUP(OnRButtonDblClk)
 		MSG_WM_ERASEBKGND(OnEraseBkgnd)
-
-		//MESSAGE_HANDLER(WM_SETCURSOR, OnSetCursor)
 		MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
 		MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
 		MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
@@ -73,6 +71,14 @@ public:
 		menu=::LoadMenu(NULL,MAKEINTRESOURCE(IDR_MENU_EDIT_MODE));
 		subMenu=::GetSubMenu(menu,0);
 		rootTree=NULL;
+	}
+
+	FILE& operator<<(FILE& f);
+	FILE& operator>>(FILE& f) const ;
+
+	MYTREE * GetRootTree()
+	{
+		return rootTree;
 	}
 
 	virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
@@ -107,8 +113,6 @@ public:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 
 	
-
-
 	void UpdateTree(MYTREE *treeData);
 
 	
