@@ -89,6 +89,6 @@ forwardMsg* NotifyCenter();
 void LoginOutMsgReceiver(UINT uMsg,HWND hWnd);
 void RegistMsgReceiver(UINT uMsg,HWND hWnd);
 
+void NotifyMsg(UINT uMsg,BOOL bPost=FALSE,WPARAM wParam=NULL,LPARAM lParam=NULL);
 
-inline void NotifyMsg(UINT uMsg,BOOL bPost=FALSE,WPARAM wParam=NULL,LPARAM lParam=NULL){NotifyCenter()->Msg(uMsg,wParam,lParam,bPost);}
 

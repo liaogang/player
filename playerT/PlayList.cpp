@@ -1,19 +1,25 @@
 #include "StdAfx.h"
 #include "PlayList.h"
-
 #include "MyLib.h"
 #include "BasicPlayer.h"
 #include "customMsg.h"
 #include "StringConvertions.h"
-#include "CImg.h"
 #include "StringConvertions.h"
 #include "globalStuffs.h"
 #include "forwardMsg.h"
+#include <time.h>
+
+#ifdef APP_PLAYER_UI
+#include "CImg.h"
+#endif
+
 #include <io.h>
 #include <xutility>
 #include <algorithm>
 
 
+
+#ifdef APP_PLAYER_UI
 #include "LrcMng.h"
 //for parse the ID3 tag
 #include <direct.h>
@@ -28,7 +34,7 @@
 #include <tbytevector.h>
 #include <attachedpictureframe.h>
 using namespace TagLib;
-
+#endif
 
 LPCPlayListItem MakeDuplicate(const LPCPlayListItem item)
 {
@@ -53,7 +59,9 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 	BOOL result=p->pPlaylist->AddFolder(p->pszFolder,TRUE);
 	NotifyMsg(WM_FILE_FINDED,NULL,(LPARAM)0);
 
+#ifdef APP_PLAYER_UI
 	SdMsg(WM_PL_TRACKNUM_CHANGED,TRUE,(WPARAM)p->pPlaylist,(LPARAM)result);
+#endif
 
 	delete p;
 
@@ -154,28 +162,27 @@ bool IsPlayListItemDup(const LPCPlayListItem a,const LPCPlayListItem b)
 
 CPlayListItem::~CPlayListItem()
 {
+	#ifdef APP_PLAYER_UI
 	if (img)
 	{
 		delete img;
 		img=NULL;
 	}
-
-	// 	if (pPicBuf)
-	// 	{	
-	// 		delete pPicBuf;
-	// 		pPicBuf=NULL;
-	// 	}
+	#endif
 }
+
+#ifdef APP_PLAYER_UI
 
 void  CPlayListItem::ClearImgBuf()
 {
+
 	if (img)
 	{
 		delete img;
 		img=NULL;
 	}
-}
 
+}
 
 void CPlayListItem::Buf2Img(BYTE* lpRsrc,DWORD len)
 {
@@ -213,7 +220,7 @@ void CPlayListItem::Buf2Img(BYTE* lpRsrc,DWORD len)
 	GlobalFree(m_hMem);
 
 };
-
+#endif
 
 
 BOOL  CPlayListItem::IsFileExist() const
@@ -222,10 +229,17 @@ BOOL  CPlayListItem::IsFileExist() const
 	return _taccess(url.c_str(), 0 )!=-1;
 }
 
+
+
+
 BOOL CPlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 {
+#ifdef APP_PLAYER_UI
+	return TRUE;
+#endif
 	if( !forceRescan && m_bStatus!=UNKNOWN)
 		return TRUE;
+#ifdef APP_PLAYER_UI
 
 	MPEG::File f(url.c_str());
 
@@ -281,6 +295,8 @@ BOOL CPlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 				if (pPicBuf)
 					Buf2Img((BYTE*)pPicBuf->data(),pPicBuf->size());
 			}
+
+
 		}
 	}
 	else
@@ -330,10 +346,11 @@ BOOL CPlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 
 
 	return id3v2tag || id3v1tag;
+	#endif
 }
 
 
-
+#ifdef APP_PLAYER_UI
 
 void CPlayListItem::TryLoadLrcFile(std::tstring &filename,BOOL forceLoad)
 {
@@ -350,34 +367,6 @@ void CPlayListItem::TryLoadLrcFile(std::tstring &filename,BOOL forceLoad)
 			SetHighestMatchLrc(matchitem);
 	}
 
-}
-
-
-//通过歌词文件名判断,是否与当前歌曲匹配
-BOOL CPlayListItem::LrcFileMacth(std::tstring &lrcFile) const
-{
-	if( search(lrcFile.begin(),lrcFile.end(),title.begin(),title.end())!=lrcFile.end() )
-		return TRUE;
-
-	// 	if( search(filename.begin(),filename.end(),artist.begin(),artist.end()) !=filename.end())
-	// 		return TRUE;
-
-	int indexA=url.find_last_of('\\');
-	int indexB=url.find_last_of('.');
-	if(indexA==url.npos || 
-		indexB==url.npos ||
-		indexA>indexB) return FALSE;
-	else
-	{
-		if(indexB!=url.length())
-		{
-			std::tstring filename=url.substr(indexA+1,indexB-indexA);
-			if( search(lrcFile.begin(),lrcFile.end(),filename.begin(),filename.end()) !=lrcFile.end())
-				return TRUE;	
-		}
-	}
-
-	return FALSE;
 }
 
 
@@ -443,6 +432,63 @@ BOOL CPlayListItem::HaveKeywords(TCHAR *keywords) const
 }
 
 
+//通过歌词文件名判断,是否与当前歌曲匹配
+BOOL CPlayListItem::LrcFileMacth(std::tstring &lrcFile) const
+{
+	if( search(lrcFile.begin(),lrcFile.end(),title.begin(),title.end())!=lrcFile.end() )
+		return TRUE;
+
+	// 	if( search(filename.begin(),filename.end(),artist.begin(),artist.end()) !=filename.end())
+	// 		return TRUE;
+
+	int indexA=url.find_last_of('\\');
+	int indexB=url.find_last_of('.');
+	if(indexA==url.npos || 
+		indexB==url.npos ||
+		indexA>indexB) return FALSE;
+	else
+	{
+		if(indexB!=url.length())
+		{
+			std::tstring filename=url.substr(indexA+1,indexB-indexA);
+			if( search(lrcFile.begin(),lrcFile.end(),filename.begin(),filename.end()) !=lrcFile.end())
+				return TRUE;	
+		}
+	}
+
+	return FALSE;
+}
+
+
+UINT LrcMng::MatchTrackAndLrcTags(CPlayListItem * track,std::tstring &lrcpath)
+{
+	UINT matchFlag=perfect;
+
+	if(! Open((LPTSTR)lrcpath.c_str()) )
+	{
+		matchFlag=invalide;
+		return matchFlag;
+	}
+
+
+	if (ti.empty())
+		matchFlag|=without_title;
+	else
+		if(StrCmpIgnoreCaseAndSpace(track->GetTitle(),ti) !=0)
+			matchFlag|= title_mismatch;
+
+	if (ar.empty() )
+		matchFlag|=without_artist;
+	else
+		if(StrCmpIgnoreCaseAndSpace(track->GetArtist(),ar) !=0 )
+			matchFlag|=artist_mismatch;
+
+	return matchFlag;
+}
+
+#endif
+
+
 //-----------------------------------------
 //CPlayList
  CPlayList::CPlayList(void):
@@ -456,7 +502,9 @@ BOOL CPlayListItem::HaveKeywords(TCHAR *keywords) const
 		nItemSelected(NULL),m_bSearch(FALSE),m_bAuto(FALSE)
 {
 	m_playlistName=name;
+	#ifdef APP_PLAYER_UI
 	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)TRUE);
+#endif
 }
 
 
@@ -464,7 +512,9 @@ BOOL CPlayListItem::HaveKeywords(TCHAR *keywords) const
 CPlayList::~CPlayList(void)
 {	
 	DeleteAllItems();
+	#ifdef APP_PLAYER_UI
 	SdMsg(WM_PL_CHANGED,FALSE,(WPARAM)this,(LPARAM)FALSE);
+#endif
 }
 
 LPCPlayListItem CPlayList::GetItem(int nItem) const 
@@ -785,28 +835,3 @@ int  CPlayList::RemoveDuplicates()
 
 
 
-UINT LrcMng::MatchTrackAndLrcTags(CPlayListItem * track,std::tstring &lrcpath)
-{
-	UINT matchFlag=perfect;
-
-	if(! Open((LPTSTR)lrcpath.c_str()) )
-	{
-		matchFlag=invalide;
-		return matchFlag;
-	}
-
-
-	if (ti.empty())
-		matchFlag|=without_title;
-	else
-		if(StrCmpIgnoreCaseAndSpace(track->GetTitle(),ti) !=0)
-			matchFlag|= title_mismatch;
-
-	if (ar.empty() )
-		matchFlag|=without_artist;
-	else
-		if(StrCmpIgnoreCaseAndSpace(track->GetArtist(),ar) !=0 )
-			matchFlag|=artist_mismatch;
-
-	return matchFlag;
-}

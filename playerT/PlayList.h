@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#ifdef APP_PLAYER_UI
 //for parse the ID3 tag
 #include <direct.h>
 #include <stdlib.h>
@@ -17,6 +18,9 @@
 #include <fileref.h>
 #include <tbytevector.h>
 #include <attachedpictureframe.h>
+#endif
+
+
 
 class CPlayList;
 class CPlayListItem;
@@ -40,27 +44,33 @@ class CPlayListItem:public SerializeObj<CPlayListItem>
  {
 public:
 	CPlayListItem():m_iIndex(-1),playCount(0),starLvl(0)
-		,pPicBuf(NULL),img(NULL)
 		,m_bLrcInner(FALSE),m_bLrcFromLrcFile(FALSE)
 		,bUnsynLyc(FALSE),m_bStatus(UNKNOWN),year(_T("???")),uYear(0),m_pPL(NULL)
+#ifdef APP_PLAYER_UI
+		,img(NULL),pPicBuf(NULL)
+#endif
 	{
 
 	}
 
 	CPlayListItem(std::tstring &url):url(url),
 		playCount(0),starLvl(0)
-		,pPicBuf(NULL),img(NULL)
 		,m_bLrcInner(FALSE),m_bLrcFromLrcFile(FALSE)
 		,bUnsynLyc(FALSE),m_bStatus(UNKNOWN),year(_T("???")),uYear(0),m_pPL(NULL)
+#ifdef APP_PLAYER_UI
+		,img(NULL),pPicBuf(NULL)
+#endif
 	{
 
 	}
 
 	CPlayListItem(LPCPlayList pPl,std::tstring &url):url(url),
 		playCount(0),starLvl(0)
-		,pPicBuf(NULL),img(NULL)
 		,m_bLrcInner(FALSE),m_bLrcFromLrcFile(FALSE)
 		,bUnsynLyc(FALSE),m_bStatus(UNKNOWN),year(_T("???")),uYear(0),m_pPL(pPl)
+#ifdef APP_PLAYER_UI
+		,img(NULL),pPicBuf(NULL)
+#endif
 	{
 
 	}
@@ -74,8 +84,9 @@ public:
 	 std::tstring  title,artist,album,genre,year,comment;
 	 UINT                                   uYear;
 
+#ifdef APP_PLAYER_UI
 	 TagLib::ByteVector *pPicBuf;
-	 CImage *img;
+#endif	 
 	 //cimg_library_suffixed::CImg   *img;
 
 	 //lyrics stuffs
@@ -105,11 +116,7 @@ public:
 	 FILE& operator>>(FILE& f) const ;
 
 	 BOOL  IsFileExist() const;
-	 BOOL  ScanId3Info ( BOOL bRetainPic=FALSE,BOOL forceRescan=TRUE);
-	 void  ClearImgBuf();
-	 BOOL  GetLrcFileFromLib (BOOL forceResearch=FALSE);
-	 BOOL  HaveKeywords (TCHAR *keywords) const;
-	 void TryLoadLrcFile(std::tstring &filename,BOOL forceLoad=FALSE) ;
+
 
 	bool isValide() const {return GetIndex()!=-1;}
 
@@ -126,10 +133,22 @@ public:
 	tstring GetComment()const{return comment;}
 	tstring GetLycPath()const{return lycPath;}
 	BOOL    IsLyricFromFile() const {return m_bLrcFromLrcFile;}
-	CImage* GetImg(){return img;}
- private:
+	BOOL  ScanId3Info ( BOOL bRetainPic=FALSE,BOOL forceRescan=TRUE);
+
+#ifdef APP_PLAYER_UI
 	 void Buf2Img(BYTE* lpRsrc,DWORD len);
+	 CImage* GetImg(){return img;}
+	 CImage *img;
+
+	 
+	 void  ClearImgBuf();
+	 BOOL  GetLrcFileFromLib (BOOL forceResearch=FALSE);
+	 BOOL  HaveKeywords (TCHAR *keywords) const;
+	 void TryLoadLrcFile(std::tstring &filename,BOOL forceLoad=FALSE) ;
+
+ private:
 	 BOOL LrcFileMacth(std::tstring &filename) const;
+	 #endif
 };
 
 

@@ -48,7 +48,7 @@ public:
 	MusicFile *m_pFile;
 	CCriticalSection m_cs;
 	CPlayerThread* m_pPlayerThread;
-	CSpectrumAnalyser* m_pSpectrumAnalyser;
+	//CSpectrumAnalyser* m_pSpectrumAnalyser;
 
 	PlayingStatus m_lastStatus;
 	trackPosInfo m_lastPos;

@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\BasicPlayer.h" />
+    <ClInclude Include="..\CMyTrayNotifyIcon.h" />
+    <ClInclude Include="..\CriticalSection.h" />
+    <ClInclude Include="..\customMsg.h" />
+    <ClInclude Include="..\fileMonitor.h" />
+    <ClInclude Include="..\forwardMsg.h" />
+    <ClInclude Include="..\globalStuffs.h" />
+    <ClInclude Include="..\MainFrameTray.h" />
+    <ClInclude Include="..\Mp3File.h" />
+    <ClInclude Include="..\MusicFile.h" />
+    <ClInclude Include="..\MyConfigs.h" />
+    <ClInclude Include="..\MyLib.h" />
+    <ClInclude Include="..\MySerialize.h" />
+    <ClInclude Include="..\NTRAY.H" />
+    <ClInclude Include="..\player.h" />
+    <ClInclude Include="..\PlayerThread.h" />
+    <ClInclude Include="..\PlayList.h" />
+    <ClInclude Include="..\resource1.h" />
+    <ClInclude Include="..\stdafx.h" />
+    <ClInclude Include="..\StringConvertions.h" />
+    <ClInclude Include="..\Thread.h" />
+    <ClInclude Include="..\Util1.h" />
+    <ClInclude Include="..\Utils.h" />
+    <ClInclude Include="..\WaveFile.h" />
+    <ClInclude Include="..\WaveFileEx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\BasicPlayer.cpp" />
+    <ClCompile Include="..\CMyTrayNotifyIcon.cpp" />
+    <ClCompile Include="..\fileMonitor.cpp" />
+    <ClCompile Include="..\forwardMsg.cpp" />
+    <ClCompile Include="..\globalStuffs.cpp" />
+    <ClCompile Include="..\LrcMng.cpp" />
+    <ClCompile Include="..\MainFrameTray.cpp" />
+    <ClCompile Include="..\MyConfigs.cpp" />
+    <ClCompile Include="..\MyLib.cpp" />
+    <ClCompile Include="..\MySerialize.cpp" />
+    <ClCompile Include="..\NTRAY.CPP" />
+    <ClCompile Include="..\player.cpp" />
+    <ClCompile Include="..\PlayerThread.cpp" />
+    <ClCompile Include="..\PlayList.cpp" />
+    <ClCompile Include="..\stdafx.cpp" />
+    <ClCompile Include="..\StringConvertions.cpp" />
+    <ClCompile Include="..\Thread.cpp" />
+    <ClCompile Include="..\Util1.cpp" />
+    <ClCompile Include="..\WaveFile.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\res\happy.ico" />
+    <None Include="..\todo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\playerTray.rc" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{FF3ABD37-7AA7-4B3D-898A-6778D238A61C}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>playerTray</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>debug</OutDir>
+    <IntDir>debug</IntDir>
+    <IncludePath>$(IncludePath);..\Dx9SDK\Include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include;..\wtl\Include;</IncludePath>
+    <LibraryPath>..\Dx9SDK\Lib;..\mpg123\Lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>release</OutDir>
+    <IntDir>release</IntDir>
+    <IncludePath>$(IncludePath);..\mpg123\include;..\Dx9SDK\Include;..\wtl\Include</IncludePath>
+    <LibraryPath>..\Dx9SDK\Lib;..\mpg123\Lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>APP_PLAYER_TRAY;TAGLIB_NO_CONFIG;WIN32;_WINDOWS;STRICT;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>APP_PLAYER_TRAY;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

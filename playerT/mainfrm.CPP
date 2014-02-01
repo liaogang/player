@@ -54,7 +54,7 @@ LRESULT CMainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& 
 
 	//Stop
 	if( nChar == VK_MEDIA_STOP )
-		OnStop(0,0,0,bHandled);
+		OnStop(0,0,0,bHandled); 
 
 	//Play or Pause
 	if( nChar == VK_MEDIA_PLAY_PAUSE )
@@ -1918,66 +1918,10 @@ void CPlayListView::Init(bool bSearch)
 
 
 
-void CollectInfo()
-{
-	MyConfigs *c=GetMyConfigs();
-	c->setPlayersVolume(CBasicPlayer::shared()->m_curVolume);
-
-	LPCPlayListItem track=MyLib::shared()->GetPlayingItem();
-	if(track!=NULL && track->isValide() && MyLib::shared()->IsValidePlayList(track->GetPlayList() ))
-	{		
-		c->playlistIndex=MyLib::shared()->Playlist2Index(track->GetPlayList());
-		c->trackIndex=track->GetIndex();
-	}
-	
-
-	if(c->getResumeOnReboot())
-	{
-		c->playingStatus=CBasicPlayer::shared()->m_lastStatus;
-		c->pos=CBasicPlayer::shared()->m_lastPos;
-	}
-
-	c->setPlayersVolume(CBasicPlayer::shared()->m_curVolume);
-	c->playorder=MyLib::shared()->GetPlayOrder();
-}
-
-void ValidateCfg()
-{
-	MyConfigs *c=GetMyConfigs();
-	CBasicPlayer::shared()->SetVolumeByEar(c->getPlayersVolume());
-	MyLib::shared()->SetPlayOrder(c->playorder);
-
-	MyLib* s= MyLib::shared();
-	LPCPlayList pl= s->Index2Playlist(c->playlistIndex);
-	if(pl)
-		s->SetItemToPlay(pl->GetItem(c->trackIndex));
-	
-	if(c->getResumeOnReboot() )
-	{
-		if(c->playingStatus==status_playing||c->playingStatus==status_paused)
-		{
-			CBasicPlayer::shared()->m_lastStatus=c->playingStatus;
-			CBasicPlayer::shared()->m_lastPos=c->pos;
-			SdMsg(WM_COMMAND,TRUE,MAKEWPARAM(ID_PLAY,0),(LPARAM)0);	
-		}
-	}
-}
 
 
 
-LPDIRECTSOUND DSoundDeviceCreate(LPGUID lpGuid  )
-{
-	LPDIRECTSOUND lpDSound;
-	if(FAILED(DirectSoundCreate(lpGuid,&lpDSound,NULL) ))return NULL;
 
-	//可以设置主缓冲的播放模式的级别
-	// 	HWND hWnd=GetForegroundWindow();
-	// 	if (!hWnd)
-	// 		hWnd=GetDesktopWindow();
-
-	if(FAILED(lpDSound->SetCooperativeLevel( GetMainFrame()->m_hWnd, DSSCL_NORMAL) ))return NULL;
-	return lpDSound;
-}
 
 
 

@@ -2,10 +2,18 @@
 //
 
 #include "stdafx.h"
-#include "aboutdlg.h"
 #include "Util1.h"
 #include "LrcMng.h"
+
+#ifdef APP_PLAYER_UI
+#include "aboutdlg.h"
 #include "MainFrm.h"
+#endif
+
+#ifdef APP_PLAYER_TRAY
+#include "MainFrameTray.h"
+#endif
+
 #include "globalStuffs.h"
 
 CAppModule _Module;
@@ -23,7 +31,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	
 	pGlobalMain=&wndMain;
 
-	if(wndMain.CreateEx() == NULL)
+	if(wndMain.Create()== NULL)
 	{
 		ATLTRACE(_T("Main window creation failed!\n"));
 		return 0;

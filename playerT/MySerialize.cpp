@@ -3,20 +3,27 @@
 #include "Util1.h"
 #include "MyLib.h"
 #include "globalStuffs.h"
-#include "mytree.h"
 #include "MyConfigs.h"
-#include "mainfrm.h"
-#include "MyControls.h"
 #include <iostream>
+#include "BasicPlayer.h"
 
-ADDTOSERIALIZE(CMainFrame)
+#ifdef APP_PLAYER_UI
+#include "MyControls.h"
+#include "mytree.h"
+#include "mainfrm.h"
+#endif
+
 ADDTOSERIALIZE(CPlayListItem)
 ADDTOSERIALIZE(CPlayList)
 ADDTOSERIALIZE(MyConfigs)
+
+#ifdef APP_PLAYER_UI
+ADDTOSERIALIZE(CMainFrame)
 ADDTOSERIALIZE(CMySimpleRebar)
+ADDTOSERIALIZE(CMultiSpliltWnd)
 ADDTOSERIALIZE(MYTREE)
 ADDTOSERIALIZE(dataNode)
-ADDTOSERIALIZE(CMultiSpliltWnd)
+#endif
 
 //double
 FILE& operator<<(FILE& f,const double t)
@@ -134,6 +141,7 @@ FILE& operator>>(FILE& f,PlayingStatus &s)
 	return f>>*t;
 }
 
+#ifdef APP_PLAYER_UI
 //MY_REBARBANDINFO
 FILE& operator<<(FILE& f,const MY_REBARBANDINFO * mri)
 {
@@ -146,110 +154,13 @@ FILE& operator>>(FILE& f,MY_REBARBANDINFO * mri)
 	return f>>mri->szClassName>>mri->bandIndex>>mri->bFullWidthAlways>>mri->bRemovable>>mri->menuID>>mri->bShow
 	>>mri->info.cbSize>>mri->info.fMask>>mri->info.fStyle>>mri->info.cx>>mri->info.cxMinChild; 
 }
-
-
-int SerializeAllTree(MYTREE *c,FILE& f)
-{
-	int size=0;
-	for (;c;c=c->next)	
-	{
-		f<<*c;
-		if (c->hasChild())
-			size+=SerializeAllTree(c->child,f);
-	}
-	return 0;
-}
-
-int ReSerializeAllTree(MYTREE *parent,FILE & f)
-{
-	int size=0;
-
-	if (parent->childs==NULL)
-	{
-		return 0;
-	}
-
-	MYTREE *c=new MYTREE;
-	f>>*c;
-	c->parent=parent;
-	parent->child=c;
-
-	if (c->childs)
-		ReSerializeAllTree(c,f);
-
-	MYTREE *last=c;
-
-	for (int i=1;i<parent->childs;++i)
-	{
-		c=new MYTREE;
-		f>>*c;
-
-		last->next=c;
-		c->prev=last;
-		c->parent=last->parent;
-
-		if (c->childs)
-			ReSerializeAllTree(c,f);
-
-		last=c;
-	}
-
-
-	return size;
-}
+#endif
 
 
 
 
 
-BOOL MyLib::SavePlaylist(LPCPlayList pl,LPTSTR filepath)
-{
-	BOOL result=TRUE;
-	FILE  * f = _tfopen( filepath , _T("wb") );
-	if (f)
-	{
-		*f<<*pl;
-		fclose(f);
-	}
-	return result;
-}
 
-LPCPlayList MyLib::LoadPlaylist(LPTSTR filepath,TCHAR* PlName)
-{
-	LPCPlayList playlist=NULL;
-	BOOL result=TRUE;
-
-
-	FILE  * f = _tfopen( filepath , _T("rb") );
-	if (f)
-	{
-		playlist=new CPlayList();
-		if(PlName!=NULL)
-		{
-			tstring PLName2=PlName;
-			playlist->SetPlaylistName(PlName);
-		}
-
-		*f>>*playlist;
-
-		m_playLists.push_back(playlist);
-		MyLib::shared()->SetSelectedPL(playlist);
-		
-
-		if(playlist->IsAuto())
-		{
-			MyLib::shared()->SetAutoPlaylist(playlist);
-			//MyLib::shared()->InitMonitor(playlist);
-		}
-
-		SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)playlist,1);
-
-		fclose(f);
-	}
-
-
-	return playlist;
-}
 
 bool LoadAllPlayList()
 {
@@ -413,91 +324,56 @@ bool LoadCoreCfg()
 
 
 
-/************************************************************************/
-/* UI  section                                                                     */
-/************************************************************************/
 
-
-
-int SerializeTree(FILE &f,MYTREE *cur)
+BOOL MyLib::SavePlaylist(LPCPlayList pl,LPTSTR filepath)
 {
-	for (auto i=cur;i;i=i->next)
-	{
-		f<<(*i);
-		if (i->hasChild())
-			SerializeTree(f,i);
-	}
-	
-	return 0;
-}
-
-int ReSerializeTree(FILE &f,MYTREE *cur)
-{
-	f<<(*cur);
-
-	
-	for(int i=0;i<cur->childs;++i)
-	{
-		MYTREE *newTree=new MYTREE;
-		f<<*newTree;
-
-		ReSerializeTree(f,newTree);
-
-		cur->AddChild(newTree);
-	}
-
-
-	return 0;
-}
-
-
-
-
-bool SaveUICfg()
-{
-	ChangeCurDir2ModulePath();
-
-	FILE  * f = _tfopen( UIFILENAME , _T("wb") );
+	BOOL result=TRUE;
+	FILE  * f = _tfopen( filepath , _T("wb") );
 	if (f)
 	{
-		*f<<(*GetMainFrame());
+		*f<<*pl;
+		fclose(f);
+	}
+	return result;
+}
+
+LPCPlayList MyLib::LoadPlaylist(LPTSTR filepath,TCHAR* PlName)
+{
+	LPCPlayList playlist=NULL;
+	BOOL result=TRUE;
+
+
+	FILE  * f = _tfopen( filepath , _T("rb") );
+	if (f)
+	{
+		playlist=new CPlayList();
+		if(PlName!=NULL)
+		{
+			tstring PLName2=PlName;
+			playlist->SetPlaylistName(PlName);
+		}
+
+		*f>>*playlist;
+
+		m_playLists.push_back(playlist);
+		MyLib::shared()->SetSelectedPL(playlist);
+		
+
+		if(playlist->IsAuto())
+		{
+			MyLib::shared()->SetAutoPlaylist(playlist);
+			//MyLib::shared()->InitMonitor(playlist);
+		}
+
+#ifdef APP_PLAYER_UI
+		SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)playlist,1);
+#endif
 
 		fclose(f);
 	}
-	return TRUE;
-}
 
 
-bool LoadUICfg()
-{
-	ChangeCurDir2ModulePath();
-
-	FILE  * f = _tfopen( UIFILENAME , _T("rb") );
-	if (f)
-	{
-		*f>>*GetMainFrame();
-		fclose(f);
-	}
-	return FALSE;
-}
-
-
-
-
-
-
-FILE& CMainFrame::operator>>(FILE& f) const
-{
-	return f<<m_rcMain<<m_rcConfig<<m_rcLrc<<m_rcProcess<<m_rcSearch<<m_rcFFT<<m_rcPLMng<<m_rcPLConsole
-			<<m_bShowStatusBar
-			<<m_wndRebar<<m_WndMultiSplitter;
-}
-
-FILE& CMainFrame::operator<<(FILE& f)
-{
-	return  f>>m_rcMain>>m_rcConfig>>m_rcLrc>>m_rcProcess>>m_rcSearch>>m_rcFFT>>m_rcPLMng>>m_rcPLConsole
-			 >>m_bShowStatusBar
-			 >>m_wndRebar>>m_WndMultiSplitter;
+	return playlist;
 }
 
 
@@ -559,6 +435,109 @@ FILE& MyConfigs::operator<<(FILE& f)
 }
 
 
+
+
+void CollectInfo()
+{
+	MyConfigs *c=GetMyConfigs();
+	c->setPlayersVolume(CBasicPlayer::shared()->m_curVolume);
+
+	LPCPlayListItem track=MyLib::shared()->GetPlayingItem();
+	if(track!=NULL && track->isValide() && MyLib::shared()->IsValidePlayList(track->GetPlayList() ))
+	{		
+		c->playlistIndex=MyLib::shared()->Playlist2Index(track->GetPlayList());
+		c->trackIndex=track->GetIndex();
+	}
+
+
+	if(c->getResumeOnReboot())
+	{
+		c->playingStatus=CBasicPlayer::shared()->m_lastStatus;
+		c->pos=CBasicPlayer::shared()->m_lastPos;
+	}
+
+	c->setPlayersVolume(CBasicPlayer::shared()->m_curVolume);
+	c->playorder=MyLib::shared()->GetPlayOrder();
+}
+
+void ValidateCfg()
+{
+	MyConfigs *c=GetMyConfigs();
+	CBasicPlayer::shared()->SetVolumeByEar(c->getPlayersVolume());
+	MyLib::shared()->SetPlayOrder(c->playorder);
+
+	MyLib* s= MyLib::shared();
+	LPCPlayList pl= s->Index2Playlist(c->playlistIndex);
+	if(pl)
+		s->SetItemToPlay(pl->GetItem(c->trackIndex));
+
+	if(c->getResumeOnReboot() )
+	{
+		if(c->playingStatus==status_playing||c->playingStatus==status_paused)
+		{
+			CBasicPlayer::shared()->m_lastStatus=c->playingStatus;
+			CBasicPlayer::shared()->m_lastPos=c->pos;
+#ifdef APP_PLAYER_UI
+			SdMsg(WM_COMMAND,TRUE,MAKEWPARAM(ID_PLAY,0),(LPARAM)0);	
+#endif
+
+#ifdef APP_PLAYER_TRAY
+			MyLib::shared()->play();
+#endif
+		}
+	}
+}
+
+#ifdef APP_PLAYER_UI
+int SerializeAllTree(MYTREE *c,FILE& f)
+{
+	int size=0;
+	for (;c;c=c->next)	
+	{
+		f<<*c;
+		if (c->hasChild())
+			size+=SerializeAllTree(c->child,f);
+	}
+	return 0;
+}
+
+int ReSerializeAllTree(MYTREE *parent,FILE & f)
+{
+	int size=0;
+
+	if (parent->childs==NULL)
+	{
+		return 0;
+	}
+
+	MYTREE *c=new MYTREE;
+	f>>*c;
+	c->parent=parent;
+	parent->child=c;
+
+	if (c->childs)
+		ReSerializeAllTree(c,f);
+
+	MYTREE *last=c;
+
+	for (int i=1;i<parent->childs;++i)
+	{
+		c=new MYTREE;
+		f>>*c;
+
+		last->next=c;
+		c->prev=last;
+		c->parent=last->parent;
+
+		if (c->childs)
+			ReSerializeAllTree(c,f);
+
+		last=c;
+	}
+
+
+	return size;
+}
 
 FILE& CMySimpleRebar::operator>>(FILE& f) const
 {
@@ -643,3 +622,84 @@ FILE& CMultiSpliltWnd::operator<<(FILE& f)
 
 	return f;
 }
+
+
+
+int SerializeTree(FILE &f,MYTREE *cur)
+{
+	for (auto i=cur;i;i=i->next)
+	{
+		f<<(*i);
+		if (i->hasChild())
+			SerializeTree(f,i);
+	}
+
+	return 0;
+}
+
+int ReSerializeTree(FILE &f,MYTREE *cur)
+{
+	f<<(*cur);
+
+
+	for(int i=0;i<cur->childs;++i)
+	{
+		MYTREE *newTree=new MYTREE;
+		f<<*newTree;
+
+		ReSerializeTree(f,newTree);
+
+		cur->AddChild(newTree);
+	}
+
+
+	return 0;
+}
+
+
+
+
+bool SaveUICfg()
+{
+	ChangeCurDir2ModulePath();
+
+	FILE  * f = _tfopen( UIFILENAME , _T("wb") );
+	if (f)
+	{
+		*f<<(*GetMainFrame());
+
+		fclose(f);
+	}
+	return TRUE;
+}
+
+
+bool LoadUICfg()
+{
+	ChangeCurDir2ModulePath();
+
+	FILE  * f = _tfopen( UIFILENAME , _T("rb") );
+	if (f)
+	{
+		*f>>*GetMainFrame();
+		fclose(f);
+	}
+	return FALSE;
+}
+
+
+FILE& CMainFrame::operator>>(FILE& f) const
+{
+	return f<<m_rcMain<<m_rcConfig<<m_rcLrc<<m_rcProcess<<m_rcSearch<<m_rcFFT<<m_rcPLMng<<m_rcPLConsole
+		<<m_bShowStatusBar
+		<<m_wndRebar<<m_WndMultiSplitter;
+}
+
+FILE& CMainFrame::operator<<(FILE& f)
+{
+	return  f>>m_rcMain>>m_rcConfig>>m_rcLrc>>m_rcProcess>>m_rcSearch>>m_rcFFT>>m_rcPLMng>>m_rcPLConsole
+		>>m_bShowStatusBar
+		>>m_wndRebar>>m_WndMultiSplitter;
+}
+#endif
+

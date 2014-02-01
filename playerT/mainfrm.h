@@ -13,11 +13,18 @@
 
 #ifndef _MAINFRAME_H
 #define _MAINFRAME_H
-//-----------------------------------------
+
+//APP_PLAYER_UI
+#ifdef APP_PLAYER_TRAY
+
+#endif
+
+
+
+#ifdef APP_PLAYER_UI
 class CDialogConfig;
 class CAlbumCoverView;
 class CDialogLyric;
-class CPlayListView;
 class CPlayListView;
 class CMyStatusBar;
 class DialogSearch;
@@ -29,19 +36,28 @@ class DialogPLManager;
 class CDialogConsole;
 class CMultiSpliltWnd;
 class MYTREE;
-//-----------------------------------------
+#endif
+
 
 
 class CMainFrame : 
+#ifdef APP_PLAYER_UI
 	public CFrameWindowImpl<CMainFrame>, 
+	public CIdleHandler,
+#endif
+#ifdef APP_PLAYER_TRAY
+	public CWindowImpl<CMainWnd>
+#endif
 	public CUpdateUI<CMainFrame>,
 	public CMessageFilter, 
-	public CIdleHandler,
 	public SerializeObj<CMainFrame>
 {
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 public:
+#ifdef APP_PLAYER_UI
+
+
 	typedef CFrameWindowImpl<CMainFrame> thebase;
 
 	//ÖÜ±ß´°¿Ú
@@ -79,14 +95,17 @@ public:
 	RECT m_dlgPLMngShow;
 	RECT m_dlgPLConsoleShow;
 
+	BOOL m_bShowStatusBar;
 
+	#endif
 
 	UINT m_nIDEvent;
 	static const int m_uElapse=150;
 
-	BOOL m_bShowStatusBar;
+	
 
 public:
+	#ifdef APP_PLAYER_UI
 	CMainFrame():m_pDlgLrc(NULL),
 		m_pDlgSearch(NULL),pDlgProcess(NULL),
 		m_pDlgFFT(NULL),m_pDlgFFTOutline(NULL),
@@ -102,6 +121,7 @@ public:
 		RECT_INIT(m_rcPLMng)
 		RECT_INIT(m_rcPLConsole)
 	}
+#endif
 
 	~CMainFrame();
 
@@ -113,11 +133,13 @@ public:
 	virtual BOOL OnIdle();
 
 	BEGIN_UPDATE_UI_MAP(CMainFrame)
+		#ifdef APP_PLAYER_UI
 // 		UPDATE_ELEMENT(ID_VIEW_TOOLBAR, UPDUI_MENUPOPUP)
  		UPDATE_ELEMENT(ID_VIEW_STATUS_BAR, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_FILE_OPENDIRECTORY, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_FILE_OPEN, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_FILE_SAVEPLAYLIST, UPDUI_MENUPOPUP)
+#endif
 	END_UPDATE_UI_MAP()
 
 	BEGIN_MSG_MAP(CMainFrame)

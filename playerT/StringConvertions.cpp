@@ -1,5 +1,10 @@
 #include "StringConvertions.h"
+
+#ifdef APP_PLAYER_UI
 #include <algorithm>
+
+
+
 
 LPSTR Unicode2UTF8(LPWSTR s)
 {
@@ -194,65 +199,6 @@ int MyGetLine(TCHAR *pBuf,int bufLen,std::wstring &str)
 }
 
 
-int StringCmpNoCase(std::tstring a,std::tstring b)
-{
-	_tcsupr(const_cast<TCHAR*>(a.c_str()) );
-	_tcsupr(const_cast<TCHAR*>(b.c_str()));
-
-	return _tcscmp(a.c_str(),b.c_str());
-}
-
-void trimLeftAndRightSpace(std::tstring &str)
-{
-	char c=' ';
-	int index=str.find_first_not_of(c);
-	if (index!=str.npos && index!=0)
-		str.erase(0,index);
-
-	index=str.find_last_not_of(c);
-	if(index!=str.npos)
-		str.erase(index+1);
-}
-
-void TrimBrackets(std::tstring &s)
-{
-	int idx=s.find('(');
-	int idx1=s.find(')');
-	if(idx!=s.npos && idx1!=s.npos)
-		s.erase(idx,idx1+1);
-}
-
-int StrCmpIgnoreCaseAndSpace(std::tstring a,std::tstring b)
-{
-	_tcsupr(const_cast<TCHAR*>(a.c_str()) );
-	_tcsupr(const_cast<TCHAR*>(b.c_str()));
-
-
-	TrimBrackets(a);
-	TrimBrackets(b);
-
-	trimLeftAndRightSpace(a);
-	trimLeftAndRightSpace(b);
-
-
-	return _tcscmp(a.c_str(),b.c_str());
-}
-
-
-
-
-int hex2dec(char c)
-{
-	int ret=-1;
-	if (c >= 'a' && c<='z')	
-		ret= c - 'a'+ 10;
-	else if (c >= 'A' && c<='Z')				
-		ret=c - 'A'+ 10;
-	else if (c >= '0' && c<='9')
-		ret= c - '0' ;
-
-	return ret;
-}
 
 void TrimRightByNull(std::wstring &_str)
 {
@@ -457,3 +403,66 @@ LONG GetStrSizeX(HDC dc,TCHAR *str)
 //	::DeleteObject(blueBrush);
 //}
 
+
+#endif
+
+
+int StringCmpNoCase(std::tstring a,std::tstring b)
+{
+	_tcsupr(const_cast<TCHAR*>(a.c_str()) );
+	_tcsupr(const_cast<TCHAR*>(b.c_str()));
+
+	return _tcscmp(a.c_str(),b.c_str());
+}
+
+void trimLeftAndRightSpace(std::tstring &str)
+{
+	char c=' ';
+	int index=str.find_first_not_of(c);
+	if (index!=str.npos && index!=0)
+		str.erase(0,index);
+
+	index=str.find_last_not_of(c);
+	if(index!=str.npos)
+		str.erase(index+1);
+}
+
+void TrimBrackets(std::tstring &s)
+{
+	int idx=s.find('(');
+	int idx1=s.find(')');
+	if(idx!=s.npos && idx1!=s.npos)
+		s.erase(idx,idx1+1);
+}
+
+int StrCmpIgnoreCaseAndSpace(std::tstring a,std::tstring b)
+{
+	_tcsupr(const_cast<TCHAR*>(a.c_str()) );
+	_tcsupr(const_cast<TCHAR*>(b.c_str()));
+
+
+	TrimBrackets(a);
+	TrimBrackets(b);
+
+	trimLeftAndRightSpace(a);
+	trimLeftAndRightSpace(b);
+
+
+	return _tcscmp(a.c_str(),b.c_str());
+}
+
+
+
+
+int hex2dec(char c)
+{
+	int ret=-1;
+	if (c >= 'a' && c<='z')	
+		ret= c - 'a'+ 10;
+	else if (c >= 'A' && c<='Z')				
+		ret=c - 'A'+ 10;
+	else if (c >= '0' && c<='9')
+		ret= c - '0' ;
+
+	return ret;
+}

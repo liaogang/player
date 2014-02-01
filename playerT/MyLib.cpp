@@ -2,7 +2,7 @@
 #include "fileMonitor.h"
 #include "BasicPlayer.h"
 #include "globalStuffs.h"
-
+#include <algorithm>
 #include <time.h>
 
 
@@ -285,8 +285,10 @@ void MyLib::pause()
 
 void MyLib::stop()
 {
+#ifdef APP_PLAYER_UI
 	if(itemPlaying)
 		MyLib::shared()->GetPlayingItem()->ClearImgBuf();
+#endif
 
 	CBasicPlayer::shared()->stop();
 }

@@ -35,11 +35,12 @@ void CollectInfo();
 void ValidateCfg();
 
 
+#ifdef APP_PLAYER_UI
 //Splitter window info
 #define UIFILENAME  _T("ui.cfg")
 bool LoadUICfg();
 bool SaveUICfg();
-
+#endif
 
 void SaveAll();
 bool LoadAll();

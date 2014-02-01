@@ -3,6 +3,9 @@
 #include "MusicFile.h"
 #include "forwardMsg.h"
 
+#ifdef APP_PLAYER_TRAY
+#include "MyLib.h"
+#endif
 
 CPlayerThread::CPlayerThread(MusicFile * pFile,CCriticalSection *cs,BOOL *pStop):
 	m_pFile(pFile),
@@ -260,6 +263,9 @@ fileEnd:
 	NotifyMsg(WM_TRACKSTOPPED);
 	NotifyMsg(WM_TRACK_REACH_END);
 
+#ifdef APP_PLAYER_TRAY
+	MyLib::shared()->playNext();
+#endif
 
 	return;
 }

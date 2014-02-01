@@ -1,8 +1,14 @@
 #include "stdafx.h"
 #include "fileMonitor.h"
 #include "StringConvertions.h"
-#include "PlayListView.h"
 #include "forwardMsg.h"
+#include "customMsg.h"
+
+#ifdef  APP_PLAYER_UI
+#include "PlayListView.h"
+#endif
+
+
 DWORD WINAPI ThreadProc(LPVOID lpParameter)
 {
 	auto p=(fileMonitor*)lpParameter;

@@ -46,6 +46,9 @@
 #define IDB_BITMAP1                     242
 #define IDB_BITMAP2                     244
 #define IDR_MENU_REBAR                  245
+#define IDR_HAPPY                       248
+#define IDR_SAD                         249
+#define IDR_MENU_TRAYPOPUP              250
 #define IDC_TREE                        1000
 #define IDC_RESET_ALL                   1001
 #define IDC_RESET_THIS                  1002
@@ -86,8 +89,6 @@
 #define IDC_RADIO2                      1035
 #define IDC_SHOW_PATH                   1036
 #define IDC_COMBO1                      1038
-#define IDC_CUSTOM1                     1042
-#define IDC_LYRIC_SHOW                  1042
 #define IDD_DLG_LRC_PANE_PROPERTY1      2056
 #define IDD_DLG_LRC_PANE_PROPERTY2      2057
 #define ID_FILE_PLAY                    32775
@@ -292,13 +293,26 @@
 #define ID_REMOVE_DUP                   32982
 #define ID_EDIT_REMOVE_DEAD             32983
 #define ID_EDIT_REMOVE_DUP              32984
+#define ID_Menu32985                    32985
+#define ID_F_32986                      32986
+#define ID_F_32987                      32987
+#define ID_F_32988                      32988
+#define ID_F_32989                      32989
+#define ID_F_32990                      32990
+#define ID_F_32991                      32991
+#define ID_F_32992                      32992
+#define ID_F_32993                      32993
+#define ID_                             32994
+#define ID_PLAY_PREV                    32995
+#define ID_OPTION                       32996
+#define ID_FILE_EXIT                    32997
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        246
-#define _APS_NEXT_COMMAND_VALUE         32985
+#define _APS_NEXT_RESOURCE_VALUE        251
+#define _APS_NEXT_COMMAND_VALUE         32998
 #define _APS_NEXT_CONTROL_VALUE         1044
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

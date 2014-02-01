@@ -80,6 +80,8 @@ playerT/CImg.h -text
 playerT/CMyLyric.cpp -text
 playerT/CMyLyric.h -text
 playerT/CMyTabBar.h -text
+playerT/CMyTrayNotifyIcon.cpp -text
+playerT/CMyTrayNotifyIcon.h -text
 playerT/CPropertyDlgs.h -text
 playerT/CriticalSection.h -text
 playerT/DialogConfig.cpp -text
@@ -326,6 +328,9 @@ playerT/MSVCProj/player.sln -text
 playerT/MSVCProj/player.vcxproj -text
 playerT/MSVCProj/player.vcxproj.filters -text
 playerT/MSVCProj/player.vcxproj.user -text
+playerT/MSVCProj/playerTray.vcxproj -text
+playerT/MainFrameTray.cpp -text
+playerT/MainFrameTray.h -text
 playerT/Mp3File.h -text
 playerT/MusicFile.h -text
 playerT/MyConfigs.cpp -text
@@ -440,6 +445,7 @@ playerT/player.cpp -text
 playerT/player.h -text
 playerT/player.rc -text
 playerT/res/Toolbar.bmp -text
+playerT/res/cursor2.cur -text
 playerT/res/icon1.ico -text
 playerT/resource.h -text
 playerT/stdafx.cpp -text

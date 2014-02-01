@@ -3,7 +3,7 @@
 #include <vector>
 #include "PlayList.h"
 
-//typedef  CPlayList*  LPCPlayList;
+
 
 DWORD WINAPI ThreadProc(LPVOID lpParameter);
 class fileMonitor

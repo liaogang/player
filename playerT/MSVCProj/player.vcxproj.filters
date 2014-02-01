@@ -675,6 +675,12 @@
     <ClInclude Include="..\MyRebar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\NTRAY.H">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CMyTrayNotifyIcon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\BasicPlayer.cpp">
@@ -983,6 +989,12 @@
     <ClCompile Include="..\CMyLyric.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\NTRAY.CPP">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CMyTrayNotifyIcon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\player.rc">
@@ -1024,6 +1036,21 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\res\idr_main.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\icon3.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\happy.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\sad.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\happy.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\sad.ico">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

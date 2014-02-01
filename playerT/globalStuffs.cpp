@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "globalStuffs.h"
 #include "PlayList.h"
-#include "mysplit.h"
 #include "customMsg.h"
 
 
@@ -87,16 +86,21 @@ void SaveAll()
 
 	SaveAllPlayList();
 
+#ifdef APP_PLAYER_UI
 	SaveUICfg();
+#endif
 }
 
 bool LoadAll()
 {
+	#ifdef APP_PLAYER_UI
 	LoadUICfg();
-
+	#endif
 	LoadAllPlayList();
 
+
 	LoadCoreCfg();
+
 
 	return true;
 }

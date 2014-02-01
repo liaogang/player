@@ -585,6 +585,23 @@ BEGIN
     END
 END
 
+IDR_MENU_TRAYPOPUP MENU
+BEGIN
+    POPUP "sdf"
+    BEGIN
+        MENUITEM "停止",                          ID_STOP
+        MENUITEM "暂停",                          ID_PAUSE
+        MENUITEM "播放",                          ID_PLAY
+        MENUITEM "上一首",                         ID_PLAY_PREV
+        MENUITEM "下一首",                         ID_PLAY_NEXT
+        MENUITEM "随机",                          ID_PLAY_RANDOM
+        MENUITEM SEPARATOR
+        MENUITEM "参数选项",                        ID_CONFIG
+        MENUITEM SEPARATOR
+        MENUITEM "退出",                          ID_APP_EXIT
+    END
+END
+
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -645,6 +662,8 @@ IDB_BITMAP2             BITMAP                  "res\\Toolbar1.bmp"
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\icon1.ico"
+IDR_HAPPY               ICON                    "res\\happy.ico"
+IDR_SAD                 ICON                    "res\\sad.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //

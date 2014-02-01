@@ -1,11 +1,6 @@
 #include "forwardMsg.h"
 
 static forwardMsg *pGForwardMsg=NULL;
-// forwardMsg* GetSharedForwardMsg()
-// {
-// 	return pGForwardMsg?pGForwardMsg:pGForwardMsg=new forwardMsg;
-// }
-
 forwardMsg* NotifyCenter()
 {
 	return pGForwardMsg?pGForwardMsg:pGForwardMsg=new forwardMsg;
@@ -20,4 +15,11 @@ void RegistMsgReceiver(UINT uMsg,HWND hWnd)
 void LoginOutMsgReceiver(UINT uMsg,HWND hWnd)
 {
 	NotifyCenter()->LoginOutMsgReceiver(uMsg,hWnd);
+}
+
+void NotifyMsg(UINT uMsg,BOOL bPost,WPARAM wParam,LPARAM lParam)
+{
+#ifdef APP_PLAYER_UI
+	NotifyCenter()->Msg(uMsg,wParam,lParam,bPost);
+#endif
 }

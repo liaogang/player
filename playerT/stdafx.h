@@ -10,7 +10,17 @@
 #define _WIN32_WINNT	0x0501
 #define _WIN32_IE	0x0501
 #define _RICHEDIT_VER	0x0200
+
+
+#ifdef APP_PLAYER_UI
 #include "resource.h"
+#endif
+
+#ifdef APP_PLAYER_TRAY
+#include "resource1.h"
+#endif
+
+
 //#define _WTL_USE_CSTRING
 #define  _WTYPES_NS
 #define _WTL_NO_WTYPES 

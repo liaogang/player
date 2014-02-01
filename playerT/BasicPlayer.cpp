@@ -1,12 +1,15 @@
 #include "BasicPlayer.h"
 #include "MusicFile.h"
 #include "PlayerThread.h"
-#include "SpectrumAnalyser.h"
 #include "Mp3File.h"
 #include "WaveFileEx.h"
 #include "forwardMsg.h"
 #include "globalStuffs.h"
 #include <complex>
+
+#ifdef APP_PLAYER_UI
+#include "SpectrumAnalyser.h"
+#endif
 
 using namespace std;
 
@@ -94,7 +97,7 @@ CBasicPlayer :: ~CBasicPlayer(void)
 {
 	delete[] volBuffer;
 	if(!m_pPlayerThread) delete m_pPlayerThread;
-	if (!m_pSpectrumAnalyser) delete m_pSpectrumAnalyser; 
+	//if (!m_pSpectrumAnalyser) delete m_pSpectrumAnalyser; 
 }
 
 void CBasicPlayer::ResetFile()
