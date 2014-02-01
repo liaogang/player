@@ -8,9 +8,10 @@
 
 typedef  HWND (*CreateReBarBandFuns)(HWND hWndParent);
 
-typedef struct MY_REBARBANDINFO 
+struct MY_REBARBANDINFO 
 {
 public:
+	MY_REBARBANDINFO():bAdded(FALSE){}
 	REBARBANDINFO info;
 	CreateReBarBandFuns createFunc;
 	TCHAR szClassName[MAX_PATH];
@@ -22,8 +23,10 @@ public:
 	//and the is no show/hide option in the PoPup menu
 	BOOL bRemovable;
 	UINT menuID;    //menu id in PoPup menu
+	BOOL bAdded;
 	BOOL bShow;     //means nows show in REBAR ?
-}*LPMY_REBARBANDINFO;
+};
+typedef MY_REBARBANDINFO *LPMY_REBARBANDINFO;
 
 
 class CMySimpleRebar:
@@ -42,6 +45,7 @@ public:
 		MESSAGE_HANDLER(WM_HSCROLL,OnHscroll)//Reflect Scroll Message
 		MSG_WM_RBUTTONDOWN(OnRButtonDown)
 		MSG_WM_RBUTTONUP(OnRButtonUp)
+		MSG_WM_MEASUREITEM(OnMeasureItem)
 		REFLECT_NOTIFICATIONS()
 	END_MSG_MAP()
 
@@ -86,6 +90,23 @@ public:
 	LRESULT OnLockBands(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	LRESULT OnShowBandX(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+
+	void OnMeasureItem(int nIDCtl, LPMEASUREITEMSTRUCT lpMeasureItemStruct)
+	{
+		if(lpMeasureItemStruct->CtlType == ODT_COMBOBOX && lpMeasureItemStruct->itemID !=(UINT)-1)
+		{
+			LPCTSTR lpszText = (LPCTSTR) lpMeasureItemStruct->itemData;
+			
+			HDC dc = ::GetDC(m_hWnd);
+
+			SIZE sz;
+			::GetTextExtentPoint( dc ,lpszText,_tcslen(lpszText),&sz);
+
+			ReleaseDC(dc);
+
+			lpMeasureItemStruct->itemHeight = 2*sz.cy;
+		}
+	}
 
 	void ResetBands(BOOL bAddAllBands=FALSE);
 

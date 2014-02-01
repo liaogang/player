@@ -100,7 +100,8 @@ public:
 	LRESULT OnSetFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		HWND hwnd=SetFocus();
-
+		SendMessage(WM_CHILDACTIVATE); 
+		
 		return 1;
 	}
 

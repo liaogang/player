@@ -129,6 +129,7 @@ BOOL CMySimpleRebar::AddSimpleReBarBandCtrl(MY_REBARBANDINFO *mri)
 
 	mri->info.fMask=RBBIM_ID|RBBIM_SIZE|RBBIM_STYLE|RBBIM_TEXT|RBBIM_ID|RBBIM_CHILDSIZE;
 	GetBandInfo(GetBandCount()-1,&mri->info);
+	mri->bAdded=bRet;
 
 	return bRet;
 }
@@ -313,25 +314,16 @@ void CMySimpleRebar::ResetBands(BOOL bAddAllBands)
 {
 	//Only add the removable bands
 	for(auto i=m_vecBandInfos.begin();i!=m_vecBandInfos.end();++i)
-	{
-		MY_REBARBANDINFO *mri=*i;
-		if(mri->bRemovable)
-			DeleteBand(IdToIndex(mri->info.wID));
-	}
+		if((*i)->bRemovable)
+			DeleteBand(IdToIndex( (*i)->info.wID ) );
+	
 
 	//Only add the removable bands.
 	//But if is the first time , add it all .
 	for(auto i=m_vecBandInfos.begin();i!=m_vecBandInfos.end();++i)
-	{
-		MY_REBARBANDINFO *mri=*i;
-
-		if(bAddAllBands || mri->bRemovable  )
-		{
-			AddSimpleReBarBandCtrl(mri);
-			mri->bShow=TRUE;
-		}
-	}
-
+		if(bAddAllBands || (*i)->bRemovable  )
+			(*i)->bShow=AddSimpleReBarBandCtrl(*i);
+	
 	if(m_bLock)
 		LockBands(TRUE);
 }
@@ -342,15 +334,15 @@ LRESULT CMySimpleRebar::OnShowBandX(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndC
 
 	//if is existed
 	UINT rebarID=mrbi->info.wID;
-	mrbi->bShow=!mrbi->bShow;
-	ShowBand(IdToIndex(rebarID), mrbi->bShow);
-
-	
+	if(mrbi->bAdded)
+	{
+		if(ShowBand(IdToIndex(rebarID), !mrbi->bShow))
+			mrbi->bShow=!mrbi->bShow;
+	}
 	//if not existed ,add it then.
-	//todo
-	REBARBANDINFO info=mrbi->info;
-	GetBandInfo(IdToIndex(rebarID),&info);
-
+	else	
+		mrbi->bShow=AddSimpleReBarBandCtrl(mrbi);
+	
 	return 0;
 }
 
