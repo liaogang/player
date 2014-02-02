@@ -3,9 +3,37 @@
 #include "PlayList.h"
 #include "customMsg.h"
 
+#ifdef APP_PLAYER_TRAY
+#include "MainFrameTray.h"
+#else
+#include "mainfrm.h"
+#endif
 
+void SdMsg(UINT msg,BOOL bPost,WPARAM wparam,LPARAM lparam)
+{
+	static HWND HMainFrm=NULL;
+	if (!HMainFrm)
+	{
+		HMainFrm=GetMainFrame()->m_hWnd;
+		ATLASSERT(::IsWindow(HMainFrm));
+	}
 
+	if (bPost)
+		::PostMessage(HMainFrm,msg,wparam,lparam);
+	else
+		::SendMessage(HMainFrm,msg,wparam,lparam);
+}
 
+const TCHAR *GetAppName()
+{
+#ifdef DEBUG
+	const static TCHAR *gpAppName=_T("mp3 player(debug)");
+#else
+	const static TCHAR *gpAppName=_T("mp3 player");
+#endif
+
+	return gpAppName;
+}
 // static MYTREE *gRootTree=NULL;
 // void SetRootTree(MYTREE *root)
 // {

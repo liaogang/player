@@ -987,13 +987,13 @@ LRESULT CTrayNotifyIcon::OnTrayNotification(WPARAM wID, LPARAM lEvent)
     ::TrackPopupMenu(pSubMenu.m_hMenu, TPM_LEFTBUTTON, ptCursor.x, ptCursor.y, 0, m_NotifyIconData.hWnd, NULL);
     ::PostMessage(m_NotifyIconData.hWnd, WM_NULL, 0, 0);
   }
-  else if (lEvent == WM_LBUTTONDBLCLK) //double click received, the default action is to execute first menu item 
-  {
-    ::SetForegroundWindow(m_NotifyIconData.hWnd);
-    UINT nDefaultItem = pSubMenu.GetMenuDefaultItem(FALSE, GMDI_GOINTOPOPUPS);
-    if (nDefaultItem != -1)
-      ::SendMessage(m_NotifyIconData.hWnd, WM_COMMAND, nDefaultItem, 0);
-  }
+//   else if (lEvent == WM_LBUTTONDBLCLK) //double click received, the default action is to execute first menu item 
+//   {
+//     ::SetForegroundWindow(m_NotifyIconData.hWnd);
+//     UINT nDefaultItem = pSubMenu.GetMenuDefaultItem(FALSE, GMDI_GOINTOPOPUPS);
+//     if (nDefaultItem != -1)
+//       ::SendMessage(m_NotifyIconData.hWnd, WM_COMMAND, nDefaultItem, 0);
+//   }
 
   return 1; // handled
 }

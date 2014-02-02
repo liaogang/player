@@ -1339,20 +1339,7 @@ LRESULT CPlayListViewS::OnSelected(int /**/,LPNMHDR pnmh,BOOL bHandled)
 
 
 
-void SdMsg(UINT msg,BOOL bPost,WPARAM wparam,LPARAM lparam)
-{
-	static HWND HMainFrm=NULL;
-	if (!HMainFrm)
-	{
-		HMainFrm=GetMainFrame()->m_hWnd;
-		ATLASSERT(::IsWindow(HMainFrm));
-	}
 
-	if (bPost)
-		::PostMessage(HMainFrm,msg,wparam,lparam);
-	else
-		::SendMessage(HMainFrm,msg,wparam,lparam);
-}
 
 
 void CMainFrame::UpdateTreeView(MYTREE *treeData)

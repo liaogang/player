@@ -9,6 +9,8 @@ class CPlayListItem;
 CMainFrame* GetMainFrame();
 CMultiSpliltWnd* GetSplitter();
 
+void SdMsg(UINT msg,BOOL bPost=TRUE,WPARAM wparam=NULL,LPARAM lparam=NULL);
+const TCHAR *GetAppName();
 
 
 

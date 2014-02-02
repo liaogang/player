@@ -477,13 +477,8 @@ void ValidateCfg()
 		{
 			CBasicPlayer::shared()->m_lastStatus=c->playingStatus;
 			CBasicPlayer::shared()->m_lastPos=c->pos;
-#ifdef APP_PLAYER_UI
-			SdMsg(WM_COMMAND,TRUE,MAKEWPARAM(ID_PLAY,0),(LPARAM)0);	
-#endif
 
-#ifdef APP_PLAYER_TRAY
-			MyLib::shared()->play();
-#endif
+			SdMsg(WM_COMMAND,TRUE,MAKEWPARAM(ID_PLAY,0),(LPARAM)0);	
 		}
 	}
 }

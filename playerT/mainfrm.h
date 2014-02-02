@@ -336,16 +336,7 @@ public:
 public:
 	void OnSelectionChanged();
 	void ChangeTitle();
-	const TCHAR *GetAppName()
-	{
-#ifdef DEBUG
-		const static TCHAR *gpAppName=_T("mp3 player(debug)");
-#else
-		const static TCHAR *gpAppName=_T("mp3 player");
-#endif
-		
-		return gpAppName;
-	}
+
 
 
 	void ShowDlgProcessFile();

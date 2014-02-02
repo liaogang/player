@@ -2,7 +2,7 @@
 
 #define  RECT_INIT(rc) 	rc.left=0;rc.right=0;rc.top=0;rc.bottom=0;
 
-void SdMsg(UINT msg,BOOL bPost=TRUE,WPARAM wparam=NULL,LPARAM lparam=NULL);
+
 
 
 struct trackPosInfo

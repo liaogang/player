@@ -4,7 +4,8 @@
 #include "forwardMsg.h"
 
 #ifdef APP_PLAYER_TRAY
-#include "MyLib.h"
+#include "MainFrameTray.h"
+#include "globalStuffs.h"
 #endif
 
 CPlayerThread::CPlayerThread(MusicFile * pFile,CCriticalSection *cs,BOOL *pStop):
@@ -264,7 +265,7 @@ fileEnd:
 	NotifyMsg(WM_TRACK_REACH_END);
 
 #ifdef APP_PLAYER_TRAY
-	MyLib::shared()->playNext();
+	::PostMessage(GetMainFrame()->m_hWnd,WM_TRACK_REACH_END,0,0);
 #endif
 
 	return;

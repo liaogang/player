@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "resource1.h"
 #include "CMyTrayNotifyIcon.h"
+#include "customMsg.h"
 
 class CMainFrame : public CWindowImpl<CMainFrame>
 	, public CUpdateUI<CMainFrame>
@@ -9,6 +10,7 @@ class CMainFrame : public CWindowImpl<CMainFrame>
 {
 public:
 	CMyTrayNofityIcon trayNI;
+	int m_nOrder;
 
 	DECLARE_WND_CLASS(_T("WTLNTRAY") )
 
@@ -23,14 +25,22 @@ public:
 	}
 
 	BEGIN_UPDATE_UI_MAP(CMainFrame)
-// 		UPDATE_ELEMENT(ID_HAPPY,UPDUI_MENUPOPUP)
-// 		UPDATE_ELEMENT(ID_SAD,UPDUI_MENUPOPUP)
-// 		UPDATE_ELEMENT(ID_ANIMATED,UPDUI_MENUPOPUP)
-// 		UPDATE_ELEMENT(ID_SHOW,UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_STOP,UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_PAUSE,UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_PLAY,UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_PLAY_PREV,UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_PLAY_NEXT,UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_PLAY_RANDOM,UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_ORDER_DEFAULT,UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_ORDER_REPEAT_LIST,UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_ORDER_REPEAT_TRACK,UPDUI_MENUPOPUP)
+		UPDATE_ELEMENT(ID_ORDER_RANDOM,UPDUI_MENUPOPUP)
 	END_UPDATE_UI_MAP()
 
 	BEGIN_MSG_MAP(CMainFrame)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
+		MESSAGE_HANDLER(WM_TRACK_REACH_END, OnTrackReachEnd)
+		
 		MESSAGE_HANDLER(WM_TRAYNOTIFY, OnTrayNotification)
 		COMMAND_HANDLER(ID_STOP, 0, OnStop)
 		COMMAND_HANDLER(ID_PAUSE, 0, OnPause)
@@ -52,7 +62,7 @@ public:
 		return CWindowImpl<CMainFrame>::Create(NULL,rc,_T("WTLNTRAY"),WS_POPUPWINDOW,WS_EX_TOOLWINDOW);
 	}
 
-
+	void Update();
 
 	LRESULT OnTrayNotification(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
@@ -61,7 +71,9 @@ public:
 		return 0L;
 	}
 
+
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+	LRESULT OnTrackReachEnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnPause(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnStop(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -70,7 +82,5 @@ public:
 	LRESULT OnPlayRandom(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnSetOrder(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-
-	
 };
 

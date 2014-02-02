@@ -40,12 +40,14 @@ static trackPosInfo curPosInfo;
 trackPosInfo *getTrackPosInfo()
 {
 	if( !CBasicPlayer::shared()->stoped() && CBasicPlayer::shared()->m_pFile)
+	{
 		CBasicPlayer::shared()->m_pFile->GetPos(&(curPosInfo.used),&(curPosInfo.left));
 
-	double secPlayed=CBasicPlayer::shared()->m_pPlayerThread->GetOffsetSeconds();
+		double secPlayed=CBasicPlayer::shared()->m_pPlayerThread->GetOffsetSeconds();
 
-	curPosInfo.used-=secPlayed;
-	curPosInfo.left+=secPlayed;
+		curPosInfo.used-=secPlayed;
+		curPosInfo.left+=secPlayed;
+	}
 
 	return &curPosInfo;
 }
@@ -345,18 +347,16 @@ void CBasicPlayer::stop()
 	if(!m_bStopped )
 	{
 		m_cs.Enter();
-		m_bStopped=TRUE;
+		
 		m_pPlayerThread->m_lpDSBuffer->Stop();
 
 		if(m_lastStatus!=status_invalide)//cllocect info
 			m_lastPos=*getTrackPosInfo();
 
 		NotifyMsg(WM_TRACKSTOPPED);
-
 		m_pPlayerThread->SetFlagToExit();
-
 		m_pFile->Close();
-
+		m_bStopped=TRUE;
 		m_cs.Leave();
 	}
 }
