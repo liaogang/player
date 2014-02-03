@@ -107,6 +107,7 @@ LRESULT CMainFrame::OnPlayPrev(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 {
 	return 0;
 }
+
 LRESULT CMainFrame::OnPlayNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	MyLib::shared()->stop();

@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\res\happy.ico" />
+    <None Include="..\res\icon1.ico" />
     <None Include="..\todo.txt" />
   </ItemGroup>
   <ItemGroup>
