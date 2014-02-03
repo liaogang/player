@@ -73,7 +73,7 @@ public:
 
 	//save status and stop 
 	void Destroy();
-
+	//PlayingStatus GetLastPlayingStatus(){return m_lastStatus;}
 	void stop();
 protected:
 	void play();
@@ -81,6 +81,7 @@ protected:
 	
 	BOOL open( LPCTSTR filepath );
 
+	
 private:
 	void InitSlowDownVolBuffer();
 };

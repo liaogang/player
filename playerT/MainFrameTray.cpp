@@ -8,7 +8,9 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 {
 	LoadAll();
 	trayNI.CreateSelf(m_hWnd);
+	trayNI.SetDefaultMenuItem(ID_PLAY_NEXT,FALSE);
 
+	RegisterMyHotKeys();
 
 
 	PlayOrder order = MyLib::shared()->GetPlayOrder();
@@ -29,20 +31,33 @@ void CMainFrame::Update()
 	UISetCheck(ID_STOP,bStopped);
 	UISetCheck(ID_PAUSE,bPlaying && bPaused);
 	UISetCheck(ID_PLAY,bPlaying);
-		
+	
+
 	if(bStopped)
 		trayNI.SetTooltipText(GetAppName());
 	else
 	{
 		auto item=MyLib::shared()->GetPlayingItem();
 		TCHAR buf[128];
-		_stprintf_s(buf,_T("[%s]\n标题:%s\n艺术家:%s\n   "),
-			bPaused?_T("已暂停"):_T("播放中"),
-			item->GetTitle().c_str(),
-			item->GetArtist().c_str());
-		trayNI.SetTooltipText(buf);
-	}
+		int len;
 
+		std::tstring artist=item->GetArtist();
+		std::tstring album=item->GetAlbum();
+
+		_stprintf_s(buf,_T("[%s]\n标题: %s"),bPaused?_T("已暂停"):_T("播放中") ,item->GetTitle().c_str());
+		
+		len= _tcslen(buf);
+		if(!artist.empty())
+			_stprintf(&buf[len],_T("\n艺术家: %s"),artist.c_str());
+
+		len= _tcslen(buf);
+		if(!album.empty())
+			_stprintf(&buf[len],_T("\n专辑: %s"),album.c_str() );
+		
+		trayNI.SetTooltipText(buf);
+
+		trayNI.SetBalloonDetails(buf,m_strAction,CTrayNotifyIcon::Info,15);
+	}
 }
 
 LRESULT CMainFrame::OnTrackReachEnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
@@ -57,6 +72,7 @@ LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 	MyLib::shared()->stop();
 	MyLib::shared()->play();
 	
+	m_strAction=_T("正在播放: ");
 
 	Update();
 	return 0;
@@ -64,8 +80,13 @@ LRESULT CMainFrame::OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 
 LRESULT CMainFrame::OnPause(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	MyLib::shared()->pause();
+	if(CBasicPlayer::shared()->paused())
+		m_strAction=_T("已取消暂停: ");
+	
+	else
+		m_strAction=_T("已暂停: ");
 
+	MyLib::shared()->pause();
 	Update();
 	return 0;
 }
@@ -76,7 +97,9 @@ LRESULT CMainFrame::OnStop(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 
 	UISetCheck(ID_STOP,TRUE);
 	UISetCheck(ID_PLAY,FALSE);
+
 	Update();
+
 	return 0;
 }
 
@@ -84,7 +107,6 @@ LRESULT CMainFrame::OnPlayPrev(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 {
 	return 0;
 }
-
 LRESULT CMainFrame::OnPlayNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	MyLib::shared()->stop();
@@ -94,17 +116,21 @@ LRESULT CMainFrame::OnPlayNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 	else
 		MyLib::shared()->playNext(TRUE);
 
+	m_strAction=_T("正在播放: ");
 	Update();
+
 	return 0;
 }
+
 
 LRESULT CMainFrame::OnPlayRandom(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	MyLib::shared()->stop();
 	MyLib::shared()->playNext(TRUE,Random);
 
-
+	m_strAction=_T("正在播放: ");
 	Update();
+
 	return 0;
 }
 
@@ -123,11 +149,55 @@ LRESULT CMainFrame::OnSetOrder(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/,
 
 LRESULT CMainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	UnregisterHotKey(m_hWnd, HotKeyId); 
+	GlobalDeleteAtom(HotKeyId);
+
 	CBasicPlayer::shared()->Destroy();
 	SaveAll();
 
 	PostMessage(WM_CLOSE);
 	PostMessage(WM_QUIT);
 	
+	return 0;
+}
+
+
+
+void CMainFrame::RegisterMyHotKeys()
+{
+	// 获取当前窗口句柄 
+	HWND handle = m_hWnd;
+	//得到热键的唯一标识
+	HotKeyId = GlobalAddAtom(_T("Player_LG_HotKey")); 
+	//注册全局热键Alt + F8
+	RegisterHotKey(handle,HotKeyId,NULL, VK_MEDIA_NEXT_TRACK);
+	RegisterHotKey(handle,HotKeyId,NULL, VK_MEDIA_STOP);
+	RegisterHotKey(handle,HotKeyId,NULL, VK_MEDIA_PLAY_PAUSE);
+}
+
+LRESULT CMainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	UINT fuModifiers = (UINT) LOWORD(lParam);  // key-modifier flags   
+	UINT uVirtKey = (UINT) HIWORD(lParam);     // virtual-key code    
+	UINT nChar=uVirtKey;
+
+	//Next Tract
+	if( nChar == VK_MEDIA_NEXT_TRACK )
+		OnPlayNext(0,0,0,bHandled);
+
+	//Prev track
+	//if(nChar == VK_MEDIA_PREV_TRACK)
+
+	//Stop
+	if( nChar == VK_MEDIA_STOP )
+		OnStop(0,0,0,bHandled);
+
+	//Play or Pause
+	if( nChar == VK_MEDIA_PLAY_PAUSE )
+		OnPause(0,0,0,bHandled);
+
+
+	bHandled=TRUE;
+
 	return 0;
 }

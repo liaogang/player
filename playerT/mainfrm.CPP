@@ -40,7 +40,6 @@ void CMainFrame::RegisterMyHotKeys()
 
 LRESULT CMainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-
 	UINT fuModifiers = (UINT) LOWORD(lParam);  // key-modifier flags   
 	UINT uVirtKey = (UINT) HIWORD(lParam);     // virtual-key code    
 	UINT nChar=uVirtKey;
@@ -54,7 +53,7 @@ LRESULT CMainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& 
 
 	//Stop
 	if( nChar == VK_MEDIA_STOP )
-		OnStop(0,0,0,bHandled); 
+		OnStop(0,0,0,bHandled);
 
 	//Play or Pause
 	if( nChar == VK_MEDIA_PLAY_PAUSE )

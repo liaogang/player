@@ -11,6 +11,9 @@ class CMainFrame : public CWindowImpl<CMainFrame>
 public:
 	CMyTrayNofityIcon trayNI;
 	int m_nOrder;
+	TCHAR *m_strAction;
+	int HotKeyId;
+
 
 	DECLARE_WND_CLASS(_T("WTLNTRAY") )
 
@@ -40,7 +43,7 @@ public:
 	BEGIN_MSG_MAP(CMainFrame)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_TRACK_REACH_END, OnTrackReachEnd)
-		
+		MESSAGE_HANDLER(WM_HOTKEY,OnHotKey)
 		MESSAGE_HANDLER(WM_TRAYNOTIFY, OnTrayNotification)
 		COMMAND_HANDLER(ID_STOP, 0, OnStop)
 		COMMAND_HANDLER(ID_PAUSE, 0, OnPause)
@@ -82,5 +85,7 @@ public:
 	LRESULT OnPlayRandom(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnSetOrder(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	void RegisterMyHotKeys();
 };
 

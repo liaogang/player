@@ -720,12 +720,9 @@ LPCPlayListItem CPlayList::GetNextTrackByOrder(int curr , PlayOrder playorder) c
 	}
 	else if (playorder==Random)
 	{
-		static int s=3;
-		if(s++==3)
-		{
+		static int s=0;
+		if(s++==0)
 			srand(time(NULL));
-			s=0;
-		}
 
 		int n=rand() % (count) - 1;
 		next= n;
