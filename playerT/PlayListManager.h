@@ -15,6 +15,11 @@ class CPlayListManager:
 {
 public:
 	BEGIN_MSG_MAP_EX(CPlayListManager)
+		MESSAGE_HANDLER(WM_PL_WILL_DELETED,OnPLWillDeleted)
+		MESSAGE_HANDLER(WM_PL_TRACKNUM_CHANGED,OnPLTrackNumChanged)
+		MESSAGE_HANDLER(WM_SOME_PL_CHANGED,OnReloadPL)
+		MESSAGE_HANDLER(WM_SELECTED_PL_CHANGED,OnReloadPL)
+		
 		MSG_WM_LBUTTONDBLCLK(OnDbClicked)
 		COMMAND_ID_HANDLER(ID_PLAYLISTMNG_DEL,OnDeletePlaylist)
 		COMMAND_ID_HANDLER(ID_PLAYLISTMNG_ACTIVE,OnActivePlaylist)
@@ -22,39 +27,94 @@ public:
 		COMMAND_ID_HANDLER(ID_PLAYLISTMNG_RENAME,OnRenamePlaylist)
 		REFLECTED_NOTIFY_CODE_HANDLER_EX(NM_RCLICK ,OnNotifyCodeHandlerEX)
 		REFLECTED_NOTIFY_CODE_HANDLER_EX(LVN_ENDLABELEDIT,OnEndLabelEdit)
-		REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
+		//REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
 	END_MSG_MAP()
 
-	CMainFrame *pMain;
-    void ReFillPlaylist();
-	void AddPlayList(LPCPlayList pPL);
-	void DelPlayList(LPCPlayList pPL);
-	void UpdateByPLTrack(LPCPlayList pPL);
-
-	LRESULT OnCustomDraw(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
+	//CMainFrame *pMain;
+    
+	void ReFillPlaylist()
 	{
-		LPNMCUSTOMDRAW lpNMCustomDraw = (LPNMCUSTOMDRAW)pnmh;
-		NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>( lpNMCustomDraw );  
-		int nItem=pLVCD->nmcd.dwItemSpec;
-		
-		DWORD dwRet;
-		switch(lpNMCustomDraw->dwDrawStage)
-		{
-		case CDDS_PREPAINT:
-			dwRet= CDRF_NOTIFYITEMDRAW ;
-			break;
-		case CDDS_ITEMPREPAINT:
-			{
-				int i=MyLib::shared()->GetSelectedIndex();
-				if(nItem==i)
-				pLVCD->clrTextBk=RGB(230,244,255);
-			}
-			dwRet= CDRF_NEWFONT ;
-			break;
-		}
+		DeleteAllItems();
 
-		return dwRet;
+		MyLib *s=MyLib::shared();
+		if (!s->Empty())
+		{
+			for (int i=0;i<s->GetItemCount();++i)
+			{
+				LPCPlayList l=s->GetItem(i);
+				AddPlayList(l);
+			}
+		}
 	}
+	
+	void AddPlayList(LPCPlayList pPL)
+	{
+		int item=GetItemCount();
+		TCHAR strCount[256];
+		_itow(pPL->GetItemCount(),strCount,10);
+
+		
+		InsertItem(item,pPL==MyLib::shared()->GetSelectedPL()?_T("*"):_T(" "));
+		SetItemText(item,1,pPL->GetPlaylistName().c_str());
+		SetItemText(item,2,strCount);
+		SetItemText(item,3,pPL->IsAuto()?_T("自动列表"):_T("普通列表"));
+		SetItemData(item,(DWORD_PTR)pPL);
+	}
+	
+	void DelPlayList(LPCPlayList pPL)
+	{
+		int c=GetItemCount();
+		for (int i=0;i<c;++i)
+		{
+			auto pl= (LPCPlayList)GetItemData(i);
+			if (pl==pPL){
+				DeleteItem(i);
+				break;
+			}
+		}
+	}
+
+	void UpdateByPLTrack(LPCPlayList pPL)
+	{
+		int c=GetItemCount();
+		for (int i=0;i<c;++i)
+		{
+			auto pl= (LPCPlayList)GetItemData(i);
+			if (pl==pPL){
+				SetItemText(i,1,pPL->GetPlaylistName().c_str());
+
+				TCHAR strCount[256];
+				_itow(pPL->GetItemCount(),strCount,10);
+				SetItemText(i,2,strCount);
+				break;
+			}
+		}
+	}
+
+// 	LRESULT OnCustomDraw(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
+// 	{
+// 		LPNMCUSTOMDRAW lpNMCustomDraw = (LPNMCUSTOMDRAW)pnmh;
+// 		NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>( lpNMCustomDraw );  
+// 		int nItem=pLVCD->nmcd.dwItemSpec;
+// 		
+// 		DWORD dwRet;
+// 		switch(lpNMCustomDraw->dwDrawStage)
+// 		{
+// 		case CDDS_PREPAINT:
+// 			dwRet= CDRF_NOTIFYITEMDRAW ;
+// 			break;
+// 		case CDDS_ITEMPREPAINT:
+// 			{
+// 				int i=MyLib::shared()->GetSelectedIndex();
+// 				if(nItem==i)
+// 				pLVCD->clrTextBk=RGB(230,244,255);
+// 			}
+// 			dwRet= CDRF_NEWFONT ;
+// 			break;
+// 		}
+// 
+// 		return dwRet;
+// 	}
 
 	void ClearAllSel()
 	{
@@ -64,10 +124,16 @@ public:
 	}
 
 	void Init()
-	{	
+	{
+		IWantToReceiveMessage(WM_SOME_PL_CHANGED);
+		IWantToReceiveMessage(WM_SELECTED_PL_CHANGED);
+		IWantToReceiveMessage(WM_PL_WILL_DELETED);
+		IWantToReceiveMessage(WM_PL_TRACKNUM_CHANGED);
+
 		SetExtendedListViewStyle(GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP);
 
 		const TCHAR * columnName[]={
+			_T(""),
 			_T("播放列表名称"),
 			_T("项目"),
 			_T("属性")};
@@ -78,6 +144,7 @@ public:
 			LVCFMT_RIGHT};
 
 		const TCHAR* columnNamePlaceHoder[]={
+			_T("    "),
 			_T("                                   "),
 			_T("        Artist"),
 			_T("        属性")};
@@ -115,8 +182,30 @@ public:
 
 	LRESULT OnDbClicked(UINT i,CPoint pt);
 	
+	LRESULT OnPLWillDeleted(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		LPCPlayList thePl=(LPCPlayList)wParam;
+		
+		DelPlayList(thePl);
 
+		return 0;
+	}
 
+	LRESULT OnPLTrackNumChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		LPCPlayList pl=(LPCPlayList)wParam;
+
+		UpdateByPLTrack(pl);
+
+		return 0;
+	}
+
+	LRESULT OnReloadPL(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		ReFillPlaylist();
+		return 0;
+	}
+	
 	
 	LRESULT OnEndLabelEdit(LPNMHDR pnmh)
 	{
@@ -171,7 +260,7 @@ public:
 		for (auto i=items.begin();i!=items.end();i++)
 		{
 			DeleteItem(*i);
-			MyLib::shared()->DeletePlayList(*i);
+			MyLib::shared()->DeletePlayList(*i,TRUE);
 		}
 
 		Invalidate();
@@ -184,16 +273,12 @@ public:
 
 		MyLib::shared()->SetSelectedPL(l);
 
-		AllPlayListViews()->Reload(l);
-
 		return 0;
 	}
 	
 	LRESULT OnNewPlaylist(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		LPCPlayList pPl=MyLib::shared()->NewPlaylist();
-		AllPlayListViews()->Reload(pPl);
-		MyLib::shared()->SetSelectedPL(pPl);
+		LPCPlayList pPl=MyLib::shared()->NewPlaylist(TRUE);
 		Invalidate();
 		return 0;
 	}

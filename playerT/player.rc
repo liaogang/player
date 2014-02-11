@@ -378,6 +378,7 @@ BEGIN
         MENUITEM "参数选项\tCtrl+P",                ID_CONFIG
         MENUITEM "保存参数配置",                      ID_SAVE_CONFIG
         MENUITEM SEPARATOR
+        MENUITEM "转到托盘模式",                      ID_EXIT2TRAY
         MENUITEM "退出",                          ID_APP_EXIT
     END
     POPUP "编辑"

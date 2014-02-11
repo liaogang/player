@@ -58,16 +58,19 @@ enum PlayingStatus
 //准备重新显示歌词
 #define  WM_LYRIC_RELOAD  (WM_USER+50)
 
-//added or deleted one playlist
-//PlayList changed,added or deleted
-//playlist added number
-//BOOL bAdd=(BOOL)lParam;
-//PlayList *pl=(PlayList*)wParam;
-#define  WM_PL_CHANGED    (WM_USER+51)
 
-//wparam , the PlayList pointer
-//lparam , the this is -1 , thus the one track of player list will be deleted
+//PlayList *pl=(PlayList*)wParam;
+#define  WM_PL_WILL_DELETED   (WM_USER+51)
+
+//one certain PlayList is changed
 #define  WM_PL_TRACKNUM_CHANGED (WM_USER+52)
+
+//the lib's some play list is changed.
+//then should reload the all PlayList
+#define  WM_SOME_PL_CHANGED     (WM_USER+59)
+
+//PlayList *pl=(PlayList*)wParam;int nIndex=lParam.
+#define  WM_SELECTED_PL_CHANGED (WM_USER+60)
 
 
 
@@ -85,7 +88,8 @@ enum PlayingStatus
 #define WM_USER_TIMER (WM_USER+57)
 
 
+//Play queue changed.
+#define WM_PLAYQUEUE_CHANGED  (WM_USER+58)
+								//(WM_USER+59)
+//(WM_USER+60)
 
-//WPARAM,the buffer to reseive rebar's band class name
-//LPARAM,the max length of the buffer
-#define WM_GET_BAND_CLASSNAME (WM_USER+58)

@@ -34,9 +34,14 @@ extern CAppModule _Module;
 
 #define _WTL_NO_CSTRING
 
+
+#include <atltypes.h>
+#ifdef APP_PLAYER_UI
 #include <atlwin.h>
 #include <atlframe.h>
-#include <atlmisc.h>
+#endif
+//#include <atlmisc.h>
+#ifdef APP_PLAYER_UI
 #include <atlimage.h>
 #include <atldlgs.h>
 #include <atlctrls.h>
@@ -46,7 +51,7 @@ extern CAppModule _Module;
 #include <atlcrack.h>
 #include <atltheme.h>
 #include <atlgdix.h>
-
+#endif
 
 #define END_MSG_MAP_EX	END_MSG_MAP
 
@@ -59,21 +64,6 @@ extern CAppModule _Module;
 //#undef BEGIN_MSG_MAP
 //#define BEGIN_MSG_MAP() BEGIN_MSG_MAP_EX()
 
-#ifdef _UNICODE
-#define tstring   wstring
-#define tfstream  wfstream
-#define tiostream wiostream
-#define tifstream wifstream
-#define tofstream wofstream
-#define tfilebuf wfilebuf
-#else
-#define tstring   string
-#define tfstream  fstream
-#define tiostream iostream
-#define tifstream ifstream
-#define tofstream ofstream
-#define tfilebuf filebuf
-#endif
 
 #pragma comment(lib,"dsound.lib")
 #pragma comment(lib,"Winmm.lib")

@@ -379,8 +379,7 @@ void CMySimpleRebar::Init()
 		//Add bands by band index as saved.
 		int nBandCount=m_vecBandInfos.size();
 		LPMY_REBARBANDINFO* arrayMri =(LPMY_REBARBANDINFO*) malloc( nBandCount *sizeof(void*) );
-// 		free(arrayMri);
-// 		return ;
+
 		for(auto i=m_vecBandInfos.begin();i!=m_vecBandInfos.end();++i)
 		{
 			MY_REBARBANDINFO *mri=*i;

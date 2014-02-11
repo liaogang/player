@@ -47,7 +47,7 @@ LPDIRECTSOUNDBUFFER DSoundBufferCreate(WAVEFORMATEX *pwfx)
 	ZeroMemory(&dsBufferDesc,sizeof(dsBufferDesc) );
 	dsBufferDesc.dwSize=sizeof(DSBUFFERDESC);
 	dsBufferDesc.dwFlags=DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS |DSBCAPS_CTRLVOLUME ;
-	dsBufferDesc.dwBufferBytes=6*pwfx->nAvgBytesPerSec;   //1秒缓冲
+	dsBufferDesc.dwBufferBytes=6*pwfx->nAvgBytesPerSec;
 	dsBufferDesc.lpwfxFormat=pwfx;
 
 	LPDIRECTSOUNDBUFFER lpDSBuffer=NULL;
@@ -57,13 +57,9 @@ LPDIRECTSOUNDBUFFER DSoundBufferCreate(WAVEFORMATEX *pwfx)
 		return NULL;
 	}
 
-	//-------------------
-	//ds缓冲区大小    1秒    11.025次读文件
 	g_dwMaxDSBufferLen=6*pwfx->nAvgBytesPerSec;
-	g_dwSleepTime=(dsBufferDesc.dwBufferBytes/pwfx->nAvgBytesPerSec)*1000/30;//缓冲时间的1/12  <  1/11
-	//-------------------
-
-
+	g_dwSleepTime=(dsBufferDesc.dwBufferBytes/pwfx->nAvgBytesPerSec)*1000/30;
+	
 	return lpDSBuffer;
 }
 

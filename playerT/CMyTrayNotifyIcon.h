@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "NTRAY.H"
 
 #define WM_TRAYNOTIFY WM_USER + 100

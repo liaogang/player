@@ -675,10 +675,7 @@
     <ClInclude Include="..\MyRebar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\NTRAY.H">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\CMyTrayNotifyIcon.h">
+    <ClInclude Include="..\CMyTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -728,16 +725,10 @@
     <ClCompile Include="..\SpectrumAnalyser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\SpectrumAnalyserThread.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\StringConvertions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Thread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Util1.cpp">
@@ -987,12 +978,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\CMyLyric.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\NTRAY.CPP">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\CMyTrayNotifyIcon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

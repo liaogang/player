@@ -17,7 +17,7 @@
     <ClInclude Include="..\CCtrlViewBase.h" />
     <ClInclude Include="..\CImg.h" />
     <ClInclude Include="..\CMyLyric.h" />
-    <ClInclude Include="..\CMyTrayNotifyIcon.h" />
+    <ClInclude Include="..\CMyTypes.h" />
     <ClInclude Include="..\CriticalSection.h" />
     <ClInclude Include="..\customMsg.h" />
     <ClInclude Include="..\DialogConfig.h" />
@@ -53,7 +53,6 @@
     <ClInclude Include="..\MySerialize.h" />
     <ClInclude Include="..\mysplit.h" />
     <ClInclude Include="..\mytree.h" />
-    <ClInclude Include="..\NTRAY.H" />
     <ClInclude Include="..\player.h" />
     <ClInclude Include="..\PlayerThread.h" />
     <ClInclude Include="..\PlayList.h" />
@@ -233,7 +232,6 @@
   <ItemGroup>
     <ClCompile Include="..\BasicPlayer.cpp" />
     <ClCompile Include="..\CMyLyric.cpp" />
-    <ClCompile Include="..\CMyTrayNotifyIcon.cpp" />
     <ClCompile Include="..\DialogConfig.cpp" />
     <ClCompile Include="..\DialogLrcList.cpp" />
     <ClCompile Include="..\fileMonitor.cpp" />
@@ -247,13 +245,11 @@
     <ClCompile Include="..\MyRebar.cpp" />
     <ClCompile Include="..\MySerialize.cpp" />
     <ClCompile Include="..\mysplit.cpp" />
-    <ClCompile Include="..\NTRAY.CPP" />
     <ClCompile Include="..\player.cpp" />
     <ClCompile Include="..\PlayerThread.cpp" />
     <ClCompile Include="..\PlayList.cpp" />
     <ClCompile Include="..\PlayListViewMng.cpp" />
     <ClCompile Include="..\SpectrumAnalyser.cpp" />
-    <ClCompile Include="..\SpectrumAnalyserThread.cpp" />
     <ClCompile Include="..\stdafx.cpp" />
     <ClCompile Include="..\StringConvertions.cpp" />
     <ClCompile Include="..\taplib\taglib\ape\apefile.cpp" />
@@ -332,7 +328,6 @@
     <ClCompile Include="..\taplib\taglib\trueaudio\trueaudioproperties.cpp" />
     <ClCompile Include="..\taplib\taglib\wavpack\wavpackfile.cpp" />
     <ClCompile Include="..\taplib\taglib\wavpack\wavpackproperties.cpp" />
-    <ClCompile Include="..\Thread.cpp" />
     <ClCompile Include="..\Util1.cpp" />
     <ClCompile Include="..\WaveFile.cpp" />
   </ItemGroup>
@@ -439,7 +434,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ExceptionHandling>
       </ExceptionHandling>
-      <PreprocessorDefinitions>TAGLIB_NO_CONFIG;WIN32;_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>APP_PLAYER_UI;TAGLIB_NO_CONFIG;WIN32;_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Optimization>Full</Optimization>
     </ClCompile>
     <Link>

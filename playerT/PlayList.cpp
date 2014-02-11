@@ -1,9 +1,8 @@
-#include "StdAfx.h"
 #include "PlayList.h"
+#include <ShlObj.h>
 #include "MyLib.h"
 #include "BasicPlayer.h"
 #include "customMsg.h"
-#include "StringConvertions.h"
 #include "StringConvertions.h"
 #include "globalStuffs.h"
 #include "forwardMsg.h"
@@ -39,6 +38,10 @@ using namespace TagLib;
 LPCPlayListItem MakeDuplicate(const LPCPlayListItem item)
 {
 	LPCPlayListItem dup(new CPlayListItem(* item.get()));
+	
+#ifdef APP_PLAYER_UI
+	dup->img=NULL;
+#endif
 	return dup;
 }
 
@@ -54,10 +57,10 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 {
 	PLANDPATH* p=(PLANDPATH*)lpParameter;
 	
-	NotifyMsg(WM_FILE_FINDED,(WPARAM)p->pPlaylist,(LPARAM)1);
+	NotifyMsg(WM_FILE_FINDED,FALSE,(WPARAM)p->pPlaylist,(LPARAM)1);
 	
 	BOOL result=p->pPlaylist->AddFolder(p->pszFolder,TRUE);
-	NotifyMsg(WM_FILE_FINDED,NULL,(LPARAM)0);
+	NotifyMsg(WM_FILE_FINDED,FALSE,NULL,(LPARAM)0);
 
 #ifdef APP_PLAYER_UI
 	SdMsg(WM_PL_TRACKNUM_CHANGED,TRUE,(WPARAM)p->pPlaylist,(LPARAM)result);
@@ -234,7 +237,7 @@ BOOL  CPlayListItem::IsFileExist() const
 
 BOOL CPlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 {
-#ifdef APP_PLAYER_UI
+#ifdef APP_PLAYER_TRAY
 	return TRUE;
 #endif
 	if( !forceRescan && m_bStatus!=UNKNOWN)
@@ -493,18 +496,15 @@ UINT LrcMng::MatchTrackAndLrcTags(CPlayListItem * track,std::tstring &lrcpath)
 //CPlayList
  CPlayList::CPlayList(void):
 	topVisibleIndex(0),
-	nItemSelected(NULL),m_bSearch(FALSE),m_bAuto(FALSE)
+	nItemSelected(0),m_bSearch(FALSE),m_bAuto(FALSE)
 {
 }
 
 
-	CPlayList::CPlayList(std::tstring &name):m_playlistName(name),topVisibleIndex(0),
-		nItemSelected(NULL),m_bSearch(FALSE),m_bAuto(FALSE)
+CPlayList::CPlayList(std::tstring &name):m_playlistName(name),topVisibleIndex(0),
+		nItemSelected(0),m_bSearch(FALSE),m_bAuto(FALSE)
 {
 	m_playlistName=name;
-	#ifdef APP_PLAYER_UI
-	SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)this,(LPARAM)TRUE);
-#endif
 }
 
 
@@ -512,9 +512,6 @@ UINT LrcMng::MatchTrackAndLrcTags(CPlayListItem * track,std::tstring &lrcpath)
 CPlayList::~CPlayList(void)
 {	
 	DeleteAllItems();
-	#ifdef APP_PLAYER_UI
-	SdMsg(WM_PL_CHANGED,FALSE,(WPARAM)this,(LPARAM)FALSE);
-#endif
 }
 
 LPCPlayListItem CPlayList::GetItem(int nItem) const 
@@ -534,7 +531,7 @@ void CPlayList::ChangeTrackPath(TCHAR *from,TCHAR *to)
 		LPCPlayListItem item=*i;
 		if (_tcscmp(from,item->GetUrl().c_str())==0)
 		{
-			item->GetUrl()=to;
+			item->SetUrl(to);
 			break;
 		}
 	}
@@ -549,7 +546,7 @@ void CPlayList::DeleteTrackByPath(TCHAR *path)
 			if (_tcscmp(path,item->GetUrl().c_str())==0)
 			{
 				//先删除视图里的显视,再删除数据
-				NotifyMsg(WM_PL_TRACKNUM_CHANGED,(WPARAM)this,(LPARAM)-1);
+				NotifyMsg(WM_PL_WILL_DELETED,FALSE,(WPARAM)this,0);
 				m_songList.erase(i);
 				break;
 			}
@@ -621,11 +618,9 @@ BOOL CPlayList::AddFile(TCHAR *filepath)
 	{	
 		item->SetIndex(m_songList.size());
 		m_songList.push_back(item);
-		NotifyMsg(WM_FILE_FINDED,(WPARAM)filepath,(LPARAM)2);
-		ATLTRACE2(L"succeed\n");
+		NotifyMsg(WM_FILE_FINDED,FALSE,(WPARAM)filepath,(LPARAM)2);
 		return TRUE;
 	}
-	ATLTRACE2(L"failed\n");
 	return FALSE;
 }
 
@@ -784,6 +779,8 @@ int  CPlayList::RemoveDeadItems()
 		if(!item->IsFileExist())
 		{
 			i=m_songList.erase(i);
+			item=*i;
+			end=m_songList.end();
 			++removed;
 		}
 		else
@@ -791,6 +788,7 @@ int  CPlayList::RemoveDeadItems()
 
 		item->SetIndex(count);
 	}
+
 
 	return removed;
 }
@@ -813,6 +811,7 @@ int  CPlayList::RemoveDuplicates()
 			if (IsPlayListItemDup(*_Firstb, *_First))
 			{	
 				m_songList.erase( find( m_songList.begin(), m_songList.end(), *_Firstb ) );
+				_Last=songlist2.end();
 				++removed;
 			}
 			
@@ -822,7 +821,7 @@ int  CPlayList::RemoveDuplicates()
 	auto end=m_songList.end();
 	for (auto i=m_songList.begin();i!=end;++i,++count)
 		(*i)->SetIndex(count);
-	
+
 	return removed;
 }
 

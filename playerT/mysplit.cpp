@@ -1,4 +1,3 @@
-
 #include "mysplit.h"
 #include "DlgProgerty.h"
 #include "globalStuffs.h"
@@ -142,7 +141,7 @@ LRESULT CMultiSpliltWnd::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPa
 {
 	if(rootTree == NULL)
 		rootTree=CreateRootTree();
-
+	else
 	if (rootTree->hasChild())//reserialize from  file
 		CreateHWNDbyName(rootTree);
 

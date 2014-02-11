@@ -1,5 +1,4 @@
 #pragma once
-#include "stdafx.h"
 #include "Thread.h"
 #include "CriticalSection.h"
 #include "customMsg.h"
@@ -51,8 +50,9 @@ public:
 	//CSpectrumAnalyser* m_pSpectrumAnalyser;
 
 	PlayingStatus m_lastStatus;
-	trackPosInfo m_lastPos;
-
+	int m_msecLastPos;
+	double m_maxFilepos;
+	int m_MillisecondsTotal;
 	//void InitSlowDown(BOOL bSlowDown=TRUE,BOOL bCloseFile=FALSE);
 	void SlowDownVol();
 	void GrowUpVol();
@@ -63,11 +63,10 @@ public:
 	void SetVolumeByEar(int vol);
 	
 	void ResetFile();
-	void SetPos(int cur,int max);
-	void SetFilePos(double cur,double max);
-	void SetFilePos(trackPosInfo *pos);
-	void GetPos(int *cur,int *max);
-	void WaitPlay();
+	void SetPos(int cur);
+	void SetFilePos(double cur);
+	int  MillisecondsPlayed();
+	int  MillisecondsTotal();
 	BOOL stoped(){return m_bStopped;}
 	BOOL paused(){return m_bPaused;}
 

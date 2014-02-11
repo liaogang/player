@@ -1,4 +1,6 @@
 #pragma once
+#include "stdafx.h"
+#include "CMyTypes.h"
 #include "MySerialize.h"
 #include <string>
 #include <vector>
@@ -124,14 +126,16 @@ public:
 	inline void  SetPlayList(CPlayList *pPL){m_pPL=pPL;}
 	int GetIndex() const     {return m_iIndex;}
 	void SetIndex(int _index){m_iIndex=_index;}
-	tstring GetUrl() const {return url;}
-	tstring GetTitle() const{return title;}
-	tstring GetArtist()const{return artist;}
-	tstring GetAlbum()const{return album;}
-	tstring GetGenre()const{return genre;}
-	tstring GetYear()const{return year;}
-	tstring GetComment()const{return comment;}
-	tstring GetLycPath()const{return lycPath;}
+	void SetUrl(TCHAR *s){url=s;}
+	void SetUrl(tstring &s){url=s;}
+	const tstring& GetUrl() const {return url;}
+	const tstring& GetTitle() const{return title;}
+	const tstring& GetArtist()const{return artist;}
+	const tstring& GetAlbum()const{return album;}
+	const tstring& GetGenre()const{return genre;}
+	const tstring& GetYear()const{return year;}
+	const tstring& GetComment()const{return comment;}
+	const tstring& GetLycPath()const{return lycPath;}
 	BOOL    IsLyricFromFile() const {return m_bLrcFromLrcFile;}
 	BOOL  ScanId3Info ( BOOL bRetainPic=FALSE,BOOL forceRescan=TRUE);
 

@@ -1,11 +1,15 @@
-#include "stdafx.h"
+#include "Util1.h"
+#include "winbase.h"
+#include "tchar.h"
+#include "assert.h"
+
 const TCHAR* ChangeCurDir2ModulePath(HINSTANCE hInstance)
 {
 	static BOOL modulePathGetted=FALSE;
 	static TCHAR moduleFileName[MAX_PATH]={0};
 	if (!modulePathGetted)
 	{
-		ATLASSERT(hInstance);
+		assert(hInstance);
 		GetModuleFileName(hInstance,moduleFileName,MAX_PATH);
 		int i;
 		for (i=MAX_PATH-1;i>=0 && moduleFileName[i]!='\\';--i);

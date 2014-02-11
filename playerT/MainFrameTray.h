@@ -1,7 +1,11 @@
 #include "stdafx.h"
+#include "CMyTypes.h"
 #include "resource1.h"
 #include "CMyTrayNotifyIcon.h"
 #include "customMsg.h"
+#include <atlwin.h>
+#include <atlapp.h>
+#include <atlframe.h>
 
 class CMainFrame : public CWindowImpl<CMainFrame>
 	, public CUpdateUI<CMainFrame>
@@ -13,7 +17,10 @@ public:
 	int m_nOrder;
 	TCHAR *m_strAction;
 	int HotKeyId;
+	bool m_bExit2UI;
 
+	UINT m_nIDEvent;
+	int m_uElapse;
 
 	DECLARE_WND_CLASS(_T("WTLNTRAY") )
 
@@ -42,6 +49,7 @@ public:
 
 	BEGIN_MSG_MAP(CMainFrame)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
+		MESSAGE_HANDLER(WM_TIMER, OnTimer)
 		MESSAGE_HANDLER(WM_TRACK_REACH_END, OnTrackReachEnd)
 		MESSAGE_HANDLER(WM_HOTKEY,OnHotKey)
 		MESSAGE_HANDLER(WM_TRAYNOTIFY, OnTrayNotification)
@@ -52,6 +60,7 @@ public:
 		COMMAND_HANDLER(ID_PLAY_NEXT, 0, OnPlayNext)
 		COMMAND_HANDLER(ID_PLAY_RANDOM, 0, OnPlayRandom)
 		COMMAND_RANGE_CODE_HANDLER(ID_ORDER_DEFAULT,ID_ORDER_RANDOM, 0, OnSetOrder)
+		COMMAND_HANDLER(ID__EXIT2UI, 0, OnFileExit)
 		COMMAND_HANDLER(ID_APP_EXIT, 0, OnFileExit)
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 	END_MSG_MAP()
@@ -67,14 +76,8 @@ public:
 
 	void Update();
 
-	LRESULT OnTrayNotification(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-	{
-		bHandled=TRUE;
-		trayNI.OnTrayNotification(wParam,lParam);
-		return 0L;
-	}
-
-
+	LRESULT OnTrayNotification(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnTrackReachEnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnPlay(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

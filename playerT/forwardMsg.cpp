@@ -20,6 +20,6 @@ void LoginOutMsgReceiver(UINT uMsg,HWND hWnd)
 void NotifyMsg(UINT uMsg,BOOL bPost,WPARAM wParam,LPARAM lParam)
 {
 #ifdef APP_PLAYER_UI
-	NotifyCenter()->Msg(uMsg,wParam,lParam,bPost);
+	NotifyCenter()->Msg(uMsg,bPost,wParam,lParam);
 #endif
 }

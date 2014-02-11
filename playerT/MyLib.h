@@ -1,5 +1,4 @@
 #pragma once
-#include "stdafx.h"
 #include "PlayList.h"
 #include "math.h"
 #include <list>
@@ -47,7 +46,7 @@ private:
 	LPCPlayListItem itemToPlay; // the playlistitem to play
 	LPCPlayListItem itemPlaying;
 public:
-	void SetSelectedIndex(int i){m_IndexSelecting=i;}
+	void SetSelectedIndex(int i);
 	void SetSelectedPL(LPCPlayList pl){SetSelectedIndex(Playlist2Index(pl));}
 	void SetAutoPlaylist(LPCPlayList pl);
 	void SetPlayOrder(int o){playorder=static_cast<PlayOrder>(o);}
@@ -118,6 +117,7 @@ public:
 	void DelMediaPath(std::tstring &path);
 
 	//播放列队
+	PlayQueueContainer GetPlayQueue(){return playQueue;}
 	void PushPlayQueue(LPCPlayListItem item);
 	LPCPlayListItem PopTrackFromPlayQueue();
 	//to test track weather in the queue
@@ -133,18 +133,18 @@ public:
 		return index >=0 && index < GetItemCount();
 	}
 
-	LPCPlayList NewPlaylist(std::tstring playlistname=_T("新建播放列表1"),bool bAutoPL=false);
-	void DeletePlayList(LPCPlayList pl);
-	void DeletePlayList(int nIndex);
+	LPCPlayList NewPlaylist(BOOL bNotify,std::tstring playlistname=_T("新建播放列表1"),bool bAutoPL=false);
+	void DeletePlayList(LPCPlayList pl,BOOL bNotify);
+	void DeletePlayList(int nIndex,BOOL bNotify);
 
 	bool isPlaying() const;
 
 	static LPCPlayList AddFolderToCurrentPlayList(LPCTSTR pszFolder);
-	BOOL play();
+	BOOL play(BOOL bClearPlayQueue=TRUE);
 	void pause();
 	void stop();
 	BOOL playNext(BOOL scanID3=TRUE);
-	BOOL playNext(BOOL scanID3 ,PlayOrder playorder);
+	BOOL playNext(BOOL scanID3 ,PlayOrder playorder,BOOL bClearPlayQueue=TRUE);
 	BOOL playRandomNext(BOOL scanID3=TRUE);
 
 	static	BOOL SavePlaylist(LPCPlayList pl,LPTSTR filepath);

@@ -29,7 +29,7 @@ public:
 	int trackIndex;                //列表中的第几个音轨
 	
 	PlayingStatus playingStatus;
-	trackPosInfo pos;    //音轨的播放进度
+	int msecPos;    //音轨的播放进度
 
 
 	//播放器的音量

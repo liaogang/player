@@ -1,3 +1,4 @@
+#include "resource1.h"
 #include "CMyTrayNotifyIcon.h"
 #include "BasicPlayer.h"
 #include "globalStuffs.h"

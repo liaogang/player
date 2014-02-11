@@ -14,19 +14,18 @@ CPlayerThread::CPlayerThread(MusicFile * pFile,CCriticalSection *cs,BOOL *pStop)
 	CThread(TRUE),
 	m_lpDSBuffer(NULL),
 	m_dwCurWritePos(-1),m_bKeepPlaying(TRUE),
-	pPosInfo(NULL),m_pStopped(pStop)
+	m_pStopped(pStop)
 {
 	pBufFFT1=new signed char[gDefaultBufferSize];
 	//memset(pBufFFT1,0,gDefaultBufferSize);
 
-	pPosInfo=new trackPosInfo;
 }
 
 CPlayerThread::~CPlayerThread(void)
 {
 	delete[] pBufFFT1;
-	delete pPosInfo;
-	
+	delete[] m_ReduceBuffer;
+
 	if(m_lpDSBuffer)
 	{	
 		m_lpDSBuffer->Release();
@@ -47,10 +46,14 @@ void CPlayerThread::Reset()
 	m_iBytePerFrame=m_pFile->bytePerFrame();
 	m_iTotalFrames= m_pFile->getFrameSize();
 	m_wBitsPerSample=pwfx->wBitsPerSample;
+	m_nAvgBytesPerSec=pwfx->nAvgBytesPerSec;
 
 	m_lpDSBuffer=DSoundBufferCreate(pwfx);
 
 	fftBufLen=g_dwMaxDSBufferLen;
+
+	m_ReduceBuffer=new BYTE[m_iBytePerFrame * 16];
+
 	//pBufFft=new signed char[fftBufLen];
 	playPosInFFt=0;
 	
@@ -70,7 +73,6 @@ BOOL CPlayerThread:: ReadFileReduceVol(BOOL bReduce)
 	int times= bReduce ? 16 :  8 ;
 	int   totalBufferLen=fileBufferLen * times;
 
-	BYTE *fileBuffer=new BYTE[16*fileBufferLen];
 
 	double vol=bReduce ? 1 : 0;
 	
@@ -82,7 +84,7 @@ BOOL CPlayerThread:: ReadFileReduceVol(BOOL bReduce)
 
 		m_pFile->SetOutVolume(vol);
 
-		if(!m_pFile->Read(fileBuffer + bufferOffset,fileBufferLen,&m_dwSizeRead) ||
+		if(!m_pFile->Read(m_ReduceBuffer + bufferOffset,fileBufferLen,&m_dwSizeRead) ||
 			m_dwSizeRead==0 )
 		{
 			bFileEnd=TRUE;
@@ -95,11 +97,9 @@ BOOL CPlayerThread:: ReadFileReduceVol(BOOL bReduce)
 		
 	}
 
-	DSoundBufferWrite(fileBuffer,totalBufferLen);
+	DSoundBufferWrite(m_ReduceBuffer,totalBufferLen);
 
 	m_pFile->SetOutVolume(bReduce ? 0 : 1);
-
-	delete[] fileBuffer;
 
 	return bFileEnd;
 }
@@ -119,6 +119,8 @@ double CPlayerThread::GetOffsetSeconds()
 	double timePlayed=notPlayed/(double)pwfx->nAvgBytesPerSec;
 	return timePlayed;
 }
+
+
 
 BOOL CPlayerThread::BeginChangeTrackPos()
 {
@@ -255,18 +257,30 @@ NormalEnd:
 	return;
 
 fileEnd:
+	//wait play ended.
+	DWORD available;
+	DWORD playCursor;
+	if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return;
+	if(m_dwCurWritePos < playCursor )
+		m_dwCurWritePos+=g_dwMaxDSBufferLen;
+
+	available=m_dwCurWritePos - playCursor ;
+
+	::Sleep(available / m_nAvgBytesPerSec *1000);
+
 	m_lpDSBuffer->Stop();
 	m_bKeepPlaying=FALSE;
 	*m_pStopped=TRUE;
 	m_pFile->Close();
 	m_pFile=NULL;
-	m_cs->Leave();	
-	NotifyMsg(WM_TRACKSTOPPED);
-	NotifyMsg(WM_TRACK_REACH_END);
+	NotifyMsg(WM_TRACKSTOPPED,FALSE,0,0);
+	NotifyMsg(WM_TRACK_REACH_END,FALSE,0,0);
 
 #ifdef APP_PLAYER_TRAY
 	::PostMessage(GetMainFrame()->m_hWnd,WM_TRACK_REACH_END,0,0);
 #endif
+	
+	m_cs->Leave();	
 
 	return;
 }

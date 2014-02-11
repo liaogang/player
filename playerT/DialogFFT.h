@@ -54,34 +54,34 @@ public:
 
 	LRESULT OnBands10(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		CBasicPlayer::shared()->m_pSpectrumAnalyser->SetBands(10);
+		//CBasicPlayer::shared()->m_pSpectrumAnalyser->SetBands(10);
 		return 0;	
 	}
 
 	LRESULT OnBands20(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		CBasicPlayer::shared()->m_pSpectrumAnalyser->SetBands(20);
+		//CBasicPlayer::shared()->m_pSpectrumAnalyser->SetBands(20);
 		return 0;	
 	}
 
 	LRESULT OnBands40(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		CBasicPlayer::shared()->m_pSpectrumAnalyser->SetBands(40);
+		//CBasicPlayer::shared()->m_pSpectrumAnalyser->SetBands(40);
 		return 0;	
 	}
 
 	LRESULT OnBands80(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		CBasicPlayer::shared()->m_pSpectrumAnalyser->SetBands(80);
+		//CBasicPlayer::shared()->m_pSpectrumAnalyser->SetBands(80);
 		return 0;	
 	}
 
 	LRESULT OnBands160(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		CBasicPlayer::shared()->m_pSpectrumAnalyser->SetBands(160);
+		//CBasicPlayer::shared()->m_pSpectrumAnalyser->SetBands(160);
 		return 0;	
 	}
-
+	
 	LRESULT OnErase(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		return 1;
@@ -111,7 +111,7 @@ public:
 		PAINTSTRUCT ps;
 		::BeginPaint(m_hWnd,&ps);
 		
-		CBasicPlayer::shared()->m_pSpectrumAnalyser->DrawSpectrum();
+		//CBasicPlayer::shared()->m_pSpectrumAnalyser->DrawSpectrum();
 		
 		::EndPaint(m_hWnd,&ps);
 		return 0;
@@ -128,7 +128,7 @@ public:
 		HDC hdc=GetDC();
 
 		
-		CBasicPlayer::shared()->m_pSpectrumAnalyser->DCRECTInit(m_hWnd,hdc,rc);
+		//CBasicPlayer::shared()->m_pSpectrumAnalyser->DCRECTInit(m_hWnd,hdc,rc);
 	
 		//CBasicPlayer::shared()->m_pSpectrumAnalyser->Init(FALSE);
 
@@ -138,7 +138,7 @@ public:
 
 	LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		CBasicPlayer::shared()->m_pSpectrumAnalyser->Suspend();
+		//CBasicPlayer::shared()->m_pSpectrumAnalyser->Suspend();
 		ShowWindow(SW_HIDE);	
 		return 0;
 	}
@@ -147,8 +147,8 @@ public:
 	{
 		ShowWindow(SW_SHOW);
 		GetClientRect(&rc);
-		CBasicPlayer::shared()->m_pSpectrumAnalyser->m_rc=rc;
-		CBasicPlayer::shared()->m_pSpectrumAnalyser->Resume();
+		//CBasicPlayer::shared()->m_pSpectrumAnalyser->m_rc=rc;
+		//CBasicPlayer::shared()->m_pSpectrumAnalyser->Resume();
 	}
 
 };

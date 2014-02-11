@@ -1,8 +1,9 @@
-#include "stdafx.h"
-
+//#include "stdafx.h"
+#pragma once
+#include "CMyTypes.h"
 #include <vector>
 #include <map>
-#pragma once
+
 
 #define IWantToReceiveMessage(uMsg) RegistMsgReceiver(uMsg,m_hWnd)
 #define IDonotWantToReceiveMessage(uMsg) LoginOutMsgReceiver(uMsg,m_hWnd)
@@ -16,7 +17,7 @@ class forwardMsg
 public:
 	void RegistMsgReceiver(UINT uMsg,HWND hWnd)
 	{
-		ATLASSERT(IsWindow(hWnd));
+		//ATLASSERT(IsWindow(hWnd));
 
 		auto it=msgMap.find(uMsg);
 		if (it==msgMap.end())
@@ -29,7 +30,7 @@ public:
 		pList->push_back(hWnd);
 		
 #ifdef _DEBUG
-		AtlTrace(L"The Windows  %d Registed a message WM_USER+%d ",hWnd,uMsg-WM_USER);
+		//AtlTrace(L"The Windows  %d Registed a message WM_USER+%d\n",hWnd,uMsg-WM_USER);
 #endif
 	}
 	
@@ -89,6 +90,6 @@ forwardMsg* NotifyCenter();
 void LoginOutMsgReceiver(UINT uMsg,HWND hWnd);
 void RegistMsgReceiver(UINT uMsg,HWND hWnd);
 
-void NotifyMsg(UINT uMsg,BOOL bPost=FALSE,WPARAM wParam=NULL,LPARAM lParam=NULL);
+void NotifyMsg(UINT uMsg,BOOL bPost,WPARAM wParam,LPARAM lParam);
 
 

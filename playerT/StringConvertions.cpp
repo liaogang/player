@@ -1,7 +1,11 @@
 #include "StringConvertions.h"
+#include "tchar.h"
+#include "winbase.h"
+
 
 #ifdef APP_PLAYER_UI
 #include <algorithm>
+
 
 
 

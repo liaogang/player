@@ -55,9 +55,6 @@ class CMainFrame :
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 public:
-#ifdef APP_PLAYER_UI
-
-
 	typedef CFrameWindowImpl<CMainFrame> thebase;
 
 	//ÖÜ±ß´°¿Ú
@@ -96,8 +93,8 @@ public:
 	RECT m_dlgPLConsoleShow;
 
 	BOOL m_bShowStatusBar;
+	BOOL m_bExit2Tray;
 
-	#endif
 
 	UINT m_nIDEvent;
 	static const int m_uElapse=150;
@@ -110,7 +107,7 @@ public:
 		m_pDlgSearch(NULL),pDlgProcess(NULL),
 		m_pDlgFFT(NULL),m_pDlgFFTOutline(NULL),
 		m_pDlgPLMng(NULL),m_pDlgConsole(NULL),
-		m_pDlgConfig(NULL),m_bShowStatusBar(TRUE)
+		m_pDlgConfig(NULL),m_bShowStatusBar(TRUE),m_bExit2Tray(FALSE)
 	{
 		RECT_INIT(m_rcMain)
 		RECT_INIT(m_rcConfig)
@@ -157,8 +154,8 @@ public:
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
 		MESSAGE_HANDLER(WM_TRACK_REACH_END,OnTrackReachEnd)
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
-		MESSAGE_HANDLER(WM_PL_CHANGED,OnPLChanged)
-		MESSAGE_HANDLER(WM_PL_TRACKNUM_CHANGED,OnPLTrackNumChanged)
+		//MESSAGE_HANDLER(WM_PL_WILL_DELETED,OnPLChanged)
+		//MESSAGE_HANDLER(WM_PL_TRACKNUM_CHANGED,OnPLTrackNumChanged)
 		//message from message center
 
 		MESSAGE_HANDLER(WM_PLAYLISTVIEW_CENTER_ITEM,OnPLVCenterItem)
@@ -166,9 +163,9 @@ public:
 		MSG_WM_TIMER(OnTimer)
 
 		COMMAND_ID_HANDLER(ID_EDIT_SEARCH, OnEditSearch)
+		COMMAND_ID_HANDLER(ID_EXIT2TRAY, OnFileExit)
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_NEW, OnFileNew)
-// 		COMMAND_ID_HANDLER(ID_VIEW_TOOLBAR, OnViewToolBar)
  		COMMAND_ID_HANDLER(ID_VIEW_STATUS_BAR, OnViewStatusBar)
 		COMMAND_ID_HANDLER(ID_CHANGEPLAYLISTCOLOR_DEFAULT,OnChangePLColorDefault)
 		COMMAND_ID_HANDLER(ID_CHANGEPLAYLISTCOLOR_BLUE,OnChangePLColorBlue)
@@ -210,7 +207,7 @@ public:
 
 	void OnTimer(UINT_PTR /*nIDEvent*/)
 	{
-		NotifyMsg(WM_USER_TIMER);
+		NotifyMsg(WM_USER_TIMER,FALSE,0,0);
 	}
 
 	LRESULT OnNotify2(int idCtrl, LPNMHDR pnmh);
@@ -220,17 +217,10 @@ public:
 		return OnNotify2((int)wParam, (LPNMHDR)lParam); 
 	}
 
-// 	BOOL AddSimpleReBarBand(HWND hWndBand, LPCTSTR lpstrTitle = NULL, BOOL bNewRow = FALSE, int cxWidth = 0, BOOL bFullWidthAlways = FALSE)
-// 	{
-// 		thebase::AddSimpleReBarBand(hWndBand,lpstrTitle,bNewRow,cxWidth,bFullWidthAlways);
-// /*		m_pRebar->add*/
-// 	}
 		
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnTrackReachEnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
-	LRESULT OnPLChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
-	LRESULT OnPLTrackNumChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnPLVCenterItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
@@ -248,8 +238,11 @@ public:
 		return 0;
 	}
 
-	LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	LRESULT OnFileExit(WORD wNotifyCode, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
+		if(wID == ID_EXIT2TRAY )
+			m_bExit2Tray=TRUE;
+
 		PostMessage(WM_CLOSE);
 		return 0;
 	}

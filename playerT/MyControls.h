@@ -1,6 +1,8 @@
+#pragma once
+#include "forwardMsg.h"
 #include "globalStuffs.h"
 #include "MyRebar.h"
-#pragma once
+#include "BasicPlayer.h"
 
 
 
@@ -35,11 +37,11 @@ public:
 			T::ENUM_FULLWIDTHALWAYS);
 	}
 
-// 	static TCHAR *GetBandClassName()
-// 	{
-// 		ATLASSERT( FALSE );// must be implemented in a derived class
-// 		return _T(" ");
-// 	}
+	static TCHAR *GetBandClassName()
+	{
+		ATLASSERT( FALSE );// must be implemented in a derived class
+		return _T(" ");
+	}
 
 	static HWND CreateRebarBand(HWND parent)
 	{
@@ -72,7 +74,6 @@ public:
 	DECLARE_WND_SUPERCLASS(NULL,CTrackBarCtrl::GetWndClassName())
 
 	BEGIN_MSG_MAP_EX(CMyTrackBarBase)
-		MESSAGE_HANDLER(WM_GET_BAND_CLASSNAME,OnGetBandClassName)
 		MSG_WM_SETFOCUS(OnSetFocus)
 		MESSAGE_HANDLER(WM_ERASEBKGND,OnEraseBkgnd)
 		MESSAGE_HANDLER(WM_LBUTTONDOWN,OnLButtonDown)
@@ -86,12 +87,6 @@ public:
 		::SetCapture(::GetParent(m_hWnd));
 	}
 	
-	LRESULT OnGetBandClassName(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-	{
-		_tcscpy((TCHAR*)wParam,_T("ComboBox"));
-		return 0;
-	}
-
 	bool m_bPressing;
 	LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
@@ -270,7 +265,7 @@ public:
 	}
 
 	UINT m_nIDEvent;
-	static const int m_uElapse=400;
+	static const int m_uElapse=800;
 	LRESULT OnNewTrackStarted(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
 	{
 		EnableWindow(TRUE);
@@ -295,14 +290,17 @@ public:
 
 	void UpdateTime()
 	{
-		m_uCurrTime=getTrackPosInfo()->used * 1000;
+		m_uCurrTime=CBasicPlayer::shared()->MillisecondsPlayed();
 	}
 
 	void SetMaxRange()
 	{
-		trackPosInfo *info=getTrackPosInfo();
-		int totalSec=info->used + info->left;
-		SetRange(0,totalSec);
+		double totalSec=CBasicPlayer::shared()->MillisecondsTotal()/1000 ;
+		int iTotalSec=totalSec;
+		if(totalSec - iTotalSec > 0)
+			++iTotalSec;
+
+		SetRange(0,iTotalSec);
 	}
 	
 
@@ -516,7 +514,6 @@ public:
 	BEGIN_MSG_MAP_EX(CMyComboBox)
 		MSG_WM_RBUTTONDOWN(OnRButtonDown)
 		MSG_WM_SETFOCUS(OnSetFocus)
-		MESSAGE_HANDLER(WM_GET_BAND_CLASSNAME,OnGetBandClassName)
 		REFLECTED_COMMAND_CODE_HANDLER_EX(CBN_CLOSEUP,OnCloseUp)
 		REFLECTED_COMMAND_CODE_HANDLER_EX(CBN_SELCHANGE,OnCbnSelchanged)
 	END_MSG_MAP()
@@ -539,11 +536,6 @@ public:
 		::SetCapture(::GetParent(m_hWnd));
 	}
 
-	LRESULT OnGetBandClassName(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-	{
-		_tcscpy((TCHAR*)wParam,_T("ComboBox"));
-		return 0;
-	}
 
 	LRESULT OnCbnSelchanged(UINT,int id, HWND hWndCtl);
 
@@ -561,7 +553,6 @@ public:
 	void OnSetFocus(CWindow wndOld)
 	{
 		m_hWndOld=wndOld;
-		//::SetFocus(GetMainFrame()->m_hWnd);
 		
 		SetMsgHandled(FALSE);
 	}
@@ -769,7 +760,6 @@ public:
 		// 		MESSAGE_HANDLER(WM_PAUSED,OnPaused)
 		// 		MESSAGE_HANDLER(WM_PAUSE_START,OnResume)
 		// 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnStopped)
-		MESSAGE_HANDLER(WM_GET_BAND_CLASSNAME,OnGetBandClassName)
 		MESSAGE_HANDLER(WM_USER_TIMER,OnTimer)
 	END_MSG_MAP()
 
@@ -789,11 +779,6 @@ public:
 
 	void UpdateTrackInfoText();
 
-	LRESULT OnGetBandClassName(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-	{
-		_tcscpy((TCHAR*)wParam,_T("ComboBox"));
-		return 0;
-	}
 
 	LRESULT OnPlay(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{

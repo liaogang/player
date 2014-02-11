@@ -4,9 +4,6 @@
 void PlayListViewMng::AddItem(CPlayListView* playlistview)
 {
 	dataCollection.push_back(playlistview);
-	
-	if (MyLib::shared()->GetSelectedIndex() != -1)
-		playlistview->Reload(MyLib::shared()->GetSelectedPL(),false);
 }
 
 void PlayListViewMng::ClearAllItem()

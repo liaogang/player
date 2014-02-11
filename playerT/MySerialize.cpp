@@ -11,7 +11,13 @@
 #include "MyControls.h"
 #include "mytree.h"
 #include "mainfrm.h"
+#include "resource.h"
+#else
+#include "resource1.h"
 #endif
+
+#define  _CRT_SECURE_NO_WARNINGS
+
 
 ADDTOSERIALIZE(CPlayListItem)
 ADDTOSERIALIZE(CPlayList)
@@ -169,7 +175,6 @@ bool LoadAllPlayList()
 
 	
 	BOOL   bLoaded=TRUE;
-
 	FILE  * f = _tfopen( PLAYLISTINDEXFILE , _T("rb") );
 	if (f)
 	{
@@ -365,10 +370,6 @@ LPCPlayList MyLib::LoadPlaylist(LPTSTR filepath,TCHAR* PlName)
 			//MyLib::shared()->InitMonitor(playlist);
 		}
 
-#ifdef APP_PLAYER_UI
-		SdMsg(WM_PL_CHANGED,TRUE,(WPARAM)playlist,1);
-#endif
-
 		fclose(f);
 	}
 
@@ -426,12 +427,12 @@ FILE& CPlayListItem::operator<<(FILE& f)
 
 FILE& MyConfigs::operator>>(FILE& f) const
 {
-	return f<<bResumeOnReboot<<playlistIndex<<trackIndex<<playingStatus<<pos.used<<pos.left<<playersVolume<<playorder;
+	return f<<bResumeOnReboot<<playlistIndex<<trackIndex<<playingStatus<<msecPos<<playersVolume<<playorder;
 }
 
 FILE& MyConfigs::operator<<(FILE& f)
 {
-	return f>>bResumeOnReboot>>playlistIndex>>trackIndex>>playingStatus>>pos.used>>pos.left>>playersVolume>>playorder;
+	return f>>bResumeOnReboot>>playlistIndex>>trackIndex>>playingStatus>>msecPos>>playersVolume>>playorder;
 }
 
 
@@ -440,33 +441,40 @@ FILE& MyConfigs::operator<<(FILE& f)
 void CollectInfo()
 {
 	MyConfigs *c=GetMyConfigs();
-	c->setPlayersVolume(CBasicPlayer::shared()->m_curVolume);
+	MyLib *s=MyLib::shared();
+	CBasicPlayer * b=CBasicPlayer::shared();
 
-	LPCPlayListItem track=MyLib::shared()->GetPlayingItem();
+
+	c->setPlayersVolume(b->m_curVolume);
+
+	LPCPlayListItem track=s->GetPlayingItem();
 	if(track!=NULL && track->isValide() && MyLib::shared()->IsValidePlayList(track->GetPlayList() ))
 	{		
-		c->playlistIndex=MyLib::shared()->Playlist2Index(track->GetPlayList());
+		c->playlistIndex=s->Playlist2Index(track->GetPlayList());
 		c->trackIndex=track->GetIndex();
 	}
 
 
 	if(c->getResumeOnReboot())
 	{
-		c->playingStatus=CBasicPlayer::shared()->m_lastStatus;
-		c->pos=CBasicPlayer::shared()->m_lastPos;
+		c->playingStatus=b->m_lastStatus;
+		c->msecPos=b->m_msecLastPos;
 	}
 
-	c->setPlayersVolume(CBasicPlayer::shared()->m_curVolume);
-	c->playorder=MyLib::shared()->GetPlayOrder();
+	c->setPlayersVolume(b->m_curVolume);
+	c->playorder=s->GetPlayOrder();
 }
 
 void ValidateCfg()
 {
 	MyConfigs *c=GetMyConfigs();
-	CBasicPlayer::shared()->SetVolumeByEar(c->getPlayersVolume());
-	MyLib::shared()->SetPlayOrder(c->playorder);
+	MyLib *s=MyLib::shared();
+	CBasicPlayer * b=CBasicPlayer::shared();
 
-	MyLib* s= MyLib::shared();
+
+	b->SetVolumeByEar(c->getPlayersVolume());
+	s->SetPlayOrder(c->playorder);
+
 	LPCPlayList pl= s->Index2Playlist(c->playlistIndex);
 	if(pl)
 		s->SetItemToPlay(pl->GetItem(c->trackIndex));
@@ -475,8 +483,8 @@ void ValidateCfg()
 	{
 		if(c->playingStatus==status_playing||c->playingStatus==status_paused)
 		{
-			CBasicPlayer::shared()->m_lastStatus=c->playingStatus;
-			CBasicPlayer::shared()->m_lastPos=c->pos;
+			b->m_lastStatus=c->playingStatus;
+			b->m_msecLastPos=c->msecPos;
 
 			SdMsg(WM_COMMAND,TRUE,MAKEWPARAM(ID_PLAY,0),(LPARAM)0);	
 		}
@@ -610,10 +618,10 @@ FILE& CMultiSpliltWnd::operator>>(FILE& f) const
 
 FILE& CMultiSpliltWnd::operator<<(FILE& f)
 {
-	MYTREE *root=CreateRootTree();
-	f>>*root;
-
-	ReSerializeAllTree(root,f);
+	rootTree=CreateRootTree();
+	f>>*rootTree;
+	
+	ReSerializeAllTree(rootTree,f);
 
 	return f;
 }

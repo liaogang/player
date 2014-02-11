@@ -3,15 +3,19 @@
 #include "MyLib.h"
 #include "globalStuffs.h"
 #include "BasicPlayer.h"
+#include "Util1.h"
 
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	m_bExit2UI=FALSE;
+
 	LoadAll();
 	trayNI.CreateSelf(m_hWnd);
 	trayNI.SetDefaultMenuItem(ID_PLAY_NEXT,FALSE);
 
 	RegisterMyHotKeys();
 
+	m_uElapse=GetDoubleClickTime();
 
 	PlayOrder order = MyLib::shared()->GetPlayOrder();
 	m_nOrder=order;
@@ -56,7 +60,7 @@ void CMainFrame::Update()
 		
 		trayNI.SetTooltipText(buf);
 
-		trayNI.SetBalloonDetails(buf,m_strAction,CTrayNotifyIcon::Info,15);
+		trayNI.SetBalloonDetails(buf,m_strAction,CTrayNotifyIcon::Info,10);
 	}
 }
 
@@ -148,13 +152,27 @@ LRESULT CMainFrame::OnSetOrder(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/,
 }
 
 
-LRESULT CMainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT CMainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	m_bExit2UI= wID ==ID__EXIT2UI;
+
 	UnregisterHotKey(m_hWnd, HotKeyId); 
 	GlobalDeleteAtom(HotKeyId);
 
 	CBasicPlayer::shared()->Destroy();
 	SaveAll();
+
+
+	if(m_bExit2UI)
+	{
+		ChangeCurDir2ModulePath();
+		ShellExecute(NULL,
+			_T("open"),
+			_T("explorer"),
+			_T("player.exe"),
+			_T(""),
+			SW_SHOW);
+	}
 
 	PostMessage(WM_CLOSE);
 	PostMessage(WM_QUIT);
@@ -201,4 +219,42 @@ LRESULT CMainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& 
 	bHandled=TRUE;
 
 	return 0;
+}
+
+LRESULT CMainFrame::OnTrayNotification(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	//Show Info b... when left button clicked once.
+	if (lParam == WM_LBUTTONDBLCLK) 
+	{
+		if(m_nIDEvent!=NULL)
+			KillTimer((UINT_PTR)&m_nIDEvent);
+
+		MyLib *s=MyLib::shared();
+		CBasicPlayer *b=CBasicPlayer::shared();
+		if(b->stoped() )
+			OnPlay(0,0,0,bHandled);
+		else if(b->paused() )
+			OnPause(0,0,0,bHandled);
+		else
+			OnPlayNext(0,0,0,bHandled);
+	}
+	else
+	if (lParam == WM_LBUTTONUP) 
+	{
+		SetTimer((UINT_PTR)&m_nIDEvent,m_uElapse,NULL);
+	}
+	else
+		trayNI.OnTrayNotification(wParam,lParam);
+
+	return 0L;
+}
+
+LRESULT CMainFrame::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	KillTimer((UINT_PTR)&m_nIDEvent);
+	m_nIDEvent=NULL;
+		
+	Update();
+
+	return 0L;
 }

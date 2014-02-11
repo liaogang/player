@@ -1,4 +1,3 @@
-#include "stdafx.h"
 
 #ifndef INCLUDE_CRITICALSECTION
 #define INCLUDE_CRITICALSECTION

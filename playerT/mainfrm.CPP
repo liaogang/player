@@ -109,6 +109,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	LoadAll();
 
+
 	SetTimer((UINT_PTR)&m_nIDEvent,m_uElapse,NULL);
 
 
@@ -137,6 +138,7 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	RegisterMyHotKeys();
 
 	SetMsgHandled(FALSE);
+
 	return 0;
 }
 
@@ -256,9 +258,9 @@ LRESULT CMyTrackBar::OnMouseReleased(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandle
 	ReleaseCapture();
 
 	int pos=GetPos();
-	int posMax=GetRangeMax();
+
 	
-	CBasicPlayer::shared()->SetPos(pos,posMax);
+	CBasicPlayer::shared()->SetPos(pos);
 
 
 	return 0;
@@ -475,47 +477,11 @@ LRESULT CMainFrame::OnAddFolder(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 }
 
 
-void CPlayListManager::AddPlayList(LPCPlayList pPL)
-{
-	int item=GetItemCount();
-	TCHAR strCount[256];
-	_itow(pPL->GetItemCount(),strCount,10);
 
-	InsertItem(item,pPL->GetPlaylistName().c_str());
-	SetItemText(item,1,strCount);
-	SetItemText(item,2,pPL->IsAuto()?_T("自动列表"):_T("普通列表"));
-	SetItemData(item,(DWORD_PTR)pPL);
-}
 
-void CPlayListManager::DelPlayList(LPCPlayList pPL)
-{
-	int c=GetItemCount();
-	for (int i=0;i<c;++i)
-	{
-		auto pl= (LPCPlayList)GetItemData(i);
-		if (pl==pPL){
-			DeleteItem(i);
-			break;
-			}
-	}
-}
 
-void CPlayListManager::UpdateByPLTrack(LPCPlayList pPL)
-{
-	int c=GetItemCount();
-	for (int i=0;i<c;++i)
-	{
-		auto pl= (LPCPlayList)GetItemData(i);
-		if (pl==pPL){
-			SetItemText(i,0,pPL->GetPlaylistName().c_str());
 
-			TCHAR strCount[256];
-			_itow(pPL->GetItemCount(),strCount,10);
-			SetItemText(i,1,strCount);
-			break;
-			}
-	}
-}
+
 
 LRESULT CMainFrame::OnConfigLyric(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
@@ -620,64 +586,42 @@ LRESULT CMainFrame::OnTrackStopped(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 
 	return 0;
 }
+// 
+// LRESULT CMainFrame::OnPLChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+// {
+// 	BOOL bAdd=(BOOL)lParam;
+// 	LPCPlayList pl=(LPCPlayList)wParam;
+// 
+// 	if (m_pDlgPLMng && m_pDlgPLMng->IsWindow())
+// 	{
+// 		if (bAdd)
+// 			m_pDlgPLMng->m_list.AddPlayList(pl);
+// 		else
+// 			m_pDlgPLMng->m_list.DelPlayList(pl);
+// 	}
+// 
+// 	if (bAdd)
+// 		AllPlayListViews()->Reload(pl);
+// 	else
+// 	{
+// 		LPCPlayList anotherSel=NULL;
+// 		if(!MyLib::shared()->Empty())
+// 			anotherSel= MyLib::shared()->GetItem(0);
+// 
+// 		AllPlayListViews()->Reload(anotherSel);
+// 	}
+// 
+// 	return 0;
+// }
 
-LRESULT CMainFrame::OnPLChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-{
-	BOOL bAdd=(BOOL)lParam;
-	LPCPlayList pl=(LPCPlayList)wParam;
-
-	if (m_pDlgPLMng && m_pDlgPLMng->IsWindow())
-	{
-		if (bAdd)
-			m_pDlgPLMng->m_list.AddPlayList(pl);
-		else
-			m_pDlgPLMng->m_list.DelPlayList(pl);
-	}
-
-	if (bAdd)
-		AllPlayListViews()->Reload(pl);
-	else
-	{
-		LPCPlayList anotherSel=NULL;
-		if(!MyLib::shared()->Empty())
-			anotherSel= MyLib::shared()->GetItem(0);
-
-		AllPlayListViews()->Reload(anotherSel);
-	}
-
-	return 0;
-}
 
 
-LRESULT CMainFrame::OnPLTrackNumChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-{
-	LPCPlayList pl=(LPCPlayList)wParam;
-		
-	int numberChanged=(int)lParam;
-	if(numberChanged==-1)
-	{
-		AllPlayListViews()->DeleteOneTrackFirst(pl);
-		return 0;
-	}
-
-	AllPlayListViews()->Reload(pl);
-
-	if (m_pDlgPLMng && m_pDlgPLMng->IsWindow())
-	{
-		m_pDlgPLMng->m_list.UpdateByPLTrack(pl);
-	}
-	
-	return 0;
-}
 
 
 LRESULT CMainFrame::OnFileNewPlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	LPCPlayList pPl=MyLib::shared()->NewPlaylist();
+	LPCPlayList pPl=MyLib::shared()->NewPlaylist(TRUE);
 	
-	AllPlayListViews()->Reload(pPl);
-	MyLib::shared()->SetSelectedPL(pPl);
-
 	return 0;
 }
 
@@ -724,8 +668,12 @@ LRESULT CMainFrame::OnSavePlaylist(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 LRESULT CMainFrame::OnPLVCenterItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
 	LPCPlayListItem item=MyLib::shared()->GetPlayingItem();
-	AllPlayListViews()->Reload(item->GetPlayList(),item->GetIndex());
-	NotifyMsg(WM_PLAYLISTVIEW_SETFOCUS);
+	if(item)
+	{
+		AllPlayListViews()->Reload(item->GetPlayList(),item->GetIndex());
+		NotifyMsg(WM_PLAYLISTVIEW_SETFOCUS,FALSE,0,0);
+	}
+
 	return TRUE;
 }
 
@@ -740,11 +688,17 @@ LRESULT CPlayListView::OnDbClicked(int /**/,LPNMHDR pnmh,BOOL bHandled)
 {	
 	if(!GetPlayList())return 0;
 
+	int nItem=GetFirrstSelectedItem();
+
+	GetPlayList()->SetSelectedIndex(nItem);
+
+	if(m_bManual)
+		MyLib::shared()->SetItemToPlay(GetPlayList()->GetItem(nItem));
+
 	int k=GetPlayList()->GetSelectedIndex();
 	if(k!=-1)
 	{
 		MyLib::shared()->play();
-		GetPlayList()->SetTopVisibleIndex(k);
 	}
 
 	SetMsgHandled(FALSE);
@@ -760,7 +714,6 @@ LRESULT CPlayListViewS::OnDbClicked(int /**/,LPNMHDR pnmh,BOOL bHandled)
 	if(k!=-1)
 	{
 		MyLib::shared()->play();
-		GetPlayList()->SetTopVisibleIndex(k);
 	}
 
 	SetMsgHandled(TRUE);
@@ -777,7 +730,7 @@ LRESULT CMainFrame::OnExit(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 void CPlayList::TerminateAddDirThread()
 {
 	::TerminateThread(hAddDir,-1);
-	NotifyMsg(WM_FILE_FINDED,NULL,(LPARAM)0);
+	NotifyMsg(WM_FILE_FINDED,FALSE,NULL,(LPARAM)0);
 	::PostMessage(GetMainFrame()->m_hWnd,WM_ADDFOLDERED,NULL,NULL);
 }
 
@@ -820,7 +773,21 @@ void CMainFrame::ShowSearchDialog()
 			::SetWindowPos(m_pDlgSearch->m_hWnd, NULL, m_rcSearch.left, m_rcSearch.top, m_rcSearch.right - m_rcSearch.left, m_rcSearch.bottom - m_rcSearch.top,SWP_NOZORDER);
 	}
 	
+
+
 	m_pDlgSearch->ShowSelf();
+
+	if(GetFocus() != m_pDlgSearch->m_hWnd)
+	{
+		FLASHWINFO fi;
+		fi.cbSize=sizeof(fi);
+		fi.hwnd=m_pDlgSearch->m_hWnd;
+		fi.dwFlags=FLASHW_ALL;
+		fi.uCount=2;
+		fi.dwTimeout=120;
+		FlashWindowEx(&fi);
+	}
+
 }
 
 void CMainFrame::RegisterStuffs()
@@ -845,7 +812,6 @@ void CMainFrame::RegisterStuffs()
 	IWantToReceiveMessage(WM_ADDFOLDERED);
 	IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
 	IWantToReceiveMessage(WM_TRACKSTOPPED);
-	IWantToReceiveMessage(WM_PL_CHANGED);
 	IWantToReceiveMessage(WM_PL_TRACKNUM_CHANGED);
 }
 
@@ -874,13 +840,13 @@ LRESULT CMainFrame::OnFileFinded(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BO
 
 LRESULT CMainFrame::OnChangePLColorDefault(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	NotifyMsg(WM_PLAYLISTVIEW_COLOR_DEFAULT);
+	NotifyMsg(WM_PLAYLISTVIEW_COLOR_DEFAULT,FALSE,0,0);
 	return 0;
 }
 
 LRESULT CMainFrame::OnChangePLColorBlue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	NotifyMsg(WM_PLAYLISTVIEW_COLOR_BLUE);
+	NotifyMsg(WM_PLAYLISTVIEW_COLOR_BLUE,FALSE,0,0);
 	return 0;
 }
 
@@ -888,7 +854,6 @@ LRESULT CMainFrame::OnViewPlaylistManager(WORD /*wNotifyCode*/, WORD /*wID*/, HW
 {
 	if(!m_pDlgPLMng){
 	m_pDlgPLMng=new DialogPLManager;
-	m_pDlgPLMng->m_list.pMain=this;
 	m_pDlgPLMng->Create(m_hWnd);
 
 	if(m_rcPLMng.right>0 && m_rcPLMng.bottom > 0)
@@ -899,20 +864,7 @@ LRESULT CMainFrame::OnViewPlaylistManager(WORD /*wNotifyCode*/, WORD /*wID*/, HW
 	return 0;
 }
 
-void CPlayListManager::ReFillPlaylist()
-{
-	DeleteAllItems();
 
-	MyLib *s=MyLib::shared();
-	if (!s->Empty())
-	{
-		for (int i=0;i<s->GetItemCount();++i)
-		{
-			LPCPlayList l=s->GetItem(i);
-			AddPlayList(l);
-		}
-	}
-}
 
 LRESULT  CProcessingDlg::OnAbort(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
@@ -939,8 +891,6 @@ void CMyVolumeBar::OnPos(int pos)
 			LPCPlayList l=(LPCPlayList)GetItemData(k);
 
 			MyLib::shared()->SetSelectedPL(l);
-
-			AllPlayListViews()->Reload(l);
 		}
 
 		Invalidate();
@@ -1165,7 +1115,7 @@ void CDlgLrcSearch::DownLoad()
 
 
 			MyLib::shared()->InitLrcLib();
-			NotifyMsg(WM_LYRIC_RELOAD);
+			NotifyMsg(WM_LYRIC_RELOAD,FALSE,0,0);
 
 		}
 	}
@@ -1205,6 +1155,23 @@ LRESULT CPlayListView::OnPushToPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWN
 	return 0;
 }
 
+
+BOOL CPlayListViewS::IsAllSelectedItemInPlayQueue()
+{
+	MyLib *s=MyLib::shared();
+	vector<int> v;
+	CListArray < int >  aSelectedItems;
+	if(GetSelectedItems(aSelectedItems))
+		for (int i=0,c=aSelectedItems.GetSize();i<c;i++)
+		{
+			v=s->GetIndexInPlayQueue(GetItemInParent(GetPlayList()->GetItem(aSelectedItems[i])));
+			if(v.empty())
+				return FALSE;
+		}
+
+		return TRUE;
+}
+
 LRESULT CPlayListViewS::OnPushToPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	MyLib *s=MyLib::shared();
@@ -1219,6 +1186,19 @@ LRESULT CPlayListViewS::OnPushToPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HW
 		return 0;
 }
 
+
+
+LRESULT CPlayListViewS::OnDeleteFromPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+
+	MyLib *s=MyLib::shared();
+	CListArray < int >  aSelectedItems;
+	if(GetSelectedItems(aSelectedItems))
+		for (int i=0;i<aSelectedItems.GetSize();i++)
+			s->DeleteFromPlayQueue(GetItemInParent(GetPlayList()->GetItem(aSelectedItems[i])));
+
+	return 0;
+}
 
 LRESULT CPlayListView::OnDeleteFromPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
@@ -1288,8 +1268,10 @@ LRESULT CPlayListView::OnSelected(int /**/,LPNMHDR pnmh,BOOL bHandled)
 	
 	int nItem=GetFirrstSelectedItem();
 
-	GetPlayList()->SetTopVisibleIndex(nItem);
 	GetPlayList()->SetSelectedIndex(nItem);
+
+	if(m_bManual)
+		MyLib::shared()->SetItemToPlay(GetPlayList()->GetItem(nItem));
 
 	return 0;
 }
@@ -1308,8 +1290,8 @@ LRESULT CPlayListViewS::OnSelected(int /**/,LPNMHDR pnmh,BOOL bHandled)
 		LPCPlayListItem itemInParent=GetItemInParent(GetPlayList()->GetItem(nItem));
 		if(count==0)
 		{
-			MyLib::shared()->SetItemToPlay(itemInParent);
-			playlistParent->SetTopVisibleIndex(itemInParent->GetIndex());
+			if(m_bManual)
+				MyLib::shared()->SetItemToPlay(itemInParent);
 			playlistParent->SetSelectedIndex(itemInParent->GetIndex());
 		}
 
@@ -1733,18 +1715,18 @@ void CMyStatusBar::UpdateTrackInfoText()
 	if(!MyLib::shared()->isPlaying())
 		return;
 
-	int totalSec=getTrackPosInfo()->used+getTrackPosInfo()->left;
+	auto s= CBasicPlayer::shared();
+	int totalSec=s->MillisecondsTotal()/1000;
 	int minute=totalSec / 60;
 	int sec=totalSec - minute*60 ;
 
-	int usedtotalSec=getTrackPosInfo()->used;
+	int usedtotalSec=s->MillisecondsPlayed()/1000;
 	int usedMinute=usedtotalSec/60;
 	int usedSec=usedtotalSec - usedMinute*60;
 
 	TrackFormatInfo *info=GetTrackFormatInfo();
 	TCHAR format[256]={0};
 	_stprintf(format,_T("MP3 | %d kbps | %d Hz | %s | %d:%02d / %d:%02d"),info->rate,info->nSamplesPerSec ,info->getModeString(),usedMinute,usedSec,minute,sec);
-
 
 	SetText(0,format);
 }
@@ -1816,6 +1798,19 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 	bHandled = FALSE;
 
+	
+
+	if (m_bExit2Tray )
+	{
+		ChangeCurDir2ModulePath();
+		ShellExecute(NULL,
+			_T("open"),
+			_T("explorer"),
+			_T("playerTray.exe"),
+			_T(""),
+			SW_SHOW);
+	}
+
 	return 1;
 }
 
@@ -1829,6 +1824,7 @@ void CPlayListView::OnDestroy()
 	IDonotWantToReceiveMessage(WM_PLAYLISTVIEW_SETFOCUS);
 	IDonotWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_DEFAULT);
 	IDonotWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_BLUE);
+	IDonotWantToReceiveMessage(WM_SELECTED_PL_CHANGED);
 
 	SetMsgHandled(FALSE);
 }
@@ -1837,6 +1833,7 @@ void CPlayListView::OnDestroy()
 
 void CPlayListView::Init(bool bSearch)
 {	
+	IWantToReceiveMessage(WM_SELECTED_PL_CHANGED);
 	IWantToReceiveMessage(WM_PLAYLISTVIEW_SETFOCUS);
 	IWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_DEFAULT);
 	IWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_BLUE);
@@ -1899,7 +1896,11 @@ void CPlayListView::Init(bool bSearch)
 	CListImpl< CPlayListView >::Initialise();
 
 	if(!bSearch)
+	{
 		AllPlayListViews()->AddItem(this);
+		Reload(MyLib::shared()->GetSelectedPL());
+	}
+
 }
 
 

@@ -1002,7 +1002,7 @@ public:
 		return Invalidate();
 	}
 	
-	BOOL SelectItem( int nItem, int nSubItem = NULL_SUBITEM, UINT nFlags = 0 )
+	BOOL SelectItem( int nItem, int nSubItem = NULL_SUBITEM, UINT nFlags = 0 ,/*param added by lg*/BOOL bEnsureVisible=TRUE,BOOL bInvalidate=TRUE)
 	{
 		T* pT = static_cast<T*>(this);
 		
@@ -1012,7 +1012,7 @@ public:
 		BOOL bSelectItem = TRUE;
 		BOOL bSelectRange = !m_bSingleSelect && ( nFlags & MK_SHIFT );
 		BOOL bNewSelect = !( bSelectRange || ( nFlags & MK_CONTROL ) );
-		BOOL bEnsureVisible = FALSE;
+		//BOOL bEnsureVisible = FALSE;
 
 		// are we starting a new select sequence?
 		if ( bNewSelect || bSelectRange )
@@ -1049,7 +1049,7 @@ public:
 		// are we adding this item to the select sequence?
 		if ( bSelectItem )
 		{
-			bEnsureVisible = TRUE;
+			//bEnsureVisible = TRUE;
 			
 			if ( bSelectRange )
 			{
@@ -1074,11 +1074,17 @@ public:
 		
 		// start visible timer (scrolls list to partially hidden item)
 		if ( !IsItemVisible( nItem, m_setSelectedItems.size() > 1 ? NULL_SUBITEM : nSubItem, FALSE ) )
-			SetTimer( ITEM_VISIBLE_TIMER, ITEM_VISIBLE_PERIOD );
+		{
+			if(bEnsureVisible)
+				SetTimer( ITEM_VISIBLE_TIMER, ITEM_VISIBLE_PERIOD );
+		}
 		else if ( m_nFocusItem != NULL_ITEM && m_nFocusSubItem != NULL_SUBITEM )
 			EditItem( m_nFocusItem, m_nFocusSubItem );
 
-		return Invalidate();
+		if(bInvalidate)
+			return Invalidate();
+
+		return TRUE;
 	}
 	
 	BOOL IsSelected( int nItem )
@@ -1089,6 +1095,7 @@ public:
 	
 	BOOL GetSelectedItems( CListArray < int >& aSelectedItems )
 	{
+		//a bug find here. we get more than select actualy,if rectange if big than the selected item. 
 		aSelectedItems.RemoveAll();
 		for ( set < int >::iterator posSelectedItem = m_setSelectedItems.begin(); posSelectedItem != m_setSelectedItems.end(); ++posSelectedItem )
 			aSelectedItems.Add( *posSelectedItem );
@@ -1098,10 +1105,7 @@ public:
 	//add by lg
 	int GetFirrstSelectedItem( )
 	{
-		if(m_setSelectedItems.empty())
-			return -1;
-		else
-			return *m_setSelectedItems.begin();
+		return m_nFirstSelected;
 	}
 
 	BOOL HasSeleted()
@@ -1589,6 +1593,11 @@ public:
 			int nLastItem = nTopItem + ( ( rcGroupSelect.bottom - ( m_bShowHeader ? m_nHeaderHeight : 0 ) ) / m_nItemHeight );
 			nTopItem += ( ( rcGroupSelect.top - ( m_bShowHeader ? m_nHeaderHeight : 0 ) ) / m_nItemHeight ) - ( ( rcGroupSelect.top < 0 ) ? 1 : 0 );
 			
+			//added by lg
+			T *pT=static_cast<T*>(this);
+			nLastItem=min(nLastItem,pT->GetItemCount()-1);
+			//end
+
 			for ( int nItem = nTopItem; nItem <= nLastItem; nItem++ )
 			{
 				if ( m_setSelectedItems.empty() )

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "BasicPlayer.h"
 #include "MusicFile.h"
 #include "PlayerThread.h"
@@ -33,28 +34,6 @@ TrackFormatInfo* GetTrackFormatInfo()
 	SetTrackFormatInfo(1,info.bitrate,info.rate,info.mode);
 
 	return gTrackFormatInfo;
-}
-
-
-static trackPosInfo curPosInfo;
-trackPosInfo *getTrackPosInfo()
-{
-	if( !CBasicPlayer::shared()->stoped() && CBasicPlayer::shared()->m_pFile)
-	{
-		CBasicPlayer::shared()->m_pFile->GetPos(&(curPosInfo.used),&(curPosInfo.left));
-
-		double secPlayed=CBasicPlayer::shared()->m_pPlayerThread->GetOffsetSeconds();
-
-		curPosInfo.used-=secPlayed;
-		curPosInfo.left+=secPlayed;
-	}
-
-	return &curPosInfo;
-}
-
-void setTrackPosInfo(trackPosInfo info)
-{
-	curPosInfo=info;
 }
 
 void CALLBACK SlowDownVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD dw2)
@@ -154,20 +133,27 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
  
 	BOOL result=m_pFile->Open(filepath);
 	if(result==FALSE)
+	{
 		delete m_pFile;
+		m_pFile=NULL;
+	}
 	else
 	{	
 		if(m_lastStatus==status_paused || m_lastStatus==status_playing)
-			SetFilePos(&m_lastPos);
+			SetFilePos(m_msecLastPos/1000);
 		// 	if(m_eStatus==status_playing || m_eStatus==status_paused)
 		// 	{
 		// 		m_pFile->SetPos(curPosInfo.used-5>0?curPosInfo.used-5:curPosInfo.used,curPosInfo.used+curPosInfo.left);
 		// 		m_eStatus=status_null;	
 		// 	}
 		//m_pFile->ResetFile();		
-
 	}
 	
+
+	double u;
+	m_pFile->GetPos(&u,&m_maxFilepos);
+	m_MillisecondsTotal=(u+m_maxFilepos)*1000;
+
 	return result;
 }
 
@@ -197,8 +183,8 @@ void CBasicPlayer::play()
 	if(m_lastStatus==status_paused)
 	{
 		m_bPaused=TRUE;
-		NotifyMsg(WM_NEW_TRACK_STARTED,(WPARAM)NULL,0);
-		NotifyMsg(WM_PAUSED,(WPARAM)NULL,0);
+		NotifyMsg(WM_NEW_TRACK_STARTED,FALSE,(WPARAM)NULL,0);
+		NotifyMsg(WM_PAUSED,FALSE,(WPARAM)NULL,0);
 	}
 	else
 	{	
@@ -207,7 +193,7 @@ void CBasicPlayer::play()
 		m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
 		TimerVolGrowUp();
 		m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
-		NotifyMsg(WM_NEW_TRACK_STARTED,(WPARAM)NULL,0);
+		NotifyMsg(WM_NEW_TRACK_STARTED,FALSE,(WPARAM)NULL,0);
 	}
 	
 	m_lastStatus=status_invalide;
@@ -231,14 +217,14 @@ void CBasicPlayer::SlowDownVol()
 		m_pPlayerThread->m_lpDSBuffer->Stop();
 		if(m_bCloseFileInSlowDown)
 		{
-			NotifyMsg(WM_TRACKSTOPPED);
+			NotifyMsg(WM_TRACKSTOPPED,FALSE,0,0);
 			m_pPlayerThread->SetFlagToExit();
 			m_pFile->Close();	
 		}
 		else
 		{
 			m_cs.Enter();
-			NotifyMsg(WM_PAUSED);
+			NotifyMsg(WM_PAUSED,FALSE,0,0);
 			m_pPlayerThread->Suspend();
 			m_cs.Leave();
 		}
@@ -320,9 +306,7 @@ void CBasicPlayer::pause()
 		m_pPlayerThread->Resume();
 		m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
 		
-		trackPosInfo *posInfo=getTrackPosInfo();
-		m_pFile->GetPos(&(posInfo->used),&(posInfo->left));
-		NotifyMsg(WM_PAUSE_START);
+		NotifyMsg(WM_PAUSE_START,FALSE,0,0);
 		TimerVolGrowUp();
 	}
 }
@@ -351,19 +335,21 @@ void CBasicPlayer::stop()
 		m_pPlayerThread->m_lpDSBuffer->Stop();
 
 		if(m_lastStatus!=status_invalide)//cllocect info
-			m_lastPos=*getTrackPosInfo();
+			m_msecLastPos=MillisecondsPlayed();
 
-		NotifyMsg(WM_TRACKSTOPPED);
+		
 		m_pPlayerThread->SetFlagToExit();
 		m_pFile->Close();
+		
 		m_bStopped=TRUE;
+		NotifyMsg(WM_TRACKSTOPPED,FALSE,0,0);
 		m_cs.Leave();
 	}
 }
 
 
 //set pos in playing
-void CBasicPlayer::SetPos(int cur,int max)
+void CBasicPlayer::SetPos(int cur)
 {
 	if (!m_bStopped)
 	{
@@ -371,30 +357,31 @@ void CBasicPlayer::SetPos(int cur,int max)
 	
 		m_pPlayerThread->BeginChangeTrackPos();
 	
-		m_pFile->SetPos(cur,max);
+		SetFilePos(cur);
 		
-		NotifyMsg(WM_TRACK_POS_CHANGED,TRUE);
+		NotifyMsg(WM_TRACK_POS_CHANGED,TRUE,0,0);
 
 		m_pPlayerThread->EndChangeTrackPos();
 		m_cs.Leave();
 	}
 }
 
-void CBasicPlayer::SetFilePos(double cur,double max)
+void CBasicPlayer::SetFilePos(double cur)
 {
 	ATLASSERT(m_pFile);
-	m_pFile->SetPos(cur,max);
+	m_pFile->SetPos(cur,m_maxFilepos);
 }
 
-void CBasicPlayer::SetFilePos(trackPosInfo *pos)
-{
-	SetFilePos(pos->used,pos->used+pos->left);
-}
 
-void CBasicPlayer::GetPos(int *cur,int *max)
+int  CBasicPlayer::MillisecondsPlayed()
 {
-	*cur=m_pPlayerThread->pPosInfo->left;
+	double u;
+	m_pFile->GetPos(&u,NULL);
 	
-	if(max)
-		*max=*cur+m_pPlayerThread->pPosInfo->used;
+	return 1000 * (u+m_pPlayerThread->GetOffsetSeconds() );
+}
+
+int  CBasicPlayer::MillisecondsTotal()
+{
+	return m_MillisecondsTotal;
 }

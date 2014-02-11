@@ -1,19 +1,37 @@
+#include "stdafx.h"
 #include "MyLib.h"
 #include "fileMonitor.h"
 #include "BasicPlayer.h"
 #include "globalStuffs.h"
+#include "forwardMsg.h"
 #include <algorithm>
 #include <time.h>
 
 
+void MyLib::SetSelectedIndex(int i)
+{
+	if(m_IndexSelecting!=i)
+	{
+		m_IndexSelecting=i;
+		NotifyMsg(WM_SELECTED_PL_CHANGED,FALSE,(WPARAM)GetItem(i),(LPARAM)i);
+	}
+}
 
-LPCPlayList  MyLib::NewPlaylist(std::tstring playlistname,bool bAutoPL)
+LPCPlayList  MyLib::NewPlaylist(BOOL bNotify,std::tstring playlistname,bool bAutoPL)
 {
 	LPCPlayList l=new CPlayList(playlistname);
 	m_playLists.push_back(l);
 
 	if(bAutoPL)
 		l->SetAuto(bAutoPL);
+	
+	int nIndex=GetItemCount()-1;
+
+	SetSelectedIndex(nIndex);
+
+	if(bNotify)
+		NotifyMsg(WM_SOME_PL_CHANGED,FALSE,0,0);
+
 
 	return l;
 }
@@ -46,20 +64,22 @@ MyLib::~MyLib()
 
 
 
-BOOL MyLib::play( )
+BOOL MyLib::play(BOOL bClearPlayQueue)
 {
 	stop();
-	ClearPlayQueue();
+
+	if(bClearPlayQueue)
+		ClearPlayQueue();
 
 	if(itemToPlay==NULL)
 	{
 		LPCPlayList pl=GetSelectedPL();
-		itemToPlay = pl->GetSelectedItem() ;
-		if(itemToPlay==NULL)
-			return FALSE;
+		if(pl)
+			itemToPlay = pl->GetSelectedItem();
 	}
 
-	if( itemToPlay->isValide() && itemToPlay->IsFileExist() && itemToPlay->ScanId3Info(TRUE,TRUE))
+
+	if( itemToPlay!=NULL && itemToPlay->isValide() && itemToPlay->IsFileExist() && itemToPlay->ScanId3Info(TRUE,TRUE))
 	{
 		CBasicPlayer* s=CBasicPlayer::shared();
 
@@ -69,7 +89,7 @@ BOOL MyLib::play( )
 		if(s->open(itemToPlay->GetUrl().c_str()))
 		{
 			itemPlaying=itemToPlay;
-			itemToPlay=NULL;
+			//itemToPlay=NULL;
 			s->play();
 			return TRUE;
 		}
@@ -81,28 +101,34 @@ BOOL MyLib::play( )
 BOOL MyLib::playNext(BOOL scanID3 )
 {
 	auto playorder=MyLib::shared()->GetPlayOrder();
-	return playNext(scanID3,playorder);
+	return playNext(scanID3,playorder,FALSE);
 }
 
 
 BOOL MyLib::playRandomNext(BOOL scanID3)
 {
-	return playNext(scanID3,Random);
+	return playNext(scanID3,Random,TRUE);
 }
 
-BOOL MyLib::playNext(BOOL scanID3 ,PlayOrder playorder)
+BOOL MyLib::playNext(BOOL scanID3 ,PlayOrder playorder ,BOOL bClearPlayQueue)
 {	
 	if (!playQueue.empty())
+	{
 		itemToPlay = PopTrackFromPlayQueue();
-	
+		return play(FALSE);
+	}
+
 	if(itemPlaying !=NULL && itemPlaying->isValide() && IsValidePlayList(itemPlaying->GetPlayList() ) )
 	{
-	
 		itemToPlay=itemPlaying->GetPlayList()->GetNextTrackByOrder(itemPlaying->GetIndex(),playorder);
-		return play();
+		if(itemToPlay==NULL)
+			return FALSE;
+		else
+			return play(FALSE);
 	}
-	else
-		return FALSE;
+	
+
+	return FALSE;
 }
 
 
@@ -112,7 +138,7 @@ LPCPlayList MyLib::GetAutoPlaylist()
 {
 	if (!pPlayListAuto)
 	{
-		pPlayListAuto=NewPlaylist(_T("自动播放列表"),true);
+		pPlayListAuto=NewPlaylist(TRUE,_T("自动播放列表"),true);
 		m_pFileMonitor=new fileMonitors(pPlayListAuto);
 	}
 	
@@ -160,6 +186,7 @@ void MyLib::DelMediaPath(std::tstring &path)
 void MyLib::PushPlayQueue(LPCPlayListItem item)
 {
 	playQueue.push_back(item);
+	NotifyMsg(WM_PLAYQUEUE_CHANGED,FALSE,0,0);
 }
 
 LPCPlayListItem MyLib::PopTrackFromPlayQueue()
@@ -167,7 +194,7 @@ LPCPlayListItem MyLib::PopTrackFromPlayQueue()
 	PlayQueueContainer::iterator i=playQueue.begin();
 	LPCPlayListItem item=*i;
 	playQueue.erase(i);
-
+	NotifyMsg(WM_PLAYQUEUE_CHANGED,FALSE,0,0);
 	return item;
 }
 
@@ -192,13 +219,19 @@ void MyLib::DeleteFromPlayQueue(LPCPlayListItem item)
 		++i;
 
 		if(*k == item)
+		{
 			playQueue.erase(k);
+			break;
+		}
 	}
+
+	NotifyMsg(WM_PLAYQUEUE_CHANGED,FALSE,0,0);
 }
 
 void MyLib::ClearPlayQueue()
 {
 	playQueue.clear();
+	NotifyMsg(WM_PLAYQUEUE_CHANGED,FALSE,0,0);
 }
 
 
@@ -249,25 +282,43 @@ void MyLib::ImportLycByPath(std::tstring path)
 
 
 
-void MyLib::DeletePlayList(LPCPlayList pl)
+void MyLib::DeletePlayList(LPCPlayList pl,BOOL bNotify)
 {
-	auto i= find(m_playLists.begin(),m_playLists.end(),pl);
-	if(i!=m_playLists.end())
-	{
-		m_playLists.erase(i);
-		delete pl;
-		if(pl->IsAuto())
-		{
-			delete m_pFileMonitor;
-			m_pFileMonitor=NULL;
-			SetAutoPlaylist(NULL);
-		}
-	}
+	int nIndex= Playlist2Index(pl);
+	if(nIndex != -1)
+		DeletePlayList(nIndex,bNotify);
+
+
 }
 
-void MyLib::DeletePlayList(int nIndex)
+void MyLib::DeletePlayList(int nIndex,BOOL bNotify)
 {
-	DeletePlayList(Index2Playlist(nIndex));
+	LPCPlayList pl=GetItem(nIndex);
+
+	if(nIndex == GetSelectedIndex())
+	{
+		if(nIndex ==GetItemCount() -1)
+			m_IndexSelecting=nIndex-1;
+
+		NotifyMsg(WM_SELECTED_PL_CHANGED,FALSE,(WPARAM)GetItem(m_IndexSelecting),(LPARAM)m_IndexSelecting);
+	}
+
+	
+	if(pl->IsAuto())
+	{
+		delete m_pFileMonitor;
+		m_pFileMonitor=NULL;
+		SetAutoPlaylist(NULL);
+	}
+
+
+	m_playLists.erase(m_playLists.begin()+nIndex);
+	NotifyMsg(WM_PL_WILL_DELETED,FALSE,(WPARAM)pl,0);
+	
+	delete pl;
+
+	if(bNotify)
+		NotifyMsg(WM_SOME_PL_CHANGED,FALSE,0,0);
 }
 
 

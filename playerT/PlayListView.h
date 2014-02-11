@@ -38,8 +38,8 @@ public:
 	HMENU menu;
 	COLORREF clText1,clText2;
 	bool bClientEdge;
-	BOOL m_bC;
-	CPlayListView():m_bC(TRUE),m_Order(0)
+	BOOL m_bManual;
+	CPlayListView():m_bManual(TRUE),m_Order(0)
 	{
 		SetPlayList(NULL);
 		menu=LoadPlaylistMenu();
@@ -76,12 +76,14 @@ public:
 
 	//	return FALSE;
 	//}
-	 
+	typedef CPlayListView thisClass;
 	BEGIN_MSG_MAP_EX(CPlayListView)
 		//user message
 		MESSAGE_HANDLER(WM_PLAYLISTVIEW_SETFOCUS,OnSetFocus)
 		MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_DEFAULT,OnChColorDefault);
 		MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_BLUE,OnChColorBlue);
+		MESSAGE_HANDLER(WM_SELECTED_PL_CHANGED,OnSelectedPlChanged)
+
 		MSG_WM_CHAR(OnChar)
 		MSG_WM_DESTROY(OnDestroy)
 		MSG_WM_CREATE(OnCreate)
@@ -94,13 +96,18 @@ public:
 		CHAIN_MSG_MAP(CListImpl< CPlayListView >)
 	END_MSG_MAP()
 
-
 	void OnDestroy();
 
 	LRESULT OnSetFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		HWND hwnd=SetFocus();
-		SendMessage(WM_CHILDACTIVATE); 
+		SetFocus();
+
+		SetActiveWindow();
+		
+		SetForegroundWindow(m_hWnd);
+		
+
+		//SendMessage(WM_CHILDACTIVATE); 
 		
 		return 1;
 	}
@@ -116,6 +123,16 @@ public:
 		ChangeColorBlue();
 		return 1;
 	}
+
+	LRESULT OnSelectedPlChanged(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		CPlayList *pl=(CPlayList*)wParam;
+		
+		Reload(pl);
+
+		return 1;
+	}
+	
 
 	int OnCreate(LPCREATESTRUCT lpCreateStruct)
 	{
@@ -549,7 +566,7 @@ public:
 		if(GetPlayList())
 			GetPlayList()->SetTopVisibleIndex(GetTopItem());
 
-		m_bC=FALSE;
+		m_bManual=FALSE;
 
 		//if some play list is deleted.
 		if(pPlayList == NULL)
@@ -572,12 +589,12 @@ public:
 		{
 			//so we resotre the last scroll pos and,
 			//highlight last selected item
+			SelectItem(GetPlayList()->GetSelectedIndex(),-1,LVIS_SELECTED,FALSE,FALSE);
 			ScrollByTop(GetPlayList()->GetTopVisibleIndex());
-			SelectAndFocusItem(GetPlayList()->GetSelectedIndex());
 		}
 
 
-		m_bC=TRUE;
+		m_bManual=TRUE;
 	}
 
 
@@ -682,14 +699,27 @@ public:
 class CPlayListViewS :public CPlayListView
 {
 public:
+	typedef  CPlayListViewS thisClass;
 	BEGIN_MSG_MAP_EX(CPlayListViewS)
+		MESSAGE_HANDLER(WM_PLAYLISTVIEW_SETFOCUS,OnSetFocus)
 		COMMAND_ID_HANDLER(ID_PUSH_PLAYQUEUE,OnPushToPlayqueue)
+		COMMAND_ID_HANDLER(ID_DELFROMPLAYQUEUE,OnDeleteFromPlayqueue)
 		REFLECTED_NOTIFY_CODE_HANDLER(LCN_SELECTED, OnSelected)
 		REFLECTED_NOTIFY_CODE_HANDLER( LCN_DBLCLICK, OnDbClicked)
+		REFLECTED_NOTIFY_CODE_HANDLER(LCN_RIGHTCLICK, OnRightClick)
 		CHAIN_MSG_MAP(CPlayListView)
 	END_MSG_MAP()
 
+	LRESULT OnSetFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		return 1;
+	}
+
+	BOOL IsAllSelectedItemInPlayQueue();
+	
 	LRESULT OnPushToPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	
+	LRESULT OnDeleteFromPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	LRESULT OnSelected(int /**/,LPNMHDR pnmh,BOOL bHandled);
 
@@ -720,5 +750,19 @@ public:
 			itemInParent=it->second;
 
 		return itemInParent;
+	}
+
+	LRESULT OnRightClick(int /**/,LPNMHDR pnmh,BOOL bHandled)
+	{
+		POINT pt;
+		GetCursorPos(&pt);
+
+		if(HasSeleted())
+		{
+			::EnableMenuItem(menu,ID_DELFROMPLAYQUEUE,MF_BYCOMMAND|IsAllSelectedItemInPlayQueue()?MF_ENABLED:(MF_DISABLED | MF_GRAYED));
+
+			::TrackPopupMenu(menu,TPM_LEFTALIGN,pt.x,pt.y,0,m_hWnd,0);
+		}
+		return 0;
 	}
 };

@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "Util1.h"
-#include "LrcMng.h"
+
 
 #ifdef APP_PLAYER_UI
 #include "aboutdlg.h"

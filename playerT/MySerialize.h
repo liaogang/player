@@ -1,7 +1,5 @@
-#include "stdafx.h"
-#include <fstream>
-
 #pragma  once
+#include <stdio.h>
 using namespace std;
 
 

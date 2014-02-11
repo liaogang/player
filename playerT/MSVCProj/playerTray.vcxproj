@@ -52,9 +52,7 @@
     <ClCompile Include="..\player.cpp" />
     <ClCompile Include="..\PlayerThread.cpp" />
     <ClCompile Include="..\PlayList.cpp" />
-    <ClCompile Include="..\stdafx.cpp" />
     <ClCompile Include="..\StringConvertions.cpp" />
-    <ClCompile Include="..\Thread.cpp" />
     <ClCompile Include="..\Util1.cpp" />
     <ClCompile Include="..\WaveFile.cpp" />
   </ItemGroup>
@@ -96,14 +94,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>debug</OutDir>
-    <IntDir>debug</IntDir>
+    <IntDir>debugTray</IntDir>
     <IncludePath>$(IncludePath);..\Dx9SDK\Include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include;..\wtl\Include;</IncludePath>
     <LibraryPath>..\Dx9SDK\Lib;..\mpg123\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>release</OutDir>
-    <IntDir>release</IntDir>
+    <IntDir>releaseTray</IntDir>
     <IncludePath>$(IncludePath);..\mpg123\include;..\Dx9SDK\Include;..\wtl\Include</IncludePath>
     <LibraryPath>..\Dx9SDK\Lib;..\mpg123\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -125,13 +123,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
       <PreprocessorDefinitions>APP_PLAYER_TRAY;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PreprocessToFile>false</PreprocessToFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

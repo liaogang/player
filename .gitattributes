@@ -82,6 +82,7 @@ playerT/CMyLyric.h -text
 playerT/CMyTabBar.h -text
 playerT/CMyTrayNotifyIcon.cpp -text
 playerT/CMyTrayNotifyIcon.h -text
+playerT/CMyTypes.h -text
 playerT/CPropertyDlgs.h -text
 playerT/CriticalSection.h -text
 playerT/DialogConfig.cpp -text
@@ -311,10 +312,8 @@ playerT/Dx9SDK/Lib/strmiids.lib -text
 playerT/FFT.h -text
 playerT/FunctionReg.cpp -text
 playerT/FunctionReg.h -text
-playerT/Lib/Debug/libmpg123.lib -text
 playerT/Lib/Debug/vc90.idb -text
 playerT/Lib/Debug/vc90.pdb -text
-playerT/Lib/Release/libmpg123.lib -text
 playerT/Lib/Release/vc90.idb -text
 playerT/Lib/Release/vc90.pdb -text
 playerT/ListCombo.h -text

@@ -2,6 +2,7 @@
 #include "forwardMsg.h"
 #include "PlayList.h"
 #include "MyLib.h"
+#include "BasicPlayer.h"
 
 CMyLyricWnd::CMyLyricWnd():bLrcReady(FALSE),track(NULL),m_nFontHeight(20),m_nIDEvent(0),
 	m_memDCNormal(NULL),m_memDCHighlight(NULL),m_bInitSize(FALSE),m_memDCReady(FALSE),bNewTrack(FALSE)
@@ -58,9 +59,7 @@ void CMyLyricWnd::OnTimer(UINT_PTR /*nIDEvent*/)
 
 void CMyLyricWnd::UpdateTime()
 {
-	double usedtotalSec=getTrackPosInfo()->used;
-
-	m_uCurrTime=usedtotalSec*1000;
+	m_uCurrTime=CBasicPlayer::shared()->MillisecondsPlayed();
 }
 
 

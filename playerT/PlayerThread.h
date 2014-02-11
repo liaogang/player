@@ -23,13 +23,13 @@ public:
 
 	MusicFile *m_pFile;
 	WORD m_wBitsPerSample;
+	DWORD m_nAvgBytesPerSec;
 	//BOOL m_bFileEnded;
 	int m_iBytePerFrame;
 	int m_iTotalFrames;
 
 
 	DWORD m_dwTime;
-	trackPosInfo *pPosInfo;
 	/*retain 2 times len of */
 	/*buffer for fft sample parse*/
 	signed char * pBufFFT1;//for ds sound
@@ -38,6 +38,7 @@ public:
 	int   fftBufLen;
 	int   playPosInFFt; //play pos in bufFft
 
+	BYTE *m_ReduceBuffer;
 public:
 	CPlayerThread::CPlayerThread(MusicFile * pFile,CCriticalSection *cs,BOOL *pStop);
 	~CPlayerThread();
@@ -52,6 +53,7 @@ public:
 	void WriteDataToDSBuf();
 
 	double GetOffsetSeconds();
+
 	//return TRUE if file reached end .
 	BOOL ReadFileReduceVol(BOOL bReduce=TRUE);
 	
