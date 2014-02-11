@@ -115,7 +115,7 @@ BOOL MyLib::playNext(BOOL scanID3 ,PlayOrder playorder ,BOOL bClearPlayQueue)
 	if (!playQueue.empty())
 	{
 		itemToPlay = PopTrackFromPlayQueue();
-		return play(FALSE);
+		return play(bClearPlayQueue);
 	}
 
 	if(itemPlaying !=NULL && itemPlaying->isValide() && IsValidePlayList(itemPlaying->GetPlayList() ) )
@@ -124,7 +124,7 @@ BOOL MyLib::playNext(BOOL scanID3 ,PlayOrder playorder ,BOOL bClearPlayQueue)
 		if(itemToPlay==NULL)
 			return FALSE;
 		else
-			return play(FALSE);
+			return play(bClearPlayQueue);
 	}
 	
 

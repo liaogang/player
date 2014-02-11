@@ -233,8 +233,10 @@ theEnd:
 	{
 		ClearAllSel();
 
-		for (auto i=items.begin();i!=items.end();i++)
-			SelectItem(*i,NULL_SUBITEM,MK_CONTROL);
+		auto i=items.begin();
+		auto end=items.end();
+		for (;i!=end;++i)
+			SelectItem(*i,NULL_SUBITEM,MK_CONTROL,FALSE,FALSE);
 
 		EnsureVisibleAndCentrePos(items[0]);
 	}

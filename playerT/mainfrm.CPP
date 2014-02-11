@@ -353,7 +353,7 @@ LRESULT CMainFrame::OnPlayNext(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 	MyLib::shared()->stop();
 
 	if(MyLib::shared()->GetPlayOrder() == Repeat_track)
-		MyLib::shared()->playNext(TRUE,Default);
+		MyLib::shared()->playNext(TRUE,Default,FALSE);
 	else
 		MyLib::shared()->playNext(TRUE);
 

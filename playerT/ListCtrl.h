@@ -2335,6 +2335,11 @@ public:
 		if ( m_bGroupSelect )
 		{
 			m_bGroupSelect = FALSE;
+
+			//added by lg , group select is end. notify parent.
+			NotifyParent( NULL_ITEM, NULL_SUBITEM, LCN_SELECTED );
+			//end
+
 			Invalidate();
 		}
 		else
