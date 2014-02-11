@@ -358,7 +358,6 @@ playerT/SpectrumAnalyserThread.cpp -text
 playerT/SpectrumAnalyserThread.h -text
 playerT/StringConvertions.cpp -text
 playerT/StringConvertions.h -text
-playerT/Thread.cpp -text
 playerT/Thread.h -text
 playerT/TitleTip.h -text
 playerT/Util1.cpp -text

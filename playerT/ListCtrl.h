@@ -872,7 +872,7 @@ public:
 		return TRUE;
 	}
 	//param bCenter, add by lg
-	BOOL EnsureItemVisible( int nItem, int nSubItem = NULL_SUBITEM ,BOOL bCenter=FALSE)
+	BOOL EnsureItemVisible( int nItem, int nSubItem = NULL_SUBITEM ,BOOL bCenter=FALSE ,BOOL bInvalidate=TRUE)
 	{
 		if ( IsItemVisible( nItem, nSubItem, FALSE ) )
 			return TRUE;
@@ -922,7 +922,11 @@ public:
 				SetScrollPos( SB_HORZ, GetScrollPos( SB_HORZ ) + nScrollPos );
 		}
 		
-		return Invalidate();
+
+		if(bInvalidate)
+			return Invalidate();
+
+		return TRUE;
 	}
 	
 	void ShowScrollBar( int nScrollBar, BOOL bShow = TRUE )

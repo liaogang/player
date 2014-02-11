@@ -38,7 +38,7 @@ public:
 	CPlayListViewS m_list;
 	LPCPlayList searchPl;
 	RECT m_rc;
-
+	BOOL m_bHiden;
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
@@ -49,6 +49,8 @@ public:
 
 		m_list.SubclassWindow(::GetDlgItem(m_hWnd,IDC_LIST));
 		
+		m_bHiden=TRUE;
+
 		searchPl=new CPlayList;
 		searchPl->SetSearch(TRUE);
 		m_list.SetPlayList(searchPl);
@@ -171,15 +173,30 @@ theEnd:
 		return 0;
 	}
 
+	
 	void HideSelf()
 	{
 		ShowWindow(SW_HIDE);
+		m_bHiden=TRUE;
 	}
 
 	void ShowSelf()
 	{	
+		//notify user i was shown
+		if(!m_bHiden && GetFocus() != m_hWnd)
+		{
+			FLASHWINFO fi;
+			fi.cbSize=sizeof(fi);
+			fi.hwnd=m_hWnd;
+			fi.dwFlags=FLASHW_ALL;
+			fi.uCount=2;
+			fi.dwTimeout=140;
+			FlashWindowEx(&fi);
+		}
+
 		//show setfocus and select all
 		ShowWindow(SW_SHOW);
+		m_bHiden=FALSE;
 		HWND edit=GetDlgItem(IDC_EDIT);
 		::SetFocus(edit);
 		::SendMessage(edit,EM_SETSEL,(WPARAM)0,(LPARAM)-1);

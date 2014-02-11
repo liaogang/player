@@ -106,9 +106,6 @@ public:
 		
 		SetForegroundWindow(m_hWnd);
 		
-
-		//SendMessage(WM_CHILDACTIVATE); 
-		
 		return 1;
 	}
 
@@ -476,9 +473,6 @@ public:
 		SetPlayList(pPlayList);
 
 		DeleteAllItems();
-		if(pPlayList)
-			for (int i=0;i<GetPlayList()->GetItemCount();++i)
-				AddItem();
 	}
 
 
@@ -562,24 +556,19 @@ public:
 
 	void Reload(LPCPlayList pPlayList,int itemActive=-1)
 	{
+		m_bManual=FALSE;
+
 		//resotre the curr croll bar's pos
 		if(GetPlayList())
 			GetPlayList()->SetTopVisibleIndex(GetTopItem());
 
-		m_bManual=FALSE;
+		if ( GetPlayList()!= pPlayList)
+		{
+			LoadPlayList(pPlayList);
+		}
 
-		//if some play list is deleted.
 		if(pPlayList == NULL)
-		{
-			LoadPlayList(pPlayList);
 			return;
-		}
-
-		if ( GetPlayList()!=pPlayList)
-		{
-			ClearAllSel();
-			LoadPlayList(pPlayList);
-		}
 
 		if(itemActive!=-1)
 		{
@@ -600,7 +589,8 @@ public:
 
 	void ScrollByTop(int topIndex)
 	{
-		EnsureItemVisible(topIndex,-1,FALSE);
+		EnsureItemVisible(topIndex,-1,FALSE,FALSE);
+		EnsureItemVisible(topIndex + GetCountPerPage( FALSE ) - 1,-1,FALSE);
 	}
 
 	void EnsureVisibleAndCentrePos(int index)

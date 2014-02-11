@@ -773,21 +773,7 @@ void CMainFrame::ShowSearchDialog()
 			::SetWindowPos(m_pDlgSearch->m_hWnd, NULL, m_rcSearch.left, m_rcSearch.top, m_rcSearch.right - m_rcSearch.left, m_rcSearch.bottom - m_rcSearch.top,SWP_NOZORDER);
 	}
 	
-
-
 	m_pDlgSearch->ShowSelf();
-
-	if(GetFocus() != m_pDlgSearch->m_hWnd)
-	{
-		FLASHWINFO fi;
-		fi.cbSize=sizeof(fi);
-		fi.hwnd=m_pDlgSearch->m_hWnd;
-		fi.dwFlags=FLASHW_ALL;
-		fi.uCount=2;
-		fi.dwTimeout=120;
-		FlashWindowEx(&fi);
-	}
-
 }
 
 void CMainFrame::RegisterStuffs()
