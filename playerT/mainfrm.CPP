@@ -201,7 +201,6 @@ void CMainFrame::InitUILayout()
 	const DWORD dwSplitStyle = WS_CHILD|WS_VISIBLE | WS_CLIPCHILDREN |WS_CLIPSIBLINGS  ;
 	const DWORD dwSplitExStyle =WS_EX_CLIENTEDGE;
 
-
 	m_hWndClient=m_WndMultiSplitter.Create(m_hWnd,rcDefault,NULL,dwSplitStyle,0);
 }
 
@@ -294,6 +293,19 @@ void CPlayListView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 	if (nChar==VK_RETURN)
 	{
 		MyLib::shared()->play();
+	}
+}
+
+void CPlayListViewS::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	if (nChar==VK_RETURN)
+	{
+		LPCPlayListItem item= GetPlayList()->GetItem(0);
+		if(item)
+		{
+			MyLib::shared()->SetItemToPlay(GetItemInParent(item));
+			MyLib::shared()->play();
+		}
 	}
 }
 
@@ -1599,6 +1611,8 @@ void MYTREE_Set_Playlist(MYTREE* tree)
 {
 	CPlayListView *plv=new CPlayListView;
 
+	plv->tree=tree;
+
 	plv->CreateIsWnd();
 	
 	plv->Init();
@@ -1636,11 +1650,13 @@ void MYTREE_Set_AlbumView(MYTREE* tree)
 	CAlbumCoverView *w=new CAlbumCoverView;
 	tree->setWnd(w->CreateMyWnd());
 	w->Init();
+	w->tree=tree;
 }
 
 void MYTREE_Add_AlbumView(MYTREE* tree)
 {	
 	MYTREE *newTree=new MYTREE();
+
 	MYTREE_Set_AlbumView(newTree);
 	
 	wcscpy(newTree->data.nodeName,L"封面面板");
@@ -1657,6 +1673,7 @@ void MYTREE_Set_LyricView(MYTREE* tree)
 	CMyLyricWnd *w=new CMyLyricWnd;
 	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
 	tree->setWnd(w->m_hWnd);
+	w->tree=tree;
 }
 
 void MYTREE_Add_LyricView(MYTREE* tree)
@@ -1680,6 +1697,7 @@ void MYTREE_Set_SpectrumView(MYTREE* tree)
 	DialogFFT *w=new DialogFFT;
 	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
 	tree->setWnd(w->m_hWnd);
+	w->tree=tree;
 }
 
 void MYTREE_Add_SpectrumView(MYTREE* tree)
@@ -1776,8 +1794,6 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	
 	m_wndRebar.CollectInfo();
 
-	SaveAll();
-
 	UnregisterHotKey(m_hWnd, HotKeyId); 
 
 	GlobalDeleteAtom(HotKeyId);
@@ -1817,77 +1833,6 @@ void CPlayListView::OnDestroy()
 
 
 
-void CPlayListView::Init(bool bSearch)
-{	
-	IWantToReceiveMessage(WM_SELECTED_PL_CHANGED);
-	IWantToReceiveMessage(WM_PLAYLISTVIEW_SETFOCUS);
-	IWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_DEFAULT);
-	IWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_BLUE);
-
-
-	SetLVFont(20);
-
-
-	ChangeColorDefault();
-
-
-	if ( !m_ilItemImages.CreateFromImage( IDB_EXAMPLE, 16, 0, RGB( 255, 0, 255 ), IMAGE_BITMAP, LR_CREATEDIBSECTION ) )
-		return ;
-
-	SetImageList( m_ilItemImages );
-
-	
-	const TCHAR * columnName[]={
-		_T("索引"),
-		_T("标题"),
-		_T("艺术家"),
-		_T("专辑"),
-		_T("年份"),
-		_T("流派")
-	};
-	const UINT alignment[]={
-		ITEM_FLAGS_CENTRE,
-		ITEM_FLAGS_LEFT,
-		ITEM_FLAGS_LEFT,
-		ITEM_FLAGS_LEFT,
-		ITEM_FLAGS_RIGHT,
-		ITEM_FLAGS_RIGHT
-	};
-	const TCHAR* columnNamePlaceHoder[]={
-		_T("Index"),
-		_T("Title                        "),
-		_T("艺术家艺"),
-		_T("Album         "),
-		_T("年份"),
-		_T("Genre               ")
-	};
-
-	
-	const int cxOffset = 40;
-	for (int i=0;i<sizeof(columnName)/sizeof(int);++i)
-		AddColumn(columnName[i],
-		GetTextWidth(columnNamePlaceHoder[i])+cxOffset,
-		-1,0,NULL_COLUMN,alignment[i]);
-		
-
-	SetDragDrop(TRUE);
-	//SetSingleSelect();
-
-	m_ilListItems.Detach();
-	m_curDivider.Detach();
-	m_curHyperLink.Detach();
-	m_ttToolTip.Detach();
-
-
-	CListImpl< CPlayListView >::Initialise();
-
-	if(!bSearch)
-	{
-		AllPlayListViews()->AddItem(this);
-		Reload(MyLib::shared()->GetSelectedPL());
-	}
-
-}
 
 
 

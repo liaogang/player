@@ -20,6 +20,7 @@ typedef  void (*CreateWindowFun)(MYTREE* tree);
 
 void RegisterCreateWndFuns(TCHAR* panename,CreateWindowFun func);
 void CreateHWNDbyName(MYTREE *tree);
+void CreateHWNDbyNameLoop(MYTREE *tree);
 
 
 

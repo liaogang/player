@@ -41,6 +41,8 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
 	int nRet = theLoop.Run();
 
+	SaveAll();
+
 	_Module.RemoveMessageLoop();
 	return nRet;
 }

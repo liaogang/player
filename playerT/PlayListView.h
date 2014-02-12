@@ -5,6 +5,7 @@
 #include "globalStuffs.h"
 #include "customMsg.h"
 #include "ListCtrl.h"
+#include "mytree.h"
 #include <map>
 
 unsigned int BKDRHash(char *str);
@@ -24,22 +25,29 @@ static int columnIndexClicked;
 
 
 class CPlayListView:
-	public CListImpl< CPlayListView >
+	public CListImpl< CPlayListView >,
+	public SerializeObj< CPlayListView >
 {
-private:
+public:
+
+
+	MYTREE *tree;
+	static const int m_iColumnCount=6;
+	INT m_iColumnOrderArrays[m_iColumnCount];
+	INT m_iColumnWidths[m_iColumnCount];
+	BOOL m_bLoaded;//from file
+
+protected:
 	LPCPlayList  m_pPlayList;
-
-public:
-	DECLARE_WND_CLASS( _T( "listctrl" ) )
-
-	inline void SetPlayList(LPCPlayList pPlayList){m_pPlayList=pPlayList;}
-	inline LPCPlayList GetPlayList(){return m_pPlayList;}
-public:
 	HMENU menu;
 	COLORREF clText1,clText2;
 	bool bClientEdge;
 	BOOL m_bManual;
-	CPlayListView():m_bManual(TRUE),m_Order(0)
+public:
+
+	DECLARE_WND_CLASS( _T( "listctrl" ) )
+
+	CPlayListView():m_bManual(TRUE),m_Order(0),m_bLoaded(FALSE)
 	{
 		SetPlayList(NULL);
 		menu=LoadPlaylistMenu();
@@ -50,33 +58,15 @@ public:
 		AllPlayListViews()->RemoveItem(this);
 
 		LoadPlaylistMenu(TRUE);
-
 	}
 
-public:
-	//DECLARE_WND_SUPERCLASS( NULL ,CListViewCtrl::GetWndClassName())
+	inline void SetPlayList(LPCPlayList pPlayList){m_pPlayList=pPlayList;}
+	inline LPCPlayList GetPlayList(){return m_pPlayList;}
 
-	//virtual BOOL PreTranslateMessage(MSG* pMsg)
-	//{
-	//	if (pMsg->message==WM_KEYDOWN){	
-	//		UINT nChar=(TCHAR)pMsg->wParam;
-	//		
-	//		//Ctrl+A
-	//		if (nChar=='A' || nChar=='a'){
-	//			if (GetKeyState(VK_CONTROL) &0x80)
-	//				SelectAll();
-	//		}
-	//		
-	//		//Delete
-	//		else if (nChar==VK_DELETE){
-	//			;//DelSelectedItem(GetKeyState(VK_SHIFT) & 0x80);
-	//		
-	//		}
-	//	}//if (pMsg->message!=WM_KEYDOWN)
+	FILE& operator<<(FILE& f);
+	FILE& operator>>(FILE& f) const ;
 
-	//	return FALSE;
-	//}
-	typedef CPlayListView thisClass;
+
 	BEGIN_MSG_MAP_EX(CPlayListView)
 		//user message
 		MESSAGE_HANDLER(WM_PLAYLISTVIEW_SETFOCUS,OnSetFocus)
@@ -348,20 +338,6 @@ theEnd:
 #endif
 
 	void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
-
-
-
-#ifdef Old_Version
-
-	BOOL GetFirstSelItem()
-	{
-		int nItem=-1;
-		if (GetItemCount()>0)
-			nItem=GetNextItem(nItem,LVNI_SELECTED);
-
-		return nItem;
-	}
-#endif
 
 
 	LRESULT OnSelected(int /**/,LPNMHDR pnmh,BOOL bHandled);
@@ -675,12 +651,19 @@ public:
 		//SetCallbackMask(NULL);
 	}
 
+	void Save();
+	void Load();
+
+
 	void OnFinalMessage(_In_ HWND /*hWnd*/)
 	{
 		if(GetPlayList() && GetPlayList()->IsSearch())
 			;
 		else
+		{
+			Save();
 			delete this;
+		}
 	}
 
 
@@ -693,6 +676,7 @@ class CPlayListViewS :public CPlayListView
 public:
 	typedef  CPlayListViewS thisClass;
 	BEGIN_MSG_MAP_EX(CPlayListViewS)
+		MSG_WM_CHAR(OnChar)
 		MESSAGE_HANDLER(WM_PLAYLISTVIEW_SETFOCUS,OnSetFocus)
 		COMMAND_ID_HANDLER(ID_PUSH_PLAYQUEUE,OnPushToPlayqueue)
 		COMMAND_ID_HANDLER(ID_DELFROMPLAYQUEUE,OnDeleteFromPlayqueue)
@@ -701,6 +685,8 @@ public:
 		REFLECTED_NOTIFY_CODE_HANDLER(LCN_RIGHTCLICK, OnRightClick)
 		CHAIN_MSG_MAP(CPlayListView)
 	END_MSG_MAP()
+	
+	void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 
 	LRESULT OnSetFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{

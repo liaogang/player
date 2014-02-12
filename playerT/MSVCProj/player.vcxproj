@@ -248,6 +248,7 @@
     <ClCompile Include="..\player.cpp" />
     <ClCompile Include="..\PlayerThread.cpp" />
     <ClCompile Include="..\PlayList.cpp" />
+    <ClCompile Include="..\PlayListView.cpp" />
     <ClCompile Include="..\PlayListViewMng.cpp" />
     <ClCompile Include="..\SpectrumAnalyser.cpp" />
     <ClCompile Include="..\stdafx.cpp" />

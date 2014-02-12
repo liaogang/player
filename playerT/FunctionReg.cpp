@@ -14,20 +14,27 @@ void RegisterCreateWndFuns(TCHAR* panename,CreateWindowFun func)
 
 void CreateHWNDbyName(MYTREE *tree)
 {
+	for (auto i=createWndFuns.begin();i!=createWndFuns.end();++i)
+	{
+		if (_tcscmp(i->first,tree->data.nodeName)==0)
+		{
+			CreateWindowFun fun=i->second;
+			fun(tree);
+			break;
+		}
+	}
+}
+
+
+//±éÀú
+void CreateHWNDbyNameLoop(MYTREE *tree)
+{
 	for (;tree;tree=tree->next)
 	{	
-		for (auto i=createWndFuns.begin();i!=createWndFuns.end();++i)
-		{
-			if (_tcscmp(i->first,tree->data.nodeName)==0)
-			{
-				CreateWindowFun fun=i->second;
-				fun(tree);
-				break;
-			}
-		}
+		CreateHWNDbyName(tree);
 
 		if (tree->hasChild())
 			CreateHWNDbyName(tree->child);
 	}
-
 }
+

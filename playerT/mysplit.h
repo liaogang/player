@@ -83,6 +83,9 @@ public:
 
 	virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
 	{
+		
+
+
 	}
 
 	BOOL OnEraseBkgnd(CDCHandle dc)

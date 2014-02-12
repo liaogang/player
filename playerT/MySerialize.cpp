@@ -147,7 +147,11 @@ FILE& operator>>(FILE& f,PlayingStatus &s)
 	return f>>*t;
 }
 
+
+
+
 #ifdef APP_PLAYER_UI
+
 //MY_REBARBANDINFO
 FILE& operator<<(FILE& f,const MY_REBARBANDINFO * mri)
 {
@@ -160,6 +164,30 @@ FILE& operator>>(FILE& f,MY_REBARBANDINFO * mri)
 	return f>>mri->szClassName>>mri->bandIndex>>mri->bFullWidthAlways>>mri->bRemovable>>mri->menuID>>mri->bShow
 	>>mri->info.cbSize>>mri->info.fMask>>mri->info.fStyle>>mri->info.cx>>mri->info.cxMinChild; 
 }
+
+//blockData
+FILE& operator<<(FILE& f,const blockData d)
+{
+	f<<d.len;
+	fwrite(d.data,sizeof(BYTE),d.len,&f);
+
+	return f;
+}
+
+FILE& operator>>(FILE& f,blockData & d)
+{
+	ATLASSERT(d.data==NULL&&d.len==0);
+		
+	f>>d.len;
+	if(d.len != 0)
+	{
+		d.data=new BYTE[d.len];
+		fread(d.data,sizeof(BYTE),d.len,&f);
+	}
+
+	return f;
+}
+
 #endif
 
 
@@ -437,7 +465,6 @@ FILE& MyConfigs::operator<<(FILE& f)
 
 
 
-
 void CollectInfo()
 {
 	MyConfigs *c=GetMyConfigs();
@@ -515,6 +542,7 @@ int ReSerializeAllTree(MYTREE *parent,FILE & f)
 
 	MYTREE *c=new MYTREE;
 	f>>*c;
+	
 	c->parent=parent;
 	parent->child=c;
 
@@ -582,6 +610,8 @@ FILE& dataNode::operator>>(FILE& f) const
 	f<<nodeName<<rc;
 	f<<(type==left_right?1:0);
 
+	f<<dataForWndSerialize;
+
 	int numBars=SplitterBarRects.size();
 	f<<numBars;
 	if (numBars>0)
@@ -596,6 +626,8 @@ FILE& dataNode::operator<<(FILE& f)
 
 	f>>nodeName>>rc>>leftright;
 	type=leftright?left_right:up_down;
+
+	f>>dataForWndSerialize;
 
 	int numBars;
 	f>>numBars;
@@ -693,16 +725,12 @@ bool LoadUICfg()
 
 FILE& CMainFrame::operator>>(FILE& f) const
 {
-	return f<<m_rcMain<<m_rcConfig<<m_rcLrc<<m_rcProcess<<m_rcSearch<<m_rcFFT<<m_rcPLMng<<m_rcPLConsole
-		<<m_bShowStatusBar
-		<<m_wndRebar<<m_WndMultiSplitter;
+	return f<<m_rcMain<<m_rcConfig<<m_rcLrc<<m_rcProcess<<m_rcSearch<<m_rcFFT<<m_rcPLMng<<m_rcPLConsole<<m_bShowStatusBar<<m_wndRebar<<m_WndMultiSplitter;
 }
 
 FILE& CMainFrame::operator<<(FILE& f)
 {
-	return  f>>m_rcMain>>m_rcConfig>>m_rcLrc>>m_rcProcess>>m_rcSearch>>m_rcFFT>>m_rcPLMng>>m_rcPLConsole
-		>>m_bShowStatusBar
-		>>m_wndRebar>>m_WndMultiSplitter;
+	return  f>>m_rcMain>>m_rcConfig>>m_rcLrc>>m_rcProcess>>m_rcSearch>>m_rcFFT>>m_rcPLMng>>m_rcPLConsole>>m_bShowStatusBar>>m_wndRebar>>m_WndMultiSplitter;
 }
 #endif
 

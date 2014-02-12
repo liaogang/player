@@ -346,6 +346,7 @@ playerT/NTRAY.H -text
 playerT/PlayList.cpp -text
 playerT/PlayList.h -text
 playerT/PlayListManager.h -text
+playerT/PlayListView.cpp -text
 playerT/PlayListView.h -text
 playerT/PlayListViewMng.cpp -text
 playerT/PlayListViewMng.h -text

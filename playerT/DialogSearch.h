@@ -39,6 +39,8 @@ public:
 	LPCPlayList searchPl;
 	RECT m_rc;
 	BOOL m_bHiden;
+	TCHAR *title;
+	TCHAR *title2;
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
@@ -49,6 +51,12 @@ public:
 
 		m_list.SubclassWindow(::GetDlgItem(m_hWnd,IDC_LIST));
 		
+		title=new TCHAR[MAX_PATH];
+		GetWindowText(title,MAX_PATH);
+		title2=new TCHAR[MAX_PATH];
+		_tcscpy(title2,title);
+		_tcscat(title2,_T("<²¥·ÅÁÐ¶Ó>"));
+
 		m_bHiden=TRUE;
 
 		searchPl=new CPlayList;
@@ -106,6 +114,7 @@ public:
 			auto queue = MyLib::shared()->GetPlayQueue();
 			if(!queue.empty())
 			{
+				SetWindowText(title2);
 				auto beg=queue.begin();
 				auto end=queue.end();
 				for (;beg!=end;++beg)
@@ -118,6 +127,7 @@ public:
 			goto theEnd;
 		}
 
+		SetWindowText(title);
 
 		int a,b;
 		a=strBuf.find_first_not_of(' ');

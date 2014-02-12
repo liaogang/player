@@ -377,8 +377,12 @@ int  CBasicPlayer::MillisecondsPlayed()
 {
 	double u;
 	m_pFile->GetPos(&u,NULL);
+	double offset=m_pPlayerThread->GetOffsetSeconds() ;
 	
-	return 1000 * (u+m_pPlayerThread->GetOffsetSeconds() );
+	if(u < offset)
+		return 0;
+
+	return 1000 * (u - offset);
 }
 
 int  CBasicPlayer::MillisecondsTotal()

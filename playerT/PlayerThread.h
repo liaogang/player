@@ -52,6 +52,8 @@ public:
 	
 	void WriteDataToDSBuf();
 
+
+	//get time offset not played yet after file.
 	double GetOffsetSeconds();
 
 	//return TRUE if file reached end .

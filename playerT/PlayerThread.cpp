@@ -266,7 +266,7 @@ fileEnd:
 
 	available=m_dwCurWritePos - playCursor ;
 
-	::Sleep(available / m_nAvgBytesPerSec *1000);
+	::Sleep(available / m_nAvgBytesPerSec *1000 -1000 );
 
 	m_lpDSBuffer->Stop();
 	m_bKeepPlaying=FALSE;

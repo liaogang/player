@@ -76,10 +76,55 @@ enum pane_type
 	panetype_empty
 };
 
+struct blockData
+{
+public:
+	BYTE *data;
+	INT   len;
+	INT pointer;
+	//do not copy
+	blockData operator=(const blockData &);
+public:
+	blockData():data(NULL),len(0),pointer(0)
+	{
+
+	}
+
+	blockData(int _len):pointer(0)
+	{
+		len=_len;
+		data=new BYTE[len];
+	}
+
+	~blockData()
+	{
+		if(data)
+			delete[] data;
+	}
+
+	void CopyDataIn(void *buf,int _len)
+	{
+		ATLASSERT(data==NULL);
+
+		len=_len;
+		data=new BYTE[len];
+		memcpy(data,buf,len);
+	}
+
+	void CopyDataOut(void *buf,int _len)
+	{
+		ATLASSERT(pointer+_len <= len);
+
+		memcpy(buf,data+pointer,_len);
+		pointer+=_len;
+	}
+
+};
+
 class dataNode:public SerializeObj<dataNode>
 {
 public:
-	dataNode(TCHAR *name):hWnd(NULL),m_iSplitterBar(SPLITTER_WH)
+	dataNode(TCHAR *name):hWnd(NULL),m_iSplitterBar(SPLITTER_WH),bSerialize(TRUE)
 	{
 		_tcscpy(nodeName,name);
 		type=left_right;
@@ -91,7 +136,7 @@ public:
 		treeItem=0;
 	}
 
-	dataNode():hWnd(NULL),m_iSplitterBar(SPLITTER_WH)
+	dataNode():hWnd(NULL),m_iSplitterBar(SPLITTER_WH),bSerialize(TRUE)
 	{
 		type=left_right;
 		rc.left=0;
@@ -104,6 +149,8 @@ public:
 
 	void Destroy()
 	{
+		bSerialize=FALSE;
+
 		if(IsWindow(hWnd))
 			DestroyWindow(hWnd);
 	}
@@ -171,6 +218,9 @@ public:
 	HWND hWnd;	
 
 	HTREEITEM treeItem;
+
+	BOOL bSerialize;
+	blockData dataForWndSerialize;
 };
 
 

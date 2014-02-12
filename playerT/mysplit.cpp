@@ -143,7 +143,7 @@ LRESULT CMultiSpliltWnd::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPa
 		rootTree=CreateRootTree();
 	else
 	if (rootTree->hasChild())//reserialize from  file
-		CreateHWNDbyName(rootTree);
+		CreateHWNDbyNameLoop(rootTree);
 
 	UpdateLayout(rootTree);
 
@@ -170,3 +170,9 @@ MYTREE* CreateRootTree()
 
 	return root;
 }
+
+
+// void CollectChildInfo(MYTREE *tree)
+// {
+// 	if(tree->data.hWnd)
+/*}*/
