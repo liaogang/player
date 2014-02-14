@@ -177,8 +177,12 @@ public:
 
 		int bufUsed=0;
 		std::wstring s;
-		while(filesizeAfterCovert>(bufUsed+=MyGetLine(pBufU+bufUsed,filesizeAfterCovert-bufUsed,s)))
+		do
+		{
+			bufUsed+=MyGetLine(pBufU+bufUsed,filesizeAfterCovert-bufUsed,s);
 			Parse(s);
+		}while(filesizeAfterCovert > bufUsed);
+		
 		
 		CleanAfterFileCovert(pBuf,(BYTE*)pBufU);
 		SortLrcLib();
