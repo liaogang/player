@@ -1,28 +1,5 @@
 #pragma once 
 
-#define  RECT_INIT(rc) 	rc.left=0;rc.right=0;rc.top=0;rc.bottom=0;
-
-
-
-
-struct trackPosInfo
-{
-	double used;
-	double left;
-public:
-	trackPosInfo():used(-1),left(-1)
-	{}
-};
-
-
-enum PlayingStatus
-{
-	status_invalide,
-	status_stopped,
-	status_playing,
-	status_paused
-};
-
 #define  WM_TRACK_POS_CHANGED          (WM_USER+22)  
 
 #define  WM_TRACK_REACH_END   (WM_USER+33)//Òô¹ìµ½´ïÄ©Î²
@@ -91,5 +68,11 @@ enum PlayingStatus
 //Play queue changed.
 #define WM_PLAYQUEUE_CHANGED  (WM_USER+58)
 								//(WM_USER+59)
-//(WM_USER+60)
+								//(WM_USER+60)
+
+
+
+//get windows serialize data.
+//blockData *data=(blockData*)wParam;
+#define WM_GET_SERIALIZE_DATA  (WM_USER+61)
 

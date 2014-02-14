@@ -5,7 +5,6 @@
 #include "globalStuffs.h"
 #include "customMsg.h"
 #include "ListCtrl.h"
-#include "mytree.h"
 #include <map>
 
 unsigned int BKDRHash(char *str);
@@ -29,28 +28,27 @@ class CPlayListView:
 	public SerializeObj< CPlayListView >
 {
 public:
-
-
-	MYTREE *tree;
 	static const int m_iColumnCount=6;
 	INT m_iColumnOrderArrays[m_iColumnCount];
 	INT m_iColumnWidths[m_iColumnCount];
 	BOOL m_bLoaded;//from file
-
+	blockData m_dData;//data to save or load.
 protected:
 	LPCPlayList  m_pPlayList;
 	HMENU menu;
 	COLORREF clText1,clText2;
 	bool bClientEdge;
 	BOOL m_bManual;
+	UINT m_Order;
 public:
 
 	DECLARE_WND_CLASS( _T( "listctrl" ) )
 
-	CPlayListView():m_bManual(TRUE),m_Order(0),m_bLoaded(FALSE)
+	CPlayListView():m_bManual(TRUE),m_Order(0),m_bLoaded(FALSE),m_dData(blockData())
 	{
 		SetPlayList(NULL);
 		menu=LoadPlaylistMenu();
+		RegisterClass();
 	}
 
 	~CPlayListView()
@@ -70,9 +68,10 @@ public:
 	BEGIN_MSG_MAP_EX(CPlayListView)
 		//user message
 		MESSAGE_HANDLER(WM_PLAYLISTVIEW_SETFOCUS,OnSetFocus)
-		MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_DEFAULT,OnChColorDefault);
-		MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_BLUE,OnChColorBlue);
+		MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_DEFAULT,OnChColorDefault)
+		MESSAGE_HANDLER(WM_PLAYLISTVIEW_COLOR_BLUE,OnChColorBlue)
 		MESSAGE_HANDLER(WM_SELECTED_PL_CHANGED,OnSelectedPlChanged)
+		MESSAGE_HANDLER(WM_GET_SERIALIZE_DATA,OnGetSerializeData)
 
 		MSG_WM_CHAR(OnChar)
 		MSG_WM_DESTROY(OnDestroy)
@@ -87,6 +86,28 @@ public:
 	END_MSG_MAP()
 
 	void OnDestroy();
+
+	const blockData & GetSerializeData () const {return m_dData;}
+	blockData* GetSerializeData () {return &m_dData;}
+	const blockData* GetSerializeDataP () const {return &m_dData;}
+	void SetSerializeData(blockData *bd)
+	{
+		m_dData.Take(*bd);
+	}
+
+	
+	LRESULT OnGetSerializeData(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		blockData *data=(blockData*)wParam;
+		ATLASSERT(data->GetLength() ==0 );
+
+		Save();
+		
+		data->Take(m_dData);
+		
+		return 1;
+	}
+
 
 	LRESULT OnSetFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
@@ -136,7 +157,7 @@ public:
 	}
 
 
-	UINT m_Order;
+	
 	static bool CompareProc(LPCPlayListItem track1, LPCPlayListItem track2)
 	{
 		bool result;
@@ -661,7 +682,6 @@ public:
 			;
 		else
 		{
-			Save();
 			delete this;
 		}
 	}

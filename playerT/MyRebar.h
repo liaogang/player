@@ -38,6 +38,7 @@ public:
 	DECLARE_WND_SUPERCLASS(NULL,CReBarCtrl::GetWndClassName())
 
 	BEGIN_MSG_MAP_EX(CMySimpleRebar)
+		MESSAGE_HANDLER(WM_DESTROY,OnDestroy)
 		COMMAND_ID_HANDLER(ID_REBAR_RESET,OnResetBands)
 		COMMAND_ID_HANDLER(ID_REBAR_LOCK,OnLockBands)
 		COMMAND_RANGE_HANDLER(ID_REBAR_BASE,ID_REBAR_BASE+m_vecBandInfos.size(),OnShowBandX)
@@ -82,6 +83,8 @@ public:
 	LRESULT OnHscroll(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	
 	LRESULT ReflectNotifications(_In_ UINT uMsg,_In_ WPARAM wParam,_In_ LPARAM lParam,_Inout_ BOOL& bHandled);
+
+	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 
 	LRESULT OnCtrlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	

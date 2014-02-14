@@ -295,6 +295,12 @@ LRESULT CMySimpleRebar::OnCtrlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM l
 }
 
 
+LRESULT CMySimpleRebar::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	CollectInfo();
+	return 1;
+}
+
 LRESULT CMySimpleRebar::OnLockBands(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	LockBands(m_bLock=!m_bLock);

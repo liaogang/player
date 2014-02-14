@@ -1,4 +1,4 @@
-#include "CMyTypes.h"
+#include "stdafx.h"
 #include <string>
 #pragma once
 

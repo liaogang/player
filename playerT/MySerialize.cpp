@@ -11,12 +11,12 @@
 #include "MyControls.h"
 #include "mytree.h"
 #include "mainfrm.h"
+#include "DialogSearch.h"
 #include "resource.h"
 #else
 #include "resource1.h"
 #endif
 
-#define  _CRT_SECURE_NO_WARNINGS
 
 
 ADDTOSERIALIZE(CPlayListItem)
@@ -29,6 +29,7 @@ ADDTOSERIALIZE(CMySimpleRebar)
 ADDTOSERIALIZE(CMultiSpliltWnd)
 ADDTOSERIALIZE(MYTREE)
 ADDTOSERIALIZE(dataNode)
+ADDTOSERIALIZE(DialogSearch)
 #endif
 
 //double
@@ -166,23 +167,41 @@ FILE& operator>>(FILE& f,MY_REBARBANDINFO * mri)
 }
 
 //blockData
-FILE& operator<<(FILE& f,const blockData d)
+FILE& operator<<(FILE& f,const blockData &bd)
 {
-	f<<d.len;
-	fwrite(d.data,sizeof(BYTE),d.len,&f);
+	UINT len;
+	BYTE *data;
+
+	len=bd.GetLength();
+	f<<len;
+
+	if(len>0)
+	{
+		data=new BYTE[len];
+		bd.CopyDataOut(data,len);
+		fwrite(data,sizeof(BYTE),len,&f);
+	}
 
 	return f;
 }
 
-FILE& operator>>(FILE& f,blockData & d)
+FILE& operator>>(FILE& f,blockData * bd)
 {
-	ATLASSERT(d.data==NULL&&d.len==0);
-		
-	f>>d.len;
-	if(d.len != 0)
+	ATLASSERT(bd->GetLength()==0);
+	
+	UINT len;
+	BYTE *data;
+
+	f>>len;
+
+	if(len > 0 )
 	{
-		d.data=new BYTE[d.len];
-		fread(d.data,sizeof(BYTE),d.len,&f);
+		data=new BYTE[len];
+		fread(data,sizeof(BYTE),len,&f);
+
+		bd->Take(blockData(data,len));
+
+		//do no delete . bd taken it.
 	}
 
 	return f;
@@ -610,7 +629,7 @@ FILE& dataNode::operator>>(FILE& f) const
 	f<<nodeName<<rc;
 	f<<(type==left_right?1:0);
 
-	f<<dataForWndSerialize;
+	f<<wndData;
 
 	int numBars=SplitterBarRects.size();
 	f<<numBars;
@@ -627,7 +646,7 @@ FILE& dataNode::operator<<(FILE& f)
 	f>>nodeName>>rc>>leftright;
 	type=leftright?left_right:up_down;
 
-	f>>dataForWndSerialize;
+	f>>&wndData;
 
 	int numBars;
 	f>>numBars;
@@ -725,12 +744,22 @@ bool LoadUICfg()
 
 FILE& CMainFrame::operator>>(FILE& f) const
 {
-	return f<<m_rcMain<<m_rcConfig<<m_rcLrc<<m_rcProcess<<m_rcSearch<<m_rcFFT<<m_rcPLMng<<m_rcPLConsole<<m_bShowStatusBar<<m_wndRebar<<m_WndMultiSplitter;
+	return f<<m_rcMain<<m_rcConfig<<m_rcLrc<<m_rcProcess<<m_DlgSearch<<m_rcFFT<<m_rcPLMng<<m_rcPLConsole<<m_bShowStatusBar<<m_wndRebar<<m_WndMultiSplitter;
 }
 
 FILE& CMainFrame::operator<<(FILE& f)
 {
-	return  f>>m_rcMain>>m_rcConfig>>m_rcLrc>>m_rcProcess>>m_rcSearch>>m_rcFFT>>m_rcPLMng>>m_rcPLConsole>>m_bShowStatusBar>>m_wndRebar>>m_WndMultiSplitter;
+	return  f>>m_rcMain>>m_rcConfig>>m_rcLrc>>m_rcProcess>>m_DlgSearch>>m_rcFFT>>m_rcPLMng>>m_rcPLConsole>>m_bShowStatusBar>>m_wndRebar>>m_WndMultiSplitter;
+}
+
+FILE& DialogSearch::operator>>(FILE& f) const
+{
+	return f<<m_rc<<m_list.GetSerializeData();
+}
+
+FILE& DialogSearch::operator<<(FILE& f)
+{
+	return f>>m_rc>>m_list.GetSerializeData();
 }
 #endif
 

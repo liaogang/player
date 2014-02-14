@@ -1,7 +1,6 @@
-	#include "StdAfx.h"
+#include "MainFrm.h"
 #include <string>
 #include "mytree.h"
-#include "MainFrm.h"
 #include "MyControls.h"
 #include "PlayList.h"
 #include "BasicPlayer.h"
@@ -444,8 +443,7 @@ LRESULT CMainFrame::OnChangeLVFont(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCt
 {
 	AllPlayListViews()->EnlargeLVFont(wID==ID_LV_ENLARGE_FONT?1:-1);
 	
-	if (m_pDlgSearch)
-		m_pDlgSearch->m_list.EnlargeLVFont(wID==ID_LV_ENLARGE_FONT?1:-1);
+	m_DlgSearch.m_list.EnlargeLVFont(wID==ID_LV_ENLARGE_FONT?1:-1);
 
 	return 0;
 }
@@ -772,20 +770,15 @@ void CMainFrame::ChangeTitle()
 
 void CMainFrame::ShowSearchDialog()
 {
-	if (!m_pDlgSearch)
+	if (!::IsWindow(m_DlgSearch.m_hWnd) )
 	{
-		m_pDlgSearch=new DialogSearch;
-		if(!m_pDlgSearch->Create(m_hWnd))
-			{
-				DWORD a=GetLastError();
-				return;
+		if(!m_DlgSearch.Create(m_hWnd))
+		{
+			return;
 		}
-
-		if(m_pDlgSearch->IsWindow() && m_rcSearch.right>0 && m_rcSearch.bottom > 0)
-			::SetWindowPos(m_pDlgSearch->m_hWnd, NULL, m_rcSearch.left, m_rcSearch.top, m_rcSearch.right - m_rcSearch.left, m_rcSearch.bottom - m_rcSearch.top,SWP_NOZORDER);
 	}
 	
-	m_pDlgSearch->ShowSelf();
+	m_DlgSearch.ShowSelf();
 }
 
 void CMainFrame::RegisterStuffs()
@@ -1597,7 +1590,7 @@ void  CPlayListView::CreateIsWnd()
 // 		|LVS_REPORT | LVS_SHOWSELALWAYS |LVS_OWNERDATA | LVS_SORTASCENDING /*| LVS_OWNERDRAWFIXED |*/
 // 		,0/*WS_EX_CLIENTEDGE*/);
 		
-	RegisterClass();
+	
 	CPlaceHolderWnd *w=new CPlaceHolderWnd;
 
 	w->Create(GetSplitter()->m_hWnd,NULL,NULL,WS_CHILD|WS_VISIBLE);
@@ -1611,7 +1604,7 @@ void MYTREE_Set_Playlist(MYTREE* tree)
 {
 	CPlayListView *plv=new CPlayListView;
 
-	plv->tree=tree;
+	plv->SetSerializeData(& tree->data.wndData);
 
 	plv->CreateIsWnd();
 	
@@ -1650,7 +1643,8 @@ void MYTREE_Set_AlbumView(MYTREE* tree)
 	CAlbumCoverView *w=new CAlbumCoverView;
 	tree->setWnd(w->CreateMyWnd());
 	w->Init();
-	w->tree=tree;
+
+	//plv->SetSerializeData(tree->data.pWndData);
 }
 
 void MYTREE_Add_AlbumView(MYTREE* tree)
@@ -1673,7 +1667,8 @@ void MYTREE_Set_LyricView(MYTREE* tree)
 	CMyLyricWnd *w=new CMyLyricWnd;
 	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
 	tree->setWnd(w->m_hWnd);
-	w->tree=tree;
+	
+	//plv->SetSerializeData(tree->data.pWndData);
 }
 
 void MYTREE_Add_LyricView(MYTREE* tree)
@@ -1697,7 +1692,7 @@ void MYTREE_Set_SpectrumView(MYTREE* tree)
 	DialogFFT *w=new DialogFFT;
 	w->Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
 	tree->setWnd(w->m_hWnd);
-	w->tree=tree;
+	
 }
 
 void MYTREE_Add_SpectrumView(MYTREE* tree)
@@ -1737,13 +1732,12 @@ void CMyStatusBar::UpdateTrackInfoText()
 
 CMainFrame::~CMainFrame()
 {
-
+	
 }
 
-
+//when windows is destroyed.
 void CMainFrame::OnFinalMessage(_In_ HWND /*hWnd*/)
 {
-
 
 }
 
@@ -1777,11 +1771,11 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 // 		m_dlgLrc->GetWindowRect(&m_rcLrc);
 // 	if(pDlgProcess)
 // 		pDlgProcess->GetWindowRect(&m_rcProcess);
-	if(m_pDlgSearch)
-	{
-		m_rcSearch=m_pDlgSearch->m_rc;
-		//m_dlgSearchShow=m_pDlgSearch->m_show;
-	}
+// 	if(m_pDlgSearch)
+// 	{
+// 		m_rcSearch=m_DlgSearch.m_rc;
+// 		//m_dlgSearchShow=m_DlgSearch.m_show;
+// 	}
 // 	if(m_pDlgFFT)
 // 		m_pDlgFFT->GetWindowRect(&m_rcFFT);
 	if(m_pDlgPLMng)
@@ -1792,16 +1786,11 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 	CBasicPlayer::shared()->Destroy();
 	
-	m_wndRebar.CollectInfo();
-
 	UnregisterHotKey(m_hWnd, HotKeyId); 
 
 	GlobalDeleteAtom(HotKeyId);
 
-	bHandled = FALSE;
-
 	
-
 	if (m_bExit2Tray )
 	{
 		ChangeCurDir2ModulePath();
@@ -1813,11 +1802,19 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 			SW_SHOW);
 	}
 
+	
+
+	bHandled = FALSE;
 	return 1;
 }
 
 
-
+LRESULT CMainFrame::OnNcDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	SaveAll();
+	bHandled=FALSE;
+	return 1;
+}
 
 
 

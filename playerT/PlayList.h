@@ -1,6 +1,5 @@
 #pragma once
 #include "stdafx.h"
-#include "CMyTypes.h"
 #include "MySerialize.h"
 #include <string>
 #include <vector>

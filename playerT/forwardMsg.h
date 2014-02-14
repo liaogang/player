@@ -1,6 +1,6 @@
 //#include "stdafx.h"
 #pragma once
-#include "CMyTypes.h"
+#include "stdafx.h"
 #include <vector>
 #include <map>
 

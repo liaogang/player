@@ -6,7 +6,7 @@
 #pragma once
 
 // Change these values to use different versions
-#define WINVER		0x0500
+//#define WINVER		0x0500
 #define _WIN32_WINNT	0x0501
 #define _WIN32_IE	0x0501
 #define _RICHEDIT_VER	0x0200
@@ -61,8 +61,21 @@ extern CAppModule _Module;
 #include "dxerr8.h"
 
 
-//#undef BEGIN_MSG_MAP
-//#define BEGIN_MSG_MAP() BEGIN_MSG_MAP_EX()
+#ifdef _UNICODE
+#define tstring   wstring
+#define tfstream  wfstream
+#define tiostream wiostream
+#define tifstream wifstream
+#define tofstream wofstream
+#define tfilebuf wfilebuf
+#else
+#define tstring   string
+#define tfstream  fstream
+#define tiostream iostream
+#define tifstream ifstream
+#define tofstream ofstream
+#define tfilebuf filebuf
+#endif
 
 
 #pragma comment(lib,"dsound.lib")

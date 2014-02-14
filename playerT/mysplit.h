@@ -45,6 +45,7 @@ public:
 
 	BEGIN_MSG_MAP_EX(CMultiSpliltWnd)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
+		MESSAGE_HANDLER(WM_DESTROY,OnDestroy)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 		MSG_WM_ERASEBKGND(OnEraseBkgnd)
@@ -81,12 +82,7 @@ public:
 		return rootTree;
 	}
 
-	virtual void OnFinalMessage(_In_ HWND /*hWnd*/)
-	{
-		
 
-
-	}
 
 	BOOL OnEraseBkgnd(CDCHandle dc)
 	{
@@ -115,6 +111,13 @@ public:
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 
 	
+	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
+
+	void CollectInfo()
+	{
+		CollectAllChildInfo(rootTree);
+	}
+
 	void UpdateTree(MYTREE *treeData);
 
 	

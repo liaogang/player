@@ -84,9 +84,10 @@ void CPlayListView::Init(bool bSearch)
 void CPlayListView::Load()
 {
 	//load m_iColumnWidths
-	if(tree->data.dataForWndSerialize.len != 0)
+	if(m_dData.GetLength() != 0)
 	{
-		tree->data.dataForWndSerialize.CopyDataOut(m_iColumnWidths,m_iColumnCount*sizeof(m_iColumnWidths[0]) );
+		m_dData.CopyDataOut(m_iColumnWidths,m_iColumnCount*sizeof(m_iColumnWidths[0]) );
+		m_dData.Clear();
 		m_bLoaded=TRUE;
 	}
 }
@@ -100,12 +101,8 @@ void CPlayListView::Save()
 	}
 
 
-
+	
 	//save it
-	if(tree->data.bSerialize)
-	{
-		tree->data.dataForWndSerialize.CopyDataIn(m_iColumnWidths,m_iColumnCount*sizeof(m_iColumnWidths[0]) );
-	}
-
+	m_dData.CopyDataIn(m_iColumnWidths,m_iColumnCount*sizeof(m_iColumnWidths[0]) );
 }
 

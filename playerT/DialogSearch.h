@@ -3,11 +3,14 @@
 #include <atlsimpcoll.h>
 #include "PlayListView.h"
 #include "globalStuffs.h"
+#include "MySerialize.h"
+#include "MyLib.h"
 using namespace std;
 
 class DialogSearch :
 	public CDialogImpl<DialogSearch>,
 	public CDialogResize<DialogSearch>,
+	public SerializeObj<DialogSearch>,
 	public CMessageFilter
 {
 public:
@@ -17,6 +20,7 @@ public:
 	{
 		return IsDialogMessage(pMsg);
 	}
+
 
 	BEGIN_MSG_MAP(DialogSearch)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
@@ -37,20 +41,27 @@ public:
 
 	CPlayListViewS m_list;
 	LPCPlayList searchPl;
-	RECT m_rc;
+	CRect m_rc;
 	BOOL m_bHiden;
 	TCHAR *title;
 	TCHAR *title2;
 
+	FILE& operator<<(FILE& f);
+	FILE& operator>>(FILE& f) const ;
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		IWantToReceiveMessage(WM_PLAYQUEUE_CHANGED);
 
 		DlgResize_Init(FALSE,FALSE);
-		CenterWindow(GetParent());
+
+		if(m_rc.IsRectNull())
+			CenterWindow(GetParent());
+		else
+			::SetWindowPos(m_hWnd, NULL, m_rc.left, m_rc.top, m_rc.right - m_rc.left, m_rc.bottom - m_rc.top,SWP_NOZORDER);
 
 		m_list.SubclassWindow(::GetDlgItem(m_hWnd,IDC_LIST));
 		
+
 		title=new TCHAR[MAX_PATH];
 		GetWindowText(title,MAX_PATH);
 		title2=new TCHAR[MAX_PATH];
@@ -85,10 +96,12 @@ public:
 		return 1;
 	}
 
+
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 		bHandled=FALSE;
 		GetWindowRect(&m_rc);
+		m_list.Save();
 		return 1;
 	}
 

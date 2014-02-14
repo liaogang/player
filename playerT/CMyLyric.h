@@ -4,7 +4,6 @@
 #include "dlgLrcSearch.h"
 #include "LrcMng.h"
 #include "customMsg.h"
-#include "mytree.h"
 #pragma once
 using namespace std;
 
@@ -24,7 +23,6 @@ public:
 class CMyLyricWnd:public CWindowImpl<CMyLyricWnd>
 {
 public:
-	MYTREE *tree;
 	HMENU menu,trackMenu;
 	HBRUSH brush,oldBrush;
 	HPEN  newPen,oldPen; 

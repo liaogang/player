@@ -3,7 +3,6 @@
 #include "globalStuffs.h"
 #include "mysplit.h"
 #include "FunctionReg.h"
-#include "CMyTypes.h"
 //基类属性面板树右边的对话框
 #include <string>
 class CDlgConfig

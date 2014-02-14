@@ -10,24 +10,16 @@
 #include "MySerialize.h"
 #include "MyControls.h"
 #include "mysplit.h"
-
+#include "DialogSearch.h"
 #ifndef _MAINFRAME_H
 #define _MAINFRAME_H
 
-//APP_PLAYER_UI
-#ifdef APP_PLAYER_TRAY
 
-#endif
-
-
-
-#ifdef APP_PLAYER_UI
 class CDialogConfig;
 class CAlbumCoverView;
 class CDialogLyric;
 class CPlayListView;
 class CMyStatusBar;
-class DialogSearch;
 class CProcessingDlg;
 class CMySimpleRebar;
 class DialogFFT;
@@ -36,18 +28,13 @@ class DialogPLManager;
 class CDialogConsole;
 class CMultiSpliltWnd;
 class MYTREE;
-#endif
 
 
 
-class CMainFrame : 
-#ifdef APP_PLAYER_UI
+
+class CMainFrame: 
 	public CFrameWindowImpl<CMainFrame>, 
 	public CIdleHandler,
-#endif
-#ifdef APP_PLAYER_TRAY
-	public CWindowImpl<CMainWnd>
-#endif
 	public CUpdateUI<CMainFrame>,
 	public CMessageFilter, 
 	public SerializeObj<CMainFrame>
@@ -68,7 +55,7 @@ public:
 	CDialogConfig   *m_pDlgConfig;
 	CDialogLyric *m_pDlgLrc;
 	CProcessingDlg *pDlgProcess;
-	DialogSearch *m_pDlgSearch;
+	DialogSearch m_DlgSearch;
 	DialogFFT *m_pDlgFFT;
 	DialogFFTOutline *m_pDlgFFTOutline;
 	DialogPLManager *m_pDlgPLMng;
@@ -79,7 +66,6 @@ public:
 	RECT m_rcConfig; 
 	RECT m_rcLrc;
 	RECT m_rcProcess;
-	RECT m_rcSearch;
 	RECT m_rcFFT;
 	RECT m_rcPLMng;
 	RECT m_rcPLConsole;
@@ -102,9 +88,8 @@ public:
 	
 
 public:
-	#ifdef APP_PLAYER_UI
 	CMainFrame():m_pDlgLrc(NULL),
-		m_pDlgSearch(NULL),pDlgProcess(NULL),
+		pDlgProcess(NULL),
 		m_pDlgFFT(NULL),m_pDlgFFTOutline(NULL),
 		m_pDlgPLMng(NULL),m_pDlgConsole(NULL),
 		m_pDlgConfig(NULL),m_bShowStatusBar(TRUE),m_bExit2Tray(FALSE)
@@ -113,12 +98,11 @@ public:
 		RECT_INIT(m_rcConfig)
 		RECT_INIT(m_rcLrc)
 		RECT_INIT(m_rcProcess)
-		RECT_INIT(m_rcSearch)
 		RECT_INIT(m_rcFFT)
 		RECT_INIT(m_rcPLMng)
 		RECT_INIT(m_rcPLConsole)
 	}
-#endif
+
 
 	~CMainFrame();
 
@@ -130,13 +114,12 @@ public:
 	virtual BOOL OnIdle();
 
 	BEGIN_UPDATE_UI_MAP(CMainFrame)
-		#ifdef APP_PLAYER_UI
+
 // 		UPDATE_ELEMENT(ID_VIEW_TOOLBAR, UPDUI_MENUPOPUP)
  		UPDATE_ELEMENT(ID_VIEW_STATUS_BAR, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_FILE_OPENDIRECTORY, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_FILE_OPEN, UPDUI_MENUPOPUP)
 		UPDATE_ELEMENT(ID_FILE_SAVEPLAYLIST, UPDUI_MENUPOPUP)
-#endif
 	END_UPDATE_UI_MAP()
 
 	BEGIN_MSG_MAP(CMainFrame)
@@ -145,6 +128,7 @@ public:
 		MESSAGE_HANDLER(WM_CLOSE,OnExit)
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
+		MESSAGE_HANDLER(WM_NCDESTROY,OnNcDestroy)
 		MESSAGE_HANDLER(WM_DRAWSPECTRUM,OnDrawSpectrum)
 		MESSAGE_HANDLER(WM_HOTKEY,OnHotKey)
 
@@ -231,7 +215,8 @@ public:
 	LRESULT OnViewPlaylistManager(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);	
 	LRESULT OnExit(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
-
+	LRESULT OnNcDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
+	
 	LRESULT OnEditSearch(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		ShowSearchDialog();

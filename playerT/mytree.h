@@ -2,6 +2,8 @@
 #include <list>
 #include <map>
 #include <math.h>
+#include "globalStuffs.h"
+#include "customMsg.h"
 
 #pragma once
 #define max_node_name 40
@@ -20,6 +22,8 @@ void PaneSizeStore(MYTREE *root);
 
 
 
+void CollectAllChildInfo(MYTREE *c);
+void CollectInfo(MYTREE *tree);
 
 
 
@@ -76,55 +80,12 @@ enum pane_type
 	panetype_empty
 };
 
-struct blockData
-{
-public:
-	BYTE *data;
-	INT   len;
-	INT pointer;
-	//do not copy
-	blockData operator=(const blockData &);
-public:
-	blockData():data(NULL),len(0),pointer(0)
-	{
 
-	}
-
-	blockData(int _len):pointer(0)
-	{
-		len=_len;
-		data=new BYTE[len];
-	}
-
-	~blockData()
-	{
-		if(data)
-			delete[] data;
-	}
-
-	void CopyDataIn(void *buf,int _len)
-	{
-		ATLASSERT(data==NULL);
-
-		len=_len;
-		data=new BYTE[len];
-		memcpy(data,buf,len);
-	}
-
-	void CopyDataOut(void *buf,int _len)
-	{
-		ATLASSERT(pointer+_len <= len);
-
-		memcpy(buf,data+pointer,_len);
-		pointer+=_len;
-	}
-
-};
 
 class dataNode:public SerializeObj<dataNode>
 {
 public:
-	dataNode(TCHAR *name):hWnd(NULL),m_iSplitterBar(SPLITTER_WH),bSerialize(TRUE)
+	dataNode(TCHAR *name):hWnd(NULL),m_iSplitterBar(SPLITTER_WH)
 	{
 		_tcscpy(nodeName,name);
 		type=left_right;
@@ -136,7 +97,7 @@ public:
 		treeItem=0;
 	}
 
-	dataNode():hWnd(NULL),m_iSplitterBar(SPLITTER_WH),bSerialize(TRUE)
+	dataNode():hWnd(NULL),m_iSplitterBar(SPLITTER_WH)
 	{
 		type=left_right;
 		rc.left=0;
@@ -149,8 +110,6 @@ public:
 
 	void Destroy()
 	{
-		bSerialize=FALSE;
-
 		if(IsWindow(hWnd))
 			DestroyWindow(hWnd);
 	}
@@ -219,8 +178,7 @@ public:
 
 	HTREEITEM treeItem;
 
-	BOOL bSerialize;
-	blockData dataForWndSerialize;
+	blockData wndData;
 };
 
 

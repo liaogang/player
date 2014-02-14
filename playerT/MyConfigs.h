@@ -1,5 +1,5 @@
 #include "MySerialize.h"
-#include "customMsg.h"
+#include "globalStuffs.h"
 
 class MyConfigs:public SerializeObj<MyConfigs>
 {

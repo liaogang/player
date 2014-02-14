@@ -1,4 +1,4 @@
-#include "mytree.h"
+
 class DialogFFTOutline;
 
 using namespace std;
@@ -7,7 +7,6 @@ using namespace std;
 class DialogFFT : public CWindowImpl<DialogFFT>
 {
 public:
-	MYTREE *tree;
 	HMENU menu,trackMenu;
 	DialogFFT():bFullScreen(FALSE),parent(NULL)
 	{

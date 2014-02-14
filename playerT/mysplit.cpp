@@ -165,14 +165,39 @@ MYTREE* CreateRootTree()
 	MYTREE *root=new MYTREE(_T("root"));
 	root->data.type=left_right;
 	root->setroot();
-
+	
 	wcscpy(root->data.nodeName,L"Ë®Æ½·ÖÀëÆ÷");
 
 	return root;
 }
 
 
-// void CollectChildInfo(MYTREE *tree)
-// {
-// 	if(tree->data.hWnd)
-/*}*/
+void CollectAllChildInfo(MYTREE *c)
+{
+	for (;c;c=c->next)	
+	{
+		CollectInfo(c);
+		if (c->hasChild())
+			CollectAllChildInfo(c->child);
+
+	}
+
+}
+
+void CollectInfo(MYTREE *tree)
+{
+	if(IsWindow(tree->data.hWnd) )
+	{
+		tree->data.wndData.Clear();
+		::SendMessage(tree->data.hWnd,WM_GET_SERIALIZE_DATA,(WPARAM)&tree->data.wndData,(LPARAM)0);
+	}
+}
+
+
+
+LRESULT CMultiSpliltWnd::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	CollectInfo();
+	bHandled=FALSE;
+	return 1;
+}

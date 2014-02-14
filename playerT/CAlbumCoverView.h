@@ -3,7 +3,6 @@
 #include "MyLib.h"
 #include "PlayList.h"
 #include "globalStuffs.h"
-#include "mytree.h"
 #define WIDTH(rc) ((rc).right-(rc.left))
 #define HEIGHT(rc) ((rc).bottom-(rc.top))
 #define  ID_MENU_PIC_SAVE (0XF000-209)
@@ -11,7 +10,6 @@ class CAlbumCoverView :
 	public CWindowImpl<CAlbumCoverView>
 {
 public:
-	MYTREE *tree;
 	HPEN  newPen,oldPen; 
 	HBRUSH brush,oldBrush;
 	HMENU menu;

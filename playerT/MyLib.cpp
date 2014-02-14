@@ -6,7 +6,7 @@
 #include "forwardMsg.h"
 #include <algorithm>
 #include <time.h>
-
+#include "customMsg.h"
 
 void MyLib::SetSelectedIndex(int i)
 {

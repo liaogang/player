@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include <string>
 #include <vector>
 #pragma once
@@ -170,3 +171,103 @@ struct TrackFormatInfo
 
 void SetTrackFormatInfo(int type,int rate,int samplesps,int mode);
 TrackFormatInfo* GetTrackFormatInfo();
+
+
+struct blockData
+{
+private:
+	BYTE *data;
+	UINT   len;
+
+	//abandoned assgin
+	blockData operator=(const blockData &);
+public:
+	void Take(blockData &other)
+	{
+		len=other.len;   other.len=0;
+		data=other.data; other.data=NULL;
+	}
+
+	void Copy(blockData &other)
+	{
+		len=other.len;
+		data=new BYTE[len];
+		memcpy(data,other.data,len);
+	}
+
+	blockData():data(NULL),len(0)
+	{
+
+	}
+
+	blockData(int _len)
+	{
+		len=_len;
+		data=new BYTE[len];
+	}
+
+	blockData(BYTE *_data,int _len):data(_data),len(_len)
+	{
+	}
+
+	~blockData()
+	{
+		if(data)
+			delete[] data;
+	}
+
+	INT GetLength() const 
+	{
+		return len;
+	}
+
+	void CopyDataIn(void *buf,int _len)
+	{
+		ATLASSERT(data==NULL);
+
+		len=_len;
+		data=new BYTE[len];
+		memcpy(data,buf,len);
+	}
+
+	void CopyDataOut(void *buf,int _len) const
+	{
+		ATLASSERT(_len <= len);
+
+		memcpy(buf,data,_len);
+	}
+
+	void Clear()
+	{
+		len=0;
+
+		if(data)
+		{
+			delete[] data;
+			data=NULL;
+		}
+	}
+};
+
+#define  RECT_INIT(rc) 	rc.left=0;rc.right=0;rc.top=0;rc.bottom=0;
+
+
+
+
+struct trackPosInfo
+{
+	double used;
+	double left;
+public:
+	trackPosInfo():used(-1),left(-1)
+	{}
+};
+
+
+enum PlayingStatus
+{
+	status_invalide,
+	status_stopped,
+	status_playing,
+	status_paused
+};
