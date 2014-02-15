@@ -31,13 +31,31 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	
 	pGlobalMain=&wndMain;
 
+#ifdef APP_PLAYER_UI
+	RegisterStuffs();
+#endif
+
+	LoadAll();
+
+
+#ifdef APP_PLAYER_UI
+	if(wndMain.Create(NULL,wndMain.rcDefault,GetAppName())== NULL)
+#else
 	if(wndMain.Create()== NULL)
+#endif
 	{
-		ATLTRACE(_T("Main window creation failed!\n"));
+		ATLTRACE(_T("Main  window creation failed!\n"));
 		return 0;
 	}
-
-	wndMain.ShowWindow(nCmdShow);
+	
+#ifdef APP_PLAYER_UI
+	if(wndMain.m_bLoaded)
+	{wndMain.m_wndsPlacement.showCmd|=wndMain.m_uShowState;
+	SetWindowPlacement(wndMain,&wndMain.m_wndsPlacement);
+	}
+	else
+		wndMain.ShowWindow(SW_SHOW);
+#endif
 
 	int nRet = theLoop.Run();
 

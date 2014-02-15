@@ -60,6 +60,8 @@ LPDIRECTSOUNDBUFFER DSoundBufferCreate(WAVEFORMATEX *pwfx)
 	g_dwMaxDSBufferLen=6*pwfx->nAvgBytesPerSec;
 	g_dwSleepTime=(dsBufferDesc.dwBufferBytes/pwfx->nAvgBytesPerSec)*1000/30;
 	
+	gDefaultBufferSize=pwfx->nAvgBytesPerSec;
+
 	return lpDSBuffer;
 }
 

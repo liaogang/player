@@ -34,7 +34,7 @@ void CreateHWNDbyNameLoop(MYTREE *tree)
 		CreateHWNDbyName(tree);
 
 		if (tree->hasChild())
-			CreateHWNDbyName(tree->child);
+			CreateHWNDbyNameLoop(tree->child);
 	}
 }
 

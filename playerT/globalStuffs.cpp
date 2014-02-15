@@ -7,6 +7,7 @@
 #include "MainFrameTray.h"
 #else
 #include "mainfrm.h"
+#include "FunctionReg.h"
 #endif
 
 void SdMsg(UINT msg,BOOL bPost,WPARAM wparam,LPARAM lparam)
@@ -86,8 +87,7 @@ void SetHighestMatchLrc(LrcMatchItem &item){highestmatchlrc=item;}
 
 
 
-
-
+#ifdef APP_PLAYER_UI
 //  Only the mono mode has 1 channel, the others have 2 channels.
 const TCHAR * mp3_mode[] = {
 	_T("stereo"),	/**< Standard Stereo. */
@@ -101,6 +101,24 @@ const TCHAR* TrackFormatInfo::getModeString()
 	return mp3_mode[mode];
 }
 
+
+
+
+void RegisterStuffs()
+{
+	CMyCommandBarCtrl::RegisterSelf();
+	CMyToolBar::RegisterSelf();
+	CMyTrackBar::RegisterSelf();
+	CMyComboBox::RegisterSelf();
+	CMyVolumeBar::RegisterSelf();
+
+
+	RegisterCreateWndFuns(_T("播放列表"),MYTREE_Set_Playlist);
+	RegisterCreateWndFuns(_T("封面面板"),MYTREE_Set_AlbumView);
+	RegisterCreateWndFuns(_T("歌词面板"),MYTREE_Set_LyricView);
+	RegisterCreateWndFuns(_T("频谱面板"),MYTREE_Set_SpectrumView);
+}
+#endif
 
 
 
@@ -126,10 +144,11 @@ bool LoadAll()
 	#endif
 	LoadAllPlayList();
 
-
 	LoadCoreCfg();
-
 
 	return true;
 }
+
+
+
 

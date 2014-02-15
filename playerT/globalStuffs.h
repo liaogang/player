@@ -153,13 +153,9 @@ void SetHighestMatchLrc(LrcMatchItem &item);
 
 
 
-struct trackPosInfo;
-trackPosInfo *getTrackPosInfo();
-void setTrackPosInfo(trackPosInfo info);
 
 
-
-
+#ifdef APP_PLAYER_UI
 struct TrackFormatInfo
 {
 	int type;
@@ -168,9 +164,13 @@ struct TrackFormatInfo
 	int mode; 
 	const TCHAR* getModeString();
 };
-
 void SetTrackFormatInfo(int type,int rate,int samplesps,int mode);
 TrackFormatInfo* GetTrackFormatInfo();
+
+
+
+void RegisterStuffs();
+#endif
 
 
 struct blockData
@@ -271,3 +271,4 @@ enum PlayingStatus
 	status_playing,
 	status_paused
 };
+

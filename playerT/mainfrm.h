@@ -44,6 +44,10 @@ public:
 public:
 	typedef CFrameWindowImpl<CMainFrame> thebase;
 
+	//load from file .
+	BOOL m_bLoaded;
+	UINT m_uShowState;
+	WINDOWPLACEMENT m_wndsPlacement;
 	//ÖÜ±ß´°¿Ú
 	CMySimpleRebar m_wndRebar;
 	CMyStatusBar *m_pStatus;
@@ -61,8 +65,6 @@ public:
 	DialogPLManager *m_pDlgPLMng;
 	CDialogConsole  *m_pDlgConsole;
 	
-
-	RECT m_rcMain;
 	RECT m_rcConfig; 
 	RECT m_rcLrc;
 	RECT m_rcProcess;
@@ -92,15 +94,18 @@ public:
 		pDlgProcess(NULL),
 		m_pDlgFFT(NULL),m_pDlgFFTOutline(NULL),
 		m_pDlgPLMng(NULL),m_pDlgConsole(NULL),
-		m_pDlgConfig(NULL),m_bShowStatusBar(TRUE),m_bExit2Tray(FALSE)
+		m_pDlgConfig(NULL),m_bShowStatusBar(TRUE),m_bExit2Tray(FALSE),
+		m_bLoaded(FALSE)
 	{
-		RECT_INIT(m_rcMain)
 		RECT_INIT(m_rcConfig)
 		RECT_INIT(m_rcLrc)
 		RECT_INIT(m_rcProcess)
 		RECT_INIT(m_rcFFT)
 		RECT_INIT(m_rcPLMng)
 		RECT_INIT(m_rcPLConsole)
+
+		m_wndsPlacement.flags=0;
+		m_wndsPlacement.showCmd=SW_SHOWNORMAL;
 	}
 
 
@@ -324,10 +329,10 @@ public:
 
 
 	
-	
+	void ReceiveMsg();
 	
 	//when  player booted
-	void RegisterStuffs();
+	
 	void InitUILayout();
 
 	int HotKeyId;

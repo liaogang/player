@@ -135,6 +135,16 @@ FILE& operator>>(FILE& f,RECT &r)
 }
 
 
+//POINT
+FILE& operator<<(FILE& f,const POINT &p)
+{
+	return f<<p.x<<p.y;
+}
+
+FILE& operator>>(FILE& f,POINT &p) 
+{
+	return f>>p.x>>p.y;
+}
 
 //enum PlayingStatus
 FILE& operator<<(FILE& f,const PlayingStatus s)
@@ -206,6 +216,22 @@ FILE& operator>>(FILE& f,blockData * bd)
 
 	return f;
 }
+
+
+//WINDOWPLACEMENT
+FILE& operator<<(FILE& f,const WINDOWPLACEMENT& s)
+{
+	return f<<s.length<<s.flags<<s.showCmd<<s.ptMinPosition
+		<<s.ptMaxPosition<<s.rcNormalPosition;
+}
+
+FILE& operator>>(FILE& f,WINDOWPLACEMENT &s)
+{
+	return f>>s.length>>s.flags>>s.showCmd>>s.ptMinPosition
+		>>s.ptMaxPosition>>s.rcNormalPosition;
+}
+
+
 
 #endif
 
@@ -365,12 +391,9 @@ bool LoadCoreCfg()
 		 //MyConfigs
 		*f>>*GetMyConfigs();
 
-		ValidateCfg();
 		fclose(f);
 	}
 
-	
-	
 	return TRUE;
 }
 
@@ -744,12 +767,13 @@ bool LoadUICfg()
 
 FILE& CMainFrame::operator>>(FILE& f) const
 {
-	return f<<m_rcMain<<m_rcConfig<<m_rcLrc<<m_rcProcess<<m_DlgSearch<<m_rcFFT<<m_rcPLMng<<m_rcPLConsole<<m_bShowStatusBar<<m_wndRebar<<m_WndMultiSplitter;
+	return	f<<m_uShowState<<m_wndsPlacement<<m_rcConfig<<m_rcLrc<<m_rcProcess<<m_DlgSearch<<m_rcFFT<<m_rcPLMng<<m_rcPLConsole<<m_bShowStatusBar<<m_wndRebar<<m_WndMultiSplitter;
 }
 
 FILE& CMainFrame::operator<<(FILE& f)
 {
-	return  f>>m_rcMain>>m_rcConfig>>m_rcLrc>>m_rcProcess>>m_DlgSearch>>m_rcFFT>>m_rcPLMng>>m_rcPLConsole>>m_bShowStatusBar>>m_wndRebar>>m_WndMultiSplitter;
+	m_bLoaded=TRUE;
+	return	f>>m_uShowState>>m_wndsPlacement>>m_rcConfig>>m_rcLrc>>m_rcProcess>>m_DlgSearch>>m_rcFFT>>m_rcPLMng>>m_rcPLConsole>>m_bShowStatusBar>>m_wndRebar>>m_WndMultiSplitter;
 }
 
 FILE& DialogSearch::operator>>(FILE& f) const

@@ -16,15 +16,15 @@ CPlayerThread::CPlayerThread(MusicFile * pFile,CCriticalSection *cs,BOOL *pStop)
 	m_dwCurWritePos(-1),m_bKeepPlaying(TRUE),
 	m_pStopped(pStop)
 {
-	pBufFFT1=new signed char[gDefaultBufferSize];
+	
+	pBufFFT1=(signed char*)malloc(gDefaultBufferSize);//new signed char[gDefaultBufferSize];
 	//memset(pBufFFT1,0,gDefaultBufferSize);
-
 }
 
 CPlayerThread::~CPlayerThread(void)
 {
-	delete[] pBufFFT1;
-	delete[] m_ReduceBuffer;
+	free(pBufFFT1);
+	free(m_ReduceBuffer);
 
 	if(m_lpDSBuffer)
 	{	
@@ -52,7 +52,7 @@ void CPlayerThread::Reset()
 
 	fftBufLen=g_dwMaxDSBufferLen;
 
-	m_ReduceBuffer=new BYTE[m_iBytePerFrame * 16];
+	m_ReduceBuffer=(BYTE*)malloc(m_iBytePerFrame * 16);//new BYTE[m_iBytePerFrame * 16];
 
 	//pBufFft=new signed char[fftBufLen];
 	playPosInFFt=0;
@@ -113,11 +113,15 @@ double CPlayerThread::GetOffsetSeconds()
 	if(m_lpDSBuffer==NULL)return 0;
 	if (FAILED(m_lpDSBuffer->GetCurrentPosition(&playCursor,NULL))) return 0;
 	DWORD notPlayed=DS_GetWritedNotPlayed(g_dwMaxDSBufferLen,playCursor,m_dwCurWritePos);
-
-	WAVEFORMATEX *pwfx=m_pFile->GetFormat();
 	
-	double timePlayed=notPlayed/(double)pwfx->nAvgBytesPerSec;
-	return timePlayed;
+	if(m_pFile)
+	{
+		WAVEFORMATEX *pwfx=m_pFile->GetFormat();
+		double timePlayed=notPlayed/(double)pwfx->nAvgBytesPerSec;
+		return timePlayed;
+	}
+
+	return 0;
 }
 
 
@@ -192,9 +196,10 @@ void CPlayerThread::Excute()
 			WriteDataToDSBuf();
 	}
 
-	CleanDSBuffer();
+	//CleanDSBuffer();
 	
 	delete this;
+	ATLTRACE2(L"playerthread deleted.\n");
 }
 
 void CPlayerThread::WriteDataToDSBuf()

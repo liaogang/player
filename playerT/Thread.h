@@ -28,6 +28,7 @@ public:
 			CloseHandle(m_hThread);
 	}
 
+	HANDLE GetHandle(){return m_hThread;}
 
 	void Resume()
 	{
@@ -49,7 +50,9 @@ public:
 
 	BOOL ExitThread()
 	{
-		//ExitThread(m_hThread);
+		DWORD exitCode;
+		GetExitCodeThread(m_hThread,&exitCode);
+		::ExitThread(exitCode);
 	}
 
 	BOOL Teminate()

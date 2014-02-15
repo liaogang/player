@@ -31,7 +31,7 @@ public:
 		if (m_hmp3)
 		{
 			mpg123_tclose(m_hmp3);
-			//mpg123_exit();
+			mpg123_delete(m_hmp3);
 		}
 	}
 

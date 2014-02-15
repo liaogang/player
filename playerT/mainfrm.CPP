@@ -97,20 +97,13 @@ BOOL CMainFrame::OnIdle()
 	return FALSE;
 }
 
-LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
-	RegisterStuffs();
+	ValidateCfg();
 
-	SetWindowText(GetAppName());
-
-	if(m_rcMain.right>0 && m_rcMain.bottom > 0)
-	::SetWindowPos(m_hWnd, NULL, m_rcMain.left, m_rcMain.top, m_rcMain.right - m_rcMain.left, m_rcMain.bottom - m_rcMain.top,SWP_NOZORDER);
-
-	LoadAll();
-
+	ReceiveMsg();
 
 	SetTimer((UINT_PTR)&m_nIDEvent,m_uElapse,NULL);
-
 
 	SetMenu(NULL);
 
@@ -141,6 +134,14 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	return 0;
 }
 
+void CMainFrame::ReceiveMsg(){
+IWantToReceiveMessage(WM_FILE_FINDED);
+IWantToReceiveMessage(WM_TRACK_REACH_END);
+IWantToReceiveMessage(WM_ADDFOLDERED);
+IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
+IWantToReceiveMessage(WM_TRACKSTOPPED);
+IWantToReceiveMessage(WM_PL_TRACKNUM_CHANGED);
+}
 HWND CMySimpleRebar::CreateIsWnd(HWND hParent)
 {
 	HWND hWnd= CMainFrame::CreateSimpleReBarCtrl(hParent, ATL_SIMPLE_REBAR_NOBORDER_STYLE, ATL_IDW_TOOLBAR);
@@ -781,30 +782,6 @@ void CMainFrame::ShowSearchDialog()
 	m_DlgSearch.ShowSelf();
 }
 
-void CMainFrame::RegisterStuffs()
-{
-	CMyCommandBarCtrl::RegisterSelf();
-	CMyToolBar::RegisterSelf();
-	CMyTrackBar::RegisterSelf();
-	CMyComboBox::RegisterSelf();
-	CMyVolumeBar::RegisterSelf();
-	
-
-	RegisterCreateWndFuns(_T("播放列表"),MYTREE_Set_Playlist);
-	RegisterCreateWndFuns(_T("封面面板"),MYTREE_Set_AlbumView);
-	RegisterCreateWndFuns(_T("歌词面板"),MYTREE_Set_LyricView);
-	RegisterCreateWndFuns(_T("频谱面板"),MYTREE_Set_SpectrumView);
-
-
-	::PostMessage(m_hWnd,WM_ADDFOLDERED,NULL,NULL);
-	
-	IWantToReceiveMessage(WM_FILE_FINDED);
-	IWantToReceiveMessage(WM_TRACK_REACH_END);
-	IWantToReceiveMessage(WM_ADDFOLDERED);
-	IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
-	IWantToReceiveMessage(WM_TRACKSTOPPED);
-	IWantToReceiveMessage(WM_PL_TRACKNUM_CHANGED);
-}
 
 
 void CMainFrame::ShowDlgProcessFile()
@@ -1754,7 +1731,12 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 
 	//save the windows position
-	GetWindowRect(&m_rcMain);
+	m_wndsPlacement.length=sizeof(WINDOWPLACEMENT);
+	GetWindowPlacement(&m_wndsPlacement);
+	
+	m_uShowState=IsZoomed()?SW_SHOWMAXIMIZED:(IsIconic()?SW_SHOWMINIMIZED:SW_SHOWNORMAL);
+
+
 	
 	if(m_pDlgConfig)
 	{	
@@ -1790,7 +1772,16 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 	GlobalDeleteAtom(HotKeyId);
 
-	
+	bHandled = FALSE;
+	return 1;
+}
+
+
+LRESULT CMainFrame::OnNcDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	SaveAll();
+
+	//exit and start the tray player .
 	if (m_bExit2Tray )
 	{
 		ChangeCurDir2ModulePath();
@@ -1802,16 +1793,6 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 			SW_SHOW);
 	}
 
-	
-
-	bHandled = FALSE;
-	return 1;
-}
-
-
-LRESULT CMainFrame::OnNcDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-{
-	SaveAll();
 	bHandled=FALSE;
 	return 1;
 }

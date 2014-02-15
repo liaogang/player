@@ -14,6 +14,8 @@
 
 using namespace std;
 
+
+#ifdef APP_PLAYER_UI
 static TrackFormatInfo *gTrackFormatInfo;
 void SetTrackFormatInfo(int type,int rate,int samplesps,int mode)
 {
@@ -35,6 +37,8 @@ TrackFormatInfo* GetTrackFormatInfo()
 
 	return gTrackFormatInfo;
 }
+#endif
+
 
 void CALLBACK SlowDownVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD dw2)
 {
@@ -170,13 +174,11 @@ void CBasicPlayer::play()
 
 	m_pPlayerThread=new CPlayerThread(m_pFile,&m_cs,&m_bStopped);
 
-	m_pPlayerThread->Start(TRUE);
-
 	m_pPlayerThread->Reset();
 
 	m_pPlayerThread->CleanDSBuffer();
 
-	m_pPlayerThread->Resume();
+	m_pPlayerThread->Start(FALSE);
 	
 	m_bStopped=FALSE;
 
@@ -239,7 +241,9 @@ void CBasicPlayer::GrowUpVol()
 
 	if(curVolUp>=m_curVolume/2)
 	{
-		timeKillEvent(m_timerUpID);
+		MMRESULT r=timeKillEvent(m_timerUpID);
+		if(TIMERR_NOERROR == r)
+			ATLTRACE2(L"time killed .\n");
 	}
 }
 

@@ -20,7 +20,6 @@ playerT/*.vcxproj
 playerT/Debug
 playerT/Debug1
 playerT/MSVCProj/Debug
-playerT/MSVCProj/Release
 playerT/MSVCProj/ipch
 playerT/MSVCProj/player.opensdf
 playerT/MSVCProj/player.sdf
