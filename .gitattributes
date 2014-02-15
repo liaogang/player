@@ -323,6 +323,8 @@ playerT/ListEdit.h -text
 playerT/ListTypes.h -text
 playerT/LrcMng.cpp -text
 playerT/LrcMng.h -text
+playerT/MSVCProj/Release/player.exe -text
+playerT/MSVCProj/Release/playerTray.exe -text
 playerT/MSVCProj/player.sln -text
 playerT/MSVCProj/player.vcxproj -text
 playerT/MSVCProj/player.vcxproj.filters -text
