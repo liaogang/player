@@ -16,10 +16,10 @@ using namespace std;
 
 
 #ifdef APP_PLAYER_UI
-static TrackFormatInfo *gTrackFormatInfo;
+static TrackFormatInfo *gTrackFormatInfo=NULL;
 void SetTrackFormatInfo(int type,int rate,int samplesps,int mode)
 {
-	if(gTrackFormatInfo==nullptr)
+	if(gTrackFormatInfo==NULL)
 		gTrackFormatInfo=new TrackFormatInfo;
 
 	gTrackFormatInfo->type=type;
@@ -32,6 +32,7 @@ void SetTrackFormatInfo(int type,int rate,int samplesps,int mode)
 TrackFormatInfo* GetTrackFormatInfo()
 {
 	mpg123_frameinfo info;
+	memset(&info,0,sizeof(info));
 	CBasicPlayer::shared()->m_pFile->GetFrameInfo(&info);
 	SetTrackFormatInfo(1,info.bitrate,info.rate,info.mode);
 
@@ -81,7 +82,7 @@ void CALLBACK GrowUpVolFunc(UINT uTimerID,UINT uMsg,DWORD dwUser,DWORD dw1,DWORD
 CBasicPlayer :: ~CBasicPlayer(void)
 {
 	delete[] volBuffer;
-	if(!m_pPlayerThread) delete m_pPlayerThread;
+	
 	//if (!m_pSpectrumAnalyser) delete m_pSpectrumAnalyser; 
 }
 
@@ -122,9 +123,7 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
 			p++;
 			break;
 		}
-	
-	if(m_pFile)
-		delete m_pFile;
+
 	
 	if (_tcscmp(p,_T("wav"))==0 || _tcscmp(p,_T("WAV"))==0)
 		m_pFile=new WaveFile();
@@ -134,7 +133,8 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
 		m_pFile=new Mp3File();
 	else
 		{return FALSE;}
- 
+
+
 	BOOL result=m_pFile->Open(filepath);
 	if(result==FALSE)
 	{
@@ -143,20 +143,16 @@ BOOL CBasicPlayer::open( LPCTSTR filepath )
 	}
 	else
 	{	
+		double u;
+		m_pFile->GetPos(&u,&m_maxFilepos);
+		m_MillisecondsTotal=(u+m_maxFilepos)*1000;
+
 		if(m_lastStatus==status_paused || m_lastStatus==status_playing)
 			SetFilePos(m_msecLastPos/1000);
-		// 	if(m_eStatus==status_playing || m_eStatus==status_paused)
-		// 	{
-		// 		m_pFile->SetPos(curPosInfo.used-5>0?curPosInfo.used-5:curPosInfo.used,curPosInfo.used+curPosInfo.left);
-		// 		m_eStatus=status_null;	
-		// 	}
-		//m_pFile->ResetFile();		
 	}
 	
 
-	double u;
-	m_pFile->GetPos(&u,&m_maxFilepos);
-	m_MillisecondsTotal=(u+m_maxFilepos)*1000;
+
 
 	return result;
 }
@@ -172,6 +168,7 @@ void CBasicPlayer::play()
 		else               //正在播放
 			stop();        //先停止
 
+	
 	m_pPlayerThread=new CPlayerThread(m_pFile,&m_cs,&m_bStopped);
 
 	m_pPlayerThread->Reset();
@@ -192,6 +189,7 @@ void CBasicPlayer::play()
 	{	
 		m_bPaused=FALSE;
 
+		
 		m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
 		TimerVolGrowUp();
 		m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
@@ -241,9 +239,7 @@ void CBasicPlayer::GrowUpVol()
 
 	if(curVolUp>=m_curVolume/2)
 	{
-		MMRESULT r=timeKillEvent(m_timerUpID);
-		if(TIMERR_NOERROR == r)
-			ATLTRACE2(L"time killed .\n");
+		/*MMRESULT r=*/timeKillEvent(m_timerUpID);
 	}
 }
 
@@ -341,10 +337,14 @@ void CBasicPlayer::stop()
 		if(m_lastStatus!=status_invalide)//cllocect info
 			m_msecLastPos=MillisecondsPlayed();
 
-		
 		m_pPlayerThread->SetFlagToExit();
-		m_pFile->Close();
 		
+		if(m_pFile)
+		{
+			delete m_pFile;
+			m_pFile=NULL;
+		}
+
 		m_bStopped=TRUE;
 		NotifyMsg(WM_TRACKSTOPPED,FALSE,0,0);
 		m_cs.Leave();
@@ -379,6 +379,7 @@ void CBasicPlayer::SetFilePos(double cur)
 
 int  CBasicPlayer::MillisecondsPlayed()
 {
+	//todo . setpos
 	double u;
 	m_pFile->GetPos(&u,NULL);
 	double offset=m_pPlayerThread->GetOffsetSeconds() ;

@@ -163,6 +163,10 @@ struct TrackFormatInfo
 	DWORD  nSamplesPerSec;//Hz
 	int mode; 
 	const TCHAR* getModeString();
+	TrackFormatInfo():mode(1)
+	{
+
+	}
 };
 void SetTrackFormatInfo(int type,int rate,int samplesps,int mode);
 TrackFormatInfo* GetTrackFormatInfo();
@@ -216,6 +220,11 @@ public:
 			delete[] data;
 	}
 
+	BYTE * GetRawData()
+	{
+		return data;
+	}
+
 	INT GetLength() const 
 	{
 		return len;
@@ -235,6 +244,13 @@ public:
 		ATLASSERT(_len <= len);
 
 		memcpy(buf,data,_len);
+	}
+
+	void CopyDataOut(void *buf,int _beg,int _len) const
+	{
+		ATLASSERT(_len <= len);
+
+		memcpy(buf,data+_beg,_len);
 	}
 
 	void Clear()

@@ -26,21 +26,26 @@ public:
 
 	}
 
-	~Mp3File(void)
+	virtual ~Mp3File(void)
 	{
 		if (m_hmp3)
 		{
 			mpg123_tclose(m_hmp3);
 			mpg123_delete(m_hmp3);
+			m_hmp3=NULL;
 		}
 	}
 
 	int Close()
 	{
-		int err=mpg123_tclose(m_hmp3);
-		if(err==MPG123_OK)
-			m_hmp3 = NULL;
-		return err;
+		if (m_hmp3)
+		{
+			mpg123_tclose(m_hmp3);
+			mpg123_delete(m_hmp3);
+			m_hmp3=NULL;
+		}
+
+		return 0;
 	}
 
 

@@ -27,12 +27,27 @@ class CPlayListView:
 	public CListImpl< CPlayListView >,
 	public SerializeObj< CPlayListView >
 {
-public:
+private:
+	CFont m_Font;
+
 	static const int m_iColumnCount=6;
+
 	INT m_iColumnOrderArrays[m_iColumnCount];
+
 	INT m_iColumnWidths[m_iColumnCount];
+	int   m_nFontHeight;//make sure is behind m_iColumnWidths. see save
+
 	BOOL m_bLoaded;//from file
 	blockData m_dData;//data to save or load.
+
+	enum{
+		COLUMN_INDEX_INDEX,
+		COLUMN_INDEX_TITLE,
+		COLUMN_INDEX_ARTIST,
+		COLUMN_INDEX_ALBUM,
+		COLUMN_INDEX_YEAR,
+		COLUMN_INDEX_GENRE
+	};
 protected:
 	LPCPlayList  m_pPlayList;
 	HMENU menu;
@@ -42,9 +57,11 @@ protected:
 	UINT m_Order;
 public:
 
+
 	DECLARE_WND_CLASS( _T( "listctrl" ) )
 
-	CPlayListView():m_bManual(TRUE),m_Order(0),m_bLoaded(FALSE),m_dData(blockData())
+	CPlayListView():m_bManual(TRUE),m_Order(0),m_bLoaded(FALSE),
+		m_nFontHeight(17),m_dData(blockData())
 	{
 		SetPlayList(NULL);
 		menu=LoadPlaylistMenu();
@@ -252,114 +269,7 @@ theEnd:
 		EnsureVisibleAndCentrePos(items[0]);
 	}
 
-
-#ifdef Old_Version
-	void DelSelectedItem(BOOL bDelFile=FALSE)
-	{
-		// 			if (bDeletable)
-		// 			{
-		// 				for(int i = GetItemCount()-1; i>=0;--i)
-		// 					if( LVIS_SELECTED==GetItemState(i, LVNI_ALL | LVNI_SELECTED) )
-		// 						DeleteItem(i);
-		// 			}
-		//CListCtrl ctrl;ctrl.GetNextSelectedItem()GetNextItem((UINT)nOldPos, LVIS_SELECTED)
-		if (GetPlayList()->m_bAuto)
-			return;
-
-		//从vector删除某项,需要重新搬家,很费时.
-		int blockBeg,blockLast;
-
-
-		int nCount=GetItemCount();
-		int countToDel=0;
-
-		bool *itemDel=new bool[nCount];
-		memset(itemDel,0,nCount*sizeof(bool));
-
-		int nItem=blockBeg=GetNextItem(-1,LVIS_SELECTED);
-		while(-1!=(nItem=GetNextItem(nItem,LVIS_SELECTED)) )
-		{
-			itemDel[nItem]=true;
-			blockLast=nItem;
-			++countToDel;
-		}
-
-		//isEntireBlock?			
-		if ((blockLast-blockBeg+1)==countToDel)
-		{
-			if (countToDel==nCount)
-			{
-				SetItemCount(0);
-				GetPlayList()->m_songList.clear();
-			}
-			else
-			{
-				for (int i=blockLast;i>=blockBeg;--i)
-					DeleteItem(i);
-				GetPlayList()->DeleteTrack(blockBeg,blockLast);
-			}
-		}
-		else
-		{
-			for (int i=nCount-1;i>=0;--i)
-			{
-				if(itemDel[i])
-				{
-					GetPlayList()->DeleteTrack(i);
-					DeleteItem(i);
-				}
-			}
-		}
-
-
-		/*
-		if ( bDelFile )
-		{
-		TCHAR bf[5]={};
-		_itow(countToDel,bf,10);
-
-		TCHAR title[]=_T("这将会删除\0                     ");
-		TCHAR titleP3[]=_T("文件 \n要继续吗?");
-		_tcscat(title,bf);
-		_tcscat(title,titleP3);
-
-		bDelFile= (IDYES==::MessageBox(m_hWnd,title,_T("确认删除文件"),MB_YESNO));
-		}
-
-		if (bDelFile) ::DeleteFile(GetPlayList()->DeleteTrack(i)->url.c_str());
-		*/
-
-
-		delete[] itemDel;
-
-
-
-
-		// 
-		// 			for(int i = GetItemCount()-1; i>=0;--i)
-		// 			{
-		// 				if(LVIS_SELECTED == GetItemState(i, LVIS_SELECTED) )
-		// 				{
-		// 					PlayListItem *track=(PlayListItem*)GetItemData(i);
-		// 					if(track )
-		// 					{
-		// 						if(bDelFile && IDYES==::MessageBox(m_hWnd,_T("这将会删除 1 文件 \n要继续吗?"),_T("确认删除文件"),MB_YESNO))
-		// 						{
-		// 							::DeleteFile(track->url.c_str());
-		// 						}
-		// 
-		// 						//track->m_pPL->DeleteTrack(track);
-		// 					}
-		// 
-		// 					DeleteItem(i);
-		// 				}
-		// 			}	
-
-	}
-#endif
-
 	void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
-
 
 	LRESULT OnSelected(int /**/,LPNMHDR pnmh,BOOL bHandled);
 	LRESULT OnRightClick(int /**/,LPNMHDR pnmh,BOOL bHandled)
@@ -379,18 +289,6 @@ theEnd:
 	LRESULT OnDbClicked(int /**/,LPNMHDR pnmh,BOOL bHandled);
 
 
-	enum{
-		COLUMN_INDEX_INDEX,
-		COLUMN_INDEX_TITLE,
-		COLUMN_INDEX_ARTIST,
-		COLUMN_INDEX_ALBUM,
-		COLUMN_INDEX_YEAR,
-		COLUMN_INDEX_GENRE
-	};
-
-
-	CFont m_Font;
-	int   m_nFontHeight;
 	void SetLVFont(int nHeight)
 	{
 		m_nFontHeight=nHeight;
@@ -435,37 +333,13 @@ theEnd:
 		return sizeExtent.cx;
 	}
 
-	// 		int GetIndex(PlayListItem *item)
-	// 		{
-	// 			// 			int nItem= GetPlayList()->GetItem(item);
-	// 			// 			return nItem==GetPlayList()->GetItemCount()?-1:nItem;
-	// 
-	// 			return 0;
-	// 		}
-
-
-	// 		void SetPlayingItem(PlayListItem *item)
-	// 		{
-	// 			SetPlayingItem(GetIndex(item));
-	// 		}
 
 public:
-	// 	void SetPlayingItem(int nItem)
-	// 	{
-	// 		int nItemPlaying=GetPlayingIdx();
-	// 		//RedrawItems(nItemPlaying,nItemPlaying);
-	// 		SetPlayingIdx(nItem);
-	// 		//RedrawItems(nItem,nItem);
-	// 	}
 
 	void ClearAllSel()
 	{
 		ResetSelected();
 	}
-
-	//void InsertTrackItem(PlayListItem &track,int item,BOOL SetIndex=TRUE);
-	//inline void InsertTrackItem(PlayListItem *track,int item,BOOL SetIndex=TRUE){InsertTrackItem(*track,item,SetIndex);}
-
 
 	void LoadPlayList(LPCPlayList pPlayList)
 	{
@@ -549,8 +423,6 @@ public:
 	{
 		SelectItem(item,-1,LVIS_FOCUSED|LVIS_SELECTED);
 	}
-
-
 
 
 	void Reload(LPCPlayList pPlayList,int itemActive=-1)
@@ -685,7 +557,6 @@ public:
 			delete this;
 		}
 	}
-
 
 };
 

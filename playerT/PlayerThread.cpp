@@ -8,18 +8,21 @@
 #include "globalStuffs.h"
 #endif
 
-CPlayerThread::CPlayerThread(MusicFile * pFile,CCriticalSection *cs,BOOL *pStop):
-	m_pFile(pFile),
+CPlayerThread::CPlayerThread(void * pFile,CCriticalSection *cs,BOOL *pStop):
 	m_cs(cs),
 	CThread(TRUE),
 	m_lpDSBuffer(NULL),
 	m_dwCurWritePos(-1),m_bKeepPlaying(TRUE),
 	m_pStopped(pStop)
 {
-	
+	m_pFile=(MusicFile*)pFile;
+
+
 	pBufFFT1=(signed char*)malloc(gDefaultBufferSize);//new signed char[gDefaultBufferSize];
-	//memset(pBufFFT1,0,gDefaultBufferSize);
+
 }
+
+
 
 CPlayerThread::~CPlayerThread(void)
 {
@@ -48,13 +51,14 @@ void CPlayerThread::Reset()
 	m_wBitsPerSample=pwfx->wBitsPerSample;
 	m_nAvgBytesPerSec=pwfx->nAvgBytesPerSec;
 
+
+
 	m_lpDSBuffer=DSoundBufferCreate(pwfx);
+
+	m_ReduceBuffer=(BYTE*)malloc(m_iBytePerFrame * 16);;
 
 	fftBufLen=g_dwMaxDSBufferLen;
 
-	m_ReduceBuffer=(BYTE*)malloc(m_iBytePerFrame * 16);//new BYTE[m_iBytePerFrame * 16];
-
-	//pBufFft=new signed char[fftBufLen];
 	playPosInFFt=0;
 	
 	m_dwCurWritePos=0;
@@ -196,15 +200,16 @@ void CPlayerThread::Excute()
 			WriteDataToDSBuf();
 	}
 
-	//CleanDSBuffer();
 	
 	delete this;
-	ATLTRACE2(L"playerthread deleted.\n");
 }
 
 void CPlayerThread::WriteDataToDSBuf()
 {
 	m_cs->Enter();
+	
+	if(m_bKeepPlaying==FALSE)
+		goto NormalEnd;
 
 	//Read data from file . 
 	char *pFileBuffer= (char*)pBufFFT1;
@@ -249,7 +254,6 @@ void CPlayerThread::WriteDataToDSBuf()
 	{
 		written= DSoundBufferWrite(pFileBuffer, m_dwSizeToWrite);
 		if (written==-1){
-			//m_pPlayer->m_bStopped=TRUE;
 			break;
 		}
 

@@ -40,7 +40,10 @@ public:
 
 	BYTE *m_ReduceBuffer;
 public:
-	CPlayerThread::CPlayerThread(MusicFile * pFile,CCriticalSection *cs,BOOL *pStop);
+	CPlayerThread::CPlayerThread(void * pFile,CCriticalSection *cs,BOOL *pStop);
+
+	CPlayerThread::CPlayerThread(CCriticalSection *cs,BOOL *pStop);
+
 	~CPlayerThread();
 
 	void Excute(); 
@@ -65,5 +68,4 @@ public:
 
 
 	DWORD m_dwCurWritePos;
-	//DWORD m_dwSilencedBytes;
 };

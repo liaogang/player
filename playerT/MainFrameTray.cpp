@@ -10,6 +10,9 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	m_bExit2UI=FALSE;
 
 	LoadAll();
+
+	ValidateCfg();
+
 	trayNI.CreateSelf(m_hWnd);
 	trayNI.SetDefaultMenuItem(ID_PLAY_NEXT,FALSE);
 

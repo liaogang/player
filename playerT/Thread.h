@@ -58,7 +58,7 @@ public:
 	BOOL Teminate()
 	{
 		//ExitThread(m_hThread);
-		//TerminateThread(m_hThread,NULL);
+		TerminateThread(m_hThread,NULL);
 		return 0;
 	}
 

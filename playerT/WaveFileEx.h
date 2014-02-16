@@ -10,7 +10,7 @@ public:
 	{
 
 	}
-	~WaveFile(void)
+	virtual ~WaveFile(void)
 	{
 		m_wavefile.Close();
 	}

@@ -42,7 +42,7 @@ void CPlayListView::Init(bool bSearch)
 
 	Load();
 
-	SetLVFont(20);
+	SetLVFont(m_nFontHeight);
 
 
 	ChangeColorDefault();
@@ -86,10 +86,15 @@ void CPlayListView::Load()
 	//load m_iColumnWidths
 	if(m_dData.GetLength() != 0)
 	{
-		m_dData.CopyDataOut(m_iColumnWidths,m_iColumnCount*sizeof(m_iColumnWidths[0]) );
-		m_dData.Clear();
+		//m_iColumnWidths
+		//m_nFontHeight
+		m_dData.CopyDataOut(m_iColumnWidths,(m_iColumnCount+1)*sizeof(m_iColumnWidths[0]) );
+		
 		m_bLoaded=TRUE;
+
+		m_dData.Clear();
 	}
+
 }
 
 void CPlayListView::Save()
@@ -103,6 +108,8 @@ void CPlayListView::Save()
 
 	
 	//save it
-	m_dData.CopyDataIn(m_iColumnWidths,m_iColumnCount*sizeof(m_iColumnWidths[0]) );
+	//m_iColumnWidths
+	//m_nFontHeight
+	m_dData.CopyDataIn(m_iColumnWidths,(m_iColumnCount+1)*sizeof(m_iColumnWidths[0]) );
 }
 
