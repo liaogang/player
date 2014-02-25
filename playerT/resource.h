@@ -49,6 +49,7 @@
 #define IDR_HAPPY                       248
 #define IDR_SAD                         249
 #define IDR_MENU_TRAYPOPUP              250
+#define IDD_DIALOG_PLLIST               251
 #define IDC_TREE                        1000
 #define IDC_RESET_ALL                   1001
 #define IDC_RESET_THIS                  1002
@@ -89,6 +90,11 @@
 #define IDC_RADIO2                      1035
 #define IDC_SHOW_PATH                   1036
 #define IDC_COMBO1                      1038
+#define IDC_CUSTOM1                     1044
+#define IDC_STATIC2                     1045
+#define IDC_STATIC3                     1046
+#define IDC_STATIC4                     1047
+#define IDC_STATIC5                     1048
 #define IDD_DLG_LRC_PANE_PROPERTY1      2056
 #define IDD_DLG_LRC_PANE_PROPERTY2      2057
 #define ID_FILE_PLAY                    32775
@@ -313,9 +319,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        251
+#define _APS_NEXT_RESOURCE_VALUE        252
 #define _APS_NEXT_COMMAND_VALUE         33000
-#define _APS_NEXT_CONTROL_VALUE         1044
+#define _APS_NEXT_CONTROL_VALUE         1049
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

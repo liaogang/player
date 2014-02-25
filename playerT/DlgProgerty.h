@@ -105,6 +105,28 @@ public:
 	{
 		DoDataExchange();
 
+		CFont m_Font;
+		m_Font.CreateFont(
+			18,                        // nHeight
+			0,                         // nWidth
+			0,                         // nEscapement
+			0,                         // nOrientation
+			FW_NORMAL,                 // nWeight
+			FALSE,                     // bItalic
+			FALSE,                     // bUnderline
+			0,                         // cStrikeOut
+			ANSI_CHARSET,              // nCharSet
+			OUT_DEFAULT_PRECIS,        // nOutPrecision
+			CLIP_DEFAULT_PRECIS,       // nClipPrecision
+			DEFAULT_QUALITY,           // nQuality
+			DEFAULT_PITCH | FF_SWISS,  // nPitchAndFamily
+			_T("Arial"));                 // lpszFacename
+		
+		::SendMessage(GetDlgItem(IDC_STATIC2),WM_SETFONT,(WPARAM)m_Font.m_hFont,(LPARAM)TRUE);
+		::SendMessage(GetDlgItem(IDC_STATIC3),WM_SETFONT,(WPARAM)m_Font.m_hFont,(LPARAM)TRUE);
+		::SendMessage(GetDlgItem(IDC_STATIC4),WM_SETFONT,(WPARAM)m_Font.m_hFont,(LPARAM)TRUE);
+		::SendMessage(GetDlgItem(IDC_STATIC5),WM_SETFONT,(WPARAM)m_Font.m_hFont,(LPARAM)TRUE);
+
 		m_list.SetExtendedListViewStyle(m_list.GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT);
 
 		m_list.InsertColumn(0,_T("Â·¾¶"),LVCFMT_LEFT,220);

@@ -688,6 +688,26 @@ LRESULT CMainFrame::OnPLVCenterItem(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*l
 	return TRUE;
 }
 
+LRESULT CMainFrame::OnWndActive(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	static HWND hWndOldFocused=NULL;
+
+	UINT t= LOWORD(wParam);
+	if(t==WA_INACTIVE)//save the window current focused
+	{
+		hWndOldFocused=GetFocus();
+	}
+	else
+	{
+		if(hWndOldFocused!=NULL)
+		{
+			::SetFocus(hWndOldFocused);
+		}
+	}
+
+	return 0;
+}
+
 void CMyStatusBar::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
 	::PostMessage(GetMainFrame()->m_hWnd,WM_PLAYLISTVIEW_CENTER_ITEM,NULL,NULL);
@@ -1785,12 +1805,13 @@ LRESULT CMainFrame::OnNcDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 	if (m_bExit2Tray )
 	{
 		ChangeCurDir2ModulePath();
+		INT ret= (INT)
 		ShellExecute(NULL,
 			_T("open"),
-			_T("explorer"),
 			_T("playerTray.exe"),
-			_T(""),
-			SW_SHOW);
+			NULL,
+			NULL,
+			SW_HIDE );
 	}
 
 	bHandled=FALSE;

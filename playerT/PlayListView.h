@@ -365,7 +365,7 @@ public:
 		if(IsSelected( nItem ))
 			return FALSE;
 
-		rgbBackground = nItem%2==0?clText1:clText2;
+		rgbBackground = (nItem%2==0 ? clText1:clText2);
 		return TRUE;
 	}
 

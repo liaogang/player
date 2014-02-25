@@ -9,8 +9,6 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 {
 	m_bExit2UI=FALSE;
 
-	LoadAll();
-
 	ValidateCfg();
 
 	trayNI.CreateSelf(m_hWnd);
@@ -171,9 +169,9 @@ LRESULT CMainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/,
 		ChangeCurDir2ModulePath();
 		ShellExecute(NULL,
 			_T("open"),
-			_T("explorer"),
 			_T("player.exe"),
-			_T(""),
+			NULL,
+			NULL,
 			SW_SHOW);
 	}
 
