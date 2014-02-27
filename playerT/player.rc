@@ -475,7 +475,7 @@ IDR_MENU_PLAYLIST MENU
 BEGIN
     POPUP "列表右键"
     BEGIN
-        MENUITEM "播放",                          ID_32830
+        MENUITEM "播放",                          ID_PLAYITEM
         MENUITEM "加入播放列队",                      ID_PUSH_PLAYQUEUE
         MENUITEM "从播放列队中删除",                    ID_DELFROMPLAYQUEUE
         MENUITEM SEPARATOR

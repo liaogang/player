@@ -347,7 +347,11 @@ LRESULT CMySimpleRebar::OnShowBandX(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndC
 	}
 	//if not existed ,add it then.
 	else	
+	{
 		mrbi->bShow=AddSimpleReBarBandCtrl(mrbi);
+		if(m_bLock)
+			LockBands(TRUE);
+	}
 	
 	return 0;
 }

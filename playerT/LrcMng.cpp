@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "LrcMng.h"
 
-LrcMng::LrcMng(void)
+LrcMng::LrcMng(void):offset(0)
 {
 }
 

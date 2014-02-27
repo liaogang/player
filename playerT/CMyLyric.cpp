@@ -5,7 +5,7 @@
 #include "BasicPlayer.h"
 
 CMyLyricWnd::CMyLyricWnd():bLrcReady(FALSE),track(NULL),m_nFontHeight(20),m_nIDEvent(0),
-	m_memDCNormal(NULL),m_memDCHighlight(NULL),m_bInitSize(FALSE),m_memDCReady(FALSE),bNewTrack(FALSE)
+	m_memDCNormal(NULL),m_memDCHighlight(NULL),m_bInitSize(FALSE),m_memDCReady(FALSE),bNewTrack(FALSE),lyricOffset(0)
 {
 	//brush=::GetSysColorBrush(COLOR_WINDOW);
 	brush=::GetSysColorBrush(/*COLOR_3DFACE*/COLOR_BTNSHADOW);
@@ -69,7 +69,7 @@ BOOL CMyLyricWnd::UpdateCurrLine()
 	int k=0;
 	for (auto i=lrcs.begin();i!=lrcs.end();++i,++k)
 	{
-		if (m_uCurrTime <= i->time.GetTotalMillisec())
+		if (m_uCurrTime <= i->time.GetTotalMillisec() + lyricOffset)
 			break;
 		else
 			m_iCurLine=k;
@@ -285,6 +285,7 @@ void CMyLyricWnd::PrepareShowLyric()
 	if( track->GetLrcFileFromLib(TRUE) )
 	{
 		lrcs=LrcMng::Get()->lib;
+		lyricOffset=LrcMng::Get()->offset;
 		veclineinfo.clear();
 		m_iCurLine=0;
 

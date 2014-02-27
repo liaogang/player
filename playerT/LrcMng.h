@@ -114,6 +114,7 @@ class LrcMng
 {
 public:
 	wstring ti,ar,al,by,id;
+	int offset;
 public:
 	vector<LrcLine> lib;
 	void SortLrcLib();
@@ -137,6 +138,7 @@ public:
 		al.clear();
 		by.clear();
 		id.clear();
+		offset=0;
 	}
 
 	BOOL Open(LPTSTR pstrPath)
@@ -299,14 +301,15 @@ public:
 	void CollectIdentifyTag(TagTypeInfo &tagInfo)
 	{
 		static const WCHAR *strIdendity[]={
-			L"ti",L"ar",L"al",L"by",L"id"
+			L"ti",L"ar",L"al",L"by",L"id",L"offset"
 		};
 		enum{
 			IDD_TI=0,
 			IDD_AR,
 			IDD_AL,
 			IDD_BY,
-			IDD_ID
+			IDD_ID,
+			IDD_OFFSET
 		};
 
 
@@ -336,6 +339,10 @@ public:
 		else if(0==_tcsncmp(p2,strIdendity[IDD_ID],len))
 		{
 			id=tagInfo.identity2;
+		}
+		else if(0==_tcsncmp(p2,strIdendity[IDD_OFFSET],len))
+		{
+			offset=_wtoi(tagInfo.identity2.c_str());
 		}
 
 	}

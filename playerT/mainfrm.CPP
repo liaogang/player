@@ -692,8 +692,9 @@ LRESULT CMainFrame::OnWndActive(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/,
 {
 	static HWND hWndOldFocused=NULL;
 
+	//save the window current focused
 	UINT t= LOWORD(wParam);
-	if(t==WA_INACTIVE)//save the window current focused
+	if(t==WA_INACTIVE)
 	{
 		hWndOldFocused=GetFocus();
 	}

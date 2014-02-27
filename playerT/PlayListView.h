@@ -93,6 +93,7 @@ public:
 		MSG_WM_CHAR(OnChar)
 		MSG_WM_DESTROY(OnDestroy)
 		MSG_WM_CREATE(OnCreate)
+		COMMAND_ID_HANDLER(ID_PLAYITEM,OnPlayItem)
 		COMMAND_ID_HANDLER(ID_OPEN_FILE_PATH,OnOpenFilePath)
 		COMMAND_ID_HANDLER(ID_PUSH_PLAYQUEUE,OnPushToPlayqueue)
 		COMMAND_ID_HANDLER(ID_DELFROMPLAYQUEUE,OnDeleteFromPlayqueue)
@@ -469,6 +470,8 @@ public:
 		EnsureItemVisible(index,-1,TRUE);
 	}
 
+	
+	LRESULT OnPlayItem(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	BOOL IsAllSelectedItemInPlayQueue();
 	LRESULT OnPushToPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnDeleteFromPlayqueue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

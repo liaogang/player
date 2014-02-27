@@ -50,6 +50,8 @@ public:
 	CDlgLrcSearch dlgLrcSearch;
 	BOOL m_memDCReady;
 	BOOL bNewTrack;
+
+	int lyricOffset;
 public:
 	CMyLyricWnd();
 

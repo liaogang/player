@@ -113,3 +113,11 @@ void CPlayListView::Save()
 	m_dData.CopyDataIn(m_iColumnWidths,(m_iColumnCount+1)*sizeof(m_iColumnWidths[0]) );
 }
 
+LRESULT CPlayListView::OnPlayItem(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	MyLib *s=MyLib::shared();
+	s->stop();
+	s->play();
+
+	return 0;
+}
