@@ -341,8 +341,6 @@ void CMyLyricWnd::Init()
 	IWantToReceiveMessage(WM_PAUSED);
 	IWantToReceiveMessage(WM_PAUSE_START);
 	IWantToReceiveMessage(WM_TRACKSTOPPED);
-
-	//TrackChanged();
 }
 
 

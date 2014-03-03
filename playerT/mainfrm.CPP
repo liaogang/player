@@ -1730,13 +1730,16 @@ void CMyStatusBar::UpdateTrackInfoText()
 
 CMainFrame::~CMainFrame()
 {
-	
+	if(!m_bSaved)
+		SaveAll();
 }
 
 //when windows is destroyed.
 void CMainFrame::OnFinalMessage(_In_ HWND /*hWnd*/)
 {
-
+	if(!m_bSaved)
+		SaveAll();
+	m_bSaved=TRUE;
 }
 
 
@@ -1801,6 +1804,7 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 LRESULT CMainFrame::OnNcDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
 	SaveAll();
+	m_bSaved=TRUE;
 
 	//exit and start the tray player .
 	if (m_bExit2Tray )

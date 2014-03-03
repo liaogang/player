@@ -46,6 +46,8 @@ public:
 
 	//load from file .
 	BOOL m_bLoaded;
+	//save to file 
+	BOOL m_bSaved;
 	UINT m_uShowState;
 	WINDOWPLACEMENT m_wndsPlacement;
 	//ÖÜ±ß´°¿Ú
@@ -95,7 +97,7 @@ public:
 		m_pDlgFFT(NULL),m_pDlgFFTOutline(NULL),
 		m_pDlgPLMng(NULL),m_pDlgConsole(NULL),
 		m_pDlgConfig(NULL),m_bShowStatusBar(TRUE),m_bExit2Tray(FALSE),
-		m_bLoaded(FALSE)
+		m_bLoaded(FALSE),m_bSaved(FALSE)
 	{
 		RECT_INIT(m_rcConfig)
 		RECT_INIT(m_rcLrc)
