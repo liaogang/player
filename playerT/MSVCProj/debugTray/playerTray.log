@@ -1,0 +1,145 @@
+﻿生成启动时间为 5/14/2014 11:45:55 AM。
+项目“Z:\liaogang\player\playerT\MSVCProj\playerTray.vcxproj”在节点 2 上(Build 个目标)。
+C:\Program Files\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(356,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
+C:\Program Files\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(357,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
+ClCompile:
+  C:\Program Files\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I../ /ZI /nologo /W3 /WX- /Od /Oy- /D APP_PLAYER_TRAY /D TAGLIB_NO_CONFIG /D WIN32 /D _WINDOWS /D STRICT /D _DEBUG /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"debugTray\\" /Fd"debugTray\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt ..\BasicPlayer.cpp ..\CMyTrayNotifyIcon.cpp ..\LrcMng.cpp ..\MainFrameTray.cpp ..\MyConfigs.cpp ..\MyLib.cpp ..\MySerialize.cpp ..\NTRAY.CPP ..\PlayList.cpp ..\PlayerThread.cpp ..\StringConvertions.cpp ..\Util1.cpp ..\WaveFile.cpp ..\fileMonitor.cpp ..\forwardMsg.cpp ..\globalStuffs.cpp ..\player.cpp
+  player.cpp
+z:\liaogang\player\playert\dx9sdk\include\dmerror.h(12): warning C4005: “FACILITY_DIRECTMUSIC”: 宏重定义
+          c:\program files\windows kits\8.1\include\shared\winerror.h(162) : 参见“FACILITY_DIRECTMUSIC”的前一个定义
+z:\liaogang\player\playert\globalstuffs.h(244): warning C4018: “<=”: 有符号/无符号不匹配
+z:\liaogang\player\playert\globalstuffs.h(251): warning C4018: “<=”: 有符号/无符号不匹配
+  globalStuffs.cpp
+z:\liaogang\player\playert\dx9sdk\include\dmerror.h(12): warning C4005: “FACILITY_DIRECTMUSIC”: 宏重定义
+          c:\program files\windows kits\8.1\include\shared\winerror.h(162) : 参见“FACILITY_DIRECTMUSIC”的前一个定义
+z:\liaogang\player\playert\globalstuffs.h(244): warning C4018: “<=”: 有符号/无符号不匹配
+z:\liaogang\player\playert\globalstuffs.h(251): warning C4018: “<=”: 有符号/无符号不匹配
+  forwardMsg.cpp
+z:\liaogang\player\playert\dx9sdk\include\dmerror.h(12): warning C4005: “FACILITY_DIRECTMUSIC”: 宏重定义
+          c:\program files\windows kits\8.1\include\shared\winerror.h(162) : 参见“FACILITY_DIRECTMUSIC”的前一个定义
+  fileMonitor.cpp
+z:\liaogang\player\playert\dx9sdk\include\dmerror.h(12): warning C4005: “FACILITY_DIRECTMUSIC”: 宏重定义
+          c:\program files\windows kits\8.1\include\shared\winerror.h(162) : 参见“FACILITY_DIRECTMUSIC”的前一个定义
+  WaveFile.cpp
+z:\liaogang\player\playert\dx9sdk\include\dmerror.h(12): warning C4005: “FACILITY_DIRECTMUSIC”: 宏重定义
+          c:\program files\windows kits\8.1\include\shared\winerror.h(162) : 参见“FACILITY_DIRECTMUSIC”的前一个定义
+  Util1.cpp
+z:\liaogang\player\playert\dx9sdk\include\dmerror.h(12): warning C4005: “FACILITY_DIRECTMUSIC”: 宏重定义
+          c:\program files\windows kits\8.1\include\shared\winerror.h(162) : 参见“FACILITY_DIRECTMUSIC”的前一个定义
+  StringConvertions.cpp
+z:\liaogang\player\playert\dx9sdk\include\dmerror.h(12): warning C4005: “FACILITY_DIRECTMUSIC”: 宏重定义
+          c:\program files\windows kits\8.1\include\shared\winerror.h(162) : 参见“FACILITY_DIRECTMUSIC”的前一个定义
+  PlayerThread.cpp
+z:\liaogang\player\playert\dx9sdk\include\dmerror.h(12): warning C4005: “FACILITY_DIRECTMUSIC”: 宏重定义
+          c:\program files\windows kits\8.1\include\shared\winerror.h(162) : 参见“FACILITY_DIRECTMUSIC”的前一个定义
+z:\liaogang\player\playert\utils.h(91): warning C4018: “<”: 有符号/无符号不匹配
+z:\liaogang\player\playert\globalstuffs.h(244): warning C4018: “<=”: 有符号/无符号不匹配
+z:\liaogang\player\playert\globalstuffs.h(251): warning C4018: “<=”: 有符号/无符号不匹配
+z:\liaogang\player\playert\playerthread.cpp(144): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+  PlayList.cpp
+z:\liaogang\player\playert\dx9sdk\include\dmerror.h(12): warning C4005: “FACILITY_DIRECTMUSIC”: 宏重定义
+          c:\program files\windows kits\8.1\include\shared\winerror.h(162) : 参见“FACILITY_DIRECTMUSIC”的前一个定义
+z:\liaogang\player\playert\mylib.h(102): warning C4018: “<”: 有符号/无符号不匹配
+z:\liaogang\player\playert\globalstuffs.h(244): warning C4018: “<=”: 有符号/无符号不匹配
+z:\liaogang\player\playert\globalstuffs.h(251): warning C4018: “<=”: 有符号/无符号不匹配
+z:\liaogang\player\playert\playlist.cpp(720): warning C4244: “参数”: 从“time_t”转换到“unsigned int”，可能丢失数据
+  NTRAY.CPP
+z:\liaogang\player\playert\dx9sdk\include\dmerror.h(12): warning C4005: “FACILITY_DIRECTMUSIC”: 宏重定义
+          c:\program files\windows kits\8.1\include\shared\winerror.h(162) : 参见“FACILITY_DIRECTMUSIC”的前一个定义
+  MySerialize.cpp
+z:\liaogang\player\playert\dx9sdk\include\dmerror.h(12): warning C4005: “FACILITY_DIRECTMUSIC”: 宏重定义
+          c:\program files\windows kits\8.1\include\shared\winerror.h(162) : 参见“FACILITY_DIRECTMUSIC”的前一个定义
+z:\liaogang\player\playert\mylib.h(102): warning C4018: “<”: 有符号/无符号不匹配
+z:\liaogang\player\playert\globalstuffs.h(244): warning C4018: “<=”: 有符号/无符号不匹配
+z:\liaogang\player\playert\globalstuffs.h(251): warning C4018: “<=”: 有符号/无符号不匹配
+z:\liaogang\player\playert\myserialize.cpp(272): warning C4800: “BOOL”: 将值强制为布尔值“true”或“false”(性能警告)
+  MyLib.cpp
+z:\liaogang\player\playert\dx9sdk\include\dmerror.h(12): warning C4005: “FACILITY_DIRECTMUSIC”: 宏重定义
+          c:\program files\windows kits\8.1\include\shared\winerror.h(162) : 参见“FACILITY_DIRECTMUSIC”的前一个定义
+z:\liaogang\player\playert\mylib.h(102): warning C4018: “<”: 有符号/无符号不匹配
+z:\liaogang\player\playert\globalstuffs.h(244): warning C4018: “<=”: 有符号/无符号不匹配
+z:\liaogang\player\playert\globalstuffs.h(251): warning C4018: “<=”: 有符号/无符号不匹配
+  MyConfigs.cpp
+z:\liaogang\player\playert\dx9sdk\include\dmerror.h(12): warning C4005: “FACILITY_DIRECTMUSIC”: 宏重定义
+          c:\program files\windows kits\8.1\include\shared\winerror.h(162) : 参见“FACILITY_DIRECTMUSIC”的前一个定义
+z:\liaogang\player\playert\globalstuffs.h(244): warning C4018: “<=”: 有符号/无符号不匹配
+z:\liaogang\player\playert\globalstuffs.h(251): warning C4018: “<=”: 有符号/无符号不匹配
+  MainFrameTray.cpp
+z:\liaogang\player\playert\dx9sdk\include\dmerror.h(12): warning C4005: “FACILITY_DIRECTMUSIC”: 宏重定义
+          c:\program files\windows kits\8.1\include\shared\winerror.h(162) : 参见“FACILITY_DIRECTMUSIC”的前一个定义
+z:\liaogang\player\playert\mylib.h(102): warning C4018: “<”: 有符号/无符号不匹配
+z:\liaogang\player\playert\globalstuffs.h(244): warning C4018: “<=”: 有符号/无符号不匹配
+z:\liaogang\player\playert\globalstuffs.h(251): warning C4018: “<=”: 有符号/无符号不匹配
+  LrcMng.cpp
+z:\liaogang\player\playert\dx9sdk\include\dmerror.h(12): warning C4005: “FACILITY_DIRECTMUSIC”: 宏重定义
+          c:\program files\windows kits\8.1\include\shared\winerror.h(162) : 参见“FACILITY_DIRECTMUSIC”的前一个定义
+  CMyTrayNotifyIcon.cpp
+z:\liaogang\player\playert\dx9sdk\include\dmerror.h(12): warning C4005: “FACILITY_DIRECTMUSIC”: 宏重定义
+          c:\program files\windows kits\8.1\include\shared\winerror.h(162) : 参见“FACILITY_DIRECTMUSIC”的前一个定义
+z:\liaogang\player\playert\globalstuffs.h(244): warning C4018: “<=”: 有符号/无符号不匹配
+z:\liaogang\player\playert\globalstuffs.h(251): warning C4018: “<=”: 有符号/无符号不匹配
+  BasicPlayer.cpp
+z:\liaogang\player\playert\dx9sdk\include\dmerror.h(12): warning C4005: “FACILITY_DIRECTMUSIC”: 宏重定义
+          c:\program files\windows kits\8.1\include\shared\winerror.h(162) : 参见“FACILITY_DIRECTMUSIC”的前一个定义
+z:\liaogang\player\playert\globalstuffs.h(244): warning C4018: “<=”: 有符号/无符号不匹配
+z:\liaogang\player\playert\globalstuffs.h(251): warning C4018: “<=”: 有符号/无符号不匹配
+z:\liaogang\player\playert\mp3file.h(105): warning C4244: “初始化”: 从“float”转换到“long”，可能丢失数据
+z:\liaogang\player\playert\basicplayer.cpp(108): warning C4244: “参数”: 从“double”转换到“LONG”，可能丢失数据
+z:\liaogang\player\playert\basicplayer.cpp(148): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+z:\liaogang\player\playert\basicplayer.cpp(212): warning C4244: “参数”: 从“double”转换到“LONG”，可能丢失数据
+z:\liaogang\player\playert\basicplayer.cpp(238): warning C4244: “参数”: 从“double”转换到“LONG”，可能丢失数据
+z:\liaogang\player\playert\basicplayer.cpp(376): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
+z:\liaogang\player\playert\basicplayer.cpp(390): warning C4244: “return”: 从“double”转换到“int”，可能丢失数据
+  正在生成代码...
+ResourceCompile:
+  C:\Program Files\Windows Kits\8.1\bin\x86\rc.exe /D _UNICODE /D UNICODE /l"0x0409" /nologo /fo"debugTray\playerTray.res" ..\playerTray.rc 
+Link:
+  C:\Program Files\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"debug\playerTray.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"debug\playerTray.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"debug\playerTray.lib" /MACHINE:X86 debugTray\playerTray.res
+  debugTray\BasicPlayer.obj
+  debugTray\CMyTrayNotifyIcon.obj
+  debugTray\fileMonitor.obj
+  debugTray\forwardMsg.obj
+  debugTray\globalStuffs.obj
+  debugTray\LrcMng.obj
+  debugTray\MainFrameTray.obj
+  debugTray\MyConfigs.obj
+  debugTray\MyLib.obj
+  debugTray\MySerialize.obj
+  debugTray\NTRAY.obj
+  debugTray\player.obj
+  debugTray\PlayerThread.obj
+  debugTray\PlayList.obj
+  debugTray\StringConvertions.obj
+  debugTray\Util1.obj
+  debugTray\WaveFile.obj
+libmpg123d.lib(compat.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(compat.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(dct64.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(dct64.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(dct64_i386.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(dct64_i386.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(equalizer.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(equalizer.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(format.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(format.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(frame.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(frame.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(icy.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(icy.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(icy2utf8.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(icy2utf8.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(id3.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(id3.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(index.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(index.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(layer1.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(layer1.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(layer2.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(layer2.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(layer3.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(layer3.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(libmpg123.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(libmpg123.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(msvc.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(msvc.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(ntom.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(ntom.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(optimize.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(optimize.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(parse.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(parse.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(readers.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(readers.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(stringbuf.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(stringbuf.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(synth.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(synth.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(synth_8bit.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(synth_8bit.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(synth_real.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(synth_real.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(synth_s32.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(synth_s32.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+libmpg123d.lib(tabinit.obj) : warning LNK4099: 未找到 PDB“vc100.pdb”(使用“libmpg123d.lib(tabinit.obj)”或在“Z:\liaogang\player\playerT\MSVCProj\debug\vc100.pdb”中寻找)；正在链接对象，如同没有调试信息一样
+  playerTray.vcxproj -> Z:\liaogang\player\playerT\MSVCProj\debug\playerTray.exe
+已完成生成项目“Z:\liaogang\player\playerT\MSVCProj\playerTray.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:01:04.29
