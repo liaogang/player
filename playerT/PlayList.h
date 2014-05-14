@@ -3,6 +3,7 @@
 #include "MySerialize.h"
 #include <string>
 #include <vector>
+#include <memory>
 
 #ifdef APP_PLAYER_UI
 //for parse the ID3 tag
@@ -21,7 +22,7 @@
 #include <attachedpictureframe.h>
 #endif
 
-
+using namespace std;
 
 class CPlayList;
 class CPlayListItem;

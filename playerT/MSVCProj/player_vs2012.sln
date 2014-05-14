@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "player", "player.vcxproj", "{F39340DB-DCCF-4BD5-8609-8B4662EB643E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "playerTray", "playerTray.vcxproj", "{FF3ABD37-7AA7-4B3D-898A-6778D238A61C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F39340DB-DCCF-4BD5-8609-8B4662EB643E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F39340DB-DCCF-4BD5-8609-8B4662EB643E}.Debug|Win32.Build.0 = Debug|Win32
+		{F39340DB-DCCF-4BD5-8609-8B4662EB643E}.Release|Win32.ActiveCfg = Release|Win32
+		{F39340DB-DCCF-4BD5-8609-8B4662EB643E}.Release|Win32.Build.0 = Release|Win32
+		{FF3ABD37-7AA7-4B3D-898A-6778D238A61C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FF3ABD37-7AA7-4B3D-898A-6778D238A61C}.Debug|Win32.Build.0 = Debug|Win32
+		{FF3ABD37-7AA7-4B3D-898A-6778D238A61C}.Release|Win32.ActiveCfg = Release|Win32
+		{FF3ABD37-7AA7-4B3D-898A-6778D238A61C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -50,7 +50,7 @@ extern CAppModule _Module;
 #include <atlddx.h>
 #include <atlcrack.h>
 #include <atltheme.h>
-#include <atlgdix.h>
+#include <atlgdi.h>
 #endif
 
 #define END_MSG_MAP_EX	END_MSG_MAP

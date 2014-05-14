@@ -29,7 +29,7 @@
 
 #include "rifffile.h"
 #include <vector>
-
+#include <algorithm>
 using namespace TagLib;
 
 struct Chunk
