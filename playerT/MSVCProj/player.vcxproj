@@ -391,7 +391,7 @@
     <IntDir>Release</IntDir>
     <OutDir>Release</OutDir>
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>c:\openssl\include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include;$(IncludePath);..\Dx9SDK\Include;..\wtl\Include</IncludePath>
+    <IncludePath>$(IncludePath);C:\Program Files\Microsoft SDKs\Windows\v7.1A\Include;c:\openssl\include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include;..\Dx9SDK\Include</IncludePath>
     <LibraryPath>..\Dx9SDK\Lib;..\mpg123\Lib;C:\openssl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -437,7 +437,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ExceptionHandling>
       </ExceptionHandling>
-      <PreprocessorDefinitions>APP_PLAYER_UI;TAGLIB_NO_CONFIG;WIN32;_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_XKEYCHECK_H;APP_PLAYER_UI;TAGLIB_NO_CONFIG;WIN32;_WINDOWS;STRICT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Optimization>Full</Optimization>
     </ClCompile>
     <Link>

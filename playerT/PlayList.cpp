@@ -673,7 +673,7 @@ int CPlayList::AddFolder(LPCTSTR pszFolder,BOOL bIncludeDir)
 					_tcscat(pathName,_T("\\"));
 					_tcscat(pathName,_findName);
 					
-					AddFile(pathName);
+					fileAdded += AddFile(pathName);
 
 					delete[] _findName;
 					delete[] pathName;

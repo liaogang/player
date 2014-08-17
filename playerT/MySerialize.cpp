@@ -116,7 +116,7 @@ FILE& operator<<(FILE& f,const tstring &str)
 
 FILE& operator>>(FILE& f,tstring &str) 
 {
-	TCHAR buf[128];
+	TCHAR buf[256];
 	f>>buf;
 	str=buf;
 	return f;

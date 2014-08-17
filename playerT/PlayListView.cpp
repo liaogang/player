@@ -47,11 +47,12 @@ void CPlayListView::Init(bool bSearch)
 
 	ChangeColorDefault();
 
-
+	/*
 	if ( !m_ilItemImages.CreateFromImage( IDB_EXAMPLE, 16, 0, RGB( 255, 0, 255 ), IMAGE_BITMAP, LR_CREATEDIBSECTION ) )
 		return ;
 
 	SetImageList( m_ilItemImages );
+	*/
 
 	ATLASSERT(m_iColumnCount == columnCount);
 
