@@ -1817,6 +1817,7 @@ LRESULT CMainFrame::OnNcDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 			NULL,
 			NULL,
 			SW_HIDE );
+		ret++;
 	}
 
 	bHandled=FALSE;
