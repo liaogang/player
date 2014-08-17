@@ -39,3 +39,15 @@ playerTBranch/Release
 *.swp
 playerT/MSVCProj/Release
 playerT/MSVCProj/releaseTray
+
+*.obj
+
+*.log
+
+playerT/MSVCProj/debugTray/playerTray.res
+
+*.tlog
+
+*.idb
+
+*.pdb
