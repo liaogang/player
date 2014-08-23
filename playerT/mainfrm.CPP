@@ -1803,6 +1803,7 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 LRESULT CMainFrame::OnNcDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
+	MyLib::shared()->stop();
 	SaveAll();
 	m_bSaved=TRUE;
 
@@ -1817,7 +1818,11 @@ LRESULT CMainFrame::OnNcDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 			NULL,
 			NULL,
 			SW_HIDE );
-		ret++;
+		
+		if (ret < 32)
+		{
+			MessageBox(L"Failed Executing playerTray");
+		}
 	}
 
 	bHandled=FALSE;
