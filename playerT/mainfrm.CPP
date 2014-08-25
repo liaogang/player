@@ -1803,9 +1803,9 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 LRESULT CMainFrame::OnNcDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
-	MyLib::shared()->stop();
 	SaveAll();
 	m_bSaved=TRUE;
+	MyLib::shared()->stop();
 
 	//exit and start the tray player .
 	if (m_bExit2Tray )
