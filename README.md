@@ -1,5 +1,7 @@
 # This is a player looks like foobar2000 in windows.
 
+<img src="https://raw.githubusercontent.com/liaogang/player/master/img/player.bmp"
+ alt="player" title="player" align="right" />
 
 
 >
