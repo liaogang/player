@@ -51,3 +51,5 @@ playerT/MSVCProj/debugTray/playerTray.res
 *.idb
 
 *.pdb
+
+*.db
