@@ -1,8 +1,7 @@
 # This is a player looks like foobar2000 in windows.
 
-<img src="https://raw.githubusercontent.com/liaogang/player/master/img/player.bmp"
- alt="player" title="player" align="right" />
 
+![](https://raw.githubusercontent.com/liaogang/player/master/img/player.bmp)
 
 >
 **Main features**
@@ -24,4 +23,6 @@
 - 歌词
 >>> - 支持从千千静听歌词库下载歌词  
 >>> - 搜索并加载指定目录下的相应歌词  
+  
+  
 
