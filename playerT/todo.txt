@@ -49,3 +49,12 @@ playthread.cpp里mainframe代码移至mainframe.cpp里.
 
 
 convert this player to system os x.
+
+
+已弹出搜索框时,切换播放列表时crash.
+程序启动时,清空自动播放列表的内容.  重新搜索相应目录.
+*可以先去掉playlist里的列表里面失效的项目.
+*再查看目录里的内容,如果文件的修改时间比程序退出时的时间新,则加之. ?
+
+
+

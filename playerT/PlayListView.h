@@ -571,6 +571,7 @@ public:
 	typedef  CPlayListViewS thisClass;
 	BEGIN_MSG_MAP_EX(CPlayListViewS)
 		MSG_WM_CHAR(OnChar)
+		MESSAGE_HANDLER(WM_SELECTED_PL_CHANGED, OnSelectedPlChanged)
 		MESSAGE_HANDLER(WM_PLAYLISTVIEW_SETFOCUS,OnSetFocus)
 		COMMAND_ID_HANDLER(ID_PUSH_PLAYQUEUE,OnPushToPlayqueue)
 		COMMAND_ID_HANDLER(ID_DELFROMPLAYQUEUE,OnDeleteFromPlayqueue)
@@ -580,6 +581,10 @@ public:
 		CHAIN_MSG_MAP(CPlayListView)
 	END_MSG_MAP()
 	
+	LRESULT OnSelectedPlChanged(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+
+	
+
 	void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 
 	LRESULT OnSetFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)

@@ -122,3 +122,11 @@ LRESULT CPlayListView::OnPlayItem(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 	return 0;
 }
+
+
+LRESULT CPlayListViewS::OnSelectedPlChanged(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	/// doing nothing.
+
+	return 1;
+}

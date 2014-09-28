@@ -24,6 +24,7 @@ public:
 
 	BEGIN_MSG_MAP(DialogSearch)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+		MESSAGE_HANDLER(WM_SELECTED_PL_CHANGED, OnSelectedPlChanged)
 		MESSAGE_HANDLER(WM_PLAYQUEUE_CHANGED,OnPlayQueueChanged)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
@@ -50,6 +51,7 @@ public:
 	FILE& operator>>(FILE& f) const ;
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
+		IWantToReceiveMessage(WM_SELECTED_PL_CHANGED);
 		IWantToReceiveMessage(WM_PLAYQUEUE_CHANGED);
 
 		DlgResize_Init(FALSE,FALSE);
@@ -85,6 +87,13 @@ public:
 		return TRUE;
 	}
 
+	LRESULT OnSelectedPlChanged(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		/// research again
+		Search();
+
+		return 1;
+	}
 	
 	LRESULT OnPlayQueueChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
