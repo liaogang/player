@@ -50,7 +50,7 @@ LPCPlayListItem MakeDuplicate(const LPCPlayListItem item)
 struct PLANDPATH
 {
 	CPlayList* pPlaylist;
-	LPCTSTR pszFolder;
+	LPTSTR pszFolder;
 };
 
 static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
@@ -65,6 +65,8 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 #ifdef APP_PLAYER_UI
 	SdMsg(WM_PL_TRACKNUM_CHANGED,TRUE,(WPARAM)p->pPlaylist,(LPARAM)result);
 #endif
+
+	delete p->pszFolder;
 
 	delete p;
 
@@ -578,7 +580,11 @@ HANDLE CPlayList::AddFolderByThread(LPCTSTR pszFolder)
 {
 	PLANDPATH* p=new PLANDPATH;
 	p->pPlaylist=this;
-	p->pszFolder=pszFolder;
+	int len = _tcslen(pszFolder);
+	p->pszFolder= new TCHAR[ len];
+
+	//todo delete p->pszFolder
+	_tcscpy(p->pszFolder, pszFolder);
 
 	return hAddDir=::CreateThread(NULL,NULL,AddFolderThreadProc,(LPVOID)p,
 		NULL,NULL);

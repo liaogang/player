@@ -6,4 +6,4 @@
 //  Copyright (c) 2014年 gang.liao. All rights reserved.
 //
 
-#include "CoreConfig.h"
+#include "CoreConfigure.h"

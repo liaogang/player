@@ -12,6 +12,13 @@
 		B2E20A0519E5252F0098015E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B2E20A0419E5252F0098015E /* Images.xcassets */; };
 		B2E20A0819E5252F0098015E /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = B2E20A0619E5252F0098015E /* MainMenu.xib */; };
 		B2E20A1419E5252F0098015E /* playerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2E20A1319E5252F0098015E /* playerTests.m */; };
+		B2E20C2219E529960098015E /* CorePlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2E20C2019E529960098015E /* CorePlayer.cpp */; };
+		B2E20C2519E529DB0098015E /* CorePlayList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2E20C2319E529DB0098015E /* CorePlayList.cpp */; };
+		B2E20C2819E52A060098015E /* CorePlayItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2E20C2619E52A060098015E /* CorePlayItem.cpp */; };
+		B2E20C2B19E52BD30098015E /* CoreConfigure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2E20C2919E52BD30098015E /* CoreConfigure.cpp */; };
+		B2E20C2E19E52D5A0098015E /* CorePlayListManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2E20C2C19E52D5A0098015E /* CorePlayListManager.cpp */; };
+		B2E20C3419E534610098015E /* NSPlayListView.m in Sources */ = {isa = PBXBuildFile; fileRef = B2E20C3219E534610098015E /* NSPlayListView.m */; };
+		B2E20C3519E534610098015E /* NSPlayListView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B2E20C3319E534610098015E /* NSPlayListView.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +42,19 @@
 		B2E20A0D19E5252F0098015E /* playerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = playerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2E20A1219E5252F0098015E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B2E20A1319E5252F0098015E /* playerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = playerTests.m; sourceTree = "<group>"; };
+		B2E20C2019E529960098015E /* CorePlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CorePlayer.cpp; sourceTree = "<group>"; };
+		B2E20C2119E529960098015E /* CorePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CorePlayer.h; sourceTree = "<group>"; };
+		B2E20C2319E529DB0098015E /* CorePlayList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CorePlayList.cpp; sourceTree = "<group>"; };
+		B2E20C2419E529DB0098015E /* CorePlayList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CorePlayList.h; sourceTree = "<group>"; };
+		B2E20C2619E52A060098015E /* CorePlayItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CorePlayItem.cpp; sourceTree = "<group>"; };
+		B2E20C2719E52A060098015E /* CorePlayItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CorePlayItem.h; sourceTree = "<group>"; };
+		B2E20C2919E52BD30098015E /* CoreConfigure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CoreConfigure.cpp; sourceTree = "<group>"; };
+		B2E20C2A19E52BD30098015E /* CoreConfigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreConfigure.h; sourceTree = "<group>"; };
+		B2E20C2C19E52D5A0098015E /* CorePlayListManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CorePlayListManager.cpp; sourceTree = "<group>"; };
+		B2E20C2D19E52D5A0098015E /* CorePlayListManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CorePlayListManager.h; sourceTree = "<group>"; };
+		B2E20C3119E534610098015E /* NSPlayListView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSPlayListView.h; sourceTree = "<group>"; };
+		B2E20C3219E534610098015E /* NSPlayListView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPlayListView.m; sourceTree = "<group>"; };
+		B2E20C3319E534610098015E /* NSPlayListView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NSPlayListView.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,10 +96,9 @@
 		B2E209FC19E5252F0098015E /* player */ = {
 			isa = PBXGroup;
 			children = (
-				B2E209FF19E5252F0098015E /* AppDelegate.h */,
-				B2E20A0019E5252F0098015E /* AppDelegate.m */,
-				B2E20A0419E5252F0098015E /* Images.xcassets */,
-				B2E20A0619E5252F0098015E /* MainMenu.xib */,
+				B2E20C3019E531FC0098015E /* PlayerBase */,
+				B2E20B9E19E525DC0098015E /* CoreData */,
+				B2E20A1D19E525A20098015E /* GUI */,
 				B2E209FD19E5252F0098015E /* Supporting Files */,
 			);
 			path = player;
@@ -109,6 +128,44 @@
 				B2E20A1219E5252F0098015E /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		B2E20A1D19E525A20098015E /* GUI */ = {
+			isa = PBXGroup;
+			children = (
+				B2E209FF19E5252F0098015E /* AppDelegate.h */,
+				B2E20A0019E5252F0098015E /* AppDelegate.m */,
+				B2E20A0619E5252F0098015E /* MainMenu.xib */,
+				B2E20A0419E5252F0098015E /* Images.xcassets */,
+				B2E20C3119E534610098015E /* NSPlayListView.h */,
+				B2E20C3219E534610098015E /* NSPlayListView.m */,
+				B2E20C3319E534610098015E /* NSPlayListView.xib */,
+			);
+			name = GUI;
+			sourceTree = "<group>";
+		};
+		B2E20B9E19E525DC0098015E /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				B2E20C2419E529DB0098015E /* CorePlayList.h */,
+				B2E20C2319E529DB0098015E /* CorePlayList.cpp */,
+				B2E20C2719E52A060098015E /* CorePlayItem.h */,
+				B2E20C2619E52A060098015E /* CorePlayItem.cpp */,
+			);
+			name = CoreData;
+			sourceTree = "<group>";
+		};
+		B2E20C3019E531FC0098015E /* PlayerBase */ = {
+			isa = PBXGroup;
+			children = (
+				B2E20C2119E529960098015E /* CorePlayer.h */,
+				B2E20C2019E529960098015E /* CorePlayer.cpp */,
+				B2E20C2A19E52BD30098015E /* CoreConfigure.h */,
+				B2E20C2919E52BD30098015E /* CoreConfigure.cpp */,
+				B2E20C2D19E52D5A0098015E /* CorePlayListManager.h */,
+				B2E20C2C19E52D5A0098015E /* CorePlayListManager.cpp */,
+			);
+			name = "\U0010PlayerBase";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -192,6 +249,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B2E20A0519E5252F0098015E /* Images.xcassets in Resources */,
+				B2E20C3519E534610098015E /* NSPlayListView.xib in Resources */,
 				B2E20A0819E5252F0098015E /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -210,8 +268,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2E20C2B19E52BD30098015E /* CoreConfigure.cpp in Sources */,
+				B2E20C3419E534610098015E /* NSPlayListView.m in Sources */,
+				B2E20C2519E529DB0098015E /* CorePlayList.cpp in Sources */,
+				B2E20C2E19E52D5A0098015E /* CorePlayListManager.cpp in Sources */,
 				B2E20A0319E5252F0098015E /* main.m in Sources */,
 				B2E20A0119E5252F0098015E /* AppDelegate.m in Sources */,
+				B2E20C2819E52A060098015E /* CorePlayItem.cpp in Sources */,
+				B2E20C2219E529960098015E /* CorePlayer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -398,6 +462,7 @@
 				B2E20A1919E5252F0098015E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B2E20A1A19E5252F0098015E /* Build configuration list for PBXNativeTarget "playerTests" */ = {
 			isa = XCConfigurationList;
@@ -406,6 +471,7 @@
 				B2E20A1C19E5252F0098015E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

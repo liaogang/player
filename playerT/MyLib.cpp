@@ -139,7 +139,6 @@ LPCPlayList MyLib::GetAutoPlaylist()
 	if (!pPlayListAuto)
 	{
 		pPlayListAuto=NewPlaylist(TRUE,_T("自动播放列表"),true);
-		m_pFileMonitor=new fileMonitors(pPlayListAuto);
 	}
 	
 	return pPlayListAuto;
@@ -158,10 +157,10 @@ void MyLib::InitMonitor(LPCPlayList pl)
 	m_pFileMonitor=new fileMonitors(pPlayListAuto);
 }
 
-void MyLib::SetMediaPathCount(int count)
-{
-	mediaPaths.resize(count);	
-}
+//void MyLib::SetMediaPathCount(int count)
+//{
+//	mediaPaths.resize(count);	
+//}
 
 void MyLib::ClearMediaPath()
 {
@@ -172,6 +171,12 @@ void MyLib::ClearMediaPath()
 void MyLib::AddMediaPath(std::tstring &path)
 {
 	mediaPaths.push_back(path);
+
+	if (m_pFileMonitor == NULL)
+	{
+		m_pFileMonitor = new fileMonitors(pPlayListAuto);
+	}
+
 	m_pFileMonitor->AddDirectory(path.c_str());
 }
 

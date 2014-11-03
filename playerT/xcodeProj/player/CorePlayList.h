@@ -9,6 +9,12 @@
 #ifndef __player__CorePlaylist__
 #define __player__CorePlaylist__
 
-#include <stdio.h>
+class CorePlayList {
+    
+    
+public:
+    
+};
 
+typedef CorePlayList *PCorePlayList;
 #endif /* defined(__player__CorePlaylist__) */

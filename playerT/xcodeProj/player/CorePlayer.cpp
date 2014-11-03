@@ -7,3 +7,8 @@
 //
 
 #include "CorePlayer.h"
+
+#include "CoreConfigure.h"
+
+
+CorePlayer _gCorePlayer;

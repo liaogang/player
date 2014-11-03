@@ -6,9 +6,11 @@
 //  Copyright (c) 2014年 gang.liao. All rights reserved.
 //
 
-#ifndef __player__CoreConfig__
-#define __player__CoreConfig__
+#ifndef __player__CoreConfigure__
+#define __player__CoreConfigure__
 
-#include <stdio.h>
-
+class CoreConfigure {
+    
+public:
+};
 #endif /* defined(__player__CoreConfig__) */

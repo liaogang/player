@@ -9,6 +9,14 @@
 #ifndef __player__CorePlayItem__
 #define __player__CorePlayItem__
 
-#include <stdio.h>
+class CorePlayListItem {
+    
+    
+public:
+    
+};
 
+
+
+typedef CorePlayListItem *PCorePlayListItem;
 #endif /* defined(__player__CorePlayItem__) */

@@ -329,11 +329,15 @@ bool SaveCoreCfg()
 		
 		
 		//Media paths
-		len=MyLib::shared()->GetMediaPaths().size();
+		MyLib *s = MyLib::shared();
+		len=s->GetMediaPaths().size();
 		*f<<len;
 
-		for (auto k=MyLib::shared()->GetMediaPaths().begin();k!=MyLib::shared()->GetMediaPaths().end();++k)
-			 *f<<(*k);
+		auto end = s->GetMediaPaths().end();
+		for (auto k = s->GetMediaPaths().begin(); k != end; ++k)
+		{
+			*f << (*k);
+		}
 
 		//***************************************//
 		//MyConfigs
@@ -375,7 +379,7 @@ bool LoadCoreCfg()
 		 if(size>0)
 		{
 			 s->InitMonitor(s->GetAutoPlaylist());
-			 s->SetMediaPathCount(size);
+			 //s->SetMediaPathCount(size);
 			 while (size--)
 			 {
 				 std::tstring mediaPath;
@@ -532,6 +536,12 @@ void CollectInfo()
 
 	c->setPlayersVolume(b->m_curVolume);
 	c->playorder=s->GetPlayOrder();
+
+
+    
+
+	// mediaLibraryPaths;
+	
 }
 
 void ValidateCfg()
@@ -558,6 +568,31 @@ void ValidateCfg()
 			SdMsg(WM_COMMAND,TRUE,MAKEWPARAM(ID_PLAY,0),(LPARAM)0);	
 		}
 	}
+
+
+	if (s->GetMediaPaths().size() > 0)
+	{
+		//get auto playlist
+		//clear the playlist
+		//add file path to list.
+		//rescan the paths
+
+		LPCPlayList  plAuto = s->GetAutoPlaylist();
+
+		//get media path 's last update time.
+		//if file changed, rescan it again.
+		if (plAuto && 1 && s->GetMediaPaths().size()>0)
+		{
+			plAuto->DeleteAllItems();
+			std::tstring strPath = *s->GetMediaPaths().begin();
+			LPCTSTR folderPath = (strPath.c_str());
+			plAuto->AddFolderByThread( folderPath );
+		}
+
+
+	}
+
+
 }
 
 #ifdef APP_PLAYER_UI

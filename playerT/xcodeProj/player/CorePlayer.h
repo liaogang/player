@@ -9,6 +9,20 @@
 #ifndef __player__CorePlayer__
 #define __player__CorePlayer__
 
-#include <stdio.h>
+#include "CorePlayer.h"
+
+class CoreConfigure;
+
+class CorePlayer {
+    
+    CoreConfigure *m_pCoreConfigure;
+public:
+    
+};
+
+
+extern CorePlayer _gCorePlayer;
+
+
 
 #endif /* defined(__player__CorePlayer__) */

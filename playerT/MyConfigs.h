@@ -1,6 +1,9 @@
 #include "MySerialize.h"
 #include "globalStuffs.h"
 
+
+#include <vector>
+
 class MyConfigs:public SerializeObj<MyConfigs>
 {
 public:
@@ -37,6 +40,8 @@ public:
 
 	//²¥·Å´ÎÐò
 	int playorder;
+
+private:
 };
 
 MyConfigs* GetMyConfigs();

@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "NSPlayListView.h"
 
 @interface AppDelegate ()
 
@@ -16,6 +17,22 @@
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    
+    NSPlayListView *playlistView = [[NSPlayListView alloc] initWithNibName:@"NSPlayListView" bundle:nil];
+    
+    [playlistView.view setFrame: ((NSView*)self.window.contentView).bounds];
+    
+    playlistView.view.autoresizingMask =
+    NSViewMinXMargin |
+    NSViewWidthSizable |
+    NSViewMaxXMargin |
+    NSViewMinYMargin |
+    NSViewHeightSizable	|
+    NSViewMaxYMargin ;
+    
+    [self.window.contentView addSubview:playlistView.view];
+    
+
     // Insert code here to initialize your application
 }
 
