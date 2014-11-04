@@ -41,7 +41,18 @@ public:
 	//²¥·Å´ÎÐò
 	int playorder;
 
+	void setTimeForUpdateMediaLib(FILETIME &fileTime)
+	{
+		fileTimeUpdateMediaLib=fileTime;
+	}
+
+	FILETIME fileTimeForUpdateMediaLib()
+	{
+		return fileTimeUpdateMediaLib;
+	}
+
 private:
+	FILETIME fileTimeUpdateMediaLib;
 };
 
 MyConfigs* GetMyConfigs();

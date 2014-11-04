@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <functional>
 
 #ifdef APP_PLAYER_UI
 //for parse the ID3 tag
@@ -47,34 +48,34 @@ class CPlayListItem:public SerializeObj<CPlayListItem>
 public:
 	CPlayListItem():m_iIndex(-1),playCount(0),starLvl(0)
 		,m_bLrcInner(FALSE),m_bLrcFromLrcFile(FALSE)
-		,bUnsynLyc(FALSE),m_bStatus(UNKNOWN),year(_T("???")),uYear(0),m_pPL(NULL)
+		, bUnsynLyc(FALSE), m_bStatus(UNKNOWN), year(_T("???")), uYear(0), m_pPL(NULL)
 #ifdef APP_PLAYER_UI
 		,img(NULL),pPicBuf(NULL)
 #endif
 	{
-
+		initFileLastWriteTime();
 	}
 
 	CPlayListItem(std::tstring &url):url(url),
 		playCount(0),starLvl(0)
 		,m_bLrcInner(FALSE),m_bLrcFromLrcFile(FALSE)
-		,bUnsynLyc(FALSE),m_bStatus(UNKNOWN),year(_T("???")),uYear(0),m_pPL(NULL)
+		, bUnsynLyc(FALSE), m_bStatus(UNKNOWN), year(_T("???")), uYear(0), m_pPL(NULL)
 #ifdef APP_PLAYER_UI
 		,img(NULL),pPicBuf(NULL)
 #endif
 	{
-
+		initFileLastWriteTime();
 	}
 
 	CPlayListItem(LPCPlayList pPl,std::tstring &url):url(url),
 		playCount(0),starLvl(0)
 		,m_bLrcInner(FALSE),m_bLrcFromLrcFile(FALSE)
-		,bUnsynLyc(FALSE),m_bStatus(UNKNOWN),year(_T("???")),uYear(0),m_pPL(pPl)
+		, bUnsynLyc(FALSE), m_bStatus(UNKNOWN), year(_T("???")), uYear(0), m_pPL(pPl)
 #ifdef APP_PLAYER_UI
 		,img(NULL),pPicBuf(NULL)
 #endif
 	{
-
+		initFileLastWriteTime();
 	}
 
 	~CPlayListItem();
@@ -112,7 +113,8 @@ public:
 	 CPlayList *m_pPL;
 	 int m_iIndex;
 
-
+	 ///the file's last write time.
+	 FILETIME fileTime;
  public:
 	 FILE& operator<<(FILE& f);
 	 FILE& operator>>(FILE& f) const ;
@@ -136,8 +138,12 @@ public:
 	const tstring& GetYear()const{return year;}
 	const tstring& GetComment()const{return comment;}
 	const tstring& GetLycPath()const{return lycPath;}
+
+	FILETIME getFileTime(){ return fileTime; }
 	BOOL    IsLyricFromFile() const {return m_bLrcFromLrcFile;}
 	BOOL  ScanId3Info ( BOOL bRetainPic=FALSE,BOOL forceRescan=TRUE);
+	void initFileLastWriteTime();
+	void updateFileLastWriteTime();
 
 #ifdef APP_PLAYER_UI
 	 void Buf2Img(BYTE* lpRsrc,DWORD len);
@@ -149,6 +155,7 @@ public:
 	 BOOL  GetLrcFileFromLib (BOOL forceResearch=FALSE);
 	 BOOL  HaveKeywords (TCHAR *keywords) const;
 	 void TryLoadLrcFile(std::tstring &filename,BOOL forceLoad=FALSE) ;
+
 
  private:
 	 BOOL LrcFileMacth(std::tstring &filename) const;
@@ -174,6 +181,9 @@ private:
 	BOOL m_bSearch;//是否为搜索列表
 	int topVisibleIndex;//this data will used in list view when display
 	int nItemSelected;
+
+	//time the this play list init.
+	FILETIME fileTime;
 public:
 	FILE& operator<<(FILE& f);
 	FILE& operator>>(FILE& f) const ;
@@ -218,7 +228,22 @@ public:
 	BOOL AddFile(TCHAR *filepath);
 	void Reserve(int count);
 	void AddItem(LPCPlayListItem item);
+
+	void resetFileTime();
 };
 
 
 LPCPlayListItem MakeDuplicate(const LPCPlayListItem item);
+
+
+
+typedef void(*enumFileCallBack)(VOID* caller, LPCTSTR pszMusicFile);
+void enumMusicFileInFolder(LPCTSTR pszFolder, BOOL bIncludeDir, enumFileCallBack callback, VOID *caller);
+
+
+void addFileToPlaylist(/*LPCPlayList*/VOID* playlist, LPCTSTR pszMusicFile);
+void addFolderToPlaylist(LPCPlayList playlist, LPCTSTR pszFolder);
+
+void rescanMediaLibrary(LPCPlayList playlist, LPCTSTR pszFolder);
+
+

@@ -8,6 +8,11 @@
 #include "forwardMsg.h"
 #include <time.h>
 
+#include "Util1.h"
+#include "MyConfigs.h"
+
+#include <map>
+
 #ifdef APP_PLAYER_UI
 #include "CImg.h"
 #endif
@@ -66,7 +71,7 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 	SdMsg(WM_PL_TRACKNUM_CHANGED,TRUE,(WPARAM)p->pPlaylist,(LPARAM)result);
 #endif
 
-	delete p->pszFolder;
+	//delete p->pszFolder;
 
 	delete p;
 
@@ -246,6 +251,16 @@ BOOL CPlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 		return TRUE;
 #ifdef APP_PLAYER_UI
 
+	if ( !forceRescan)
+	{
+		FILETIME lastWriteTime;
+		GetFileLastWriteTime(url.c_str(), lastWriteTime);
+		if (CompareFileTime(&lastWriteTime,&fileTime)<=0)
+		{
+			return TRUE;
+		}
+	}
+
 	MPEG::File f(url.c_str());
 
 	APE::Tag *apeTag=f.APETag();
@@ -354,6 +369,16 @@ BOOL CPlayListItem::ScanId3Info(BOOL bRetainPic,BOOL forceRescan)
 	#endif
 }
 
+void CPlayListItem::initFileLastWriteTime()
+{
+	fileTime.dwHighDateTime = 0;
+	fileTime.dwLowDateTime = 0;
+}
+
+void CPlayListItem::updateFileLastWriteTime()
+{
+	GetFileLastWriteTime(GetUrl().c_str(), getFileTime());
+}
 
 #ifdef APP_PLAYER_UI
 
@@ -586,6 +611,21 @@ HANDLE CPlayList::AddFolderByThread(LPCTSTR pszFolder)
 	//todo delete p->pszFolder
 	_tcscpy(p->pszFolder, pszFolder);
 
+
+	if (this->IsAuto())
+	{
+		MyConfigs* s = GetMyConfigs();
+		FILETIME fileTime;
+
+		if (GetFileLastWriteTime(pszFolder,fileTime))
+		{
+			s->setTimeForUpdateMediaLib(fileTime);
+		}
+
+	}
+
+
+
 	return hAddDir=::CreateThread(NULL,NULL,AddFolderThreadProc,(LPVOID)p,
 		NULL,NULL);
 }
@@ -604,6 +644,14 @@ void CPlayList::AddItem(LPCPlayListItem item)
 	m_songList.push_back(item);
 }
 
+void CPlayList::resetFileTime()
+{
+	SYSTEMTIME sT;
+	GetSystemTime(&sT);
+
+	SystemTimeToFileTime(&sT, &fileTime);
+}
+
 BOOL CPlayList::AddFile(TCHAR *filepath)
 {
 // 	//if 'filepath' not include the dir name , added it. 
@@ -620,8 +668,8 @@ BOOL CPlayList::AddFile(TCHAR *filepath)
 	
 	//OutputDebugString(filepath);
 	
-	if(item->ScanId3Info())
-	{	
+	if(item->ScanId3Info(FALSE,TRUE))
+	{
 		item->SetIndex(m_songList.size());
 		m_songList.push_back(item);
 		NotifyMsg(WM_FILE_FINDED,FALSE,(WPARAM)filepath,(LPARAM)2);
@@ -833,5 +881,137 @@ int  CPlayList::RemoveDuplicates()
 
 
 
+map<std::tstring, LPCPlayListItem> _map;
+void isFileInMap(VOID *caller, LPCTSTR pszFile)
+{
+	LPCPlayList playlist =static_cast<LPCPlayList>(caller);
+	std::tstring path(pszFile);
+	if (_map.find(path) != _map.end())
+	{
+		//file is already in playlist . skip it.
+	}
+	else
+	{
+		addFileToPlaylist(playlist, pszFile);
+	}
+}
 
+void rescanMediaLibrary(LPCPlayList playlist , LPCTSTR pszFolder)
+{
+	///update the item in playlist .
+	int itemCount= playlist->GetItemCount();
+	
+	for (int i = 0; i < itemCount; )
+	{
+		LPCPlayListItem item = playlist->GetItem(i);
+		if (!item->IsFileExist())
+		{
+			playlist->DeleteItem(i);
+			itemCount = playlist->GetItemCount();
+			if (i<itemCount)
+				item = playlist->GetItem(i);
+		}
+		else
+		{
+			item->ScanId3Info(FALSE,FALSE);
+
+			_map[item->GetUrl()] = item;
+			++i;
+		}
+
+		if (i < itemCount)
+			item->SetIndex(i);
+	}
+
+
+
+	///add the item not in playlist.
+	enumMusicFileInFolder(pszFolder, TRUE, isFileInMap, (void*)playlist);
+}
+
+
+void enumMusicFileInFolder(LPCTSTR pszFolder, BOOL bIncludeDir, enumFileCallBack callback, VOID *caller)
+{
+		//忽略了子目录下的mp3文件
+		TCHAR* oldPath = new TCHAR[MAX_PATH];
+		_tgetcwd(oldPath, MAX_PATH);
+
+		//改变当前目录
+		_tchdir(pszFolder);
+
+		BOOL findResult = FALSE;
+		WIN32_FIND_DATA findFileData;
+		HANDLE hFind;
+		int fileAdded = 0;
+		hFind = ::FindFirstFile(_T("*"), &findFileData);
+		if (hFind != INVALID_HANDLE_VALUE)
+		{
+			findResult = TRUE;
+
+			while (findResult)
+			{
+				if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)
+				{
+					//system file, e.recycled, should ignore it
+				}
+				//目录
+				else if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY &&
+					!IsDots(findFileData.cFileName))
+				{
+					if (bIncludeDir)
+						/*fileAdded += */ enumMusicFileInFolder(findFileData.cFileName, bIncludeDir , callback , caller);
+				}
+				else//文件
+				{
+					TCHAR *mp3File = _T(".mp3");
+					TCHAR *wavFile = _T(".wav");
+					if (StrIsEndedWith(findFileData.cFileName, mp3File) ||
+						StrIsEndedWith(findFileData.cFileName, wavFile))
+					{
+						TCHAR *_findName = new TCHAR[MAX_PATH];
+						memset(_findName, 0, (MAX_PATH)*sizeof(TCHAR));
+						_tcscpy(_findName, findFileData.cFileName);
+
+						TCHAR* pathName = new TCHAR[MAX_PATH * 2];
+						memset(pathName, 0, (MAX_PATH * 2)*sizeof(TCHAR));
+						_tgetcwd(pathName, MAX_PATH * 2);
+
+						_tcscat(pathName, _T("\\"));
+						_tcscat(pathName, _findName);
+
+						callback(caller,pathName);
+
+						//fileAdded += AddFile(pathName);
+
+						delete[] _findName;
+						delete[] pathName;
+					}
+				}
+
+				findResult = FindNextFile(hFind, &findFileData);
+			}//while(findResult)
+
+			FindClose(hFind);
+		}//if(hFind!=INVALID_HANDLE_VALUE)
+
+
+		_tchdir(oldPath);
+		delete[] oldPath;
+
+		//return fileAdded;
+}
+
+
+
+void addFolderToPlaylist(LPCPlayList playlist, LPCTSTR pszFolder)
+{
+	enumMusicFileInFolder(pszFolder, TRUE, addFileToPlaylist, (void*)playlist);
+}
+
+
+void addFileToPlaylist(VOID* playlist, LPCTSTR pszMusicFile)
+{
+	LPCPlayList pl = static_cast<LPCPlayList>(playlist);
+	pl->AddFile((TCHAR*)pszMusicFile);
+}
 

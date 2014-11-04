@@ -44,3 +44,29 @@ const TCHAR* ChangeCurDir2PlaylistPath(bool bCreate)
 		return _tchdir(PlayListPath)==0?PlayListPath:NULL;
 	}
 }
+
+
+BOOL GetFileLastWriteTime(LPCTSTR filePath, FILETIME &lastWriteTime)
+{
+	HANDLE hFile = ::CreateFile(
+		filePath,
+		FILE_READ_ATTRIBUTES,
+		FILE_SHARE_WRITE | FILE_SHARE_READ | FILE_SHARE_DELETE,
+		NULL,
+		OPEN_EXISTING,
+		FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
+		NULL);
+
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		if (!::GetFileTime(hFile, NULL, NULL, &lastWriteTime))
+		{
+			//DWORD error = GetLastError();
+			return FALSE;
+		}
+
+		CloseHandle(hFile);
+	}
+	//DWORD error = GetLastError();
+	return TRUE;
+}

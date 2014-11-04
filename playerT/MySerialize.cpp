@@ -158,7 +158,33 @@ FILE& operator>>(FILE& f,PlayingStatus &s)
 	return f>>*t;
 }
 
+//DWORD
+FILE& operator<<(FILE& f, const DWORD t)
+{
+	fwrite(&t, sizeof(DWORD), 1, &f);
+	return f;
+}
 
+FILE& operator>>(FILE& f, DWORD& t)
+{
+	fread(&t, sizeof(DWORD), 1, &f);
+	return f;
+}
+
+//FILETIME
+FILE& operator<<(FILE& f, const FILETIME &fileTime)
+{
+	f << fileTime.dwHighDateTime;
+	f << fileTime.dwLowDateTime;
+	return f;
+}
+
+FILE& operator>>(FILE& f, FILETIME &fileTime)
+{
+	f >> fileTime.dwHighDateTime;
+	f >> fileTime.dwLowDateTime;
+	return f;
+}
 
 
 #ifdef APP_PLAYER_UI
@@ -501,12 +527,12 @@ FILE& CPlayListItem::operator<<(FILE& f)
 
 FILE& MyConfigs::operator>>(FILE& f) const
 {
-	return f<<bResumeOnReboot<<playlistIndex<<trackIndex<<playingStatus<<msecPos<<playersVolume<<playorder;
+	return f << bResumeOnReboot << playlistIndex << trackIndex << playingStatus << msecPos << playersVolume << playorder << fileTimeUpdateMediaLib;
 }
 
 FILE& MyConfigs::operator<<(FILE& f)
 {
-	return f>>bResumeOnReboot>>playlistIndex>>trackIndex>>playingStatus>>msecPos>>playersVolume>>playorder;
+	return f >> bResumeOnReboot >> playlistIndex >> trackIndex >> playingStatus >> msecPos >> playersVolume >> playorder >> fileTimeUpdateMediaLib;
 }
 
 
@@ -544,6 +570,23 @@ void CollectInfo()
 	
 }
 
+void printFileTime(FILETIME &fileTime)
+{
+	TCHAR lpszString[MAX_PATH];
+	SYSTEMTIME stUTC, stLocal;
+	FileTimeToSystemTime(&fileTime, &stUTC);
+	SystemTimeToTzSpecificLocalTime(NULL, &stUTC, &stLocal);
+
+
+	// Build a string showing the date and time.
+	DWORD dwRet = ::_stprintf(lpszString,
+		TEXT("%02d/%02d/%d  %02d:%02d"),
+		stLocal.wMonth, stLocal.wDay, stLocal.wYear,
+		stLocal.wHour, stLocal.wMinute);
+
+	printf("%s", lpszString);
+}
+
 void ValidateCfg()
 {
 	MyConfigs *c=GetMyConfigs();
@@ -570,6 +613,8 @@ void ValidateCfg()
 	}
 
 
+
+
 	if (s->GetMediaPaths().size() > 0)
 	{
 		//get auto playlist
@@ -581,12 +626,38 @@ void ValidateCfg()
 
 		//get media path 's last update time.
 		//if file changed, rescan it again.
-		if (plAuto && 1 && s->GetMediaPaths().size()>0)
+		if (plAuto   && s->GetMediaPaths().size()>0)
 		{
-			plAuto->DeleteAllItems();
 			std::tstring strPath = *s->GetMediaPaths().begin();
 			LPCTSTR folderPath = (strPath.c_str());
-			plAuto->AddFolderByThread( folderPath );
+
+			rescanMediaLibrary(plAuto,folderPath);
+
+			/*
+			BOOL isMediaLibChanged = FALSE;
+
+			FILETIME lastWriteTime;
+			//folderPath
+			//LPCTSTR pp = L"c:\\atxt";
+			if (GetFileLastWriteTime(folderPath, lastWriteTime))
+			{
+				FILETIME lastUpdateTimePlaylist = c->fileTimeForUpdateMediaLib();
+
+				isMediaLibChanged = ::CompareFileTime(&lastWriteTime, &lastUpdateTimePlaylist) > 0;
+
+				printFileTime(lastWriteTime);
+				printFileTime(lastUpdateTimePlaylist);
+
+				if (isMediaLibChanged)
+				{
+					c->setTimeForUpdateMediaLib(lastWriteTime);
+
+					plAuto->DeleteAllItems();
+
+					plAuto->AddFolderByThread(folderPath);
+				}
+			}
+			*/
 		}
 
 
