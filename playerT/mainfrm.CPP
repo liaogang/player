@@ -1273,7 +1273,8 @@ LRESULT CPlayListViewS::OnSelected(int /**/,LPNMHDR pnmh,BOOL bHandled)
 	CListArray < int > aSelectedItems;
 	GetSelectedItems(aSelectedItems);
 
-	for (int count=0;count< aSelectedItems.GetSize();count++)
+	int size = aSelectedItems.GetSize();
+	for (int count=0;count< size ;count++)
 	{
 		int nItem=aSelectedItems[count];
 		LPCPlayListItem itemInParent=GetItemInParent(GetPlayList()->GetItem(nItem));

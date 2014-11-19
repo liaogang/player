@@ -59,4 +59,10 @@ convert this player to system os x.
 *再查看目录里的内容,如果文件的修改时间比程序退出时的时间新,则加之. ?
 
 
+搜索播放列表里输入"邓"，鼠标全选时，crash.
+
+搜索歌词放到线程里面。
+
+serialize player queue. 列队
+
 

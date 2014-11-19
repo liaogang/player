@@ -1072,6 +1072,13 @@ public:
 			m_nFocusItem = nItem;
 			m_nFocusSubItem = m_setSelectedItems.size() > 1 ? NULL_SUBITEM : nSubItem;
 			
+
+
+			//debug
+			static int pp = 0;
+			static int db[256] = { 0 };
+
+
 			// notify parent of selected item
 			NotifyParent( m_nFocusItem, m_nFocusSubItem, LCN_SELECTED );
 		}
@@ -1584,7 +1591,7 @@ public:
 	void AutoSelect( CPoint point )
 	{
 		m_setSelectedItems.clear();
-			
+		
 		if ( m_rcGroupSelect.left < GetTotalWidth() )
 		{
 			int nHorzScroll = GetScrollPos( SB_HORZ );
@@ -1600,6 +1607,9 @@ public:
 			//added by lg
 			T *pT=static_cast<T*>(this);
 			nLastItem=min(nLastItem,pT->GetItemCount()-1);
+
+			if (nTopItem < 0)
+				nTopItem = 0;
 			//end
 
 			for ( int nItem = nTopItem; nItem <= nLastItem; nItem++ )
@@ -1614,7 +1624,7 @@ public:
 		}
 
 		if ( m_setSelectedItems.empty() )
-			m_nFirstSelected = NULL_ITEM;
+			m_nFirstSelected = NULL_ITEM;	
 	}
 	
 	BOOL AutoScroll( CPoint point )
