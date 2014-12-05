@@ -1,8 +1,6 @@
 # This is a player looks like foobar2000 in windows.
 
 
-![](https://raw.githubusercontent.com/liaogang/player/master/img/player.bmp)
-
 
 
 >
@@ -26,6 +24,57 @@
 - 歌词
 >>> - 支持从千千静听歌词库下载歌词  
 >>> - 搜索并加载指定目录下的相应歌词  
-  
-  
 
+
+**基本的界面**  
+![](https://raw.githubusercontent.com/liaogang/player/master/img/player.bmp)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1. 新建播放列表  
+	[img](2014-11-21_17-41-10.png)
+2. 添加本地音频文件或文件夹到播放列表  
+		[img](2014-11-21_17-41-35.png)
+3. 设置歌词搜索目录  
+	[](2014-11-21_17-43-43.png)
+4. 搜索歌曲  
+　使用Ctrl+F或F3调出
+　  
+5. 播放列队
+6. 转入托盘模式  
+
+  
