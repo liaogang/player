@@ -31,10 +31,10 @@ void PlayListViewMng::EnsureVisibleAndCentrePos(int index)
 		(*i)->EnsureVisibleAndCentrePos(index);
 }
 
-void PlayListViewMng::EnlargeLVFont(int value)
+void PlayListViewMng::updateListFont()
 {
 	for (container::iterator i=dataCollection.begin();i!=dataCollection.end();++i)
-		(*i)->EnlargeLVFont(value);
+		(*i)->updateListFont();
 }
 
 void PlayListViewMng::DeleteOneTrackFirst(LPCPlayList pPL)

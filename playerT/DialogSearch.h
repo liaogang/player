@@ -21,6 +21,10 @@ public:
 		return IsDialogMessage(pMsg);
 	}
 
+	DialogSearch():m_bHiden(TRUE),m_bHidenLast(TRUE)
+	{
+
+	}
 
 	BEGIN_MSG_MAP(DialogSearch)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
@@ -44,6 +48,9 @@ public:
 	LPCPlayList searchPl;
 	CRect m_rc;
 	BOOL m_bHiden;
+
+	BOOL m_bHidenLast;
+
 	TCHAR *title;
 	TCHAR *title2;
 

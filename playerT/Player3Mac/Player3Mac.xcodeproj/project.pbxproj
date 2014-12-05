@@ -1,0 +1,272 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXFileReference section */
+		B2E9FE941A300C3F0083AD08 /* aboutdlg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = aboutdlg.h; path = ../aboutdlg.h; sourceTree = "<group>"; };
+		B2E9FE951A300C3F0083AD08 /* BasicPlayer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BasicPlayer.cpp; path = ../BasicPlayer.cpp; sourceTree = "<group>"; };
+		B2E9FE961A300C3F0083AD08 /* BasicPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BasicPlayer.h; path = ../BasicPlayer.h; sourceTree = "<group>"; };
+		B2E9FE971A300C3F0083AD08 /* CAlbumCoverView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CAlbumCoverView.h; path = ../CAlbumCoverView.h; sourceTree = "<group>"; };
+		B2E9FE981A300C3F0083AD08 /* CCtrlViewBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CCtrlViewBase.h; path = ../CCtrlViewBase.h; sourceTree = "<group>"; };
+		B2E9FE991A300C3F0083AD08 /* CImg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CImg.h; path = ../CImg.h; sourceTree = "<group>"; };
+		B2E9FE9A1A300C3F0083AD08 /* CMyLyric.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CMyLyric.cpp; path = ../CMyLyric.cpp; sourceTree = "<group>"; };
+		B2E9FE9B1A300C3F0083AD08 /* CMyLyric.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CMyLyric.h; path = ../CMyLyric.h; sourceTree = "<group>"; };
+		B2E9FE9C1A300C3F0083AD08 /* CMyTabBar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CMyTabBar.h; path = ../CMyTabBar.h; sourceTree = "<group>"; };
+		B2E9FE9D1A300C3F0083AD08 /* CMyTrayNotifyIcon.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CMyTrayNotifyIcon.cpp; path = ../CMyTrayNotifyIcon.cpp; sourceTree = "<group>"; };
+		B2E9FE9E1A300C3F0083AD08 /* CMyTrayNotifyIcon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CMyTrayNotifyIcon.h; path = ../CMyTrayNotifyIcon.h; sourceTree = "<group>"; };
+		B2E9FE9F1A300C3F0083AD08 /* CMyTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CMyTypes.h; path = ../CMyTypes.h; sourceTree = "<group>"; };
+		B2E9FEA01A300C3F0083AD08 /* CPropertyDlgs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CPropertyDlgs.h; path = ../CPropertyDlgs.h; sourceTree = "<group>"; };
+		B2E9FEA11A300C3F0083AD08 /* CriticalSection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CriticalSection.h; path = ../CriticalSection.h; sourceTree = "<group>"; };
+		B2E9FEA21A300C3F0083AD08 /* customMsg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = customMsg.h; path = ../customMsg.h; sourceTree = "<group>"; };
+		B2E9FEA31A300C3F0083AD08 /* DialogConfig.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = DialogConfig.cpp; path = ../DialogConfig.cpp; sourceTree = "<group>"; };
+		B2E9FEA41A300C3F0083AD08 /* DialogConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DialogConfig.h; path = ../DialogConfig.h; sourceTree = "<group>"; };
+		B2E9FEA51A300C3F0083AD08 /* DialogFFT.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DialogFFT.h; path = ../DialogFFT.h; sourceTree = "<group>"; };
+		B2E9FEA61A300C3F0083AD08 /* DialogFFTOutline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DialogFFTOutline.h; path = ../DialogFFTOutline.h; sourceTree = "<group>"; };
+		B2E9FEA71A300C3F0083AD08 /* DialogLrcList.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = DialogLrcList.cpp; path = ../DialogLrcList.cpp; sourceTree = "<group>"; };
+		B2E9FEA81A300C3F0083AD08 /* DialogLrcList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DialogLrcList.h; path = ../DialogLrcList.h; sourceTree = "<group>"; };
+		B2E9FEA91A300C3F0083AD08 /* DialogLyric.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DialogLyric.h; path = ../DialogLyric.h; sourceTree = "<group>"; };
+		B2E9FEAA1A300C3F0083AD08 /* dialogsearch.CPP */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = dialogsearch.CPP; path = ../dialogsearch.CPP; sourceTree = "<group>"; };
+		B2E9FEAB1A300C3F0083AD08 /* DialogSearch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DialogSearch.h; path = ../DialogSearch.h; sourceTree = "<group>"; };
+		B2E9FEAC1A300C3F0083AD08 /* DlgConsole.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DlgConsole.h; path = ../DlgConsole.h; sourceTree = "<group>"; };
+		B2E9FEAD1A300C3F0083AD08 /* dlgLrcSearch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = dlgLrcSearch.h; path = ../dlgLrcSearch.h; sourceTree = "<group>"; };
+		B2E9FEAE1A300C3F0083AD08 /* DlgProcessing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DlgProcessing.h; path = ../DlgProcessing.h; sourceTree = "<group>"; };
+		B2E9FEAF1A300C3F0083AD08 /* DlgProgerty.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DlgProgerty.h; path = ../DlgProgerty.h; sourceTree = "<group>"; };
+		B2E9FEB01A300C3F0083AD08 /* DragDrop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DragDrop.h; path = ../DragDrop.h; sourceTree = "<group>"; };
+		B2E9FEB11A300C3F0083AD08 /* DropArrows.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DropArrows.h; path = ../DropArrows.h; sourceTree = "<group>"; };
+		B2E9FEB21A300C3F0083AD08 /* FFT.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FFT.h; path = ../FFT.h; sourceTree = "<group>"; };
+		B2E9FEB31A300C3F0083AD08 /* fileMonitor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fileMonitor.cpp; path = ../fileMonitor.cpp; sourceTree = "<group>"; };
+		B2E9FEB41A300C3F0083AD08 /* fileMonitor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fileMonitor.h; path = ../fileMonitor.h; sourceTree = "<group>"; };
+		B2E9FEB51A300C3F0083AD08 /* forwardMsg.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = forwardMsg.cpp; path = ../forwardMsg.cpp; sourceTree = "<group>"; };
+		B2E9FEB61A300C3F0083AD08 /* forwardMsg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = forwardMsg.h; path = ../forwardMsg.h; sourceTree = "<group>"; };
+		B2E9FEB71A300C3F0083AD08 /* FunctionReg.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FunctionReg.cpp; path = ../FunctionReg.cpp; sourceTree = "<group>"; };
+		B2E9FEB81A300C3F0083AD08 /* FunctionReg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FunctionReg.h; path = ../FunctionReg.h; sourceTree = "<group>"; };
+		B2E9FEB91A300C3F0083AD08 /* glassWnd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = glassWnd.h; path = ../glassWnd.h; sourceTree = "<group>"; };
+		B2E9FEBA1A300C3F0083AD08 /* globalStuffs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = globalStuffs.cpp; path = ../globalStuffs.cpp; sourceTree = "<group>"; };
+		B2E9FEBB1A300C3F0083AD08 /* globalStuffs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = globalStuffs.h; path = ../globalStuffs.h; sourceTree = "<group>"; };
+		B2E9FEBC1A300C3F0083AD08 /* ListCombo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ListCombo.h; path = ../ListCombo.h; sourceTree = "<group>"; };
+		B2E9FEBD1A300C3F0083AD08 /* ListCtrl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ListCtrl.h; path = ../ListCtrl.h; sourceTree = "<group>"; };
+		B2E9FEBE1A300C3F0083AD08 /* ListDate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ListDate.h; path = ../ListDate.h; sourceTree = "<group>"; };
+		B2E9FEBF1A300C3F0083AD08 /* ListEdit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ListEdit.h; path = ../ListEdit.h; sourceTree = "<group>"; };
+		B2E9FEC01A300C3F0083AD08 /* ListTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ListTypes.h; path = ../ListTypes.h; sourceTree = "<group>"; };
+		B2E9FEC11A300C3F0083AD08 /* LrcMng.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LrcMng.cpp; path = ../LrcMng.cpp; sourceTree = "<group>"; };
+		B2E9FEC21A300C3F0083AD08 /* LrcMng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LrcMng.h; path = ../LrcMng.h; sourceTree = "<group>"; };
+		B2E9FEC31A300C3F0083AD08 /* MainFrameTray.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MainFrameTray.cpp; path = ../MainFrameTray.cpp; sourceTree = "<group>"; };
+		B2E9FEC41A300C3F0083AD08 /* MainFrameTray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MainFrameTray.h; path = ../MainFrameTray.h; sourceTree = "<group>"; };
+		B2E9FEC51A300C3F0083AD08 /* mainfrm.CPP */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = mainfrm.CPP; path = ../mainfrm.CPP; sourceTree = "<group>"; };
+		B2E9FEC61A300C3F0083AD08 /* mainfrm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mainfrm.h; path = ../mainfrm.h; sourceTree = "<group>"; };
+		B2E9FEC71A300C3F0083AD08 /* Mp3File.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Mp3File.h; path = ../Mp3File.h; sourceTree = "<group>"; };
+		B2E9FEC81A300C3F0083AD08 /* MusicFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MusicFile.h; path = ../MusicFile.h; sourceTree = "<group>"; };
+		B2E9FEC91A300C3F0083AD08 /* MyConfigs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MyConfigs.cpp; path = ../MyConfigs.cpp; sourceTree = "<group>"; };
+		B2E9FECA1A300C3F0083AD08 /* MyConfigs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MyConfigs.h; path = ../MyConfigs.h; sourceTree = "<group>"; };
+		B2E9FECB1A300C3F0083AD08 /* MyControls.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MyControls.h; path = ../MyControls.h; sourceTree = "<group>"; };
+		B2E9FECC1A300C3F0083AD08 /* MyLib.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MyLib.cpp; path = ../MyLib.cpp; sourceTree = "<group>"; };
+		B2E9FECD1A300C3F0083AD08 /* MyLib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MyLib.h; path = ../MyLib.h; sourceTree = "<group>"; };
+		B2E9FECE1A300C3F0083AD08 /* MyRebar.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MyRebar.cpp; path = ../MyRebar.cpp; sourceTree = "<group>"; };
+		B2E9FECF1A300C3F0083AD08 /* MyRebar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MyRebar.h; path = ../MyRebar.h; sourceTree = "<group>"; };
+		B2E9FED01A300C3F0083AD08 /* MySerialize.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MySerialize.cpp; path = ../MySerialize.cpp; sourceTree = "<group>"; };
+		B2E9FED11A300C3F0083AD08 /* MySerialize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MySerialize.h; path = ../MySerialize.h; sourceTree = "<group>"; };
+		B2E9FED21A300C3F0083AD08 /* mysplit.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = mysplit.cpp; path = ../mysplit.cpp; sourceTree = "<group>"; };
+		B2E9FED31A300C3F0083AD08 /* mysplit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mysplit.h; path = ../mysplit.h; sourceTree = "<group>"; };
+		B2E9FED41A300C3F0083AD08 /* mytree.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mytree.h; path = ../mytree.h; sourceTree = "<group>"; };
+		B2E9FED51A300C3F0083AD08 /* NTRAY.CPP */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = NTRAY.CPP; path = ../NTRAY.CPP; sourceTree = "<group>"; };
+		B2E9FED61A300C3F0083AD08 /* NTRAY.H */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = NTRAY.H; path = ../NTRAY.H; sourceTree = "<group>"; };
+		B2E9FED71A300C3F0083AD08 /* player.aps */ = {isa = PBXFileReference; lastKnownFileType = file; name = player.aps; path = ../player.aps; sourceTree = "<group>"; };
+		B2E9FED81A300C3F0083AD08 /* player.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = player.cpp; path = ../player.cpp; sourceTree = "<group>"; };
+		B2E9FED91A300C3F0083AD08 /* player.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = player.h; path = ../player.h; sourceTree = "<group>"; };
+		B2E9FEDA1A300C3F0083AD08 /* PlayerThread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PlayerThread.cpp; path = ../PlayerThread.cpp; sourceTree = "<group>"; };
+		B2E9FEDB1A300C3F0083AD08 /* PlayerThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PlayerThread.h; path = ../PlayerThread.h; sourceTree = "<group>"; };
+		B2E9FEDC1A300C3F0083AD08 /* PlayList.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PlayList.cpp; path = ../PlayList.cpp; sourceTree = "<group>"; };
+		B2E9FEDD1A300C3F0083AD08 /* PlayList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PlayList.h; path = ../PlayList.h; sourceTree = "<group>"; };
+		B2E9FEDE1A300C3F0083AD08 /* PlayListManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PlayListManager.h; path = ../PlayListManager.h; sourceTree = "<group>"; };
+		B2E9FEDF1A300C3F0083AD08 /* PlayListView.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PlayListView.cpp; path = ../PlayListView.cpp; sourceTree = "<group>"; };
+		B2E9FEE01A300C3F0083AD08 /* PlayListView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PlayListView.h; path = ../PlayListView.h; sourceTree = "<group>"; };
+		B2E9FEE11A300C3F0083AD08 /* PlayListViewMng.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PlayListViewMng.cpp; path = ../PlayListViewMng.cpp; sourceTree = "<group>"; };
+		B2E9FEE21A300C3F0083AD08 /* PlayListViewMng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PlayListViewMng.h; path = ../PlayListViewMng.h; sourceTree = "<group>"; };
+		B2E9FEE31A300C3F0083AD08 /* resource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = resource.h; path = ../resource.h; sourceTree = "<group>"; };
+		B2E9FEE41A300C3F0083AD08 /* resource1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = resource1.h; path = ../resource1.h; sourceTree = "<group>"; };
+		B2E9FEE51A300C3F0083AD08 /* SearchLyric.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SearchLyric.h; path = ../SearchLyric.h; sourceTree = "<group>"; };
+		B2E9FEE61A300C3F0083AD08 /* SpectrumAnalyser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SpectrumAnalyser.cpp; path = ../SpectrumAnalyser.cpp; sourceTree = "<group>"; };
+		B2E9FEE71A300C3F0083AD08 /* SpectrumAnalyser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SpectrumAnalyser.h; path = ../SpectrumAnalyser.h; sourceTree = "<group>"; };
+		B2E9FEE81A300C3F0083AD08 /* SpectrumAnalyserThread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SpectrumAnalyserThread.cpp; path = ../SpectrumAnalyserThread.cpp; sourceTree = "<group>"; };
+		B2E9FEE91A300C3F0083AD08 /* SpectrumAnalyserThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SpectrumAnalyserThread.h; path = ../SpectrumAnalyserThread.h; sourceTree = "<group>"; };
+		B2E9FEEA1A300C3F0083AD08 /* stdafx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = stdafx.cpp; path = ../stdafx.cpp; sourceTree = "<group>"; };
+		B2E9FEEB1A300C3F0083AD08 /* stdafx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = stdafx.h; path = ../stdafx.h; sourceTree = "<group>"; };
+		B2E9FEEC1A300C3F0083AD08 /* StringConvertions.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = StringConvertions.cpp; path = ../StringConvertions.cpp; sourceTree = "<group>"; };
+		B2E9FEED1A300C3F0083AD08 /* StringConvertions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = StringConvertions.h; path = ../StringConvertions.h; sourceTree = "<group>"; };
+		B2E9FEEE1A300C3F0083AD08 /* Thread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Thread.h; path = ../Thread.h; sourceTree = "<group>"; };
+		B2E9FEEF1A300C3F0083AD08 /* TitleTip.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TitleTip.h; path = ../TitleTip.h; sourceTree = "<group>"; };
+		B2E9FEF01A300C3F0083AD08 /* todo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = todo.cpp; path = ../todo.cpp; sourceTree = "<group>"; };
+		B2E9FEF11A300C3F0083AD08 /* Util1.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Util1.cpp; path = ../Util1.cpp; sourceTree = "<group>"; };
+		B2E9FEF21A300C3F0083AD08 /* Util1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Util1.h; path = ../Util1.h; sourceTree = "<group>"; };
+		B2E9FEF31A300C3F0083AD08 /* Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Utils.h; path = ../Utils.h; sourceTree = "<group>"; };
+		B2E9FEF41A300C3F0083AD08 /* WaveFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = WaveFile.cpp; path = ../WaveFile.cpp; sourceTree = "<group>"; };
+		B2E9FEF51A300C3F0083AD08 /* WaveFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WaveFile.h; path = ../WaveFile.h; sourceTree = "<group>"; };
+		B2E9FEF61A300C3F0083AD08 /* WaveFileEx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WaveFileEx.h; path = ../WaveFileEx.h; sourceTree = "<group>"; };
+		B2E9FEF71A300C3F0083AD08 /* WTLTabViewCtrl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WTLTabViewCtrl.h; path = ../WTLTabViewCtrl.h; sourceTree = "<group>"; };
+		B2E9FEF81A300C3F0083AD08 /* WuLines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WuLines.h; path = ../WuLines.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		B2E9FE8D1A300C1E0083AD08 = {
+			isa = PBXGroup;
+			children = (
+				B2E9FE941A300C3F0083AD08 /* aboutdlg.h */,
+				B2E9FE951A300C3F0083AD08 /* BasicPlayer.cpp */,
+				B2E9FE961A300C3F0083AD08 /* BasicPlayer.h */,
+				B2E9FE971A300C3F0083AD08 /* CAlbumCoverView.h */,
+				B2E9FE981A300C3F0083AD08 /* CCtrlViewBase.h */,
+				B2E9FE991A300C3F0083AD08 /* CImg.h */,
+				B2E9FE9A1A300C3F0083AD08 /* CMyLyric.cpp */,
+				B2E9FE9B1A300C3F0083AD08 /* CMyLyric.h */,
+				B2E9FE9C1A300C3F0083AD08 /* CMyTabBar.h */,
+				B2E9FE9D1A300C3F0083AD08 /* CMyTrayNotifyIcon.cpp */,
+				B2E9FE9E1A300C3F0083AD08 /* CMyTrayNotifyIcon.h */,
+				B2E9FE9F1A300C3F0083AD08 /* CMyTypes.h */,
+				B2E9FEA01A300C3F0083AD08 /* CPropertyDlgs.h */,
+				B2E9FEA11A300C3F0083AD08 /* CriticalSection.h */,
+				B2E9FEA21A300C3F0083AD08 /* customMsg.h */,
+				B2E9FEA31A300C3F0083AD08 /* DialogConfig.cpp */,
+				B2E9FEA41A300C3F0083AD08 /* DialogConfig.h */,
+				B2E9FEA51A300C3F0083AD08 /* DialogFFT.h */,
+				B2E9FEA61A300C3F0083AD08 /* DialogFFTOutline.h */,
+				B2E9FEA71A300C3F0083AD08 /* DialogLrcList.cpp */,
+				B2E9FEA81A300C3F0083AD08 /* DialogLrcList.h */,
+				B2E9FEA91A300C3F0083AD08 /* DialogLyric.h */,
+				B2E9FEAA1A300C3F0083AD08 /* dialogsearch.CPP */,
+				B2E9FEAB1A300C3F0083AD08 /* DialogSearch.h */,
+				B2E9FEAC1A300C3F0083AD08 /* DlgConsole.h */,
+				B2E9FEAD1A300C3F0083AD08 /* dlgLrcSearch.h */,
+				B2E9FEAE1A300C3F0083AD08 /* DlgProcessing.h */,
+				B2E9FEAF1A300C3F0083AD08 /* DlgProgerty.h */,
+				B2E9FEB01A300C3F0083AD08 /* DragDrop.h */,
+				B2E9FEB11A300C3F0083AD08 /* DropArrows.h */,
+				B2E9FEB21A300C3F0083AD08 /* FFT.h */,
+				B2E9FEB31A300C3F0083AD08 /* fileMonitor.cpp */,
+				B2E9FEB41A300C3F0083AD08 /* fileMonitor.h */,
+				B2E9FEB51A300C3F0083AD08 /* forwardMsg.cpp */,
+				B2E9FEB61A300C3F0083AD08 /* forwardMsg.h */,
+				B2E9FEB71A300C3F0083AD08 /* FunctionReg.cpp */,
+				B2E9FEB81A300C3F0083AD08 /* FunctionReg.h */,
+				B2E9FEB91A300C3F0083AD08 /* glassWnd.h */,
+				B2E9FEBA1A300C3F0083AD08 /* globalStuffs.cpp */,
+				B2E9FEBB1A300C3F0083AD08 /* globalStuffs.h */,
+				B2E9FEBC1A300C3F0083AD08 /* ListCombo.h */,
+				B2E9FEBD1A300C3F0083AD08 /* ListCtrl.h */,
+				B2E9FEBE1A300C3F0083AD08 /* ListDate.h */,
+				B2E9FEBF1A300C3F0083AD08 /* ListEdit.h */,
+				B2E9FEC01A300C3F0083AD08 /* ListTypes.h */,
+				B2E9FEC11A300C3F0083AD08 /* LrcMng.cpp */,
+				B2E9FEC21A300C3F0083AD08 /* LrcMng.h */,
+				B2E9FEC31A300C3F0083AD08 /* MainFrameTray.cpp */,
+				B2E9FEC41A300C3F0083AD08 /* MainFrameTray.h */,
+				B2E9FEC51A300C3F0083AD08 /* mainfrm.CPP */,
+				B2E9FEC61A300C3F0083AD08 /* mainfrm.h */,
+				B2E9FEC71A300C3F0083AD08 /* Mp3File.h */,
+				B2E9FEC81A300C3F0083AD08 /* MusicFile.h */,
+				B2E9FEC91A300C3F0083AD08 /* MyConfigs.cpp */,
+				B2E9FECA1A300C3F0083AD08 /* MyConfigs.h */,
+				B2E9FECB1A300C3F0083AD08 /* MyControls.h */,
+				B2E9FECC1A300C3F0083AD08 /* MyLib.cpp */,
+				B2E9FECD1A300C3F0083AD08 /* MyLib.h */,
+				B2E9FECE1A300C3F0083AD08 /* MyRebar.cpp */,
+				B2E9FECF1A300C3F0083AD08 /* MyRebar.h */,
+				B2E9FED01A300C3F0083AD08 /* MySerialize.cpp */,
+				B2E9FED11A300C3F0083AD08 /* MySerialize.h */,
+				B2E9FED21A300C3F0083AD08 /* mysplit.cpp */,
+				B2E9FED31A300C3F0083AD08 /* mysplit.h */,
+				B2E9FED41A300C3F0083AD08 /* mytree.h */,
+				B2E9FED51A300C3F0083AD08 /* NTRAY.CPP */,
+				B2E9FED61A300C3F0083AD08 /* NTRAY.H */,
+				B2E9FED71A300C3F0083AD08 /* player.aps */,
+				B2E9FED81A300C3F0083AD08 /* player.cpp */,
+				B2E9FED91A300C3F0083AD08 /* player.h */,
+				B2E9FEDA1A300C3F0083AD08 /* PlayerThread.cpp */,
+				B2E9FEDB1A300C3F0083AD08 /* PlayerThread.h */,
+				B2E9FEDC1A300C3F0083AD08 /* PlayList.cpp */,
+				B2E9FEDD1A300C3F0083AD08 /* PlayList.h */,
+				B2E9FEDE1A300C3F0083AD08 /* PlayListManager.h */,
+				B2E9FEDF1A300C3F0083AD08 /* PlayListView.cpp */,
+				B2E9FEE01A300C3F0083AD08 /* PlayListView.h */,
+				B2E9FEE11A300C3F0083AD08 /* PlayListViewMng.cpp */,
+				B2E9FEE21A300C3F0083AD08 /* PlayListViewMng.h */,
+				B2E9FEE31A300C3F0083AD08 /* resource.h */,
+				B2E9FEE41A300C3F0083AD08 /* resource1.h */,
+				B2E9FEE51A300C3F0083AD08 /* SearchLyric.h */,
+				B2E9FEE61A300C3F0083AD08 /* SpectrumAnalyser.cpp */,
+				B2E9FEE71A300C3F0083AD08 /* SpectrumAnalyser.h */,
+				B2E9FEE81A300C3F0083AD08 /* SpectrumAnalyserThread.cpp */,
+				B2E9FEE91A300C3F0083AD08 /* SpectrumAnalyserThread.h */,
+				B2E9FEEA1A300C3F0083AD08 /* stdafx.cpp */,
+				B2E9FEEB1A300C3F0083AD08 /* stdafx.h */,
+				B2E9FEEC1A300C3F0083AD08 /* StringConvertions.cpp */,
+				B2E9FEED1A300C3F0083AD08 /* StringConvertions.h */,
+				B2E9FEEE1A300C3F0083AD08 /* Thread.h */,
+				B2E9FEEF1A300C3F0083AD08 /* TitleTip.h */,
+				B2E9FEF01A300C3F0083AD08 /* todo.cpp */,
+				B2E9FEF11A300C3F0083AD08 /* Util1.cpp */,
+				B2E9FEF21A300C3F0083AD08 /* Util1.h */,
+				B2E9FEF31A300C3F0083AD08 /* Utils.h */,
+				B2E9FEF41A300C3F0083AD08 /* WaveFile.cpp */,
+				B2E9FEF51A300C3F0083AD08 /* WaveFile.h */,
+				B2E9FEF61A300C3F0083AD08 /* WaveFileEx.h */,
+				B2E9FEF71A300C3F0083AD08 /* WTLTabViewCtrl.h */,
+				B2E9FEF81A300C3F0083AD08 /* WuLines.h */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXProject section */
+		B2E9FE8E1A300C1E0083AD08 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+			};
+			buildConfigurationList = B2E9FE911A300C1E0083AD08 /* Build configuration list for PBXProject "Player3Mac" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = B2E9FE8D1A300C1E0083AD08;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		B2E9FE921A300C1E0083AD08 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		B2E9FE931A300C1E0083AD08 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B2E9FE911A300C1E0083AD08 /* Build configuration list for PBXProject "Player3Mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B2E9FE921A300C1E0083AD08 /* Debug */,
+				B2E9FE931A300C1E0083AD08 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B2E9FE8E1A300C1E0083AD08 /* Project object */;
+}

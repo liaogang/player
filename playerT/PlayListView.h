@@ -29,13 +29,13 @@ class CPlayListView:
 {
 private:
 	CFont m_Font;
-
+	
 	static const int m_iColumnCount=6;
 
 	INT m_iColumnOrderArrays[m_iColumnCount];
 
 	INT m_iColumnWidths[m_iColumnCount];
-	int   m_nFontHeight;//make sure is behind m_iColumnWidths. see save
+
 
 	BOOL m_bLoaded;//from file
 	blockData m_dData;//data to save or load.
@@ -61,7 +61,7 @@ public:
 	DECLARE_WND_CLASS( _T( "listctrl" ) )
 
 	CPlayListView():m_bManual(TRUE),m_Order(0),m_bLoaded(FALSE),
-		m_nFontHeight(17),m_dData(blockData())
+		m_dData(blockData())
 	{
 		SetPlayList(NULL);
 		menu=LoadPlaylistMenu();
@@ -292,13 +292,11 @@ theEnd:
 
 	void SetLVFont(int nHeight)
 	{
-		m_nFontHeight=nHeight;
-
 		if (!m_Font.IsNull())
 			m_Font.DeleteObject();
 
 		m_Font.CreateFont(
-			m_nFontHeight,                        // nHeight
+			nHeight,                        // nHeight
 			0,                         // nWidth
 			0,                         // nEscapement
 			0,                         // nOrientation
@@ -315,11 +313,12 @@ theEnd:
 		SetFont(m_Font.m_hFont);
 	}
 
-	void EnlargeLVFont(int value)
-	{
-		m_nFontHeight+=value;
-		SetLVFont(m_nFontHeight);
-	}
+	static void EnlargeLVFont(int value);
+
+	
+	void updateListFont();
+
+	
 
 	void CreateIsWnd();
 

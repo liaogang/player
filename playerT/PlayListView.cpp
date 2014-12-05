@@ -2,7 +2,10 @@
 #include "PlayListView.h"
 #include "forwardMsg.h"
 #include "MyLib.h"
+#include "MyConfigs.h"
 
+
+//int CPlayListView::m_nFontHeight = 17;
 
 const TCHAR * columnName[]={
 	_T("Ë÷Òý"),
@@ -42,7 +45,7 @@ void CPlayListView::Init(bool bSearch)
 
 	Load();
 
-	SetLVFont(m_nFontHeight);
+	SetLVFont(GetMyConfigs()->getListFontHeight());
 
 
 	ChangeColorDefault();
@@ -87,9 +90,7 @@ void CPlayListView::Load()
 	//load m_iColumnWidths
 	if(m_dData.GetLength() != 0)
 	{
-		//m_iColumnWidths
-		//m_nFontHeight
-		m_dData.CopyDataOut(m_iColumnWidths,(m_iColumnCount+1)*sizeof(m_iColumnWidths[0]) );
+		m_dData.CopyDataOut(m_iColumnWidths,(m_iColumnCount)*sizeof(m_iColumnWidths[0]) );
 		
 		m_bLoaded=TRUE;
 
@@ -107,11 +108,9 @@ void CPlayListView::Save()
 	}
 
 
-	
 	//save it
 	//m_iColumnWidths
-	//m_nFontHeight
-	m_dData.CopyDataIn(m_iColumnWidths,(m_iColumnCount+1)*sizeof(m_iColumnWidths[0]) );
+	m_dData.CopyDataIn(m_iColumnWidths,(m_iColumnCount)*sizeof(m_iColumnWidths[0]) );
 }
 
 LRESULT CPlayListView::OnPlayItem(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -129,4 +128,22 @@ LRESULT CPlayListViewS::OnSelectedPlChanged(UINT uMsg, WPARAM wParam, LPARAM lPa
 	/// doing nothing.
 
 	return 1;
+}
+
+
+void CPlayListView::EnlargeLVFont(int value)
+{
+	int h = GetMyConfigs()->getListFontHeight();
+
+	h += value;
+
+	GetMyConfigs()->setListFontHeight(h);
+}
+
+void CPlayListView::updateListFont()
+{
+	SetLVFont(GetMyConfigs()->getListFontHeight());
+
+	InvalidateRect(NULL);
+
 }

@@ -527,12 +527,12 @@ FILE& CPlayListItem::operator<<(FILE& f)
 
 FILE& MyConfigs::operator>>(FILE& f) const
 {
-	return f << bResumeOnReboot << playlistIndex << trackIndex << playingStatus << msecPos << playersVolume << playorder << fileTimeUpdateMediaLib;
+	return f << bResumeOnReboot << playlistIndex << trackIndex << playingStatus << msecPos << playersVolume << playorder << fileTimeUpdateMediaLib << m_iListFontHeight;
 }
 
 FILE& MyConfigs::operator<<(FILE& f)
 {
-	return f >> bResumeOnReboot >> playlistIndex >> trackIndex >> playingStatus >> msecPos >> playersVolume >> playorder >> fileTimeUpdateMediaLib;
+	return f >> bResumeOnReboot >> playlistIndex >> trackIndex >> playingStatus >> msecPos >> playersVolume >> playorder >> fileTimeUpdateMediaLib >> m_iListFontHeight;
 }
 
 
@@ -884,12 +884,12 @@ FILE& CMainFrame::operator<<(FILE& f)
 
 FILE& DialogSearch::operator>>(FILE& f) const
 {
-	return f<<m_rc<<m_list.GetSerializeData();
+	return f<<m_bHiden<<m_rc<<m_list.GetSerializeData();
 }
 
 FILE& DialogSearch::operator<<(FILE& f)
 {
-	return f>>m_rc>>m_list.GetSerializeData();
+	return f>>m_bHidenLast>>m_rc>>m_list.GetSerializeData();
 }
 #endif
 

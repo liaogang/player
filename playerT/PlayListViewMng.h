@@ -38,7 +38,7 @@ public:
 	 //change nItemPlaying 
 	 void PlayingItemChanged();
 
-	 void EnlargeLVFont(int value);
+	 void updateListFont();
 
 	 void DeleteOneTrackFirst(LPCPlayList pPL);
 

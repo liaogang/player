@@ -8,7 +8,7 @@ class MyConfigs:public SerializeObj<MyConfigs>
 {
 public:
 	MyConfigs():bResumeOnReboot(1),playersVolume(100),playorder(0)
-		,playlistIndex(-1),trackIndex(-1),playingStatus(status_stopped)
+		, playlistIndex(-1), trackIndex(-1), playingStatus(status_stopped), m_iListFontHeight(18)
 	{
 
 	}
@@ -53,6 +53,13 @@ public:
 
 private:
 	FILETIME fileTimeUpdateMediaLib;
+
+public:
+	void setListFontHeight(int h){ m_iListFontHeight = h; }
+	int getListFontHeight(){ return m_iListFontHeight; }
+
+public:
+	int  m_iListFontHeight;
 };
 
 MyConfigs* GetMyConfigs();

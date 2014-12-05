@@ -97,6 +97,7 @@ BOOL CMainFrame::OnIdle()
 	return FALSE;
 }
 
+
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
 	ValidateCfg();
@@ -121,6 +122,13 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BO
 
 	InitUILayout();
 
+
+	if (m_DlgSearch.m_bHidenLast == FALSE)
+	{
+		ShowSearchDialog();
+	}
+
+
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
@@ -134,14 +142,16 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BO
 	return 0;
 }
 
-void CMainFrame::ReceiveMsg(){
-IWantToReceiveMessage(WM_FILE_FINDED);
-IWantToReceiveMessage(WM_TRACK_REACH_END);
-IWantToReceiveMessage(WM_ADDFOLDERED);
-IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
-IWantToReceiveMessage(WM_TRACKSTOPPED);
-IWantToReceiveMessage(WM_PL_TRACKNUM_CHANGED);
+void CMainFrame::ReceiveMsg()
+{
+	IWantToReceiveMessage(WM_FILE_FINDED);
+	IWantToReceiveMessage(WM_TRACK_REACH_END);
+	IWantToReceiveMessage(WM_ADDFOLDERED);
+	IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
+	IWantToReceiveMessage(WM_TRACKSTOPPED);
+	IWantToReceiveMessage(WM_PL_TRACKNUM_CHANGED);
 }
+
 HWND CMySimpleRebar::CreateIsWnd(HWND hParent)
 {
 	HWND hWnd= CMainFrame::CreateSimpleReBarCtrl(hParent, ATL_SIMPLE_REBAR_NOBORDER_STYLE, ATL_IDW_TOOLBAR);
@@ -442,12 +452,18 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 LRESULT CMainFrame::OnChangeLVFont(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	AllPlayListViews()->EnlargeLVFont(wID==ID_LV_ENLARGE_FONT?1:-1);
+	CPlayListView::EnlargeLVFont(wID == ID_LV_ENLARGE_FONT ? 1 : -1);
+
+	AllPlayListViews()->updateListFont();
 	
-	m_DlgSearch.m_list.EnlargeLVFont(wID==ID_LV_ENLARGE_FONT?1:-1);
+	if (m_DlgSearch.IsWindow())
+		m_DlgSearch.m_list.updateListFont();
 
 	return 0;
 }
+
+
+
 
 LRESULT CMainFrame::OnRemoveDeadItems(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
@@ -742,10 +758,13 @@ LRESULT CPlayListViewS::OnDbClicked(int /**/,LPNMHDR pnmh,BOOL bHandled)
 {	
 	if(!GetPlayList())return 0;
 
-	int k=playlistParent->GetSelectedIndex();
-	if(k!=-1)
+	if (HasSeleted())
 	{
-		MyLib::shared()->play();
+		int k = playlistParent->GetSelectedIndex();
+		if (k != -1)
+		{
+			MyLib::shared()->play();
+		}
 	}
 
 	SetMsgHandled(TRUE);
