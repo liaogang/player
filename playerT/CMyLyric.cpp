@@ -3,8 +3,9 @@
 #include "PlayList.h"
 #include "MyLib.h"
 #include "BasicPlayer.h"
+#include "MyConfigs.h"
 
-CMyLyricWnd::CMyLyricWnd():bLrcReady(FALSE),track(NULL),m_nFontHeight(20),m_nIDEvent(0),
+CMyLyricWnd::CMyLyricWnd():bLrcReady(FALSE),track(NULL),m_nIDEvent(0),
 	m_memDCNormal(NULL),m_memDCHighlight(NULL),m_bInitSize(FALSE),m_memDCReady(FALSE),bNewTrack(FALSE),lyricOffset(0)
 {
 	//brush=::GetSysColorBrush(COLOR_WINDOW);
@@ -14,12 +15,14 @@ CMyLyricWnd::CMyLyricWnd():bLrcReady(FALSE),track(NULL),m_nFontHeight(20),m_nIDE
 	menu=::LoadMenu(NULL,MAKEINTRESOURCE (IDR_MENU_LRC) );
 	trackMenu=::GetSubMenu(menu,0);
 
+	
 
+	
 	if (!m_Font.IsNull())
 		m_Font.DeleteObject();
 
 	m_Font.CreateFont(
-		m_nFontHeight,                        // nHeight
+		GetMyConfigs()->getListFontHeight(),                        // nHeight
 		0,                         // nWidth
 		0,                         // nEscapement
 		0,                         // nOrientation
@@ -33,7 +36,7 @@ CMyLyricWnd::CMyLyricWnd():bLrcReady(FALSE),track(NULL),m_nFontHeight(20),m_nIDE
 		DEFAULT_QUALITY,           // nQuality
 		DEFAULT_PITCH | FF_SWISS,  // nPitchAndFamily
 		_T("Arial"));                 // lpszFacename
-
+		
 
 }
 
@@ -155,6 +158,7 @@ LRESULT CMyLyricWnd::OnShowDlgLrcSearch(WORD /*wNotifyCode*/, WORD wID, HWND /*h
 
 void CMyLyricWnd::CreateBackDC()
 {
+	int fontHeight;
 	int lineSpacing;//行间隔
 	int lineHeight;//行高=字高*几行字 + 行间隔
 	int lineWidth;//每一行的宽度
@@ -166,10 +170,11 @@ void CMyLyricWnd::CreateBackDC()
 	GetClientRect(&m_rcClient);
 
 	//settings
+	fontHeight = GetMyConfigs()->getListFontHeight();
 	lineWidthSpacing=3;
 	lineSpacing=3;
 	lineWidth=m_rcClient.right-m_rcClient.left-3;
-	lineHeight=+lineSpacing+m_nFontHeight;
+	lineHeight=+lineSpacing+ fontHeight;
 
 
 	//
@@ -242,7 +247,7 @@ void CMyLyricWnd::CreateBackDC()
 
 	for (auto i=lrcs.begin();i!=lrcs.end();++i)
 	{
-		info.yPos=info.yPos+info.nStrLines*m_nFontHeight;
+		info.yPos = info.yPos + info.nStrLines * fontHeight;
 		info.nStrLines=GetStrSizeX(dc,(TCHAR*)i->text.c_str())/(int)lineWidth+1;
 
 		if(bNewTrack)
@@ -252,14 +257,14 @@ void CMyLyricWnd::CreateBackDC()
 		rcString.left=lineWidthSpacing;
 		rcString.right=rcString.left+lineWidth;
 		rcString.top=info.yPos;
-		rcString.bottom=rcString.top+info.nStrLines*m_nFontHeight;
+		rcString.bottom = rcString.top + info.nStrLines * fontHeight;
 		::DrawText(m_memDCNormal,i->text.c_str(),i->text.length(),&rcString,DT_CENTER);//DT_CALCRECT|
 		::DrawText(m_memDCHighlight,i->text.c_str(),i->text.length(),&rcString,DT_CENTER);//DT_CALCRECT|
 	}
 
 
 	if(bNewTrack)
-		totalHeight=info.yPos+info.nStrLines*m_nFontHeight;
+		totalHeight = info.yPos + info.nStrLines * fontHeight;
 
 	ReleaseDC(dc);
 
@@ -375,3 +380,78 @@ LRESULT CMyLyricWnd::OnMenuFolderOpen(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 	return 0;
 }
 
+void CMyLyricWnd::_updateListFont()
+{
+	SetLVFont(GetMyConfigs()->getListFontHeight());
+}
+
+void CMyLyricWnd::updateListFont()
+{
+	_updateListFont();
+
+	CreateBackDC();
+
+	InvalidateRect(NULL);
+}
+
+void CMyLyricWnd::SetLVFont(int nHeight)
+{
+	if (!m_Font.IsNull())
+		m_Font.DeleteObject();
+
+	m_Font.CreateFont(
+		nHeight,                   // nHeight
+		0,                         // nWidth
+		0,                         // nEscapement
+		0,                         // nOrientation
+		FW_NORMAL,                 // nWeight
+		FALSE,                     // bItalic
+		FALSE,                     // bUnderline
+		0,                         // cStrikeOut
+		ANSI_CHARSET,              // nCharSet
+		OUT_DEFAULT_PRECIS,        // nOutPrecision
+		CLIP_DEFAULT_PRECIS,       // nClipPrecision
+		DEFAULT_QUALITY,           // nQuality
+		DEFAULT_PITCH | FF_SWISS,  // nPitchAndFamily
+		_T("Arial"));              // lpszFacename
+
+	SetFont(m_Font.m_hFont);
+}
+
+
+void CMyLyricWnd::mydraw(HDC dc_)
+{
+	int fontHeight = GetMyConfigs()->getListFontHeight();
+
+	if (m_memDCReady == FALSE)
+		return;
+
+	HDC dc = dc_ == NULL ? GetDC() : dc_;
+
+	if (m_bSized)
+	{
+		CreateBackDC();
+		m_bSized = FALSE;
+	}
+
+	RECT rcDest;
+	GetClientRect(&rcDest);
+
+	if (!bLrcReady)return;
+
+	int y = veclineinfo[m_iCurLine].yPos - (m_rcClient.bottom - m_rcClient.top) / 2;
+
+	// bitblt the lyrics
+	RECT rcLine = rcDest;
+	rcLine.top = HEIGHT(rcDest) / 2;
+	rcLine.bottom = rcLine.top + veclineinfo[m_iCurLine].nStrLines * fontHeight;
+
+	::BitBlt(dc, rcDest.left, rcDest.top, WIDTH(rcDest), HEIGHT(rcDest),
+		m_memDCNormal, 0, y, SRCCOPY);
+
+	::BitBlt(dc, rcLine.left, rcLine.top, WIDTH(rcLine), HEIGHT(rcLine),
+		m_memDCHighlight, 0, y + rcLine.top, SRCCOPY);
+
+	if (dc_ == NULL)
+		ReleaseDC(dc);
+}

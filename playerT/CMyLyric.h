@@ -4,6 +4,7 @@
 #include "dlgLrcSearch.h"
 #include "LrcMng.h"
 #include "customMsg.h"
+
 #pragma once
 using namespace std;
 
@@ -39,7 +40,7 @@ public:
 	vector<lineinfo> veclineinfo;
 	int m_iCurLine;
 	vector<LrcLine> lrcs;
-	int m_nFontHeight;//字高
+	///int m_nFontHeight;//字高 replace by getmyconfig()->listheight.
 	int m_iESize;//歌词上方的空白区域
 	UINT m_nIDEvent;
 	bool m_bPaused;
@@ -246,41 +247,9 @@ public:
 	void CreateBackDC();
 
 
+	void mydraw(HDC dc_ = NULL);
 
-	void mydraw(HDC dc_=NULL)
-	{
-		if(m_memDCReady==FALSE)
-			return;
-
-		HDC dc=dc_==NULL?GetDC():dc_;
-
-		if(m_bSized)
-		{
-			CreateBackDC();
-			m_bSized=FALSE;
-		}
-
-		RECT rcDest;
-		GetClientRect(&rcDest);
-
-		if(!bLrcReady)return;
-
-		int y= veclineinfo[m_iCurLine].yPos - (m_rcClient.bottom-m_rcClient.top)/2 ;
-
-		// bitblt the lyrics
-		RECT rcLine=rcDest;
-		rcLine.top=HEIGHT(rcDest) /2;
-		rcLine.bottom=rcLine.top+veclineinfo[m_iCurLine].nStrLines*m_nFontHeight;
-
-		::BitBlt(dc,rcDest.left,rcDest.top,WIDTH(rcDest),HEIGHT(rcDest),
-			m_memDCNormal,0,y , SRCCOPY);
-
-		::BitBlt(dc,rcLine.left,rcLine.top,WIDTH(rcLine),HEIGHT(rcLine),
-			m_memDCHighlight,0,y+rcLine.top, SRCCOPY);
-
-		if(dc_==NULL)
-			ReleaseDC(dc);
-	}
+	
 
 	void PrepareShowLyric();
 
@@ -322,39 +291,12 @@ public:
 	}
 
 
+	void _updateListFont();
+	void updateListFont();
 
+	void SetLVFont(int nHeight);
 
-	void updateListFont()
-	{
-		SetLVFont(GetMyConfigs()->getListFontHeight());
-
-		InvalidateRect(NULL);
-	}
-
-	FONT m_Font;
-	void SetLVFont(int nHeight)
-	{
-		if (!m_Font.IsNull())
-			m_Font.DeleteObject();
-
-		m_Font.CreateFont(
-			nHeight,                   // nHeight
-			0,                         // nWidth
-			0,                         // nEscapement
-			0,                         // nOrientation
-			FW_NORMAL,                 // nWeight
-			FALSE,                     // bItalic
-			FALSE,                     // bUnderline
-			0,                         // cStrikeOut
-			ANSI_CHARSET,              // nCharSet
-			OUT_DEFAULT_PRECIS,        // nOutPrecision
-			CLIP_DEFAULT_PRECIS,       // nClipPrecision
-			DEFAULT_QUALITY,           // nQuality
-			DEFAULT_PITCH | FF_SWISS,  // nPitchAndFamily
-			_T("Arial"));              // lpszFacename
-		
-		SetFont(m_Font.m_hFont);
-	}
+	
 
 };
 
