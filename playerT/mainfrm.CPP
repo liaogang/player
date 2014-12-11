@@ -71,16 +71,35 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 		UINT nChar=(TCHAR)pMsg->wParam;
 		BOOL bHandled=FALSE;
 
+		/// if nChar is upper , change to lower.
+		if( isupper(nChar))
+			nChar -= 'A' - 'a';
+
+		BOOL ctrl = GetKeyState(VK_CONTROL) & 0x80 ;
+
+		/*
+		BOOL lwin = GetKeyState(VK_LWIN) & 0x80 ;
+		BOOL rwin = GetKeyState(VK_RWIN) & 0x80 ;
+		BOOL win  = lwin || rwin;
+		*/
+		
+
 		//F3 or Ctrl + F 
-		if(nChar==VK_F3)
+		if(nChar==VK_F3 || (ctrl && nChar == 'f' ) )
 			ShowSearchDialog();
-		if(nChar=='f' ||nChar=='F')
-			if (GetKeyState(VK_CONTROL) & 0x80)
-				ShowSearchDialog();
-			//Ctrl + P
-		if(nChar == 'P' || nChar =='p')
-			if (GetKeyState(VK_CONTROL) & 0x80)
-				OnConfig(0,0,0,bHandled);
+
+		//Ctrl + P
+		if(ctrl && nChar =='p')
+			OnConfig(0,0,0,bHandled);
+
+		/// Ctrl + '+' or '-'
+		if ( ctrl )
+		{
+			if (nChar == VK_OEM_PLUS)
+				OnChangeLVFont(1);
+			else if (nChar == VK_OEM_MINUS)
+				OnChangeLVFont(-1);
+		}
 	}
 
 	return CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg);
@@ -450,20 +469,22 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 	return 0;
 }
 
-LRESULT CMainFrame::OnChangeLVFont(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+void CMainFrame::OnChangeLVFont(int offset)
 {
-	CPlayListView::EnlargeLVFont(wID == ID_LV_ENLARGE_FONT ? 1 : -1);
+	CPlayListView::EnlargeLVFont(offset);
 
 	AllPlayListViews()->updateListFont();
 	
 	if (m_DlgSearch.IsWindow())
 		m_DlgSearch.m_list.updateListFont();
+}
+
+LRESULT CMainFrame::OnChangeLVFont(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	OnChangeLVFont(wID == ID_LV_ENLARGE_FONT ? 1 : -1);
 
 	return 0;
 }
-
-
-
 
 LRESULT CMainFrame::OnRemoveDeadItems(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {

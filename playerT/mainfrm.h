@@ -323,6 +323,7 @@ public:
 	void OnSelectionChanged();
 	void ChangeTitle();
 
+	void OnChangeLVFont(int offset);
 
 
 	void ShowDlgProcessFile();
