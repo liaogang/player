@@ -21,6 +21,10 @@
 #include "MyConfigs.h"
 #include "Util1.h"
 #include "WuLines.h"
+
+#include "funcCmd.h"
+#include "shortcutKey.h"
+
 using namespace std;
 
 
@@ -39,9 +43,16 @@ void CMainFrame::RegisterMyHotKeys()
 
 LRESULT CMainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	UINT fuModifiers = (UINT) LOWORD(lParam);  // key-modifier flags   
+	UINT fuModifiers = (UINT) LOWORD(lParam);  // key-modifier flags
 	UINT uVirtKey = (UINT) HIWORD(lParam);     // virtual-key code    
 	UINT nChar=uVirtKey;
+
+
+	//MOD_ALT MOD_CONTROL MOD_SHIFT MOD_WIN
+	bool ctrl = fuModifiers & MOD_ALT;
+
+
+	shortcutKeyPressed( msgKeytoString( ctrl , nChar), true);
 
 	//Next Tract
 	if( nChar == VK_MEDIA_NEXT_TRACK )
@@ -82,24 +93,40 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 		BOOL rwin = GetKeyState(VK_RWIN) & 0x80 ;
 		BOOL win  = lwin || rwin;
 		*/
-		
 
-		//F3 or Ctrl + F 
-		if(nChar==VK_F3 || (ctrl && nChar == 'f' ) )
+		
+		shortcutKeyPressed( msgKeytoString( ctrl , nChar), false);
+
+		/*
+		//F3 
+		if(nChar==VK_F3 )
 			ShowSearchDialog();
 
-		//Ctrl + P
-		if(ctrl && nChar =='p')
-			OnConfig(0,0,0,bHandled);
-
-		/// Ctrl + '+' or '-'
-		if ( ctrl )
+		if( ctrl )
 		{
-			if (nChar == VK_OEM_PLUS)
-				OnChangeLVFont(1);
-			else if (nChar == VK_OEM_MINUS)
-				OnChangeLVFont(-1);
+			switch(nChar)
+			{ 
+				case 'f': //Ctrl + F 
+					ShowSearchDialog();
+					break;
+				case 'p': //Ctrl + P
+					ShowDialog_Configure();
+					break;
+				case VK_OEM_PLUS: /// Ctrl + '+' or '-'
+					EnlargeLVFont();
+					break;
+				case VK_OEM_MINUS:
+					ReduceLVFont();
+					break;
+				case 's':	//save config
+					SaveAll();
+					break;
+				case 'm':	//popup the playlist manager
+					actionPopupPlaylistManager();
+				break;
+			}
 		}
+		*/
 	}
 
 	return CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg);
@@ -116,10 +143,21 @@ BOOL CMainFrame::OnIdle()
 	return FALSE;
 }
 
+void CMainFrame::registCmdFuntions()
+{
+	registFunctionForCommand(string("File.ShowDialog_Configure"),ShowDialog_Configure);
+	registFunctionForCommand(string("File.SaveConfigure"),SaveAll);
+	registFunctionForCommand(string("View.ShowDialog_Search"),ShowSearchDialog);
+	registFunctionForCommand(string("View.ShowDialog_PlaylistManager"),actionPopupPlaylistManager);
+	registFunctionForCommand(string("View.EnlargeListViewFont"),EnlargeLVFont);
+	registFunctionForCommand(string("View.ReduceListViewFont"),ReduceLVFont);
+}
 
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
 	ValidateCfg();
+
+	registCmdFuntions();
 
 	ReceiveMsg();
 
@@ -409,7 +447,7 @@ LRESULT CMainFrame::OnPlayRandom(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
 	return 0;
 }
 
-LRESULT CMainFrame::OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+void CMainFrame::ShowDialog_Configure()
 {
 	if (!m_pDlgConfig)
 	{
@@ -426,6 +464,11 @@ LRESULT CMainFrame::OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
 	m_pDlgConfig->SetFocus();
 	
 	m_pDlgConfig->ShowWindow(SW_SHOW);
+}
+
+LRESULT CMainFrame::OnConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{	
+	ShowDialog_Configure();
 	return 0;
 }
 
@@ -879,8 +922,9 @@ LRESULT CMainFrame::OnChangePLColorBlue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 	return 0;
 }
 
-LRESULT CMainFrame::OnViewPlaylistManager(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+void CMainFrame::actionPopupPlaylistManager()
 {
+
 	if(!m_pDlgPLMng){
 	m_pDlgPLMng=new DialogPLManager;
 	m_pDlgPLMng->Create(m_hWnd);
@@ -890,6 +934,13 @@ LRESULT CMainFrame::OnViewPlaylistManager(WORD /*wNotifyCode*/, WORD /*wID*/, HW
 	}
 
 	m_pDlgPLMng->ShowSelf();	
+}
+
+
+LRESULT CMainFrame::OnViewPlaylistManager(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	actionPopupPlaylistManager();
+
 	return 0;
 }
 
