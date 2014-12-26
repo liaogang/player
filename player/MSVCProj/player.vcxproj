@@ -37,6 +37,7 @@
     <ClInclude Include="..\FunctionReg.h" />
     <ClInclude Include="..\glassWnd.h" />
     <ClInclude Include="..\globalStuffs.h" />
+    <ClInclude Include="..\jsoncpp\json_batchallocator.h" />
     <ClInclude Include="..\ListCombo.h" />
     <ClInclude Include="..\ListCtrl.h" />
     <ClInclude Include="..\ListDate.h" />
@@ -238,6 +239,9 @@
     <ClCompile Include="..\forwardMsg.cpp" />
     <ClCompile Include="..\FunctionReg.cpp" />
     <ClCompile Include="..\globalStuffs.cpp" />
+    <ClCompile Include="..\jsoncpp\json_reader.cpp" />
+    <ClCompile Include="..\jsoncpp\json_value.cpp" />
+    <ClCompile Include="..\jsoncpp\json_writer.cpp" />
     <ClCompile Include="..\LrcMng.cpp" />
     <ClCompile Include="..\mainfrm.CPP" />
     <ClCompile Include="..\MyConfigs.cpp" />
@@ -336,6 +340,9 @@
     <ResourceCompile Include="..\player.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\jsoncpp\json_internalarray.inl" />
+    <None Include="..\jsoncpp\json_internalmap.inl" />
+    <None Include="..\jsoncpp\json_valueiterator.inl" />
     <None Include="..\res\bitmap1.bmp" />
     <None Include="..\res\cursor1.cur" />
     <None Include="..\res\cursor2.cur" />
@@ -384,7 +391,7 @@
     <IntDir>Debug</IntDir>
     <OutDir>Debug</OutDir>
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(IncludePath);C:\Program Files\Microsoft SDKs\Windows\v7.1A\Include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include;..\Dx9SDK\Include</IncludePath>
+    <IncludePath>$(IncludePath);C:\Program Files\Microsoft SDKs\Windows\v7.1A\Include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include;..\Dx9SDK\Include;..\headers;..\headers\wtl</IncludePath>
     <LibraryPath>..\Dx9SDK\Lib;..\mpg123\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

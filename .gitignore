@@ -57,3 +57,5 @@ player.v12.suo
 player_vs2012.sdf
 player_vs2012.v12.suo
 player/MSVCProj/Debug
+*.opensdf
+player/MSVCProj/debugTray

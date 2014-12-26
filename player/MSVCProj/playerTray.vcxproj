@@ -97,7 +97,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>debug</OutDir>
     <IntDir>debugTray</IntDir>
-    <IncludePath>$(IncludePath);..\Dx9SDK\Include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include;..\wtl\Include;</IncludePath>
+    <IncludePath>$(IncludePath);..\Dx9SDK\Include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include;..\wtl\Include;..\headers;..\headers\wtl</IncludePath>
     <LibraryPath>..\Dx9SDK\Lib;..\mpg123\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

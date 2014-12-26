@@ -25,6 +25,9 @@
     <Filter Include="Header Files\ListCtrl">
       <UniqueIdentifier>{1c4c08e5-80c7-465c-b024-2a78c562ce7e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\jsoncpp">
+      <UniqueIdentifier>{4775f50c-06f2-4be8-ae3f-5f1d35ff4941}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\aboutdlg.h">
@@ -678,6 +681,9 @@
     <ClInclude Include="..\CMyTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\jsoncpp\json_batchallocator.h">
+      <Filter>Source Files\jsoncpp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\BasicPlayer.cpp">
@@ -983,6 +989,15 @@
     <ClCompile Include="..\PlayListView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\jsoncpp\json_reader.cpp">
+      <Filter>Source Files\jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jsoncpp\json_value.cpp">
+      <Filter>Source Files\jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jsoncpp\json_writer.cpp">
+      <Filter>Source Files\jsoncpp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\player.rc">
@@ -1040,6 +1055,15 @@
     </None>
     <None Include="..\res\sad.ico">
       <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\jsoncpp\json_internalarray.inl">
+      <Filter>Source Files\jsoncpp</Filter>
+    </None>
+    <None Include="..\jsoncpp\json_internalmap.inl">
+      <Filter>Source Files\jsoncpp</Filter>
+    </None>
+    <None Include="..\jsoncpp\json_valueiterator.inl">
+      <Filter>Source Files\jsoncpp</Filter>
     </None>
   </ItemGroup>
 </Project>
