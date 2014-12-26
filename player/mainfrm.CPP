@@ -145,12 +145,12 @@ BOOL CMainFrame::OnIdle()
 
 void CMainFrame::registCmdFuntions()
 {
-	registFunctionForCommand(string("File.ShowDialog_Configure"),ShowDialog_Configure);
-	registFunctionForCommand(string("File.SaveConfigure"),SaveAll);
-	registFunctionForCommand(string("View.ShowDialog_Search"),ShowSearchDialog);
-	registFunctionForCommand(string("View.ShowDialog_PlaylistManager"),actionPopupPlaylistManager);
-	registFunctionForCommand(string("View.EnlargeListViewFont"),EnlargeLVFont);
-	registFunctionForCommand(string("View.ReduceListViewFont"),ReduceLVFont);
+	registMsgForCommandstring(string("File.ShowDialog_Configure"),WM_SHOW_DIALOG_CONFIGURE);
+	registMsgForCommandstring(string("File.SaveConfigure"),WM_SAVE_CONFIGURE);
+	registMsgForCommandstring(string("View.ShowDialog_Search"),WM_SHOW_DIALOG_SEARCH);
+	registMsgForCommandstring(string("View.ShowDialog_PlaylistManager"),WM_SHOW_DIALOG_PLAYLIST_MANAGER);
+	registMsgForCommandstring(string("View.EnlargeListViewFont"),WM_CHANGE_LISTVIEW_FONT_ENLARGE);
+	registMsgForCommandstring(string("View.ReduceListViewFont"),WM_CHANGE_LISTVIEW_FONT_REDUCE);
 }
 
 LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
@@ -207,6 +207,15 @@ void CMainFrame::ReceiveMsg()
 	IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
 	IWantToReceiveMessage(WM_TRACKSTOPPED);
 	IWantToReceiveMessage(WM_PL_TRACKNUM_CHANGED);
+
+
+	IWantToReceiveMessage(WM_SHOW_DIALOG_CONFIGURE );
+	IWantToReceiveMessage(WM_SAVE_CONFIGURE );
+	IWantToReceiveMessage(WM_SHOW_DIALOG_SEARCH );
+	IWantToReceiveMessage(WM_SHOW_DIALOG_PLAYLIST_MANAGER );
+	IWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_ENLARGE );
+	IWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_REDUCE );
+
 }
 
 HWND CMySimpleRebar::CreateIsWnd(HWND hParent)
@@ -480,9 +489,7 @@ LRESULT CMainFrame::OnSaveConfig(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
 	return 0;
 }
 
-
-
-LRESULT CMainFrame::OnConfigLayout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+void CMainFrame::showDialogConfigure()
 {
 	if (!m_pDlgConfig)
 	{
@@ -492,7 +499,11 @@ LRESULT CMainFrame::OnConfigLayout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 	m_pDlgConfig->ShowWindow(SW_SHOW);
 	m_pDlgConfig->ShowDlgByName(std::wstring(L"界面布局"));
+}
 
+LRESULT CMainFrame::OnConfigLayout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	showDialogConfigure();	
 	return 0;
 }
 
@@ -922,9 +933,8 @@ LRESULT CMainFrame::OnChangePLColorBlue(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 	return 0;
 }
 
-void CMainFrame::actionPopupPlaylistManager()
+void CMainFrame::showDialogPlaylistManager()
 {
-
 	if(!m_pDlgPLMng){
 	m_pDlgPLMng=new DialogPLManager;
 	m_pDlgPLMng->Create(m_hWnd);
@@ -939,7 +949,7 @@ void CMainFrame::actionPopupPlaylistManager()
 
 LRESULT CMainFrame::OnViewPlaylistManager(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	actionPopupPlaylistManager();
+	showDialogPlaylistManager();
 
 	return 0;
 }
@@ -1929,6 +1939,14 @@ void CPlayListView::OnDestroy()
 	IDonotWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_DEFAULT);
 	IDonotWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_BLUE);
 	IDonotWantToReceiveMessage(WM_SELECTED_PL_CHANGED);
+
+
+	IDonotWantToReceiveMessage(WM_SHOW_DIALOG_CONFIGURE );
+	IDonotWantToReceiveMessage(WM_SAVE_CONFIGURE );
+	IDonotWantToReceiveMessage(WM_SHOW_DIALOG_SEARCH );
+	IDonotWantToReceiveMessage(WM_SHOW_DIALOG_PLAYLIST_MANAGER );
+	IDonotWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_ENLARGE );
+	IDonotWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_REDUCE );
 
 	SetMsgHandled(FALSE);
 }

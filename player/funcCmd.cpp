@@ -1,6 +1,6 @@
 
 #include "funcCmd.h"
-
+#include "forwardMsg.h"
 #include <map>
 
 #ifdef DEBUG
@@ -10,20 +10,20 @@
 using namespace std;
 
 
-map<string, shortcutFunc> commandList;
+map<string, UINT> commandList; 
 
-void registFunctionForCommand(string &commandKey, shortcutFunc func)
+void registMsgForCommandstring(std::string &commandKey, UINT msg)
 {
 #ifdef DEBUG
 	assert(commandList.find(commandKey) != commandList.end());
 	printf("The command '%s' is already registed.", commandKey.c_str());
 #endif
 
-	commandList[commandKey] = func;
+	commandList[commandKey] = msg;
 }
 
 void performCommand(string command)
 {
-	shortcutFunc func = commandList[command];
-	func();
+	UINT msg = commandList[command];
+	NotifyMsg(msg);
 }

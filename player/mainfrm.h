@@ -147,6 +147,14 @@ public:
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
 		//MESSAGE_HANDLER(WM_PL_WILL_DELETED,OnPLChanged)
 		//MESSAGE_HANDLER(WM_PL_TRACKNUM_CHANGED,OnPLTrackNumChanged)
+
+		MESSAGE_HANDLER(WM_SHOW_DIALOG_CONFIGURE,OnMsgShowDialogConfigure)
+		MESSAGE_HANDLER(WM_SAVE_CONFIGURE ,OnMsgSaveConfigure)
+		MESSAGE_HANDLER(WM_SHOW_DIALOG_SEARCH ,OnMsgShowDialogSearch)
+		MESSAGE_HANDLER(WM_SHOW_DIALOG_PLAYLIST_MANAGER ,OnMsgShowDialogPlaylistManager)
+//MESSAGE_HANDLER(WM_CHANGE_LISTVIEW_FONT_ENLARGE 
+//MESSAGE_HANDLER(WM_CHANGE_LISTVIEW_FONT_REDUCE 
+
 		//message from message center
 
 		MESSAGE_HANDLER(WM_PLAYLISTVIEW_CENTER_ITEM,OnPLVCenterItem)
@@ -225,6 +233,28 @@ public:
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	LRESULT OnNcDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 	
+	LRESULT OnMsgShowDialogConfigure(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		showDialogConfigure();
+		return 0;
+	}
+	LRESULT OnMsgSaveConfigure(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		SaveAll();
+		return 0;
+	}
+	LRESULT OnMsgShowDialogSearch(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		ShowSearchDialog();
+		return 0;
+	}
+	LRESULT OnMsgShowDialogPlaylistManager(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		showDialogPlaylistManager();
+		return 0;
+	}
+
+
 	LRESULT OnEditSearch(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		ShowSearchDialog();
@@ -331,7 +361,9 @@ public:
 	void UpdateTreeView(MYTREE *treeData);
 	void ShowSearchDialog();
 
+	void showDialogConfigure();
 
+	void showDialogPlaylistManager();
 	
 	void ReceiveMsg();
 	

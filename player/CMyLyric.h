@@ -68,6 +68,10 @@ public:
 		MESSAGE_HANDLER(WM_PAUSED,OnPaused)
 		MESSAGE_HANDLER(WM_PAUSE_START,OnPauseStarted)
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
+
+		MESSAGE_HANDLER(WM_CHANGE_LISTVIEW_FONT_ENLARGE,OnChangeListViewFontEnlarge);
+		MESSAGE_HANDLER(WM_CHANGE_LISTVIEW_FONT_REDUCE);
+
 		MSG_WM_TIMER(OnTimer)
 		MSG_WM_CREATE(OnCreate)
 		MSG_WM_DESTROY(OnDestroy)
@@ -144,6 +148,17 @@ public:
 	}
 
 
+
+	LRESULT OnMsgChangeListViewFontEnlarge(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		return 0;
+	}
+
+	LRESULT OnMsgChangeListViewFontReduce(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+
+		return 0;
+	}
 
 	void OnPaint(CDCHandle dc)
 	{
@@ -296,7 +311,7 @@ public:
 
 	void SetLVFont(int nHeight);
 
-	
-
+	void OnEnlargeLVFont();
+	void OnReduceLVFont();
 };
 

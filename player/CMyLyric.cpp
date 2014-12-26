@@ -92,6 +92,10 @@ void CMyLyricWnd::OnDestroy()
 	IDonotWantToReceiveMessage(WM_PAUSE_START);
 	IDonotWantToReceiveMessage(WM_TRACKSTOPPED);
 
+
+	IDonotWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_ENLARGE);
+	IDonotWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_REDUCE);
+
 	if(m_nIDEvent!=0)
 		KillTimer((UINT_PTR)&m_nIDEvent);	
 
@@ -346,6 +350,12 @@ void CMyLyricWnd::Init()
 	IWantToReceiveMessage(WM_PAUSED);
 	IWantToReceiveMessage(WM_PAUSE_START);
 	IWantToReceiveMessage(WM_TRACKSTOPPED);
+
+
+	IWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_ENLARGE);
+	IWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_REDUCE);
+
+
 }
 
 
