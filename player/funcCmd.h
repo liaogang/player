@@ -1,9 +1,9 @@
 
+#include "stdafx.h"
 #include <string>
 
-typedef void(*shortcutFunc)();
 
-void registFunctionForCommand(std::string &commandKey, shortcutFunc func);
+void registMsgForCommandstring(std::string &commandKey, UINT msg);
 
 void performCommand(std::string command);
 

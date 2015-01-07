@@ -2,6 +2,7 @@
 #include "winbase.h"
 #include "tchar.h"
 #include "assert.h"
+#include <direct.h>
 
 const TCHAR* ChangeCurDir2ModulePath(HINSTANCE hInstance)
 {
@@ -22,6 +23,24 @@ const TCHAR* ChangeCurDir2ModulePath(HINSTANCE hInstance)
 	return moduleFileName;
 }
 
+const char* ChangeCurDir2ModulePathA(HINSTANCE hInstance )
+{
+	static BOOL modulePathGetted=FALSE;
+	static char moduleFileName[MAX_PATH]={0};
+	if (!modulePathGetted)
+	{
+		//assert(hInstance);
+		GetModuleFileNameA(hInstance,moduleFileName,MAX_PATH);
+		int i;
+		for (i=MAX_PATH-1;i>=0 && moduleFileName[i]!='\\';--i);
+		moduleFileName[i]='\0';
+
+		modulePathGetted=TRUE;
+	}
+
+	_chdir(moduleFileName);
+	return moduleFileName;
+}
 
 const TCHAR* ChangeCurDir2PlaylistPath(bool bCreate)
 {

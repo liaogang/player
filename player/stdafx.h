@@ -11,6 +11,7 @@
 #define _WIN32_IE	0x0501
 #define _RICHEDIT_VER	0x0200
 
+#define TMT_SIZINGBORDERWIDTH	1201
 
 #ifdef APP_PLAYER_UI
 #include "resource.h"

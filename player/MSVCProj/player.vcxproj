@@ -237,6 +237,7 @@
     <ClCompile Include="..\DialogLrcList.cpp" />
     <ClCompile Include="..\fileMonitor.cpp" />
     <ClCompile Include="..\forwardMsg.cpp" />
+    <ClCompile Include="..\funcCmd.cpp" />
     <ClCompile Include="..\FunctionReg.cpp" />
     <ClCompile Include="..\globalStuffs.cpp" />
     <ClCompile Include="..\jsoncpp\json_reader.cpp" />
@@ -254,6 +255,7 @@
     <ClCompile Include="..\PlayList.cpp" />
     <ClCompile Include="..\PlayListView.cpp" />
     <ClCompile Include="..\PlayListViewMng.cpp" />
+    <ClCompile Include="..\shortcutKey.cpp" />
     <ClCompile Include="..\SpectrumAnalyser.cpp" />
     <ClCompile Include="..\stdafx.cpp" />
     <ClCompile Include="..\StringConvertions.cpp" />

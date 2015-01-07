@@ -8,7 +8,7 @@ class MyConfigs:public SerializeObj<MyConfigs>
 {
 public:
 	MyConfigs():bResumeOnReboot(1),playersVolume(100),playorder(0)
-		, playlistIndex(-1), trackIndex(-1), playingStatus(status_stopped), m_iListFontHeight(18)
+		, playlistIndex(-1), trackIndex(-1), playingStatus(status_stopped), m_iListFontHeight(18) , m_iLyricsFontHeight(20)
 	{
 
 	}
@@ -55,11 +55,32 @@ private:
 	FILETIME fileTimeUpdateMediaLib;
 
 public:
+	void offsetAllFontHeight(int offset)
+	{
+		offsetListFontHeight(offset);
+		offsetLyricsFontHeight(offset);
+	}
+
+	void enlargeAllFontHeight()
+	{
+		offsetAllFontHeight(1);
+	}
+
+	void reduceAllFontHeight()
+	{
+		offsetAllFontHeight(-1);
+	}
+
+	void offsetListFontHeight(int off){ m_iListFontHeight += off; }
 	void setListFontHeight(int h){ m_iListFontHeight = h; }
 	int getListFontHeight(){ return m_iListFontHeight; }
 
+	void offsetLyricsFontHeight(int off){ m_iLyricsFontHeight += off; }
+	void setLyricsFontHeight(int h){m_iLyricsFontHeight = h;}
+	int getLyricsFontHeight(){return m_iLyricsFontHeight;}
 public:
 	int  m_iListFontHeight;
+	int  m_iLyricsFontHeight;
 };
 
 MyConfigs* GetMyConfigs();

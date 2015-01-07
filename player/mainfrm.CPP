@@ -79,12 +79,8 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
 	if (pMsg->message==WM_KEYDOWN)
 	{
-		UINT nChar=(TCHAR)pMsg->wParam;
+		UINT nChar=pMsg->wParam;
 		BOOL bHandled=FALSE;
-
-		/// if nChar is upper , change to lower.
-		if( isupper(nChar))
-			nChar -= 'A' - 'a';
 
 		BOOL ctrl = GetKeyState(VK_CONTROL) & 0x80 ;
 
@@ -94,7 +90,6 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 		BOOL win  = lwin || rwin;
 		*/
 
-		
 		shortcutKeyPressed( msgKeytoString( ctrl , nChar), false);
 
 		/*
@@ -525,7 +520,7 @@ LRESULT CMainFrame::OnFileOpendirectory(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 void CMainFrame::OnChangeLVFont(int offset)
 {
-	CPlayListView::EnlargeLVFont(offset);
+	//CPlayListView::EnlargeLVFont(offset);
 
 	AllPlayListViews()->updateListFont();
 	

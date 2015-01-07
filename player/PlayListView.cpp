@@ -42,7 +42,9 @@ void CPlayListView::Init(bool bSearch)
 	IWantToReceiveMessage(WM_PLAYLISTVIEW_SETFOCUS);
 	IWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_DEFAULT);
 	IWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_BLUE);
-
+	IWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_ENLARGE);
+	IWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_REDUCE);
+	
 	Load();
 
 	SetLVFont(GetMyConfigs()->getListFontHeight());
@@ -84,6 +86,22 @@ void CPlayListView::Init(bool bSearch)
 
 }
 
+void CPlayListView::OnFinalMessage(_In_ HWND /*hWnd*/)
+{
+	if (GetPlayList() && GetPlayList()->IsSearch())
+		;
+	else
+	{
+		IDonotWantToReceiveMessage(WM_SELECTED_PL_CHANGED);
+		IDonotWantToReceiveMessage(WM_PLAYLISTVIEW_SETFOCUS);
+		IDonotWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_DEFAULT);
+		IDonotWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_BLUE);
+		IDonotWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_ENLARGE);
+		IDonotWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_REDUCE);
+
+		delete this;
+	}
+}
 
 void CPlayListView::Load()
 {
@@ -138,12 +156,16 @@ void CPlayListView::EnlargeLVFont(int value)
 	h += value;
 
 	GetMyConfigs()->setListFontHeight(h);
+
+	SetLVFont(h);
+
+	InvalidateRect(NULL);
 }
+
 
 void CPlayListView::updateListFont()
 {
 	SetLVFont(GetMyConfigs()->getListFontHeight());
 
 	InvalidateRect(NULL);
-
 }

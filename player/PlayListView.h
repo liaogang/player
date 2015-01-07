@@ -95,7 +95,6 @@ public:
 		MESSAGE_HANDLER(WM_CHANGE_LISTVIEW_FONT_REDUCE ,OnMsgChangeListViewFontReduce)
 
 
-
 		MSG_WM_CHAR(OnChar)
 		MSG_WM_DESTROY(OnDestroy)
 		MSG_WM_CREATE(OnCreate)
@@ -130,8 +129,19 @@ public:
 		data->Take(m_dData);
 		
 		return 1;
-	}
+	}	
 
+	LRESULT OnMsgChangeListViewFontEnlarge(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		EnlargeLVFont(1);
+		return 1;
+	}	
+
+	LRESULT OnMsgChangeListViewFontReduce(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		EnlargeLVFont(-1);
+		return 1;
+	}
 
 	LRESULT OnSetFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
@@ -293,8 +303,8 @@ theEnd:
 		return 0;
 	}
 
-	LRESULT OnDbClicked(int /**/,LPNMHDR pnmh,BOOL bHandled);
 
+	LRESULT OnDbClicked(int /**/,LPNMHDR pnmh,BOOL bHandled);
 
 	void SetLVFont(int nHeight)
 	{
@@ -319,12 +329,10 @@ theEnd:
 		SetFont(m_Font.m_hFont);
 	}
 
-	static void EnlargeLVFont(int value);
+	void EnlargeLVFont(int value = 1);
 
 	
 	void updateListFont();
-
-	
 
 	void CreateIsWnd();
 
@@ -556,15 +564,9 @@ public:
 	void Load();
 
 
-	void OnFinalMessage(_In_ HWND /*hWnd*/)
-	{
-		if(GetPlayList() && GetPlayList()->IsSearch())
-			;
-		else
-		{
-			delete this;
-		}
-	}
+	void OnFinalMessage(_In_ HWND /*hWnd*/);
+
+
 
 };
 

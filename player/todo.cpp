@@ -72,5 +72,15 @@ serialize player queue. 列队
 
 快捷键的管理面板
 
+  `信息输出控制面板`
+
+bug: 删除无效项之前，不能正确定位所在歌曲
+
+Last.fm 
+player
+API Key: 6ef0a182fcb172b557c0ca096594f288
+Secret: is 3b1a4e1e970ed3a30c28cd65bb88579c
+
+
 
 

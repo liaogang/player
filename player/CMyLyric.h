@@ -69,8 +69,8 @@ public:
 		MESSAGE_HANDLER(WM_PAUSE_START,OnPauseStarted)
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnTrackStopped)
 
-		MESSAGE_HANDLER(WM_CHANGE_LISTVIEW_FONT_ENLARGE,OnChangeListViewFontEnlarge);
-		MESSAGE_HANDLER(WM_CHANGE_LISTVIEW_FONT_REDUCE);
+		MESSAGE_HANDLER(WM_CHANGE_LYRICS_FONT_ENLARGE,OnMsgChangeLyricsFontEnlarge);
+		MESSAGE_HANDLER(WM_CHANGE_LYRICS_FONT_REDUCE,OnMsgChangeLyricsFontReduce);
 
 		MSG_WM_TIMER(OnTimer)
 		MSG_WM_CREATE(OnCreate)
@@ -149,14 +149,15 @@ public:
 
 
 
-	LRESULT OnMsgChangeListViewFontEnlarge(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	LRESULT OnMsgChangeLyricsFontEnlarge(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
+		OnEnlargeFont();
 		return 0;
 	}
 
-	LRESULT OnMsgChangeListViewFontReduce(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	LRESULT OnMsgChangeLyricsFontReduce(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-
+		OnReduceFont();
 		return 0;
 	}
 
@@ -305,13 +306,14 @@ public:
 		//delete this;
 	}
 
-
+private:
 	void _updateListFont();
+public:
 	void updateListFont();
 
 	void SetLVFont(int nHeight);
 
-	void OnEnlargeLVFont();
-	void OnReduceLVFont();
+	void OnEnlargeFont();
+	void OnReduceFont();
 };
 

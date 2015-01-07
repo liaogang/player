@@ -998,6 +998,12 @@
     <ClCompile Include="..\jsoncpp\json_writer.cpp">
       <Filter>Source Files\jsoncpp</Filter>
     </ClCompile>
+    <ClCompile Include="..\funcCmd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\shortcutKey.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\player.rc">

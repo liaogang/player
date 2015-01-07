@@ -367,8 +367,11 @@ public:
 	
 	void ReceiveMsg();
 	
+	void registCmdFuntions();
 	//when  player booted
 	
+	void ShowDialog_Configure();
+
 	void InitUILayout();
 
 	int HotKeyId;

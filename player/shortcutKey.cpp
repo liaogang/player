@@ -16,7 +16,7 @@ Json::Value rootLocal ;
 Json::Value rootGlobal ;
 
 char filepath[MAX_PATH];
-const char *filepath = NULL ;
+//const char *filepath = NULL ;
 
 /// return file loaded.
 bool verifyLoadFileShortcutKey()
@@ -109,10 +109,35 @@ bool shortcutKeyPressed(string shortcutKey, bool bGlobal)
 
 
 ///super: windows key or apple key
-string msgKeytoString(bool ctrl, bool super, bool shift, bool alt, unsigned char vk)
+string msgKeytoString(bool ctrl, bool super, bool shift, bool alt, unsigned int vk)
 {
 	string r;
 
+	const int vkmapLen = 254;
+	static const char *vkstrmap[vkmapLen];
+	static bool vkStrMapInit = false;
+	if (vkStrMapInit == false)
+	{
+		vkStrMapInit = true;
+
+		vkstrmap[VK_F1] = "f1";
+		vkstrmap[VK_F2] = "f2";
+		vkstrmap[VK_F3] = "f3";
+		vkstrmap[VK_F4] = "f4";
+		vkstrmap[VK_F5] = "f5";
+		vkstrmap[VK_F6] = "f6";
+		vkstrmap[VK_F7] = "f7";
+		vkstrmap[VK_F8] = "f8";
+		vkstrmap[VK_F9] = "f9";
+		vkstrmap[VK_F10] = "f10";
+		vkstrmap[VK_F11] = "f11";
+		vkstrmap[VK_F12] = "f12";
+
+		vkstrmap[VK_OEM_PLUS] = "+";
+		vkstrmap[VK_OEM_COMMA] = ",";
+		vkstrmap[VK_OEM_MINUS] = "-";
+		vkstrmap[VK_OEM_PERIOD] = ".";
+	}
 
 	if (ctrl)
 		r += ("ctrl+");
@@ -123,21 +148,24 @@ string msgKeytoString(bool ctrl, bool super, bool shift, bool alt, unsigned char
 	if (alt)
 		r += ("alt+");
 
-	char c;
-	if (vk == VK_OEM_PLUS)
-		c = '+';
-	//...
-	else
+	/*
+	* VK_0 - VK_9 are the same as ASCII '0' - '9' (0x30 - 0x39)
+	* 0x40 : unassigned
+	* VK_A - VK_Z are the same as ASCII 'A' - 'Z' (0x41 - 0x5A)
+	*/
+	if ('A' <= vk && vk <= 'Z')
+		r += (char)vk - ('A' - 'a');
+	else if (vk <= vkmapLen)
 	{
-		c = vk;
+		const char *p = vkstrmap[vk];
+		if (p)
+			r += p;
 	}
-
-	r += (char)c;
 
 	return r;
 }
 
-string msgKeytoString(bool ctrl, unsigned char vk)
+string msgKeytoString(bool ctrl, unsigned int vk)
 {
 	return msgKeytoString(ctrl, false, false, false, vk);
 }

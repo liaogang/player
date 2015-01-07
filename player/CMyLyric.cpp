@@ -93,8 +93,8 @@ void CMyLyricWnd::OnDestroy()
 	IDonotWantToReceiveMessage(WM_TRACKSTOPPED);
 
 
-	IDonotWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_ENLARGE);
-	IDonotWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_REDUCE);
+	IDonotWantToReceiveMessage(WM_CHANGE_LYRICS_FONT_ENLARGE);
+	IDonotWantToReceiveMessage(WM_CHANGE_LYRICS_FONT_REDUCE);
 
 	if(m_nIDEvent!=0)
 		KillTimer((UINT_PTR)&m_nIDEvent);	
@@ -352,9 +352,8 @@ void CMyLyricWnd::Init()
 	IWantToReceiveMessage(WM_TRACKSTOPPED);
 
 
-	IWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_ENLARGE);
-	IWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_REDUCE);
-
+	IWantToReceiveMessage(WM_CHANGE_LYRICS_FONT_ENLARGE);
+	IWantToReceiveMessage(WM_CHANGE_LYRICS_FONT_REDUCE);
 
 }
 
@@ -428,6 +427,17 @@ void CMyLyricWnd::SetLVFont(int nHeight)
 	SetFont(m_Font.m_hFont);
 }
 
+void CMyLyricWnd::OnEnlargeFont()
+{
+	GetMyConfigs()->offsetLyricsFontHeight(1);
+	updateListFont();
+}
+
+void CMyLyricWnd::OnReduceFont()
+{
+	GetMyConfigs()->offsetLyricsFontHeight(1);
+	updateListFont();
+}
 
 void CMyLyricWnd::mydraw(HDC dc_)
 {

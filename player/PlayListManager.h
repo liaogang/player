@@ -30,7 +30,6 @@ public:
 		//REFLECTED_NOTIFY_CODE_HANDLER(NM_CUSTOMDRAW,OnCustomDraw)
 	END_MSG_MAP()
 
-	//CMainFrame *pMain;
     
 	void ReFillPlaylist()
 	{
@@ -292,11 +291,20 @@ public:
 
 
 class DialogPLManager :
-	public CDialogImpl<DialogPLManager>,
+	public CMessageFilter,
+	public CDialogImpl<DialogPLManager>,	
 	public CDialogResize<DialogPLManager>
 {
 public:
 	enum { IDD = IDD_DLG_PL_MNG };
+
+	virtual BOOL PreTranslateMessage(MSG* pMsg)
+	{
+		//让非模态对话框处理模态对话框的消息
+		//如Tab,Esc,Enter...
+		return IsDialogMessage(pMsg);
+	}
+
 	BEGIN_MSG_MAP(DialogPLManager)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
@@ -319,6 +327,10 @@ public:
 		m_list.SubclassWindow(::GetDlgItem(m_hWnd,IDC_LIST));
 		m_list.Init();
 		m_list.ReFillPlaylist();
+
+		CMessageLoop* pLoop = _Module.GetMessageLoop();
+		ATLASSERT(pLoop != NULL);
+		pLoop->AddMessageFilter(this);
 
 		return TRUE;
 	}
