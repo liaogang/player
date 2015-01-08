@@ -827,7 +827,7 @@ int  CPlayList::RemoveDeadItems()
 	int removed=0;
 	int count=0;
 	auto end=m_songList.end();
-	for ( auto i=m_songList.begin(); i!=end; ++count )
+	for ( auto i=m_songList.begin(); i!=end; ++count ,++i )
 	{
 		LPCPlayListItem item=*i;
 		if(!item->IsFileExist())
@@ -837,12 +837,9 @@ int  CPlayList::RemoveDeadItems()
 			end=m_songList.end();
 			++removed;
 		}
-		else
-			++i;
 
 		item->SetIndex(count);
 	}
-
 
 	return removed;
 }
