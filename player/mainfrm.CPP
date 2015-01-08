@@ -201,7 +201,7 @@ void CMainFrame::ReceiveMsg()
 	IWantToReceiveMessage(WM_ADDFOLDERED);
 	IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
 	IWantToReceiveMessage(WM_TRACKSTOPPED);
-	IWantToReceiveMessage(WM_PL_TRACKNUM_CHANGED);
+	//IWantToReceiveMessage(WM_PL_TRACKNUM_CHANGED);
 
 
 	IWantToReceiveMessage(WM_SHOW_DIALOG_CONFIGURE );
