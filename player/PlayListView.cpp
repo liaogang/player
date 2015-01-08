@@ -44,7 +44,7 @@ void CPlayListView::Init(bool bSearch)
 	IWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_BLUE);
 	IWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_ENLARGE);
 	IWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_REDUCE);
-	IWantToReceiveMessage(WM_PL_TRACKNUM_CHANGED);
+	IWantToReceiveMessage(WM_FILE_FINDED);
 
 	Load();
 
@@ -99,7 +99,7 @@ void CPlayListView::OnFinalMessage(_In_ HWND /*hWnd*/)
 		IDonotWantToReceiveMessage(WM_PLAYLISTVIEW_COLOR_BLUE);
 		IDonotWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_ENLARGE);
 		IDonotWantToReceiveMessage(WM_CHANGE_LISTVIEW_FONT_REDUCE);
-		IDonotWantToReceiveMessage(WM_PL_TRACKNUM_CHANGED);
+		IDonotWantToReceiveMessage(WM_FILE_FINDED);
 
 		delete this;
 	}

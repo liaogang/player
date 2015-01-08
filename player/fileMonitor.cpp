@@ -71,7 +71,7 @@ void fileMonitor::Watch()
 			if (w==WAIT_OBJECT_0){
 				FILE_NOTIFY_INFORMATION *pNotify=(FILE_NOTIFY_INFORMATION*)myOverLapped.notify;
 				HandleNotify(pNotify);
-				NotifyMsg(WM_PL_TRACKNUM_CHANGED,FALSE,(WPARAM)pPL,NULL);
+				NotifyMsg(WM_FILE_FINDED,FALSE,(WPARAM)pPL,file_finded_end_playlist);
 				}
 		}
 	}

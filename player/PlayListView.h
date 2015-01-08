@@ -91,7 +91,7 @@ public:
 		MESSAGE_HANDLER(WM_GET_SERIALIZE_DATA,OnGetSerializeData)
 
 
-		MESSAGE_HANDLER(WM_PL_TRACKNUM_CHANGED,OnPLTrackNumChanged)
+		MESSAGE_HANDLER(WM_FILE_FINDED,OnPLTrackNumChanged)
 		MESSAGE_HANDLER(WM_CHANGE_LISTVIEW_FONT_ENLARGE,OnMsgChangeListViewFontEnlarge)
 		MESSAGE_HANDLER(WM_CHANGE_LISTVIEW_FONT_REDUCE ,OnMsgChangeListViewFontReduce)
 
@@ -135,9 +135,11 @@ public:
 	LRESULT OnPLTrackNumChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		LPCPlayList pl=(LPCPlayList)wParam;
-		
-		if (pl == GetPlayList())
-			Reload(pl);
+		if (lParam == file_finded_end_playlist)
+		{
+			if (pl == GetPlayList())
+				Reload(pl);
+		}
 
 		return 0;
 	}

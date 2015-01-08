@@ -16,9 +16,14 @@
 
 
 //向播放列表添加多个文件时用消息  
-//if lParam is 1 , started .the wParam is the pointer to the player list
-//if lParam is 2 ,the player list has added a file ,the wParam is TCHAR *filename
-//if lParam is 0 ,the adding is ended. the wParam is the number total added.
+//if lParam is 0 , started .the wParam is the pointer to the player list
+//if lParam is 1 ,the player list has added a file ,the wParam is TCHAR *filename
+//if lParam is 2 ,the adding is ended. the wParam is the number total added.
+enum{
+	file_finded_start_playlist,
+	file_finded_file_name,
+	file_finded_end_playlist
+};
 #define  WM_FILE_FINDED  (WM_USER+40) 
 
 
@@ -39,8 +44,6 @@
 //PlayList *pl=(PlayList*)wParam;
 #define  WM_PL_WILL_DELETED   (WM_USER+51)
 
-//one certain PlayList is changed
-#define  WM_PL_TRACKNUM_CHANGED (WM_USER+52)
 
 //the lib's some play list is changed.
 //then should reload the all PlayList

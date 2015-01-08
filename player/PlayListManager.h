@@ -16,7 +16,7 @@ class CPlayListManager:
 public:
 	BEGIN_MSG_MAP_EX(CPlayListManager)
 		MESSAGE_HANDLER(WM_PL_WILL_DELETED,OnPLWillDeleted)
-		MESSAGE_HANDLER(WM_PL_TRACKNUM_CHANGED,OnPLTrackNumChanged)
+		MESSAGE_HANDLER(WM_FILE_FINDED,OnPLTrackNumChanged)
 		MESSAGE_HANDLER(WM_SOME_PL_CHANGED,OnReloadPL)
 		MESSAGE_HANDLER(WM_SELECTED_PL_CHANGED,OnReloadPL)
 		
@@ -127,7 +127,7 @@ public:
 		IWantToReceiveMessage(WM_SOME_PL_CHANGED);
 		IWantToReceiveMessage(WM_SELECTED_PL_CHANGED);
 		IWantToReceiveMessage(WM_PL_WILL_DELETED);
-		IWantToReceiveMessage(WM_PL_TRACKNUM_CHANGED);
+		IWantToReceiveMessage(WM_FILE_FINDED);
 
 		SetExtendedListViewStyle(GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP);
 
@@ -192,9 +192,11 @@ public:
 
 	LRESULT OnPLTrackNumChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		LPCPlayList pl=(LPCPlayList)wParam;
-
-		UpdateByPLTrack(pl);
+		if (lParam == file_finded_end_playlist)
+		{ 
+			LPCPlayList pl = (LPCPlayList)wParam;
+			UpdateByPLTrack(pl);
+		}
 
 		return 0;
 	}

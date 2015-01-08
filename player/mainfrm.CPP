@@ -201,8 +201,6 @@ void CMainFrame::ReceiveMsg()
 	IWantToReceiveMessage(WM_ADDFOLDERED);
 	IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
 	IWantToReceiveMessage(WM_TRACKSTOPPED);
-	//IWantToReceiveMessage(WM_PL_TRACKNUM_CHANGED);
-
 
 	IWantToReceiveMessage(WM_SHOW_DIALOG_CONFIGURE );
 	IWantToReceiveMessage(WM_SAVE_CONFIGURE );
@@ -908,10 +906,13 @@ void CMainFrame::ShowDlgProcessFile()
 
 LRESULT CMainFrame::OnFileFinded(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	if(!pDlgProcess)
-		ShowDlgProcessFile();
-	
-	pDlgProcess->ShowFileName((TCHAR*)wParam,(BOOL)lParam);
+	if (lParam == file_finded_start_playlist)
+		if (!pDlgProcess)
+			ShowDlgProcessFile();
+	if (lParam == file_finded_file_name)
+		pDlgProcess->ShowFileName((TCHAR*)wParam, (BOOL)lParam);
+	if (lParam == file_finded_end_playlist)
+		pDlgProcess->ShowWindow(SW_HIDE);
 
 	return 0;
 }

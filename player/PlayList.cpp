@@ -62,16 +62,12 @@ static DWORD CALLBACK AddFolderThreadProc(LPVOID lpParameter)
 {
 	PLANDPATH* p=(PLANDPATH*)lpParameter;
 	
-	NotifyMsg(WM_FILE_FINDED,FALSE,(WPARAM)p->pPlaylist,(LPARAM)1);
+	/// only main frame will process this messaage.
+	SdMsg(WM_FILE_FINDED,FALSE,(WPARAM)p->pPlaylist,(LPARAM)file_finded_start_playlist);
 	
 	BOOL result=p->pPlaylist->AddFolder(p->pszFolder,TRUE);
-	NotifyMsg(WM_FILE_FINDED,FALSE,NULL,(LPARAM)0);
 
-#ifdef APP_PLAYER_UI
-	SdMsg(WM_PL_TRACKNUM_CHANGED,TRUE,(WPARAM)p->pPlaylist,(LPARAM)result);
-#endif
-
-	//delete p->pszFolder;
+	NotifyMsg(WM_FILE_FINDED,FALSE,(WPARAM)p->pPlaylist,(LPARAM)file_finded_end_playlist);
 
 	delete p;
 
@@ -672,7 +668,7 @@ BOOL CPlayList::AddFile(TCHAR *filepath)
 	{
 		item->SetIndex(m_songList.size());
 		m_songList.push_back(item);
-		NotifyMsg(WM_FILE_FINDED,FALSE,(WPARAM)filepath,(LPARAM)2);
+		NotifyMsg(WM_FILE_FINDED,FALSE,(WPARAM)filepath,(LPARAM)file_finded_file_name);
 		return TRUE;
 	}
 	return FALSE;
