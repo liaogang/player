@@ -117,6 +117,7 @@ void RegisterStuffs()
 	RegisterCreateWndFuns(_T("封面面板"),MYTREE_Set_AlbumView);
 	RegisterCreateWndFuns(_T("歌词面板"),MYTREE_Set_LyricView);
 	RegisterCreateWndFuns(_T("频谱面板"),MYTREE_Set_SpectrumView);
+	RegisterCreateWndFuns(_T("Last.fm面板"), MYTREE_Set_LastFmPaneView);
 }
 #endif
 

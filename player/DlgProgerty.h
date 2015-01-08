@@ -379,7 +379,9 @@ public:
 		COMMAND_ID_HANDLER(ID_ADD_EMPTY_PANE,OnAddPaneEmptyWnd)
 		COMMAND_ID_HANDLER(ID_PANE_LYRIC,OnAddPaneLyric)
 		COMMAND_ID_HANDLER(ID_PANE_COVER,OnAddPaneAlbum)
+		COMMAND_ID_HANDLER(ID_PANE_LASTFM,OnAddPaneLastFm)
 		COMMAND_ID_HANDLER(ID_PANE_SPE,OnAddPaneSpectrum)
+
 
 		COMMAND_ID_HANDLER(ID_CHANGE_SPLIT_UD,OnChangeUpdown)
 		COMMAND_ID_HANDLER(ID_CHANGE_SPLIT_LR,OnChangeLeftRight)
@@ -451,6 +453,14 @@ public:
 	{
 		MYTREE *mytree=(MYTREE*)GetItemData(rclickItem);
 		MYTREE_Add_AlbumView(mytree);
+		UpdateTree(mytree);
+		return 0;
+	}	
+
+	LRESULT OnAddPaneLastFm(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		MYTREE *mytree=(MYTREE*)GetItemData(rclickItem);
+		MYTREE_Add_LastFmPaneView(mytree);
 		UpdateTree(mytree);
 		return 0;
 	}

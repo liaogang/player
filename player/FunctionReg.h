@@ -7,6 +7,8 @@ void MYTREE_Set_AlbumView(MYTREE* tree);
 void MYTREE_Set_LyricView(MYTREE* tree);
 void MYTREE_Set_SpectrumView(MYTREE* tree);
 
+void MYTREE_Set_LastFmPaneView(MYTREE* tree);
+void MYTREE_Add_LastFmPaneView(MYTREE* tree);
 
 void MYTREE_Add_Playlist(MYTREE* tree);
 void MYTREE_Add_EmptyWnd(MYTREE* tree);

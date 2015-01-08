@@ -7,6 +7,7 @@
 
 //¿ªÊ¼Òô¹ì²¥·Å
 //wparam pointer of trackPosInfo struct  , abandoned now 
+//wparam: LPCPlayListItem *item.
 #define  WM_NEW_TRACK_STARTED (WM_USER+37)
 
 #define  WM_PAUSED            (WM_USER+38)//ÔÝÍ£Òô¹ì²¥·Å
