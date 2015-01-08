@@ -400,7 +400,7 @@
     <IntDir>Release</IntDir>
     <OutDir>Release</OutDir>
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(IncludePath);C:\Program Files\Microsoft SDKs\Windows\v7.1A\Include;c:\openssl\include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include;..\Dx9SDK\Include</IncludePath>
+    <IncludePath>$(IncludePath);C:\Program Files\Microsoft SDKs\Windows\v7.1A\Include;c:\openssl\include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include;..\Dx9SDK\Include;..\headers\wtl;..\headers</IncludePath>
     <LibraryPath>..\Dx9SDK\Lib;..\mpg123\Lib;C:\openssl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

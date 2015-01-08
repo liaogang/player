@@ -104,7 +104,7 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>release</OutDir>
     <IntDir>releaseTray</IntDir>
-    <IncludePath>$(IncludePath);..\mpg123\include;..\Dx9SDK\Include;..\wtl\Include</IncludePath>
+    <IncludePath>$(IncludePath);..\mpg123\include;..\Dx9SDK\Include;..\wtl\Include;..\headers\wtl;..\headers</IncludePath>
     <LibraryPath>..\Dx9SDK\Lib;..\mpg123\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
