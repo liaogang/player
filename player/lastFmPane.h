@@ -122,7 +122,7 @@ public:
 
 		SetBkMode(ps.hdc, TRANSPARENT);
 		//::TextOut(ps.hdc, m_rcClient.left + (m_rcClient.right - m_rcClient.left) / 2 - 10, m_rcClient.top + (m_rcClient.bottom - m_rcClient.top) / 2 - 10, infoDisplay.c_str(), infoDisplay.length());
-		::DrawText(ps.hdc, infoDisplay.c_str(), infoDisplay.length(), &m_rcClient, DT_CALCRECT|DT_CENTER);
+		::DrawText(ps.hdc, infoDisplay.c_str(), infoDisplay.length(), &m_rcClient, DT_CENTER);
 		//::TextOut(ps.hdc, 0, 0 , infoDisplay.c_str(), infoDisplay.length());
 
 		::EndPaint(m_hWnd,&ps);	
