@@ -1,4 +1,5 @@
 #include "MySerialize.h"
+#include "serializeBase.h"
 #include "customMsg.h"
 #include "Util1.h"
 #include "MyLib.h"
@@ -32,144 +33,20 @@ ADDTOSERIALIZE(dataNode)
 ADDTOSERIALIZE(DialogSearch)
 #endif
 
-//double
-FILE& operator<<(FILE& f,const double t)
-{
-	fwrite(&t,sizeof(double),1,&f);
-	return f;
-}
-
-FILE& operator>>(FILE& f,double& t) 
-{
-	fread(&t,sizeof(double),1,&f);
-	return f;
-}
-//int
-FILE& operator<<(FILE& f,const int t)
-{
-	fwrite(&t,sizeof(int),1,&f);
-	return f;
-}
-
-FILE& operator>>(FILE& f,int& t) 
-{
-	fread(&t,sizeof(int),1,&f);
-	return f;
-}
-
-//UINT
-FILE& operator<<(FILE& f,const UINT t)
-{
-	fwrite(&t,sizeof(UINT),1,&f);
-	return f;
-}
-
-FILE& operator>>(FILE& f,UINT& t) 
-{
-	fread(&t,sizeof(UINT),1,&f);
-	return f;
-}
-
-
-//long
-FILE& operator<<(FILE& f,const long t)
-{
-	fwrite(&t,sizeof(long),1,&f);
-	return f;
-}
-
-FILE& operator>>(FILE& f,long& t) 
-{
-	fread(&t,sizeof(long),1,&f);
-	return f;
-}
-
-
-
-//write zero terminated str array
-FILE& operator<<(FILE& f,const TCHAR * str)
-{
-	int l=_tcslen(str)+1;
-	f<<l;
-	fwrite(str,sizeof(TCHAR),l,&f);
-	return f;
-}
-
-FILE& operator>>(FILE& f,TCHAR * str) 
-{
-	int l=0;
-	f>>l;
-	fread(str,sizeof(TCHAR),l,&f);
-	return f;
-}
-
-//tstring
-FILE& operator<<(FILE& f,const tstring &str)
-{
-	int l=str.length();
-	f<<l+1;
-	fwrite(str.c_str(),sizeof(TCHAR),l,&f);
-	TCHAR nullstr='\0';
-	fwrite(&nullstr,sizeof(TCHAR),1,&f);
-	return f;
-}
-
-FILE& operator>>(FILE& f,tstring &str) 
-{
-	TCHAR buf[256];
-	f>>buf;
-	str=buf;
-	return f;
-}
-
-
-//RECT
-FILE& operator<<(FILE& f,const RECT &r)
-{
-	return f<<r.left<<r.top<<r.right<<r.bottom;
-}
-
-FILE& operator>>(FILE& f,RECT &r) 
-{
-	return f>>r.left>>r.top>>r.right>>r.bottom;
-}
-
-
-//POINT
-FILE& operator<<(FILE& f,const POINT &p)
-{
-	return f<<p.x<<p.y;
-}
-
-FILE& operator>>(FILE& f,POINT &p) 
-{
-	return f>>p.x>>p.y;
-}
 
 //enum PlayingStatus
-FILE& operator<<(FILE& f,const PlayingStatus s)
+FILE& operator<<(FILE& f, const PlayingStatus s)
 {
-	return f<<static_cast<int>(s);
+	return f << static_cast<int>(s);
 }
 
-FILE& operator>>(FILE& f,PlayingStatus &s)
+FILE& operator>>(FILE& f, PlayingStatus &s)
 {
-	int *t=(int*)(&s);
-	return f>>*t;
+	int *t = (int*)(&s);
+	return f >> *t;
 }
 
-//DWORD
-FILE& operator<<(FILE& f, const DWORD t)
-{
-	fwrite(&t, sizeof(DWORD), 1, &f);
-	return f;
-}
 
-FILE& operator>>(FILE& f, DWORD& t)
-{
-	fread(&t, sizeof(DWORD), 1, &f);
-	return f;
-}
 
 //FILETIME
 FILE& operator<<(FILE& f, const FILETIME &fileTime)
@@ -190,52 +67,52 @@ FILE& operator>>(FILE& f, FILETIME &fileTime)
 #ifdef APP_PLAYER_UI
 
 //MY_REBARBANDINFO
-FILE& operator<<(FILE& f,const MY_REBARBANDINFO * mri)
+FILE& operator<<(FILE& f, const MY_REBARBANDINFO * mri)
 {
-	return f<<mri->szClassName<<mri->bandIndex<<mri->bFullWidthAlways<<mri->bRemovable<<mri->menuID<<mri->bShow
-	<<mri->info.cbSize<<mri->info.fMask<<mri->info.fStyle<<mri->info.cx<<mri->info.cxMinChild;
+	return f << mri->szClassName << mri->bandIndex << mri->bFullWidthAlways << mri->bRemovable << mri->menuID << mri->bShow
+		<< mri->info.cbSize << mri->info.fMask << mri->info.fStyle << mri->info.cx << mri->info.cxMinChild;
 }
 
-FILE& operator>>(FILE& f,MY_REBARBANDINFO * mri)
+FILE& operator>>(FILE& f, MY_REBARBANDINFO * mri)
 {
-	return f>>mri->szClassName>>mri->bandIndex>>mri->bFullWidthAlways>>mri->bRemovable>>mri->menuID>>mri->bShow
-	>>mri->info.cbSize>>mri->info.fMask>>mri->info.fStyle>>mri->info.cx>>mri->info.cxMinChild; 
+	return f >> mri->szClassName >> mri->bandIndex >> mri->bFullWidthAlways >> mri->bRemovable >> mri->menuID >> mri->bShow
+		>> mri->info.cbSize >> mri->info.fMask >> mri->info.fStyle >> mri->info.cx >> mri->info.cxMinChild;
 }
 
 //blockData
-FILE& operator<<(FILE& f,const blockData &bd)
+FILE& operator<<(FILE& f, const blockData &bd)
 {
 	UINT len;
 	BYTE *data;
 
-	len=bd.GetLength();
-	f<<len;
+	len = bd.GetLength();
+	f << len;
 
-	if(len>0)
+	if (len > 0)
 	{
-		data=new BYTE[len];
-		bd.CopyDataOut(data,len);
-		fwrite(data,sizeof(BYTE),len,&f);
+		data = new BYTE[len];
+		bd.CopyDataOut(data, len);
+		fwrite(data, sizeof(BYTE), len, &f);
 	}
 
 	return f;
 }
 
-FILE& operator>>(FILE& f,blockData * bd)
+FILE& operator>>(FILE& f, blockData * bd)
 {
-	ATLASSERT(bd->GetLength()==0);
-	
+	ATLASSERT(bd->GetLength() == 0);
+
 	UINT len;
 	BYTE *data;
 
-	f>>len;
+	f >> len;
 
-	if(len > 0 )
+	if (len > 0)
 	{
-		data=new BYTE[len];
-		fread(data,sizeof(BYTE),len,&f);
+		data = new BYTE[len];
+		fread(data, sizeof(BYTE), len, &f);
 
-		bd->Take(blockData(data,len));
+		bd->Take(blockData(data, len));
 
 		//do no delete . bd taken it.
 	}
@@ -245,26 +122,21 @@ FILE& operator>>(FILE& f,blockData * bd)
 
 
 //WINDOWPLACEMENT
-FILE& operator<<(FILE& f,const WINDOWPLACEMENT& s)
+FILE& operator<<(FILE& f, const WINDOWPLACEMENT& s)
 {
-	return f<<s.length<<s.flags<<s.showCmd<<s.ptMinPosition
-		<<s.ptMaxPosition<<s.rcNormalPosition;
+	return f << s.length << s.flags << s.showCmd << s.ptMinPosition
+		<< s.ptMaxPosition << s.rcNormalPosition;
 }
 
-FILE& operator>>(FILE& f,WINDOWPLACEMENT &s)
+FILE& operator>>(FILE& f, WINDOWPLACEMENT &s)
 {
-	return f>>s.length>>s.flags>>s.showCmd>>s.ptMinPosition
-		>>s.ptMaxPosition>>s.rcNormalPosition;
+	return f >> s.length >> s.flags >> s.showCmd >> s.ptMinPosition
+		>> s.ptMaxPosition >> s.rcNormalPosition;
 }
 
 
 
 #endif
-
-
-
-
-
 
 
 bool LoadAllPlayList()

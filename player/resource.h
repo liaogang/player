@@ -315,13 +315,15 @@
 #define ID_32998                        32998
 #define ID_EXIT2TRAY                    32999
 #define ID_PLAYITEM                     33000
+#define ID_33001                        33001
+#define ID_PANE_LASTFM                  33002
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        252
-#define _APS_NEXT_COMMAND_VALUE         33001
+#define _APS_NEXT_COMMAND_VALUE         33003
 #define _APS_NEXT_CONTROL_VALUE         1049
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

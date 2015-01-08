@@ -38,6 +38,10 @@
     <ClInclude Include="..\glassWnd.h" />
     <ClInclude Include="..\globalStuffs.h" />
     <ClInclude Include="..\jsoncpp\json_batchallocator.h" />
+    <ClInclude Include="..\lastFmPane.h" />
+    <ClInclude Include="..\Last_fm.h" />
+    <ClInclude Include="..\Last_fm_api.h" />
+    <ClInclude Include="..\Last_fm_user.h" />
     <ClInclude Include="..\ListCombo.h" />
     <ClInclude Include="..\ListCtrl.h" />
     <ClInclude Include="..\ListDate.h" />
@@ -45,6 +49,7 @@
     <ClInclude Include="..\ListTypes.h" />
     <ClInclude Include="..\LrcMng.h" />
     <ClInclude Include="..\mainfrm.h" />
+    <ClInclude Include="..\md5.h" />
     <ClInclude Include="..\Mp3File.h" />
     <ClInclude Include="..\MusicFile.h" />
     <ClInclude Include="..\MyConfigs.h" />
@@ -63,6 +68,8 @@
     <ClInclude Include="..\DlgProgerty.h" />
     <ClInclude Include="..\resource.h" />
     <ClInclude Include="..\SearchLyric.h" />
+    <ClInclude Include="..\serializeBase.h" />
+    <ClInclude Include="..\socketTool.h" />
     <ClInclude Include="..\SpectrumAnalyser.h" />
     <ClInclude Include="..\SpectrumAnalyserThread.h" />
     <ClInclude Include="..\stdafx.h" />
@@ -243,8 +250,13 @@
     <ClCompile Include="..\jsoncpp\json_reader.cpp" />
     <ClCompile Include="..\jsoncpp\json_value.cpp" />
     <ClCompile Include="..\jsoncpp\json_writer.cpp" />
+    <ClCompile Include="..\lastFmPane.cpp" />
+    <ClCompile Include="..\Last_fm.cpp" />
+    <ClCompile Include="..\Last_fm_api.cpp" />
+    <ClCompile Include="..\Last_fm_user.cpp" />
     <ClCompile Include="..\LrcMng.cpp" />
     <ClCompile Include="..\mainfrm.CPP" />
+    <ClCompile Include="..\md5.cpp" />
     <ClCompile Include="..\MyConfigs.cpp" />
     <ClCompile Include="..\MyLib.cpp" />
     <ClCompile Include="..\MyRebar.cpp" />
@@ -255,7 +267,9 @@
     <ClCompile Include="..\PlayList.cpp" />
     <ClCompile Include="..\PlayListView.cpp" />
     <ClCompile Include="..\PlayListViewMng.cpp" />
+    <ClCompile Include="..\serializeBase.cpp" />
     <ClCompile Include="..\shortcutKey.cpp" />
+    <ClCompile Include="..\socketTool.cpp" />
     <ClCompile Include="..\SpectrumAnalyser.cpp" />
     <ClCompile Include="..\stdafx.cpp" />
     <ClCompile Include="..\StringConvertions.cpp" />
@@ -393,7 +407,7 @@
     <IntDir>Debug</IntDir>
     <OutDir>Debug</OutDir>
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(IncludePath);C:\Program Files\Microsoft SDKs\Windows\v7.1A\Include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include;..\Dx9SDK\Include;..\headers;..\headers\wtl</IncludePath>
+    <IncludePath>$(IncludePath);C:\Program Files\Microsoft SDKs\Windows\v7.1A\Include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include;..\Dx9SDK\Include;..\headers</IncludePath>
     <LibraryPath>..\Dx9SDK\Lib;..\mpg123\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

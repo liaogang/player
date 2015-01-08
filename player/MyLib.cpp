@@ -91,6 +91,7 @@ BOOL MyLib::play(BOOL bClearPlayQueue)
 			itemPlaying=itemToPlay;
 			//itemToPlay=NULL;
 			s->play();
+			NotifyMsg(WM_NEW_TRACK_STARTED, FALSE, (WPARAM)&itemToPlay, 0);
 			return TRUE;
 		}
 	}

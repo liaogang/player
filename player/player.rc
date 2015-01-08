@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// 中文(简体，中国) resources
+// Chinese (Simplified, PRC) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
@@ -564,6 +564,7 @@ BEGIN
             MENUITEM "播放列表",                        ID_PANE_PLAYLIST
             MENUITEM "歌词显示",                        ID_PANE_LYRIC
             MENUITEM "封面显示",                        ID_PANE_COVER
+            MENUITEM "Last.fm面板",                   ID_PANE_LASTFM
             MENUITEM "频谱显示",                        ID_PANE_SPE
             MENUITEM SEPARATOR
             MENUITEM "空窗口",                         ID_ADD_EMPTY_PANE
@@ -670,7 +671,6 @@ END
 //
 
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
-//IDB_EXAMPLE             BITMAP                  "res\\ExampleItems.bmp"
 IDB_LISTITEMS           BITMAP                  "res\\ListItems.bmp"
 IDB_BITMAP1             BITMAP                  "res\\Toolbar1.bmp"
 IDB_BITMAP2             BITMAP                  "res\\Toolbar1.bmp"
@@ -684,7 +684,6 @@ IDB_BITMAP2             BITMAP                  "res\\Toolbar1.bmp"
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\icon1.ico"
 IDR_HAPPY               ICON                    "res\\happy.ico"
-//IDR_SAD                 ICON                    "res\\sad.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -861,7 +860,7 @@ BEGIN
     ID_CONFIG               "弹出参数选项配置对话框"
 END
 
-#endif    // 中文(简体，中国) resources
+#endif    // Chinese (Simplified, PRC) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -182,7 +182,6 @@ void CBasicPlayer::play()
 	if(m_lastStatus==status_paused)
 	{
 		m_bPaused=TRUE;
-		NotifyMsg(WM_NEW_TRACK_STARTED,FALSE,(WPARAM)NULL,0);
 		NotifyMsg(WM_PAUSED,FALSE,(WPARAM)NULL,0);
 	}
 	else
@@ -193,7 +192,6 @@ void CBasicPlayer::play()
 		m_pPlayerThread->m_lpDSBuffer->SetVolume(DSBVOLUME_MIN);
 		TimerVolGrowUp();
 		m_pPlayerThread->m_lpDSBuffer->Play( 0, 0, DSBPLAY_LOOPING);
-		NotifyMsg(WM_NEW_TRACK_STARTED,FALSE,(WPARAM)NULL,0);
 	}
 	
 	m_lastStatus=status_invalide;

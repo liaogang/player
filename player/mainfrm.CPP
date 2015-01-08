@@ -9,6 +9,7 @@
 
 #include "DialogConfig.h"
 #include "CAlbumCoverView.h"
+#include "lastFmPane.h"
 #include "DlgProcessing.h"
 #include "PlayListViewMng.h"
 #include "DialogSearch.h"
@@ -91,37 +92,6 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 		*/
 
 		shortcutKeyPressed( msgKeytoString( ctrl , nChar), false);
-
-		/*
-		//F3 
-		if(nChar==VK_F3 )
-			ShowSearchDialog();
-
-		if( ctrl )
-		{
-			switch(nChar)
-			{ 
-				case 'f': //Ctrl + F 
-					ShowSearchDialog();
-					break;
-				case 'p': //Ctrl + P
-					ShowDialog_Configure();
-					break;
-				case VK_OEM_PLUS: /// Ctrl + '+' or '-'
-					EnlargeLVFont();
-					break;
-				case VK_OEM_MINUS:
-					ReduceLVFont();
-					break;
-				case 's':	//save config
-					SaveAll();
-					break;
-				case 'm':	//popup the playlist manager
-					actionPopupPlaylistManager();
-				break;
-			}
-		}
-		*/
 	}
 
 	return CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg);
@@ -1724,8 +1694,32 @@ void MYTREE_Add_Playlist(MYTREE* tree)
 	UpdateLayout(newTree->parent);
 }
 
+HWND CLastFmPaneView::CreateMyWnd()
+{
+	return Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
+}
 
+void MYTREE_Set_LastFmPaneView (MYTREE* tree)
+{
+	CLastFmPaneView *w=new CLastFmPaneView ;
+	tree->setWnd(w->CreateMyWnd());
+	w->Init();
+}
 
+void MYTREE_Add_LastFmPaneView (MYTREE* tree)
+{
+	MYTREE *newTree = new MYTREE();
+
+	MYTREE_Set_LastFmPaneView(newTree);
+
+	wcscpy(newTree->data.nodeName, L"Last.fmÃæ°å");
+
+	tree->addChildNodeAfter(newTree);
+
+	tree->EvenPanes();
+
+	UpdateLayout(newTree->parent);
+}
 
 
 
