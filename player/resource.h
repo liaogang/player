@@ -95,6 +95,8 @@
 #define IDC_STATIC3                     1046
 #define IDC_STATIC4                     1047
 #define IDC_STATIC5                     1048
+#define IDC_MFCLINK1                    1051
+#define IDC_COMMAND1                    1052
 #define IDD_DLG_LRC_PANE_PROPERTY1      2056
 #define IDD_DLG_LRC_PANE_PROPERTY2      2057
 #define ID_FILE_PLAY                    32775
@@ -322,9 +324,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        252
+#define _APS_NEXT_RESOURCE_VALUE        253
 #define _APS_NEXT_COMMAND_VALUE         33003
-#define _APS_NEXT_CONTROL_VALUE         1049
+#define _APS_NEXT_CONTROL_VALUE         1053
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

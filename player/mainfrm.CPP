@@ -1696,7 +1696,16 @@ void MYTREE_Add_Playlist(MYTREE* tree)
 
 HWND CLastFmPaneView::CreateMyWnd()
 {
-	return Create(GetSplitter()->m_hWnd,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
+	HWND hParent = GetSplitter()->m_hWnd;
+	HWND hWnd = Create(hParent,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
+
+	label1.Create(hParent, 0,0,WS_CHILD | WS_VISIBLE);
+
+	label2.Create(hParent, 0, 0 , WS_CHILD | WS_VISIBLE);
+
+	link.Create(hParent, 0, 0 ,WS_CHILD | WS_VISIBLE);
+
+	return hWnd;
 }
 
 void MYTREE_Set_LastFmPaneView (MYTREE* tree)

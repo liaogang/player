@@ -708,6 +708,9 @@
     <ClInclude Include="..\threadpool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\PngImage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\BasicPlayer.cpp">
@@ -1051,6 +1054,9 @@
     </ClCompile>
     <ClCompile Include="..\threadpool.cpp">
       <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PngImage.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

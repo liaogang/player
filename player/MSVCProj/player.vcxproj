@@ -66,6 +66,7 @@
     <ClInclude Include="..\PlayListView.h" />
     <ClInclude Include="..\PlayListViewMng.h" />
     <ClInclude Include="..\DlgProgerty.h" />
+    <ClInclude Include="..\PngImage.h" />
     <ClInclude Include="..\resource.h" />
     <ClInclude Include="..\SearchLyric.h" />
     <ClInclude Include="..\serializeBase.h" />
@@ -268,6 +269,7 @@
     <ClCompile Include="..\PlayList.cpp" />
     <ClCompile Include="..\PlayListView.cpp" />
     <ClCompile Include="..\PlayListViewMng.cpp" />
+    <ClCompile Include="..\PngImage.cpp" />
     <ClCompile Include="..\serializeBase.cpp" />
     <ClCompile Include="..\shortcutKey.cpp" />
     <ClCompile Include="..\socketTool.cpp" />
@@ -409,7 +411,7 @@
     <IntDir>Debug</IntDir>
     <OutDir>Debug</OutDir>
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(IncludePath);C:\Program Files\Microsoft SDKs\Windows\v7.1A\Include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include;..\Dx9SDK\Include;..\headers</IncludePath>
+    <IncludePath>$(IncludePath);C:\Program Files\Microsoft SDKs\Windows\v7.1A\Include;..\taplib\include;..\taplib\taglib\ape;..\mpg123\include;..\Dx9SDK\Include;..\headers;..\png\code;..\zlib\code</IncludePath>
     <LibraryPath>..\Dx9SDK\Lib;..\mpg123\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -436,6 +438,7 @@
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>../png/lib/pngd.lib;../zlib/lib/zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>

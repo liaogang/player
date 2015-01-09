@@ -19,8 +19,18 @@ void _TrackChanged(void *arg)
 	{
 		LPWSTR cSummary =UTF82Unicode((LPSTR)lfArtist.bio.summary.c_str());
 		that->infoDisplay = cSummary;
+
+		auto f = that->infoDisplay.find(L"<a href");
+		if (f != tstring::npos)
+		{
+			auto e = that->infoDisplay.find(L"</a");
+			tstring sub = that->infoDisplay.substr(f, e);
+			that->link.SetWindowText(sub.c_str());
+		}
+
+		that->label1.SetWindowText(that->infoDisplay.c_str());
+
 		delete cSummary;
-		that->Invalidate();
 	}
 
 }

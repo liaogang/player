@@ -221,6 +221,8 @@ BEGIN
     GROUPBOX        "颜色",IDC_STATIC,7,7,302,131
     CONTROL         "Custom1",IDC_CUSTOM1,"",WS_TABSTOP,189,17,105,18
     CTEXT           "文字",IDC_STATIC,155,23,24,10
+    CONTROL         "http://www.baidu.com",IDC_MFCLINK1,"MfcLink",WS_TABSTOP,33,145,83,12
+    LTEXT           "\n                陈洁仪个人档案  英文名: Chan, Kit  生 日: 9-15 出生地: 新加坡  身 高: 164cm 体 重: 50kg  血 型: B 星 座: 处女座  语 言 : 广东话、国语、英法语  嗜 好 : 远足、旅行  家 庭：爸爸、妈妈、两个姊姊、一个妹妹  语 言：英语、国语、粤语、法语  专 长：戏剧、舞蹈、写诗  兴 趣：健行、文学、戏剧、旅行、新世纪的生活方式 \n\n        <a href=""http://www.last.fm/music/%E9%99%B3%E6%BD%94%E5%84%80"">Read more about 陳潔儀 on Last.fm</a>.\n    \n    ",IDC_STATIC1,35,43,257,83
 END
 
 
@@ -755,6 +757,27 @@ END
 
 IDC_HYPERLINK           CURSOR                  "res\\hand.cur"
 IDC_DIVIDER             CURSOR                  "res\\divider.cur"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_DIALOG_PLLIST DLGINIT
+BEGIN
+    IDC_MFCLINK1, 0x37c, 157, 0
+0x4d3c, 0x4346, 0x694c, 0x6b6e, 0x555f, 0x6c72, 0x3c3e, 0x4d2f, 0x4346, 
+0x694c, 0x6b6e, 0x555f, 0x6c72, 0x3c3e, 0x464d, 0x4c43, 0x6e69, 0x5f6b, 
+0x7255, 0x506c, 0x6572, 0x6966, 0x3e78, 0x2f3c, 0x464d, 0x4c43, 0x6e69, 
+0x5f6b, 0x7255, 0x506c, 0x6572, 0x6966, 0x3e78, 0x4d3c, 0x4346, 0x694c, 
+0x6b6e, 0x545f, 0x6f6f, 0x746c, 0x7069, 0x3c3e, 0x4d2f, 0x4346, 0x694c, 
+0x6b6e, 0x545f, 0x6f6f, 0x746c, 0x7069, 0x3c3e, 0x464d, 0x4c43, 0x6e69, 
+0x5f6b, 0x7546, 0x6c6c, 0x6554, 0x7478, 0x6f54, 0x6c6f, 0x6974, 0x3e70, 
+0x4146, 0x534c, 0x3c45, 0x4d2f, 0x4346, 0x694c, 0x6b6e, 0x465f, 0x6c75, 
+0x546c, 0x7865, 0x5474, 0x6f6f, 0x746c, 0x7069, "\076" 
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

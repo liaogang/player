@@ -22,12 +22,10 @@ public:
 
 	BEGIN_MSG_MAP_EX(CLastFmPaneView )
 		MSG_WM_DESTROY(OnDestroy)
-		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		MSG_WM_RBUTTONUP(OnRButtonUp)
 		MSG_WM_SIZE(OnSize)
 		MESSAGE_HANDLER(WM_NEW_TRACK_STARTED,OnNewTrackStarted)
 		MESSAGE_HANDLER(WM_TRACKSTOPPED,OnStopped)
-		MSG_WM_ERASEBKGND(OnEraseBkgnd)
 		MSG_WM_LBUTTONDBLCLK(OnLButtonDblClk)
 	END_MSG_MAP()
 	
@@ -36,31 +34,41 @@ public:
 		::PostMessage(GetMainFrame()->m_hWnd,WM_PLAYLISTVIEW_CENTER_ITEM,NULL,NULL);
 	}
 
+	RECT rcImage;
+	CStatic label1;
+	CStatic label2;
+	CHyperLink link;
 
 	HWND CreateMyWnd();
 
-	BOOL OnEraseBkgnd(CDCHandle dc)
-	{
-		//no bkgnd repaint needed
-		if (bHasPic)
-			return 1;
-		else 
-		{
-			SetMsgHandled(FALSE);
-			return 0;
-		}
-	}
+	
 
 	void Init()
 	{
 		IWantToReceiveMessage(WM_NEW_TRACK_STARTED);
 		IWantToReceiveMessage(WM_TRACKSTOPPED);
 
+
 	}
 
 	void OnSize(UINT nType, CSize size)
 	{
 		GetClientRect(&rc);
+	
+	const int m = 8;
+
+	rcImage = {0,0,250,250};
+
+	if (label1.IsWindow())
+	{
+		RECT rcLabel1 = { rcImage.right, m, rc.right - m, rcImage.bottom };
+		label1.SetWindowPos(0, rcLabel1.left, rcLabel1.top, rcLabel1.right - rcLabel1.left, rcLabel1.bottom - rcLabel1.top, SWP_NOZORDER);
+
+		rcLabel1 = { m, rcImage.bottom + m, rc.right - m, rcImage.bottom + m + 330 };
+		label2.SetWindowPos(0, rcLabel1.left, rcLabel1.top, rcLabel1.right - rcLabel1.left, rcLabel1.bottom - rcLabel1.top, SWP_NOZORDER);
+
+		link.SetWindowPos(0, rcLabel1.left, rcLabel1.top, rcLabel1.right - rcLabel1.left, rcLabel1.bottom - rcLabel1.top, SWP_NOZORDER);
+	}
 		SetMsgHandled(FALSE);
 	}
 
@@ -114,23 +122,7 @@ public:
 	}
 
 
-	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-	{
-		PAINTSTRUCT ps;
-		::BeginPaint(m_hWnd,&ps);
 
-		RECT m_rcClient = rc;
-
-		::FillRect(ps.hdc, &m_rcClient, (HBRUSH)LongToPtr(COLOR_APPWORKSPACE + 1));
-
-		SetBkMode(ps.hdc, TRANSPARENT);
-		//::TextOut(ps.hdc, m_rcClient.left + (m_rcClient.right - m_rcClient.left) / 2 - 10, m_rcClient.top + (m_rcClient.bottom - m_rcClient.top) / 2 - 10, infoDisplay.c_str(), infoDisplay.length());
-		::DrawText(ps.hdc, infoDisplay.c_str(), infoDisplay.length(), &m_rcClient, DT_CENTER);
-		//::TextOut(ps.hdc, 0, 0 , infoDisplay.c_str(), infoDisplay.length());
-
-		::EndPaint(m_hWnd,&ps);	
-		return 0;
-	}
 
 	void ResetMenu()
 	{
