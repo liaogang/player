@@ -5,20 +5,32 @@
 #include "StringConvertions.h"
 #include "PlayList.h"
 
-void CLastFmPaneView::TrackChanged(LPCPlayListItem *item)
+
+void _TrackChanged(void *arg)
 {
-	char *cArtist = Unicode2UTF8((LPWSTR)(*item)->GetArtist().c_str());
-	
+	CLastFmPaneView *that= (CLastFmPaneView*)arg;
+
+	char *cArtist = Unicode2UTF8((LPWSTR)(*(that->item))->GetArtist().c_str());
 	string artist(cArtist);
+	delete cArtist;
 
 	LFArtist lfArtist;
 	if (artist_getInfo(artist, lfArtist))
 	{
-		cout << lfArtist.name << endl;
+		LPWSTR cSummary =UTF82Unicode((LPSTR)lfArtist.bio.summary.c_str());
+		that->infoDisplay = cSummary;
+		delete cSummary;
+		that->Invalidate();
 	}
 
-	
-	infoDisplay = UTF82Unicode( (LPSTR)lfArtist.bio.summary.c_str() );
+}
 
+void CLastFmPaneView::TrackChanged(LPCPlayListItem *item)
+{
+	infoDisplay = L"";
+	Invalidate();
+	this->item = item;
+	job = Job1(_TrackChanged , (void*)this);
+	doJob(&job);
 }
 

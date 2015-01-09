@@ -229,6 +229,7 @@
     <ClInclude Include="..\taplib\taglib\wavpack\wavpackfile.h" />
     <ClInclude Include="..\taplib\taglib\wavpack\wavpackproperties.h" />
     <ClInclude Include="..\Thread.h" />
+    <ClInclude Include="..\threadpool.h" />
     <ClInclude Include="..\TitleTip.h" />
     <ClInclude Include="..\Util1.h" />
     <ClInclude Include="..\Utils.h" />
@@ -349,6 +350,7 @@
     <ClCompile Include="..\taplib\taglib\trueaudio\trueaudioproperties.cpp" />
     <ClCompile Include="..\taplib\taglib\wavpack\wavpackfile.cpp" />
     <ClCompile Include="..\taplib\taglib\wavpack\wavpackproperties.cpp" />
+    <ClCompile Include="..\threadpool.cpp" />
     <ClCompile Include="..\Util1.cpp" />
     <ClCompile Include="..\WaveFile.cpp" />
   </ItemGroup>

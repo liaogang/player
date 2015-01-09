@@ -1,5 +1,6 @@
 #pragma  once
 #include "mainfrm.h"
+#include "threadpool.h"
 
 class CLastFmPaneView :
 	public CWindowImpl<CLastFmPaneView >
@@ -89,6 +90,8 @@ public:
 	RECT rc;
 
 	tstring infoDisplay;
+	LPCPlayListItem *item;
+	Job1 job;
 	void TrackChanged(LPCPlayListItem *item);
 
 

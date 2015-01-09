@@ -705,6 +705,9 @@
     <ClInclude Include="..\serializeBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\threadpool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\BasicPlayer.cpp">
@@ -1045,6 +1048,9 @@
     </ClCompile>
     <ClCompile Include="..\serializeBase.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\threadpool.cpp">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
