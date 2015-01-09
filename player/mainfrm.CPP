@@ -1699,11 +1699,11 @@ HWND CLastFmPaneView::CreateMyWnd()
 	HWND hParent = GetSplitter()->m_hWnd;
 	HWND hWnd = Create(hParent,0,0, WS_CHILD | WS_VISIBLE ,WS_EX_CLIENTEDGE);
 
-	label1.Create(hParent, 0,0,WS_CHILD | WS_VISIBLE);
+	label1.Create(hWnd, 0,0,WS_CHILD | WS_VISIBLE);
 
-	label2.Create(hParent, 0, 0 , WS_CHILD | WS_VISIBLE);
+	label2.Create(hWnd, 0, 0 , WS_CHILD | WS_VISIBLE);
 
-	link.Create(hParent, 0, 0 ,WS_CHILD | WS_VISIBLE);
+	link.Create(hWnd, 0, 0 ,WS_CHILD | WS_VISIBLE);
 
 	return hWnd;
 }

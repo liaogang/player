@@ -66,8 +66,9 @@ public:
 
 		rcLabel1 = { m, rcImage.bottom + m, rc.right - m, rcImage.bottom + m + 330 };
 		label2.SetWindowPos(0, rcLabel1.left, rcLabel1.top, rcLabel1.right - rcLabel1.left, rcLabel1.bottom - rcLabel1.top, SWP_NOZORDER);
+		rcLabel1.top = rcLabel1.bottom + m;
 
-		link.SetWindowPos(0, rcLabel1.left, rcLabel1.top, rcLabel1.right - rcLabel1.left, rcLabel1.bottom - rcLabel1.top, SWP_NOZORDER);
+		link.SetWindowPos(0, rcLabel1.left, rcLabel1.top, rcLabel1.right - rcLabel1.left, 40 , SWP_NOZORDER);
 	}
 		SetMsgHandled(FALSE);
 	}

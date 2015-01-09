@@ -20,13 +20,23 @@ void _TrackChanged(void *arg)
 		LPWSTR cSummary =UTF82Unicode((LPSTR)lfArtist.bio.summary.c_str());
 		that->infoDisplay = cSummary;
 
-		auto f = that->infoDisplay.find(L"<a href");
+		auto f = that->infoDisplay.find(L"<a href=\"");
+		auto refEnd = that->infoDisplay.find(L"\"",f+9);
 		if (f != tstring::npos)
 		{
-			auto e = that->infoDisplay.find(L"</a");
-			tstring sub = that->infoDisplay.substr(f, e);
-			that->link.SetWindowText(sub.c_str());
+			auto e = that->infoDisplay.find(L"</a",f);
+			if (e != tstring::npos)
+			{
+				tstring text = that->infoDisplay.substr(refEnd + 2, e - 2 - refEnd );
+				tstring link = that->infoDisplay.substr(f + 9, refEnd -f - 9);
+
+				that->link.SetLabel(text.c_str());
+				that->link.SetHyperLink(link.c_str());
+			}
 		}
+
+		that->infoDisplay = that->infoDisplay.substr( 0, f-1);
+
 
 		that->label1.SetWindowText(that->infoDisplay.c_str());
 
