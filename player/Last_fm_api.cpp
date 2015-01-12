@@ -88,35 +88,39 @@ bool artist_getInfo(string &artist ,LFArtist &lfArtist)
 
 
 
-void track_getInfo(string &artist , string & track)
+bool track_getInfo(string &artist, string & track, LFTrack &lfTrack)
 {
-    vector<paramPair> arrParamPair
-    (
-     {
-        {"artist", artist},
-        {"autocorrect","1"},
-        {"method","track.getInfo"},
-        {"lang",lastFmLang},
-        {"track", track}
-     }
-     );
-    
-   
-    MemBuffer *buffer = lastFmSendRequest(arrParamPair , httpMethod_get ,false, false , true);
-    
-    if (buffer)
-    {
-        printf("%s\n",buffer->buffer);
-        
-        //parse it by json.
-        Json::Reader reader;
-        Json::Value root;
-        reader.parse((const char*)buffer->buffer, (const char*)buffer->buffer+buffer->length , root);
-        
-        LFTrack lfTrack(root["track"]);
-        
-        deleteMemBuffer(buffer);
-    }
+	vector<paramPair> arrParamPair
+		(
+	{
+		{ "artist", artist },
+		{ "autocorrect", "1" },
+		{ "method", "track.getInfo" },
+		{ "lang", lastFmLang },
+		{ "track", track }
+	}
+	);
+
+
+	MemBuffer *buffer = lastFmSendRequest(arrParamPair, httpMethod_get, false, false, true);
+
+	if (buffer)
+	{
+		printf("%s\n", buffer->buffer);
+
+		//parse it by json.
+		Json::Reader reader;
+		Json::Value root;
+		reader.parse((const char*)buffer->buffer, (const char*)buffer->buffer + buffer->length, root);
+
+		lfTrack = LFTrack(root["track"]);
+
+		deleteMemBuffer(buffer);
+
+		return true;
+	}
+
+	return false;
 }
 
 
