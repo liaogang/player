@@ -45,6 +45,38 @@ void _TrackChanged(void *arg)
 
 }
 
+void _scrobble(void *arg)
+{
+	CLastFmPaneView *that = (CLastFmPaneView*)arg;
+	that->scrobble();
+}
+
+
+void CLastFmPaneView::scrobble()
+{
+	char *cArtist = Unicode2UTF8((LPWSTR)(*(item))->GetArtist().c_str());
+	string artist(cArtist);
+	delete cArtist;
+
+
+	char *cTrack= Unicode2UTF8((LPWSTR)(*(item))->GetTitle().c_str());
+	string track(cTrack);
+	delete cTrack;
+
+	LFUser user;
+	if (auth(user))
+	{
+		vector<string> artists({ artist });
+		vector<string> tracks({ track });
+		vector<string> times({ "" });
+
+		if (track_scrobble(user.sessionKey, artists, tracks, times))
+		{
+
+		}
+	}
+}
+
 void CLastFmPaneView::TrackChanged(LPCPlayListItem *item)
 {
 	infoDisplay = L"";
@@ -52,5 +84,9 @@ void CLastFmPaneView::TrackChanged(LPCPlayListItem *item)
 	this->item = item;
 	job = Job1(_TrackChanged , (void*)this);
 	doJob(&job);
+
+	job2 = Job1(_scrobble, (void*)this);
+	doJob(&job2);
+
 }
 

@@ -101,6 +101,8 @@ public:
 	tstring infoDisplay;
 	LPCPlayListItem *item;
 	Job1 job;
+	Job1 job2;
+	void scrobble();
 	void TrackChanged(LPCPlayListItem *item);
 
 

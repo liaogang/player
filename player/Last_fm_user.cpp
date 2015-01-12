@@ -14,7 +14,7 @@
 /// load it from cached file if has, else create a new session again.
 bool auth(LFUser &user)
 {
-    const char userProfile[] = "userProfile.data";
+    const char userProfile[] = "lastFm.cfg";
     
     bool userProfileLoaded = false;
     
