@@ -1,3 +1,6 @@
 [submodule "player/Last.fm"]
 	path = player/Last.fm
 	url = https://github.com/liaogang/Last.fm.git
+[submodule "player/jsoncpp"]
+	path = player/jsoncpp
+	url = https://github.com/open-source-parsers/jsoncpp.git
